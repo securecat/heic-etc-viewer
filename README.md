@@ -51,3 +51,67 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
+---
+
+# HEIC etc Viewer（HEICなどビューワー）
+
+HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル画像・動画ビューアー。iPhoneから書き出した写真の閲覧に最適化されています。
+
+## 概要
+
+「HEIC etc Viewer」は、ブラウザ上で完全に動作する単一のHTMLファイルです。データがサーバーに送信されることはなく、すべてのファイル処理はブラウザとローカルストレージの間で完結します。そのため、Web上でホストする場合でもローカルで実行する場合でも、同様に利用可能です。
+対応形式は、HEIC/HEIF、JPEG、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、PDF、ICOです。フォルダの移動は、開閉可能なツリーパネルで行えます。主な機能として、サムネイルのキャッシュ、ドラッグ操作でズーム範囲を選択できるライトボックスビューア、透過画像用の市松模様の背景表示、動画のループ再生、スライドショーモードなどを備えています。
+
+### 技術スタック
+
+ビルドツールやパッケージの依存関係を使用せず、単一のHTMLファイルとして構築されています。
+
+- **Vanilla HTML** / **CSS** / **JavaScript** — フレームワーク不使用
+- **[libheif.js](https://github.com/strukturag/libheif)** — WebAssemblyによるHEIC/HEIFデコード（CDNから読み込み）
+- **[PDF.js](https://github.com/mozilla/pdf.js)** — WebAssemblyによるPDFサムネイルのレンダリング（CDNから読み込み）
+- **Canvas API** — 動画フレームのサムネイル生成およびズーム領域のレンダリング
+- **File System API** (`webkitdirectory`, `DataTransferItem.webkitGetAsEntry`) — ローカルフォルダへのアクセスおよびディレクトリツリーの走査
+
+## インストール
+
+最も簡単な方法は、GitHub Pagesでホストされているバージョンを開くことです：
+
+**https://securecat.github.io/heic-etc-viewer/**
+
+> サーバーへデータが送信されることはありません。ファイルの処理はすべて、ブラウザとローカルストレージの間でローカルに行われます。
+
+あるいは、`heic-etc-viewer.html` をダウンロードし、Chrome で直接開いてください。
+
+### ローカル環境で使用する際の注意点
+
+`file://` 経由で開くと、ブラウザのセキュリティ制限により、フォルダのドラッグ＆ドロップが無効になります。これを有効にするには、同じフォルダ内でローカルサーバーを起動してください：
+
+```
+npx serve .
+# または
+python -m http.server 8080
+```
+
+ローカルサーバ―起動後、Chromeで `http://localhost:3000/heic-etc-viewer.html` を開きます。
+
+## 更新履歴
+
+### [2.1.0] - 2026-06-28
+
+#### 追加
+
+- 「HeV」アイコンをBase64エンコードしてdata URIのfaviconとして埋め込み
+
+#### 変更
+
+- ヘッダーのアプリアイコンを「HeV」アイコンに変更
+- 全UIテキスト・aria属性を英語化
+- カラーパレット調整（ボーダー・バッジ・スクロールバー等）
+- サムネ帯の背景を不透過に
+- 市松模様・ズームボタンのON状態ハイライト強化
+- lightbox内の画角表示・左右ボタン不透過化
+- ズーム表示のheaderとlb-info両方を避けるマージン
+- スライドショー開始を常にファイル番号1から
+
+全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
+
