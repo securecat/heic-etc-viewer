@@ -6,190 +6,108 @@
 <title>Image Viewer</title>
 <style>
 :root {
-  --bg: #161616;
-  --bg-card: #222;
-  --bg-toolbar: #1c1c1c;
-  --text: #e4e4e4;
-  --text-muted: #777;
-  --border: rgba(255,255,255,0.09);
-  --border-hover: rgba(255,255,255,0.18);
-  --accent: #6b8cff;
-  --accent-hover: #5a7aee;
-  --thumb-bg: #242424;
-  --overlay: rgba(0,0,0,0.9);
-  --radius: 8px;
-  --radius-lg: 12px;
+  --bg: #161616; --bg-card: #222; --bg-toolbar: #1c1c1c; --bg-drop: #1e2230;
+  --text: #e4e4e4; --text-muted: #777;
+  --border: rgba(255,255,255,0.09); --border-hover: rgba(255,255,255,0.18);
+  --accent: #6b8cff; --accent-hover: #5a7aee;
+  --thumb-bg: #242424; --overlay: rgba(0,0,0,0.9);
+  --folder-bg: #252830; --folder-hover: #2e3240;
+  --accent-bg: rgba(107,140,255,0.15);
+  --radius: 8px; --radius-lg: 12px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: var(--bg); color: var(--text);
-  height: 100vh; display: flex; flex-direction: column; overflow: hidden;
-}
-.toolbar {
-  background: var(--bg-toolbar);
-  border-bottom: 1px solid var(--border);
-  padding: 8px 14px;
-  display: flex; align-items: center; gap: 8px;
-  flex-shrink: 0; z-index: 100;
-}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+.toolbar { background: var(--bg-toolbar); border-bottom: 1px solid var(--border); padding: 8px 14px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; z-index: 100; }
 .app-title { font-size: 14px; font-weight: 600; white-space: nowrap; }
-.btn {
-  background: transparent; border: 1px solid var(--border-hover);
-  color: var(--text); border-radius: var(--radius);
-  padding: 5px 10px; font-size: 12px; cursor: pointer;
-  display: flex; align-items: center; gap: 4px;
-  white-space: nowrap; transition: background 0.15s;
-}
+.btn { background: transparent; border: 1px solid var(--border-hover); color: var(--text); border-radius: var(--radius); padding: 5px 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap; transition: background 0.15s; }
 .btn:hover { background: rgba(255,255,255,0.06); }
 .btn.primary { background: var(--accent); border-color: transparent; color: #fff; }
 .btn.primary:hover { background: var(--accent-hover); }
+.btn-icon { background: transparent; border: 1px solid var(--border-hover); color: var(--text); border-radius: var(--radius); width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; transition: background 0.15s; }
+.btn-icon:hover { background: rgba(255,255,255,0.06); }
 .toolbar-sep { flex: 1; }
-.status { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
-.filter-input {
-  background: var(--bg-card); border: 1px solid var(--border);
-  color: var(--text); border-radius: var(--radius);
-  padding: 4px 8px; font-size: 12px; outline: none; width: 130px;
-}
-.filter-input::placeholder { color: var(--text-muted); }
+.status { font-size: 11px; color: #E4E4E4; white-space: nowrap; }
+.heif-status { font-size: 11px; padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; }
+.heif-status.loading { background: rgba(255,200,0,0.12); color: #ffc; }
+.heif-status.ready   { background: rgba(100,255,150,0.1); color: #9fa; }
+.heif-status.error   { background: rgba(255,100,100,0.12); color: #faa; }
+.filter-input { background: var(--bg-card); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 4px 8px; font-size: 12px; outline: none; width: 130px; }
+.filter-input::placeholder { color: #949494; }
 .filter-input:focus { border-color: var(--accent); }
-.sort-select {
-  background: var(--bg-card); border: 1px solid var(--border);
-  color: var(--text); border-radius: var(--radius);
-  padding: 4px 6px; font-size: 12px; outline: none;
-}
-input[type="range"] {
-  -webkit-appearance: none; width: 80px; height: 3px;
-  border-radius: 2px; background: var(--border-hover);
-  outline: none; cursor: pointer;
-}
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 13px; height: 13px;
-  border-radius: 50%; background: var(--accent); cursor: pointer;
-}
+.sort-select { background: var(--bg-card); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 4px 6px; font-size: 12px; outline: none; }
+input[type="range"] { -webkit-appearance: none; width: 80px; height: 3px; border-radius: 2px; background: var(--border-hover); outline: none; cursor: pointer; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--accent); cursor: pointer; }
+
+.breadcrumb { display: none; align-items: center; gap: 4px; padding: 8px 16px; font-size: 12px; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--bg-toolbar); flex-wrap: wrap; }
+.breadcrumb.visible { display: flex; }
+.breadcrumb-item { cursor: pointer; color: var(--accent); padding: 2px 4px; border-radius: 4px; }
+.breadcrumb-item:hover { background: rgba(107,140,255,0.12); }
+.breadcrumb-item.current { color: var(--text); cursor: default; }
+.breadcrumb-item.current:hover { background: none; }
+.breadcrumb-sep { color: var(--border-hover); }
 
 .app-body { display: flex; flex: 1; overflow: hidden; }
-
 .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
-.empty-state {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 14px; color: var(--text-muted); padding: 40px;
-}
+.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: var(--text-muted); padding: 40px; }
 .empty-icon { font-size: 48px; opacity: 0.3; }
-.empty-state h2 { font-size: 14px; font-weight: 500; color: var(--text-muted); }
-.empty-state p { font-size: 12px; opacity: 0.6; text-align: center; line-height: 1.7; }
+.empty-state h2 { font-size: 14px; font-weight: 500; color: #949494; }
+.empty-state p { font-size: 12px; color: #949494; text-align: center; line-height: 1.7; }
+
+.folder-section { padding: 14px 16px 0; display: none; }
+.folder-section.visible { display: block; }
+.section-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.folder-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.folder-item { display: flex; align-items: center; gap: 7px; background: var(--folder-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 12px 6px 10px; cursor: pointer; font-size: 13px; transition: background 0.15s; }
+.folder-item:hover { background: var(--folder-hover); border-color: var(--border-hover); }
+.folder-count { font-size: 11px; color: var(--text-muted); margin-left: 2px; }
 
 .gallery-wrap { flex: 1; overflow-y: auto; overflow-x: hidden; }
 .gallery-wrap::-webkit-scrollbar { width: 6px; }
-.gallery-wrap::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+.gallery-wrap::-webkit-scrollbar-track { background: transparent; }
+.gallery-wrap::-webkit-scrollbar-thumb { background: #003596; border-radius: 3px; }
+.gallery-wrap::-webkit-scrollbar-thumb:hover { background: #1a4db0; }
 
-.gallery {
-  padding: 12px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--thumb-size, 160px), 1fr));
-  gap: 8px; align-content: start;
-}
-.no-images { grid-column: 1/-1; padding: 40px; text-align: center; color: var(--text-muted); font-size: 13px; }
+.gallery { padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--thumb-size, 160px), 1fr)); gap: 8px; align-content: start; }
+.no-images { grid-column: 1/-1; padding: 40px; text-align: center; color: #949494; font-size: 13px; }
 
-.thumb-item {
-  background: var(--thumb-bg); border-radius: var(--radius-lg);
-  overflow: hidden; cursor: pointer;
-  position: relative; aspect-ratio: 1;
-  transition: transform 0.15s;
-}
+.thumb-item { background: var(--thumb-bg); border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; position: relative; aspect-ratio: 1; transition: transform 0.15s; }
 .thumb-item:hover { transform: scale(1.03); }
 .thumb-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .thumb-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.thumb-loading {
-  width: 100%; height: 100%;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 6px;
-  color: var(--text-muted); font-size: 11px;
-}
-.thumb-spinner {
-  width: 18px; height: 18px;
-  border: 2px solid var(--border-hover);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
+.thumb-loading { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--text-muted); font-size: 11px; }
+.thumb-spinner { width: 18px; height: 18px; border: 2px solid var(--border-hover); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.thumb-info {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  display: flex; flex-direction: column; pointer-events: none;
-}
-.thumb-info::before {
-  content: ''; display: block; height: 18px;
-  background: linear-gradient(transparent, #000);
-  opacity: 0; transition: opacity 0.15s;
-}
+.thumb-info { position: absolute; bottom: 0; left: 0; right: 0; display: flex; flex-direction: column; pointer-events: none; }
+.thumb-info::before { content: ''; display: block; height: 18px; background: linear-gradient(transparent, #000); opacity: 0; transition: opacity 0.15s; }
 .thumb-item:hover .thumb-info::before { opacity: 0.72; }
-.thumb-info-name {
-  font-size: 10px; color: #fff;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  background: #000; padding: 1px 6px 0;
-  opacity: 0; transition: opacity 0.15s;
-}
+.thumb-info-name { font-size: 10px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: #000; padding: 1px 6px 0; opacity: 0; transition: opacity 0.15s; }
 .thumb-item:hover .thumb-info-name { opacity: 0.85; }
-.thumb-info-dim {
-  font-size: 9px; color: #ccc;
-  white-space: nowrap; background: #000; padding: 1px 6px 4px;
-  opacity: 0; transition: opacity 0.15s;
-}
+.thumb-info-dim { font-size: 9px; color: #ccc; white-space: nowrap; background: #000; padding: 1px 6px 4px; opacity: 0; transition: opacity 0.15s; }
 .thumb-item:hover .thumb-info-dim { opacity: 0.85; }
-.ext-badge {
-  position: absolute; top: 5px; right: 5px;
-  background: #333; border-radius: 4px; padding: 2px 4px;
-  font-size: 9px; color: rgba(255,255,255,0.75); text-transform: uppercase;
-}
+.ext-badge { position: absolute; top: 5px; right: 5px; background: #333; border-radius: 4px; padding: 2px 4px; font-size: 9px; color: rgba(255,255,255,0.75); text-transform: uppercase; }
+.heic-badge { background: #4D5FCC; }
 
-.lightbox {
-  display: none; position: fixed; inset: 0;
-  background: var(--overlay); z-index: 1000;
-  flex-direction: column; align-items: center; justify-content: center;
-}
+.drop-overlay { display: none; position: fixed; inset: 0; background: rgba(107,140,255,0.08); border: 3px dashed var(--accent); z-index: 200; pointer-events: none; align-items: center; justify-content: center; flex-direction: column; gap: 12px; font-size: 18px; color: var(--accent); }
+.drop-overlay.active { display: flex; }
+
+.lightbox { display: none; position: fixed; inset: 0; background: var(--overlay); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
 .lightbox.open { display: flex; }
-.lb-header {
-  position: fixed; top: 0; left: 0; right: 0;
-  padding: 10px 14px;
-  display: flex; align-items: center; gap: 10px;
-  background: rgba(0,0,0,0.65); backdrop-filter: blur(8px);
-}
+.lb-header { position: fixed; top: 0; left: 0; right: 0; padding: 10px 14px; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.65); backdrop-filter: blur(8px); }
 .lb-file-group { flex: 1; display: flex; align-items: baseline; gap: 0.6em; min-width: 0; overflow: hidden; }
 .lb-filename { font-size: 13px; color: #E4E4E4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex-shrink: 1; }
 .lb-dim-text { font-size: 11px; color: #949494; white-space: nowrap; flex-shrink: 0; }
 .lb-counter { font-size: 12px; color: #949494; white-space: nowrap; }
-.lb-close {
-  background: none; border: 1px solid #767676;
-  color: rgba(255,255,255,0.75); border-radius: 6px;
-  width: 28px; height: 28px; cursor: pointer; font-size: 15px;
-  display: flex; align-items: center; justify-content: center;
-}
+.lb-close { background: none; border: 1px solid #767676; color: rgba(255,255,255,0.75); border-radius: 6px; width: 28px; height: 28px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; }
 .lb-close:hover { background: rgba(255,255,255,0.1); }
-.lb-img-wrap {
-  width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
-  padding: 50px 56px;
-}
+.lb-img-wrap { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 50px 56px; }
 .lb-img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
-.lb-nav {
-  position: fixed; top: 50%; transform: translateY(-50%);
-  background: #2a2a2a; border: 1px solid #767676;
-  color: #E4E4E4; border-radius: 8px;
-  width: 38px; height: 60px; cursor: pointer; font-size: 20px;
-  display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s;
-}
+.lb-nav { position: fixed; top: 50%; transform: translateY(-50%); background: #2a2a2a; border: 1px solid #767676; color: #E4E4E4; border-radius: 8px; width: 38px; height: 60px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
 .lb-nav:hover { background: #3a3a3a; }
 .lb-nav.prev { left: 10px; }
 .lb-nav.next { right: 10px; }
-.lb-info {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  padding: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
-  font-size: 11px; color: #949494; text-align: center;
-}
+.lb-info { position: fixed; bottom: 0; left: 0; right: 0; padding: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); font-size: 11px; color: #949494; text-align: center; }
 </style>
 </head>
 <body>
@@ -198,6 +116,7 @@ input[type="range"]::-webkit-slider-thumb {
   <span class="app-title">📷 Image Viewer</span>
   <button class="btn primary" id="btnPick">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
+  <span class="heif-status loading" id="heifStatus" aria-live="polite">HEIC…</span>
   <div class="toolbar-sep" aria-hidden="true"></div>
   <span class="status" id="statusText" aria-live="polite"></span>
   <input type="text" class="filter-input" id="filterInput" placeholder="Filter..." aria-label="Filter by filename">
@@ -210,17 +129,45 @@ input[type="range"]::-webkit-slider-thumb {
   <input type="range" id="sizeSlider" min="80" max="300" value="190" step="55" aria-label="Thumbnail size">
 </div>
 
+<nav class="breadcrumb" id="breadcrumb" aria-label="Current location"></nav>
+
 <div class="app-body">
   <div class="main-area" id="mainArea">
     <div class="empty-state" id="emptyState" role="region">
       <div class="empty-icon" aria-hidden="true">📂</div>
-      <h2>Open a folder to get started</h2>
-      <p>Supports JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF</p>
+      <h2>Drop a folder or use the Open button</h2>
+      <p>Supports JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, HEIC/HEIF</p>
+    </div>
+    <div class="empty-state" id="emptyStateFile" role="region" style="display:none">
+      <div class="empty-icon" aria-hidden="true">📂</div>
+      <h2>Use the Open Folder button above</h2>
+      <p>Run a local server to enable folder drag &amp; drop.<br><br>
+      In Command Prompt, navigate to the folder containing <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">image-viewer.html</code> and run:</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;width:100%;max-width:340px">
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">With Node.js</div>
+          <code style="font-size:13px">npx serve .</code>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">With Python</div>
+          <code style="font-size:13px">python -m http.server 8080</code>
+        </div>
+      </div>
+      <p style="margin-top:4px">Then open <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">http://localhost:3000/image-viewer.html</code> in your browser.</p>
+    </div>
+    <div class="folder-section" id="folderSection">
+      <div class="section-label">Subfolders</div>
+      <div class="folder-grid" id="folderGrid"></div>
     </div>
     <div class="gallery-wrap" id="galleryWrap" style="display:none">
       <main class="gallery" id="gallery" role="main" aria-label="Thumbnail gallery"></main>
     </div>
   </div>
+</div>
+
+<div class="drop-overlay" id="dropOverlay" aria-hidden="true">
+  <div>📂</div>
+  <div style="font-size:14px">Drop folder here</div>
 </div>
 
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Media viewer" tabindex="-1">
@@ -238,149 +185,305 @@ input[type="range"]::-webkit-slider-thumb {
   <div class="lb-info" aria-hidden="true">← → Navigate　Esc: Close</div>
 </div>
 
-<script defer>
-const IMG_EXTS = ['jpg','jpeg','png','gif','webp','avif','svg','bmp','tiff','tif'];
-function extOf(name) { return (name||'').split('.').pop().toLowerCase(); }
-function isImage(name) { return IMG_EXTS.includes(extOf(name)); }
-function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+<script src="https://cdn.jsdelivr.net/npm/libheif-js@1.19.8/libheif-wasm/libheif-bundle.js"></script>
+<script>
+// ── libheif ──────────────────────────────────────────────────────
+let heifLib = null;
+const heifStatus = document.getElementById('heifStatus');
+(async () => {
+  try {
+    if (typeof libheif === 'undefined') throw new Error('not found');
+    heifLib = await libheif();
+    heifStatus.textContent = 'HEIC: OK';
+    heifStatus.className = 'heif-status ready';
+  } catch(e) {
+    heifStatus.textContent = 'HEIC: NG';
+    heifStatus.className = 'heif-status error';
+  }
+})();
 
-let allFiles = [], filteredFiles = [], objectURLs = [], currentIdx = 0;
+async function detectRealType(file) {
+  const h = new Uint8Array(await file.slice(0,12).arrayBuffer());
+  if (h[0]===0xFF&&h[1]===0xD8&&h[2]===0xFF) return 'jpeg';
+  if (h[0]===0x89&&h[1]===0x50&&h[2]===0x4E&&h[3]===0x47) return 'png';
+  if (h[0]===0x47&&h[1]===0x49&&h[2]===0x46) return 'gif';
+  return 'heic';
+}
+
+async function heicToURL(file) {
+  const realType = await detectRealType(file);
+  if (realType !== 'heic') return { url: URL.createObjectURL(file), realType };
+  if (!heifLib) throw new Error('libheif not ready');
+  const data = new Uint8ClampedArray(await file.arrayBuffer());
+  const decoder = new heifLib.HeifDecoder();
+  const images = decoder.decode(data);
+  if (!images||!images.length) throw new Error('decode failed');
+  const img = images[0];
+  const w = img.get_width(), h = img.get_height();
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  const imageData = ctx.createImageData(w, h);
+  await new Promise((res,rej) => img.display(imageData, r => r ? res() : rej(new Error('display failed'))));
+  ctx.putImageData(imageData, 0, 0);
+  const url = await new Promise(res => canvas.toBlob(b => res(URL.createObjectURL(b)), 'image/jpeg', 0.9));
+  return { url, realType: 'heic' };
+}
+
+// ── 定数・状態 ───────────────────────────────────────────────────
+const IMG_EXTS  = ['jpg','jpeg','png','gif','webp','avif','svg','bmp','tiff','tif'];
+const HEIC_EXTS = ['heic','heif'];
+const ALL_EXTS  = [...IMG_EXTS, ...HEIC_EXTS];
+
+function extOf(name) { return (name||'').split('.').pop().toLowerCase(); }
+function isImage(name) { return ALL_EXTS.includes(extOf(name)); }
+function isHeic(name)  { return HEIC_EXTS.includes(extOf(name)); }
+function escHtml(s)    { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+let navStack = [], currentEntries = null, filteredFiles = [], objectURLs = [], currentIdx = 0;
 const thumbCache = new Map();
 
-const emptyState  = document.getElementById('emptyState');
-const galleryWrap = document.getElementById('galleryWrap');
-const gallery     = document.getElementById('gallery');
-const statusText  = document.getElementById('statusText');
-const filterInput = document.getElementById('filterInput');
-const sortSelect  = document.getElementById('sortSelect');
-const sizeSlider  = document.getElementById('sizeSlider');
-const fileInput   = document.getElementById('fileInput');
-const lightbox    = document.getElementById('lightbox');
-const lbImg       = document.getElementById('lbImg');
-const lbFilename  = document.getElementById('lbFilename');
-const lbCounter   = document.getElementById('lbCounter');
+const isFileProtocol = window.location.protocol === 'file:';
+if (isFileProtocol) {
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('emptyStateFile').style.display = 'flex';
+}
 
 function revokeAll() { objectURLs.forEach(u => { try { URL.revokeObjectURL(u); } catch(e){} }); objectURLs = []; }
 function cacheKey(file) { return file.webkitRelativePath || `${file.name}__${file.size}`; }
 
-document.getElementById('btnPick').addEventListener('click', () => fileInput.click());
-fileInput.addEventListener('change', e => {
-  const files = Array.from(e.target.files).filter(f => isImage(f.name));
-  if (!files.length) return;
+async function makeURL(file) {
+  let url, realType;
+  if (isHeic(file.name)) { const r = await heicToURL(file); url = r.url; realType = r.realType; }
+  else { url = URL.createObjectURL(file); realType = null; }
+  objectURLs.push(url);
+  return { url, realType };
+}
+
+// ── ドロップ ─────────────────────────────────────────────────────
+const dropOverlay = document.getElementById('dropOverlay');
+let dragCounter = 0;
+document.body.addEventListener('dragenter', e => { if (isFileProtocol) return; e.preventDefault(); dragCounter++; dropOverlay.classList.add('active'); });
+document.body.addEventListener('dragleave', e => { if (isFileProtocol) return; dragCounter--; if (dragCounter<=0) { dragCounter=0; dropOverlay.classList.remove('active'); } });
+document.body.addEventListener('dragover', e => { if (isFileProtocol) return; e.preventDefault(); });
+document.body.addEventListener('drop', async e => {
+  if (isFileProtocol) return;
+  e.preventDefault(); dragCounter=0; dropOverlay.classList.remove('active');
+  const entries = Array.from(e.dataTransfer.items).filter(i=>i.kind==='file').map(i=>i.webkitGetAsEntry()).filter(Boolean);
+  if (!entries.length) return;
   revokeAll(); thumbCache.clear();
-  allFiles = files;
-  renderGallery();
+  if (entries.length===1&&entries[0].isDirectory) {
+    const children = await readDirEntries(entries[0]);
+    const node = makeEntryNode(entries[0].name, children);
+    navStack=[node]; currentEntries=node;
+  } else {
+    const files = await Promise.all(entries.filter(e=>e.isFile&&isImage(e.name)).map(e=>getEntryFile(e)));
+    currentEntries = { type:'filelist', name:'/', directFiles:files, subFolderMap:new Map() };
+    navStack=[currentEntries];
+  }
+  renderView();
 });
 
+function readDirEntries(dirEntry) {
+  return new Promise(res => {
+    const reader = dirEntry.createReader(); const results = [];
+    function read() { reader.readEntries(batch => { if(!batch.length){res(results);return;} results.push(...batch); read(); }); }
+    read();
+  });
+}
+function getEntryFile(entry) { return new Promise((res,rej) => entry.file(res,rej)); }
+function makeEntryNode(name, entries) {
+  return { type:'entry', name, dirs: entries.filter(e=>e.isDirectory), files: entries.filter(e=>e.isFile&&isImage(e.name)) };
+}
+
+// ── ボタン選択 ───────────────────────────────────────────────────
+document.getElementById('btnPick').addEventListener('click', () => document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change', e => {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+  revokeAll(); thumbCache.clear();
+  const rootName = files[0].webkitRelativePath.split('/')[0]||'Folder';
+  const directFiles=[]; const subFolderMap=new Map();
+  files.forEach(f => {
+    const parts = f.webkitRelativePath.split('/');
+    if (parts.length===2&&isImage(f.name)) directFiles.push(f);
+    else if (parts.length>=3&&isImage(f.name)) { const sub=parts[1]; if(!subFolderMap.has(sub)) subFolderMap.set(sub,[]); subFolderMap.get(sub).push(f); }
+  });
+  currentEntries = { type:'filelist', name:rootName, directFiles, subFolderMap };
+  navStack=[currentEntries];
+  renderView();
+});
+
+// ── 表示 ─────────────────────────────────────────────────────────
+const emptyState    = document.getElementById('emptyState');
+const galleryWrap   = document.getElementById('galleryWrap');
+const gallery       = document.getElementById('gallery');
+const folderSection = document.getElementById('folderSection');
+const folderGrid    = document.getElementById('folderGrid');
+const breadcrumb    = document.getElementById('breadcrumb');
+const statusText    = document.getElementById('statusText');
+const filterInput   = document.getElementById('filterInput');
+const sortSelect    = document.getElementById('sortSelect');
+const sizeSlider    = document.getElementById('sizeSlider');
+const lightbox      = document.getElementById('lightbox');
+const lbImg         = document.getElementById('lbImg');
+const lbFilename    = document.getElementById('lbFilename');
+const lbCounter     = document.getElementById('lbCounter');
+
+function renderView() {
+  emptyState.style.display='none'; document.getElementById('emptyStateFile').style.display='none';
+  galleryWrap.style.display='flex'; galleryWrap.style.flexDirection='column';
+  renderBreadcrumb(); renderFolders(); renderGallery();
+}
+
+function renderBreadcrumb() {
+  breadcrumb.innerHTML='';
+  breadcrumb.classList.toggle('visible', navStack.length>1);
+  navStack.forEach((node,i) => {
+    const span=document.createElement('span');
+    const isCurrent=i===navStack.length-1;
+    span.className='breadcrumb-item'+(isCurrent?' current':'');
+    span.textContent=node.name;
+    if (!isCurrent) span.addEventListener('click',()=>{ navStack=navStack.slice(0,i+1); currentEntries=navStack[navStack.length-1]; renderView(); });
+    breadcrumb.appendChild(span);
+    if (!isCurrent) { const sep=document.createElement('span'); sep.className='breadcrumb-sep'; sep.textContent='›'; sep.setAttribute('aria-hidden','true'); breadcrumb.appendChild(sep); }
+  });
+}
+
+function renderFolders() {
+  folderGrid.innerHTML=''; let hasFolders=false;
+  if (currentEntries.type==='entry') {
+    const dirs=currentEntries.dirs||[];
+    hasFolders=dirs.length>0;
+    dirs.sort((a,b)=>a.name.localeCompare(b.name,'ja')).forEach(dir=>{
+      const btn=makeFolderBtn(dir.name,'',async()=>{ const children=await readDirEntries(dir); const node=makeEntryNode(dir.name,children); navStack.push(node); currentEntries=node; renderView(); });
+      folderGrid.appendChild(btn);
+    });
+  } else {
+    const map=currentEntries.subFolderMap||new Map(); hasFolders=map.size>0;
+    [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0],'ja')).forEach(([name,files])=>{
+      const btn=makeFolderBtn(name,files.length+'',()=>{ const node={type:'filelist',name,directFiles:files.filter(f=>isImage(f.name)),subFolderMap:new Map()}; navStack.push(node); currentEntries=node; renderView(); });
+      folderGrid.appendChild(btn);
+    });
+  }
+  folderSection.classList.toggle('visible', hasFolders);
+}
+
+function makeFolderBtn(name, count, onClick) {
+  const btn=document.createElement('div'); btn.className='folder-item'; btn.setAttribute('role','button'); btn.setAttribute('tabindex','0');
+  btn.innerHTML=`<span aria-hidden="true">📁</span><span>${escHtml(name)}</span>${count?`<span class="folder-count">${escHtml(count)}</span>`:''}`;
+  btn.addEventListener('click',onClick); btn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onClick();}});
+  return btn;
+}
+
+function getImageFiles() {
+  if (!currentEntries) return [];
+  return currentEntries.type==='entry' ? (currentEntries.files||[]) : (currentEntries.directFiles||[]);
+}
+
 function getSorted(files) {
-  const v = sortSelect.value;
-  return [...files].sort((a,b) => {
-    if (v==='name')      return a.name.localeCompare(b.name,'ja');
-    if (v==='name-desc') return b.name.localeCompare(a.name,'ja');
-    if (v==='size')      return b.size - a.size;
-    if (v==='type')      return extOf(a.name).localeCompare(extOf(b.name));
+  const v=sortSelect.value;
+  return [...files].sort((a,b)=>{
+    const na=a.name||'', nb=b.name||'';
+    if (v==='name')      return na.localeCompare(nb,'ja');
+    if (v==='name-desc') return nb.localeCompare(na,'ja');
+    if (v==='size')      return (b.size||0)-(a.size||0);
+    if (v==='type')      return extOf(na).localeCompare(extOf(nb));
     return 0;
   });
 }
 
 function renderGallery() {
-  const q = filterInput.value.trim().toLowerCase();
-  filteredFiles = getSorted(allFiles).filter(f => !q || f.name.toLowerCase().includes(q));
-  emptyState.style.display = allFiles.length ? 'none' : 'flex';
-  galleryWrap.style.display = allFiles.length ? 'flex' : 'none';
-  galleryWrap.style.flexDirection = 'column';
-  gallery.innerHTML = '';
-  statusText.textContent = q ? `${filteredFiles.length} / ${allFiles.length} files` : `${allFiles.length} files`;
-
-  if (!allFiles.length) return;
+  const q=filterInput.value.trim().toLowerCase();
+  const raw=getImageFiles();
+  filteredFiles=getSorted(raw).filter(f=>!q||(f.name||'').toLowerCase().includes(q));
+  gallery.innerHTML='';
+  statusText.textContent=q?`${filteredFiles.length} / ${raw.length} files`:`${raw.length} files`;
+  if (!currentEntries) return;
   if (!filteredFiles.length) {
-    const div = document.createElement('div');
-    div.className = 'no-images';
-    div.textContent = `No files matching "${q}"`;
+    const div=document.createElement('div'); div.className='no-images';
+    div.textContent=raw.length===0?'No supported files in this folder':`No files matching "${q}"`;
     gallery.appendChild(div); return;
   }
-
-  filteredFiles.forEach((file, i) => {
-    const item = document.createElement('div');
-    item.className = 'thumb-item';
-    item.setAttribute('role','button'); item.setAttribute('tabindex','0');
-    item.setAttribute('aria-label', file.name + ' - open');
-
-    const loading = document.createElement('div');
-    loading.className = 'thumb-loading';
-    loading.innerHTML = '<div class="thumb-spinner" aria-hidden="true"></div>';
-
-    const badge = document.createElement('div');
-    badge.className = 'ext-badge'; badge.textContent = extOf(file.name).toUpperCase();
-    badge.setAttribute('aria-hidden','true'); badge.dataset.badge = 'true';
-
-    const infoEl = document.createElement('div'); infoEl.className = 'thumb-info';
-    const nameEl = document.createElement('div'); nameEl.className = 'thumb-info-name'; nameEl.textContent = file.name;
-    const dimEl  = document.createElement('div'); dimEl.className  = 'thumb-info-dim'; dimEl.dataset.dim = 'true';
+  filteredFiles.forEach((file,i)=>{
+    const name=file.name||'';
+    const item=document.createElement('div'); item.className='thumb-item'; item.setAttribute('role','button'); item.setAttribute('tabindex','0'); item.setAttribute('aria-label',name+' - open');
+    const loading=document.createElement('div'); loading.className='thumb-loading'; loading.innerHTML='<div class="thumb-spinner" aria-hidden="true"></div>';
+    const badge=document.createElement('div'); badge.className='ext-badge'+(isHeic(name)?' heic-badge':''); badge.textContent=extOf(name).toUpperCase(); badge.setAttribute('aria-hidden','true'); badge.dataset.badge='true';
+    const infoEl=document.createElement('div'); infoEl.className='thumb-info';
+    const nameEl=document.createElement('div'); nameEl.className='thumb-info-name'; nameEl.textContent=name;
+    const dimEl=document.createElement('div'); dimEl.className='thumb-info-dim'; dimEl.dataset.dim='true';
     infoEl.appendChild(nameEl); infoEl.appendChild(dimEl);
-
     item.appendChild(loading); item.appendChild(badge); item.appendChild(infoEl);
-    item.addEventListener('click', () => openLightbox(i));
-    item.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){e.preventDefault();openLightbox(i);} });
+    item.addEventListener('click',()=>openLightbox(i));
+    item.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openLightbox(i);}});
     gallery.appendChild(item);
     loadThumb(file, item, loading);
   });
 }
 
-async function loadThumb(file, item, loading) {
+async function resolveFile(entry) { return entry instanceof File ? entry : getEntryFile(entry); }
+
+async function loadThumb(entry, item, loading) {
   try {
-    const key = cacheKey(file);
-    let url, dim;
+    const file=await resolveFile(entry);
+    const key=cacheKey(file);
     if (thumbCache.has(key)) {
-      const c = thumbCache.get(key);
-      url = c.url; dim = c.dim;
-      const img = document.createElement('img');
-      img.alt = file.name; img.loading = 'lazy';
-      img.onload = () => { if(loading.parentNode===item) loading.remove(); const d = item.querySelector('[data-dim]'); if(d&&dim) d.textContent = dim; };
-      img.src = url; item.insertBefore(img, item.firstChild); return;
+      const cached=thumbCache.get(key);
+      const img=document.createElement('img'); img.alt=file.name; img.loading='lazy';
+      img.onload=()=>{ if(loading.parentNode===item) loading.remove(); const d=item.querySelector('[data-dim]'); if(d&&cached.dim) d.textContent=cached.dim; };
+      img.src=cached.url; item.insertBefore(img,item.firstChild);
+      if (cached.realType&&cached.realType!=='heic'&&isHeic(file.name)) {
+        const badge=item.querySelector('[data-badge]'); if(badge){badge.textContent=`HEIC(${cached.realType.toUpperCase()})`;badge.title=`Extension is HEIC but actual format is ${cached.realType.toUpperCase()}`;}
+      }
+      return;
     }
-    url = URL.createObjectURL(file); objectURLs.push(url);
-    const img = document.createElement('img');
-    img.alt = file.name; img.loading = 'lazy';
-    img.onload = () => {
+    const {url,realType}=await makeURL(file);
+    if (realType&&realType!=='heic'&&isHeic(file.name)) {
+      const badge=item.querySelector('[data-badge]'); if(badge){badge.textContent=`HEIC(${realType.toUpperCase()})`;badge.title=`Extension is HEIC but actual format is ${realType.toUpperCase()}`;}
+    }
+    const img=document.createElement('img'); img.alt=file.name; img.loading='lazy';
+    img.onload=()=>{
       if(loading.parentNode===item) loading.remove();
-      dim = `${img.naturalWidth} × ${img.naturalHeight}`;
-      const d = item.querySelector('[data-dim]'); if(d) d.textContent = dim;
-      thumbCache.set(key, { url, dim });
+      const dim=`${img.naturalWidth} × ${img.naturalHeight}`;
+      const d=item.querySelector('[data-dim]'); if(d) d.textContent=dim;
+      thumbCache.set(key,{url,dim,realType});
     };
-    img.onerror = () => { loading.innerHTML='Failed'; loading.style.color='#f87'; };
-    img.src = url; item.insertBefore(img, item.firstChild);
+    img.onerror=()=>{loading.innerHTML='Failed';loading.style.color='#f87';};
+    img.src=url; item.insertBefore(img,item.firstChild);
   } catch(e) { loading.innerHTML='Failed'; loading.style.color='#f87'; }
 }
 
 async function openLightbox(idx) {
-  currentIdx = idx; await updateLightbox();
+  currentIdx=idx; await updateLightbox();
   lightbox.classList.add('open'); lightbox.focus();
 }
 async function updateLightbox() {
-  const file = filteredFiles[currentIdx];
-  lbFilename.textContent = file.name;
-  lbCounter.textContent = (currentIdx+1) + ' / ' + filteredFiles.length;
-  const lbDimEl = document.getElementById('lbDim'); if(lbDimEl) lbDimEl.textContent = '';
-  lbImg.src = ''; lbImg.alt = file.name;
-  const url = URL.createObjectURL(file); objectURLs.push(url);
-  lbImg.src = url;
-  lbImg.onload = () => { if(lbDimEl) lbDimEl.textContent = lbImg.naturalWidth ? `${lbImg.naturalWidth} × ${lbImg.naturalHeight}` : ''; };
+  const entry=filteredFiles[currentIdx]; const name=entry.name||'';
+  lbFilename.textContent=name; lbCounter.textContent=(currentIdx+1)+' / '+filteredFiles.length;
+  const lbDimEl=document.getElementById('lbDim'); if(lbDimEl) lbDimEl.textContent='';
+  lbImg.src=''; lbImg.alt=name;
+  try {
+    const file=await resolveFile(entry);
+    const {url}=await makeURL(file);
+    lbImg.src=url; lbImg.alt=name;
+    lbImg.onload=()=>{ if(lbDimEl) lbDimEl.textContent=lbImg.naturalWidth?`${lbImg.naturalWidth} × ${lbImg.naturalHeight}`:''; };
+  } catch(e) { lbImg.alt='Failed to load'; }
 }
 function closeLightbox() { lightbox.classList.remove('open'); lbImg.src=''; }
 
 document.getElementById('lbClose').addEventListener('click', closeLightbox);
-document.getElementById('lbPrev').addEventListener('click', async () => { currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length; await updateLightbox(); });
-document.getElementById('lbNext').addEventListener('click', async () => { currentIdx=(currentIdx+1)%filteredFiles.length; await updateLightbox(); });
-lightbox.addEventListener('click', e => { if(e.target===lightbox) closeLightbox(); });
-document.addEventListener('keydown', async e => {
+document.getElementById('lbPrev').addEventListener('click', async()=>{ currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length; await updateLightbox(); });
+document.getElementById('lbNext').addEventListener('click', async()=>{ currentIdx=(currentIdx+1)%filteredFiles.length; await updateLightbox(); });
+lightbox.addEventListener('click', e=>{ if(e.target===lightbox) closeLightbox(); });
+document.addEventListener('keydown', async e=>{
   if (!lightbox.classList.contains('open')) return;
   if (e.key==='Escape') closeLightbox();
   if (e.key==='ArrowLeft')  { currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length; await updateLightbox(); }
   if (e.key==='ArrowRight') { currentIdx=(currentIdx+1)%filteredFiles.length; await updateLightbox(); }
 });
 
-sizeSlider.addEventListener('input', () => { gallery.style.setProperty('--thumb-size', sizeSlider.value+'px'); });
+sizeSlider.addEventListener('input', ()=>{ gallery.style.setProperty('--thumb-size', sizeSlider.value+'px'); });
 filterInput.addEventListener('input', renderGallery);
 sortSelect.addEventListener('change', renderGallery);
 </script>
