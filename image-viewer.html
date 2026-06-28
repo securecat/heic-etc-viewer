@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Viewer</title>
+<style>
+:root {
+  --bg: #161616;
+  --bg-card: #222;
+  --bg-toolbar: #1c1c1c;
+  --text: #e4e4e4;
+  --text-muted: #777;
+  --border: rgba(255,255,255,0.09);
+  --border-hover: rgba(255,255,255,0.18);
+  --accent: #6b8cff;
+  --accent-hover: #5a7aee;
+  --thumb-bg: #242424;
+  --overlay: rgba(0,0,0,0.9);
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg); color: var(--text);
+  height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+}
+.toolbar {
+  background: var(--bg-toolbar);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 14px;
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0; z-index: 100;
+}
+.app-title { font-size: 14px; font-weight: 600; white-space: nowrap; }
+.btn {
+  background: transparent; border: 1px solid var(--border-hover);
+  color: var(--text); border-radius: var(--radius);
+  padding: 5px 10px; font-size: 12px; cursor: pointer;
+  display: flex; align-items: center; gap: 4px;
+  white-space: nowrap; transition: background 0.15s;
+}
+.btn:hover { background: rgba(255,255,255,0.06); }
+.btn.primary { background: var(--accent); border-color: transparent; color: #fff; }
+.btn.primary:hover { background: var(--accent-hover); }
+.toolbar-sep { flex: 1; }
+.status { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.filter-input {
+  background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text); border-radius: var(--radius);
+  padding: 4px 8px; font-size: 12px; outline: none; width: 130px;
+}
+.filter-input::placeholder { color: var(--text-muted); }
+.filter-input:focus { border-color: var(--accent); }
+.sort-select {
+  background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text); border-radius: var(--radius);
+  padding: 4px 6px; font-size: 12px; outline: none;
+}
+input[type="range"] {
+  -webkit-appearance: none; width: 80px; height: 3px;
+  border-radius: 2px; background: var(--border-hover);
+  outline: none; cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 13px; height: 13px;
+  border-radius: 50%; background: var(--accent); cursor: pointer;
+}
+
+.app-body { display: flex; flex: 1; overflow: hidden; }
+
+.main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.empty-state {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 14px; color: var(--text-muted); padding: 40px;
+}
+.empty-icon { font-size: 48px; opacity: 0.3; }
+.empty-state h2 { font-size: 14px; font-weight: 500; color: var(--text-muted); }
+.empty-state p { font-size: 12px; opacity: 0.6; text-align: center; line-height: 1.7; }
+
+.gallery-wrap { flex: 1; overflow-y: auto; overflow-x: hidden; }
+.gallery-wrap::-webkit-scrollbar { width: 6px; }
+.gallery-wrap::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+
+.gallery {
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--thumb-size, 160px), 1fr));
+  gap: 8px; align-content: start;
+}
+.no-images { grid-column: 1/-1; padding: 40px; text-align: center; color: var(--text-muted); font-size: 13px; }
+
+.thumb-item {
+  background: var(--thumb-bg); border-radius: var(--radius-lg);
+  overflow: hidden; cursor: pointer;
+  position: relative; aspect-ratio: 1;
+  transition: transform 0.15s;
+}
+.thumb-item:hover { transform: scale(1.03); }
+.thumb-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.thumb-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb-loading {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px;
+  color: var(--text-muted); font-size: 11px;
+}
+.thumb-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--border-hover);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.thumb-info {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  display: flex; flex-direction: column; pointer-events: none;
+}
+.thumb-info::before {
+  content: ''; display: block; height: 18px;
+  background: linear-gradient(transparent, #000);
+  opacity: 0; transition: opacity 0.15s;
+}
+.thumb-item:hover .thumb-info::before { opacity: 0.72; }
+.thumb-info-name {
+  font-size: 10px; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  background: #000; padding: 1px 6px 0;
+  opacity: 0; transition: opacity 0.15s;
+}
+.thumb-item:hover .thumb-info-name { opacity: 0.85; }
+.thumb-info-dim {
+  font-size: 9px; color: #ccc;
+  white-space: nowrap; background: #000; padding: 1px 6px 4px;
+  opacity: 0; transition: opacity 0.15s;
+}
+.thumb-item:hover .thumb-info-dim { opacity: 0.85; }
+.ext-badge {
+  position: absolute; top: 5px; right: 5px;
+  background: #333; border-radius: 4px; padding: 2px 4px;
+  font-size: 9px; color: rgba(255,255,255,0.75); text-transform: uppercase;
+}
+
+.lightbox {
+  display: none; position: fixed; inset: 0;
+  background: var(--overlay); z-index: 1000;
+  flex-direction: column; align-items: center; justify-content: center;
+}
+.lightbox.open { display: flex; }
+.lb-header {
+  position: fixed; top: 0; left: 0; right: 0;
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(0,0,0,0.65); backdrop-filter: blur(8px);
+}
+.lb-file-group { flex: 1; display: flex; align-items: baseline; gap: 0.6em; min-width: 0; overflow: hidden; }
+.lb-filename { font-size: 13px; color: #E4E4E4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex-shrink: 1; }
+.lb-dim-text { font-size: 11px; color: #949494; white-space: nowrap; flex-shrink: 0; }
+.lb-counter { font-size: 12px; color: #949494; white-space: nowrap; }
+.lb-close {
+  background: none; border: 1px solid #767676;
+  color: rgba(255,255,255,0.75); border-radius: 6px;
+  width: 28px; height: 28px; cursor: pointer; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+}
+.lb-close:hover { background: rgba(255,255,255,0.1); }
+.lb-img-wrap {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  padding: 50px 56px;
+}
+.lb-img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
+.lb-nav {
+  position: fixed; top: 50%; transform: translateY(-50%);
+  background: #2a2a2a; border: 1px solid #767676;
+  color: #E4E4E4; border-radius: 8px;
+  width: 38px; height: 60px; cursor: pointer; font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.lb-nav:hover { background: #3a3a3a; }
+.lb-nav.prev { left: 10px; }
+.lb-nav.next { right: 10px; }
+.lb-info {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  font-size: 11px; color: #949494; text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar" role="toolbar" aria-label="Toolbar">
+  <span class="app-title">📷 Image Viewer</span>
+  <button class="btn primary" id="btnPick">📁 Open Folder</button>
+  <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
+  <div class="toolbar-sep" aria-hidden="true"></div>
+  <span class="status" id="statusText" aria-live="polite"></span>
+  <input type="text" class="filter-input" id="filterInput" placeholder="Filter..." aria-label="Filter by filename">
+  <select class="sort-select" id="sortSelect" aria-label="Sort order">
+    <option value="name">Name ↑</option>
+    <option value="name-desc">Name ↓</option>
+    <option value="size">Size</option>
+    <option value="type">Type</option>
+  </select>
+  <input type="range" id="sizeSlider" min="80" max="300" value="190" step="55" aria-label="Thumbnail size">
+</div>
+
+<div class="app-body">
+  <div class="main-area" id="mainArea">
+    <div class="empty-state" id="emptyState" role="region">
+      <div class="empty-icon" aria-hidden="true">📂</div>
+      <h2>Open a folder to get started</h2>
+      <p>Supports JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF</p>
+    </div>
+    <div class="gallery-wrap" id="galleryWrap" style="display:none">
+      <main class="gallery" id="gallery" role="main" aria-label="Thumbnail gallery"></main>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Media viewer" tabindex="-1">
+  <div class="lb-header">
+    <div class="lb-file-group">
+      <span class="lb-filename" id="lbFilename"></span>
+      <span class="lb-dim-text" id="lbDim"></span>
+    </div>
+    <span class="lb-counter" id="lbCounter"></span>
+    <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
+  </div>
+  <div class="lb-img-wrap" id="lbImgWrap"><img id="lbImg" src="" alt=""></div>
+  <button class="lb-nav prev" id="lbPrev" aria-label="Previous">‹</button>
+  <button class="lb-nav next" id="lbNext" aria-label="Next">›</button>
+  <div class="lb-info" aria-hidden="true">← → Navigate　Esc: Close</div>
+</div>
+
+<script defer>
+const IMG_EXTS = ['jpg','jpeg','png','gif','webp','avif','svg','bmp','tiff','tif'];
+function extOf(name) { return (name||'').split('.').pop().toLowerCase(); }
+function isImage(name) { return IMG_EXTS.includes(extOf(name)); }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+let allFiles = [], filteredFiles = [], objectURLs = [], currentIdx = 0;
+const thumbCache = new Map();
+
+const emptyState  = document.getElementById('emptyState');
+const galleryWrap = document.getElementById('galleryWrap');
+const gallery     = document.getElementById('gallery');
+const statusText  = document.getElementById('statusText');
+const filterInput = document.getElementById('filterInput');
+const sortSelect  = document.getElementById('sortSelect');
+const sizeSlider  = document.getElementById('sizeSlider');
+const fileInput   = document.getElementById('fileInput');
+const lightbox    = document.getElementById('lightbox');
+const lbImg       = document.getElementById('lbImg');
+const lbFilename  = document.getElementById('lbFilename');
+const lbCounter   = document.getElementById('lbCounter');
+
+function revokeAll() { objectURLs.forEach(u => { try { URL.revokeObjectURL(u); } catch(e){} }); objectURLs = []; }
+function cacheKey(file) { return file.webkitRelativePath || `${file.name}__${file.size}`; }
+
+document.getElementById('btnPick').addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => {
+  const files = Array.from(e.target.files).filter(f => isImage(f.name));
+  if (!files.length) return;
+  revokeAll(); thumbCache.clear();
+  allFiles = files;
+  renderGallery();
+});
+
+function getSorted(files) {
+  const v = sortSelect.value;
+  return [...files].sort((a,b) => {
+    if (v==='name')      return a.name.localeCompare(b.name,'ja');
+    if (v==='name-desc') return b.name.localeCompare(a.name,'ja');
+    if (v==='size')      return b.size - a.size;
+    if (v==='type')      return extOf(a.name).localeCompare(extOf(b.name));
+    return 0;
+  });
+}
+
+function renderGallery() {
+  const q = filterInput.value.trim().toLowerCase();
+  filteredFiles = getSorted(allFiles).filter(f => !q || f.name.toLowerCase().includes(q));
+  emptyState.style.display = allFiles.length ? 'none' : 'flex';
+  galleryWrap.style.display = allFiles.length ? 'flex' : 'none';
+  galleryWrap.style.flexDirection = 'column';
+  gallery.innerHTML = '';
+  statusText.textContent = q ? `${filteredFiles.length} / ${allFiles.length} files` : `${allFiles.length} files`;
+
+  if (!allFiles.length) return;
+  if (!filteredFiles.length) {
+    const div = document.createElement('div');
+    div.className = 'no-images';
+    div.textContent = `No files matching "${q}"`;
+    gallery.appendChild(div); return;
+  }
+
+  filteredFiles.forEach((file, i) => {
+    const item = document.createElement('div');
+    item.className = 'thumb-item';
+    item.setAttribute('role','button'); item.setAttribute('tabindex','0');
+    item.setAttribute('aria-label', file.name + ' - open');
+
+    const loading = document.createElement('div');
+    loading.className = 'thumb-loading';
+    loading.innerHTML = '<div class="thumb-spinner" aria-hidden="true"></div>';
+
+    const badge = document.createElement('div');
+    badge.className = 'ext-badge'; badge.textContent = extOf(file.name).toUpperCase();
+    badge.setAttribute('aria-hidden','true'); badge.dataset.badge = 'true';
+
+    const infoEl = document.createElement('div'); infoEl.className = 'thumb-info';
+    const nameEl = document.createElement('div'); nameEl.className = 'thumb-info-name'; nameEl.textContent = file.name;
+    const dimEl  = document.createElement('div'); dimEl.className  = 'thumb-info-dim'; dimEl.dataset.dim = 'true';
+    infoEl.appendChild(nameEl); infoEl.appendChild(dimEl);
+
+    item.appendChild(loading); item.appendChild(badge); item.appendChild(infoEl);
+    item.addEventListener('click', () => openLightbox(i));
+    item.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){e.preventDefault();openLightbox(i);} });
+    gallery.appendChild(item);
+    loadThumb(file, item, loading);
+  });
+}
+
+async function loadThumb(file, item, loading) {
+  try {
+    const key = cacheKey(file);
+    let url, dim;
+    if (thumbCache.has(key)) {
+      const c = thumbCache.get(key);
+      url = c.url; dim = c.dim;
+      const img = document.createElement('img');
+      img.alt = file.name; img.loading = 'lazy';
+      img.onload = () => { if(loading.parentNode===item) loading.remove(); const d = item.querySelector('[data-dim]'); if(d&&dim) d.textContent = dim; };
+      img.src = url; item.insertBefore(img, item.firstChild); return;
+    }
+    url = URL.createObjectURL(file); objectURLs.push(url);
+    const img = document.createElement('img');
+    img.alt = file.name; img.loading = 'lazy';
+    img.onload = () => {
+      if(loading.parentNode===item) loading.remove();
+      dim = `${img.naturalWidth} × ${img.naturalHeight}`;
+      const d = item.querySelector('[data-dim]'); if(d) d.textContent = dim;
+      thumbCache.set(key, { url, dim });
+    };
+    img.onerror = () => { loading.innerHTML='Failed'; loading.style.color='#f87'; };
+    img.src = url; item.insertBefore(img, item.firstChild);
+  } catch(e) { loading.innerHTML='Failed'; loading.style.color='#f87'; }
+}
+
+async function openLightbox(idx) {
+  currentIdx = idx; await updateLightbox();
+  lightbox.classList.add('open'); lightbox.focus();
+}
+async function updateLightbox() {
+  const file = filteredFiles[currentIdx];
+  lbFilename.textContent = file.name;
+  lbCounter.textContent = (currentIdx+1) + ' / ' + filteredFiles.length;
+  const lbDimEl = document.getElementById('lbDim'); if(lbDimEl) lbDimEl.textContent = '';
+  lbImg.src = ''; lbImg.alt = file.name;
+  const url = URL.createObjectURL(file); objectURLs.push(url);
+  lbImg.src = url;
+  lbImg.onload = () => { if(lbDimEl) lbDimEl.textContent = lbImg.naturalWidth ? `${lbImg.naturalWidth} × ${lbImg.naturalHeight}` : ''; };
+}
+function closeLightbox() { lightbox.classList.remove('open'); lbImg.src=''; }
+
+document.getElementById('lbClose').addEventListener('click', closeLightbox);
+document.getElementById('lbPrev').addEventListener('click', async () => { currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length; await updateLightbox(); });
+document.getElementById('lbNext').addEventListener('click', async () => { currentIdx=(currentIdx+1)%filteredFiles.length; await updateLightbox(); });
+lightbox.addEventListener('click', e => { if(e.target===lightbox) closeLightbox(); });
+document.addEventListener('keydown', async e => {
+  if (!lightbox.classList.contains('open')) return;
+  if (e.key==='Escape') closeLightbox();
+  if (e.key==='ArrowLeft')  { currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length; await updateLightbox(); }
+  if (e.key==='ArrowRight') { currentIdx=(currentIdx+1)%filteredFiles.length; await updateLightbox(); }
+});
+
+sizeSlider.addEventListener('input', () => { gallery.style.setProperty('--thumb-size', sizeSlider.value+'px'); });
+filterInput.addEventListener('input', renderGallery);
+sortSelect.addEventListener('change', renderGallery);
+</script>
+</body>
+</html>
