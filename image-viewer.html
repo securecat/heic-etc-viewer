@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Image Viewer</title>
+<title>HEIC etc Viewer</title>
 <style>
 :root {
   --bg: #161616; --bg-card: #222; --bg-toolbar: #1c1c1c; --bg-tree: #1a1a1a;
@@ -118,12 +118,20 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12p
   background-image: linear-gradient(45deg,#666 25%,transparent 25%),linear-gradient(-45deg,#666 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#666 75%),linear-gradient(-45deg,transparent 75%,#666 75%);
   background-size: 20px 20px; background-position: 0 0,0 10px,10px -10px,-10px 0px; background-color: #999;
 }
+
+/* ── slideshow ── */
+.lb-ss-controls { display: none; align-items: center; gap: 6px; flex-shrink: 0; }
+.lb-ss-controls.visible { display: flex; }
+.lb-ss-sec { width: 44px; background: var(--bg-card); border: 1px solid #767676; color: var(--text); border-radius: var(--radius); padding: 3px 6px; font-size: 11px; text-align: center; outline: none; }
+.lb-ss-sec:focus { border-color: var(--accent); }
+.lb-ss-label { font-size: 11px; color: #949494; white-space: nowrap; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.lb-ss-label input[type="checkbox"] { cursor: pointer; accent-color: #699EFF; }
 </style>
 </head>
 <body>
 <div class="toolbar" role="toolbar" aria-label="Toolbar">
   <button class="btn-icon" id="btnToggleTree" aria-label="Toggle folder tree" title="Toggle tree">☰</button>
-  <span class="app-title">📷 Image Viewer</span>
+  <span class="app-title">📷 HEIC etc Viewer</span>
   <button class="btn primary" id="btnPick">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
   <span class="heif-status loading" id="heifStatus" aria-live="polite">HEIC…</span>
@@ -139,13 +147,14 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12p
   </select>
   <input type="range" id="sizeSlider" min="80" max="300" value="190" step="55" aria-label="Thumbnail size">
   <button class="btn-icon" id="btnReload" aria-label="Reload (clear cache)" title="Reload" style="display:none">↺</button>
+  <button class="btn-icon" id="btnSlideshow" aria-label="Start slideshow" title="Slideshow" style="display:none">▷</button>
 </div>
 <div class="app-body">
   <aside class="tree-panel" id="treePanel" aria-label="Folder tree">
     <div class="tree-scroll" id="treeScroll" role="tree"></div>
   </aside>
   <div class="main-area">
-    <div class="empty-state" id="emptyState"><div class="empty-icon" aria-hidden="true">📂</div><h2>Drop a folder or use the Open button</h2><p>Supports JPEG, PNG, WebP, GIF, AVIF, SVG, HEIC, MP4, WebM, MOV, PDF, ICO</p></div>
+    <div class="empty-state" id="emptyState"><div class="empty-icon" aria-hidden="true">📂</div><h2>Drop a folder or use the Open button</h2><p>Supports JPEG, PNG, WebP, GIF, AVIF, SVG, HEIC, MP4, WebM, MOV, PDF, ICO<br>Navigate deep folders with the tree panel</p></div>
     <div class="empty-state" id="emptyStateFile" style="display:none"><div class="empty-icon" aria-hidden="true">📂</div><h2>Use the Open Folder button above</h2><p>Run a local server to enable folder drag &amp; drop.<br><br>In Command Prompt, navigate to the folder containing <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">image-viewer.html</code> and run:</p><div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;width:100%;max-width:340px"><div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px"><div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">With Node.js</div><code style="font-size:13px">npx serve .</code></div><div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px"><div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">With Python</div><code style="font-size:13px">python -m http.server 8080</code></div></div><p style="margin-top:4px">Then open <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">http://localhost:3000/image-viewer.html</code> in your browser.</p></div>
     <div class="gallery-wrap" id="galleryWrap" style="display:none">
       <main class="gallery" id="gallery" role="main" aria-label="Thumbnail gallery"></main>
@@ -159,6 +168,12 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12p
     <div class="lb-file-group"><span class="lb-filename" id="lbFilename"></span><span class="lb-dim-text" id="lbDim"></span></div>
     <span class="lb-counter" id="lbCounter"></span>
     <button class="lb-close" id="lbZoomBtn" aria-label="Zoom mode" title="Zoom (drag to select)" style="font-size:13px">🔍</button>
+    <button class="lb-close" id="lbLoopBtn" aria-label="Toggle loop" title="Loop video" style="font-size:13px;display:none">🔁</button>
+    <div class="lb-ss-controls" id="lbSsControls">
+      <input type="text" class="lb-ss-sec" id="lbSsSec" value="4" inputmode="numeric" aria-label="Slideshow interval (seconds)">
+      <span style="font-size:11px;color:#949494">sec</span>
+      <label class="lb-ss-label"><input type="checkbox" id="lbSsFullVideo" checked> play video to end</label>
+    </div>
     <button class="lb-close" id="lbChecker" aria-label="Toggle checker background" title="Toggle background" style="font-size:11px;width:auto;padding:0 8px">▦</button>
     <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
   </div>
@@ -167,7 +182,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12p
   <div class="lb-pdf-wrap" id="lbPdfWrap" style="display:none"><iframe id="lbPdfFrame" title="PDF viewer"></iframe></div>
   <button class="lb-nav prev" id="lbPrev" aria-label="Previous">‹</button>
   <button class="lb-nav next" id="lbNext" aria-label="Next">›</button>
-  <div class="lb-info" aria-hidden="true">← → Navigate　Z: Zoom　C: Checker bg　Esc: Close / Stop zoom</div>
+  <div class="lb-info" aria-hidden="true">← → Navigate　Z: Zoom　C: Checker bg　L: Loop　Esc: Close / Stop zoom</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/libheif-js@1.19.8/libheif-wasm/libheif-bundle.js"></script>
@@ -293,6 +308,8 @@ function renderGallery(){
   emptyState.style.display='none';document.getElementById('emptyStateFile').style.display='none';
   galleryWrap.style.display='flex';galleryWrap.style.flexDirection='column';gallery.innerHTML='';
   statusText.textContent=q?`${filteredFiles.length} / ${raw.length} files`:`${raw.length} files`;
+  const hasSsTargets=filteredFiles.some(f=>isImage(f.name)||isVideo(f.name));
+  document.getElementById('btnSlideshow').style.display=(rootNode&&hasSsTargets)?'':'none';
   if(!rootNode){if(isFileProtocol){document.getElementById('emptyStateFile').style.display='flex';document.getElementById('emptyState').style.display='none';}else{document.getElementById('emptyState').style.display='flex';document.getElementById('emptyStateFile').style.display='none';}galleryWrap.style.display='none';return;}
   if(!filteredFiles.length){const div=document.createElement('div');div.className='no-images';div.textContent=raw.length===0?'No supported files in this folder (try a subfolder in the tree)':`No files matching "${q}"`;gallery.appendChild(div);return;}
   filteredFiles.forEach((entry,i)=>{
@@ -400,7 +417,7 @@ async function updateLightbox(){
   setupZoomForCurrentMedia();
 }
 
-function closeLightbox(){exitZoomMode();const lbVideo=document.getElementById('lbVideo');lbVideo.pause();lbVideo.src='';lbImg.src='';document.getElementById('lbPdfFrame').src='';lightbox.classList.remove('open');const btn=document.getElementById('lbChecker');btn.style.background='';btn.style.borderColor='';}
+function closeLightbox(){if(ssActive)stopSlideshow();exitZoomMode();const lbVideo=document.getElementById('lbVideo');lbVideo.pause();lbVideo.src='';lbImg.src='';document.getElementById('lbPdfFrame').src='';lightbox.classList.remove('open');const btn=document.getElementById('lbChecker');btn.style.background='';btn.style.borderColor='';}
 document.getElementById('lbClose').addEventListener('click',closeLightbox);
 document.getElementById('lbPrev').addEventListener('click',async()=>{currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length;await updateLightbox();});
 document.getElementById('lbNext').addEventListener('click',async()=>{currentIdx=(currentIdx+1)%filteredFiles.length;await updateLightbox();});
@@ -411,6 +428,7 @@ document.addEventListener('keydown',async e=>{
   if(e.key==='Escape'){if(zoomed){resetZoom();if(zoomMode){syncZoomCanvas();zoomCanvas.classList.add('active');}lbZoomBtn.title='Exit zoom mode';}else if(zoomMode){exitZoomMode();}else{closeLightbox();}return;}
   if(e.key==='ArrowLeft'&&!zoomed){currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length;await updateLightbox();}
   if(e.key==='ArrowRight'&&!zoomed){currentIdx=(currentIdx+1)%filteredFiles.length;await updateLightbox();}
+  if(e.key==='l'||e.key==='L'){lbLoopBtn.click();return;}
   if(e.key==='z'||e.key==='Z'){if(zoomed){resetZoom();syncZoomCanvas();zoomCanvas.classList.add('active');lbZoomBtn.title='Exit zoom mode';}else if(zoomMode){exitZoomMode();}else{enterZoomMode();}}
   if(e.key==='c'||e.key==='C'){const isChecker=lightbox.classList.toggle('checker');const btn=document.getElementById('lbChecker');btn.style.background=isChecker?'rgba(105,158,255,0.15)':'';btn.style.borderColor=isChecker?'#699EFF':'';btn.title=isChecker?'Switch to dark background':'Toggle checker background';}
 });
@@ -543,6 +561,80 @@ window.addEventListener('resize',()=>{
 });
 
 function setupZoomForCurrentMedia(){if(zoomMode){syncZoomCanvas();zoomCanvas.classList.add('active');}}
+
+
+// ── Video Loop ────────────────────────────────────────────────────
+const lbLoopBtn=document.getElementById('lbLoopBtn');
+let videoLoop=false;
+lbLoopBtn.addEventListener('click',()=>{
+  videoLoop=!videoLoop;
+  document.getElementById('lbVideo').loop=videoLoop;
+  lbLoopBtn.style.background=videoLoop?'rgba(105,158,255,0.15)':'';
+  lbLoopBtn.style.borderColor=videoLoop?'#699EFF':'';
+  lbLoopBtn.title=videoLoop?'Loop: ON':'Loop: OFF';
+});
+
+// ── Slideshow ─────────────────────────────────────────────────────
+const btnSlideshow=document.getElementById('btnSlideshow');
+const lbSsControls=document.getElementById('lbSsControls');
+const lbSsSec=document.getElementById('lbSsSec');
+const lbSsFullVideo=document.getElementById('lbSsFullVideo');
+let ssActive=false,ssTimer=null;
+
+function getSsFiles(){return filteredFiles.filter(f=>isImage(f.name)||isVideo(f.name));}
+
+function startSlideshow(){
+  ssActive=true;
+  btnSlideshow.style.background='rgba(105,158,255,0.15)';btnSlideshow.style.borderColor='#699EFF';
+  btnSlideshow.title='Stop slideshow';btnSlideshow.textContent='⏹';
+  lbSsControls.classList.add('visible');
+  document.getElementById('lbZoomBtn').style.display='none';
+  document.getElementById('lbChecker').style.display='none';
+  document.getElementById('lbLoopBtn').style.display='none';
+  const ssFiles=getSsFiles();if(!ssFiles.length)return stopSlideshow();
+  currentIdx=filteredFiles.indexOf(ssFiles[0]);
+  if(!lightbox.classList.contains('open'))openLightbox(currentIdx);
+  scheduleNext();
+}
+
+function stopSlideshow(){
+  ssActive=false;clearTimeout(ssTimer);ssTimer=null;
+  btnSlideshow.style.background='';btnSlideshow.style.borderColor='';
+  btnSlideshow.title='Slideshow';btnSlideshow.textContent='▷';
+  lbSsControls.classList.remove('visible');
+  document.getElementById('lbZoomBtn').style.display='';
+  document.getElementById('lbChecker').style.display='';
+  const cur=filteredFiles[currentIdx];
+  document.getElementById('lbLoopBtn').style.display=(cur&&isVideo(cur.name))?'':'none';
+}
+
+function scheduleNext(){
+  clearTimeout(ssTimer);if(!ssActive)return;
+  const entry=filteredFiles[currentIdx];const isVid=entry&&isVideo(entry.name);
+  if(isVid&&lbSsFullVideo.checked)return;
+  const sec=Math.max(1,parseInt(lbSsSec.value)||4);
+  ssTimer=setTimeout(()=>advanceSlideshowTo('next'),sec*1000);
+}
+
+async function advanceSlideshowTo(dir){
+  clearTimeout(ssTimer);if(!ssActive)return;
+  const ssFiles=getSsFiles();if(!ssFiles.length)return;
+  let nextIdx=currentIdx;let tries=0;
+  do{nextIdx=dir==='next'?(nextIdx+1)%filteredFiles.length:(nextIdx-1+filteredFiles.length)%filteredFiles.length;tries++;if(tries>filteredFiles.length)break;}
+  while(!isImage(filteredFiles[nextIdx].name)&&!isVideo(filteredFiles[nextIdx].name));
+  currentIdx=nextIdx;await updateLightbox();scheduleNext();
+}
+
+document.getElementById('lbVideo').addEventListener('ended',()=>{if(ssActive&&lbSsFullVideo.checked)advanceSlideshowTo('next');});
+lbSsSec.addEventListener('input',()=>{if(ssActive){clearTimeout(ssTimer);scheduleNext();}});
+lbSsSec.addEventListener('blur',()=>{const v=parseInt(lbSsSec.value);lbSsSec.value=(isNaN(v)||v<1)?4:v;});
+lbSsSec.addEventListener('keydown',e=>{if(e.key==='Enter')lbSsSec.blur();});
+lbSsFullVideo.addEventListener('change',()=>{if(ssActive){clearTimeout(ssTimer);scheduleNext();}});
+btnSlideshow.addEventListener('click',()=>{if(ssActive)stopSlideshow();else startSlideshow();});
+
+// setupZoomForCurrentMediaの後にscheduleNextを追加
+const _origSetupZoom=setupZoomForCurrentMedia;
+function setupZoomForCurrentMedia(){_origSetupZoom();if(ssActive)scheduleNext();}
 
 sizeSlider.addEventListener('input',()=>{gallery.style.setProperty('--thumb-size',sizeSlider.value+'px');});
 filterInput.addEventListener('input',renderGallery);
