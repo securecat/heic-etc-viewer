@@ -6,7 +6,7 @@
 <title>Image Viewer</title>
 <style>
 :root {
-  --bg: #161616; --bg-card: #222; --bg-toolbar: #1c1c1c; --bg-tree: #1a1a1a; --bg-drop: #1e2230;
+  --bg: #161616; --bg-card: #222; --bg-toolbar: #1c1c1c; --bg-tree: #1a1a1a;
   --text: #e4e4e4; --text-muted: #777;
   --border: #767676; --border-hover: rgba(255,255,255,0.18);
   --accent: #699EFF; --accent-hover: #4D6EE1; --accent-bg: rgba(107,140,255,0.15);
@@ -17,9 +17,7 @@
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 .toolbar { background: var(--bg-toolbar); border-bottom: 1px solid var(--border); padding: 8px 14px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; z-index: 100; }
 .app-title { font-size: 13px; font-weight: 600; white-space: nowrap; }
-.btn { background: transparent; border: 1px solid var(--border-hover); color: var(--text); border-radius: var(--radius); padding: 5px 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap; flex-shrink: 0; transition: background 0.15s; }
-.btn:hover { background: rgba(255,255,255,0.06); }
-.btn.primary { background: #4D6EE1; border-color: transparent; color: #fff; }
+.btn.primary { background: #4D6EE1; border-color: transparent; color: #fff; border-radius: var(--radius); padding: 5px 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap; flex-shrink: 0; transition: background 0.15s; border: none; }
 .btn.primary:hover { background: var(--accent-hover); }
 .btn-icon { background: transparent; border: 1px solid #767676; color: var(--text); border-radius: var(--radius); width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; transition: background 0.15s; }
 .btn-icon:hover { background: rgba(255,255,255,0.06); }
@@ -84,9 +82,11 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12p
 .ext-badge { position: absolute; top: 5px; right: 5px; background: #333; border-radius: 4px; padding: 2px 4px; font-size: 9px; color: rgba(255,255,255,0.75); text-transform: uppercase; }
 .heic-badge { background: #4D5FCC; }
 .video-badge { background: #A86810; }
+.ico-badge { background: #2C864A; }
+.pdf-badge { background: #B84040; }
 .unplayable-badge { background: #B84040; }
 .thumb-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-.thumb-play-icon { width: 36px; height: 36px; background: rgba(0,0,0,0.55); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; padding-left: 3px; transition: background 0.15s; }
+.thumb-play-icon { width: 36px; height: 36px; background: rgba(0,0,0,0.55); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; padding-left: 3px; }
 .thumb-item:hover .thumb-play-icon { background: rgba(0,0,0,0.75); }
 .drop-overlay { display: none; position: fixed; inset: 0; background: rgba(107,140,255,0.08); border: 3px dashed var(--accent); z-index: 200; pointer-events: none; align-items: center; justify-content: center; flex-direction: column; gap: 12px; font-size: 18px; color: var(--accent); }
 .drop-overlay.active { display: flex; }
@@ -103,6 +103,8 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12p
 .lb-img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
 .lb-video-wrap { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 50px 56px; }
 .lb-video-wrap video { max-width: 100%; max-height: 100%; border-radius: 4px; outline: none; }
+.lb-pdf-wrap { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 50px 56px; }
+.lb-pdf-wrap iframe { width: 100%; height: 100%; border: none; border-radius: 4px; }
 .lb-nav { position: fixed; top: 50%; transform: translateY(-50%); background: #2a2a2a; border: 1px solid #767676; color: #E4E4E4; border-radius: 8px; width: 38px; height: 60px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
 .lb-nav:hover { background: #3a3a3a; }
 .lb-nav.prev { left: 10px; }
@@ -117,6 +119,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12p
   <button class="btn primary" id="btnPick">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
   <span class="heif-status loading" id="heifStatus" aria-live="polite">HEIC…</span>
+  <span class="heif-status loading" id="pdfStatus" aria-live="polite">PDF…</span>
   <div class="toolbar-sep" aria-hidden="true"></div>
   <span class="status" id="statusText" aria-live="polite"></span>
   <input type="text" class="filter-input" id="filterInput" placeholder="Filter..." aria-label="Filter by filename">
@@ -134,7 +137,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12p
     <div class="tree-scroll" id="treeScroll" role="tree"></div>
   </aside>
   <div class="main-area">
-    <div class="empty-state" id="emptyState"><div class="empty-icon" aria-hidden="true">📂</div><h2>Drop a folder or use the Open button</h2><p>Supports JPEG, PNG, WebP, GIF, AVIF, SVG, HEIC, MP4, WebM, MOV</p></div>
+    <div class="empty-state" id="emptyState"><div class="empty-icon" aria-hidden="true">📂</div><h2>Drop a folder or use the Open button</h2><p>Supports JPEG, PNG, WebP, GIF, AVIF, SVG, HEIC, MP4, WebM, MOV, PDF, ICO</p></div>
     <div class="empty-state" id="emptyStateFile" style="display:none"><div class="empty-icon" aria-hidden="true">📂</div><h2>Use the Open Folder button above</h2><p>Run a local server to enable folder drag &amp; drop.<br><br>In Command Prompt, navigate to the folder containing <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">image-viewer.html</code> and run:</p><div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;width:100%;max-width:340px"><div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px"><div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">With Node.js</div><code style="font-size:13px">npx serve .</code></div><div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px"><div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">With Python</div><code style="font-size:13px">python -m http.server 8080</code></div></div><p style="margin-top:4px">Then open <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">http://localhost:3000/image-viewer.html</code> in your browser.</p></div>
     <div class="gallery-wrap" id="galleryWrap" style="display:none">
       <main class="gallery" id="gallery" role="main" aria-label="Thumbnail gallery"></main>
@@ -150,28 +153,35 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12p
   </div>
   <div class="lb-img-wrap" id="lbImgWrap"><img id="lbImg" src="" alt=""></div>
   <div class="lb-video-wrap" id="lbVideoWrap" style="display:none"><video id="lbVideo" controls autoplay></video></div>
+  <div class="lb-pdf-wrap" id="lbPdfWrap" style="display:none"><iframe id="lbPdfFrame" title="PDF viewer"></iframe></div>
   <button class="lb-nav prev" id="lbPrev" aria-label="Previous">‹</button>
   <button class="lb-nav next" id="lbNext" aria-label="Next">›</button>
   <div class="lb-info" aria-hidden="true">← → Navigate　Esc: Close</div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/libheif-js@1.19.8/libheif-wasm/libheif-bundle.js"></script>
 <script>
+// ── libheif ──────────────────────────────────────────────────────
 let heifLib=null;
 const heifStatus=document.getElementById('heifStatus');
-(async()=>{try{if(typeof libheif==='undefined')throw new Error('not found');heifLib=await libheif();heifStatus.textContent='HEIC: OK';heifStatus.className='heif-status ready';}catch(e){heifStatus.textContent='HEIC: NG';heifStatus.className='heif-status error';}})();
+(async()=>{try{if(typeof libheif==='undefined')throw new Error();heifLib=await libheif();heifStatus.textContent='HEIC: OK';heifStatus.className='heif-status ready';}catch(e){heifStatus.textContent='HEIC: NG';heifStatus.className='heif-status error';}})();
 
 async function detectRealType(file){const h=new Uint8Array(await file.slice(0,12).arrayBuffer());if(h[0]===0xFF&&h[1]===0xD8&&h[2]===0xFF)return'jpeg';if(h[0]===0x89&&h[1]===0x50&&h[2]===0x4E&&h[3]===0x47)return'png';if(h[0]===0x47&&h[1]===0x49&&h[2]===0x46)return'gif';return'heic';}
-async function heicToURL(file){const realType=await detectRealType(file);if(realType!=='heic')return{url:URL.createObjectURL(file),realType};if(!heifLib)throw new Error('libheif not ready');const data=new Uint8ClampedArray(await file.arrayBuffer());const decoder=new heifLib.HeifDecoder();const images=decoder.decode(data);if(!images||!images.length)throw new Error('decode failed');const img=images[0];const w=img.get_width(),h=img.get_height();const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');const imageData=ctx.createImageData(w,h);await new Promise((res,rej)=>img.display(imageData,r=>r?res():rej(new Error('display failed'))));ctx.putImageData(imageData,0,0);const url=await new Promise(res=>canvas.toBlob(b=>res(URL.createObjectURL(b)),'image/jpeg',0.9));return{url,realType:'heic'};}
+async function heicToURL(file){const rt=await detectRealType(file);if(rt!=='heic')return{url:URL.createObjectURL(file),realType:rt};if(!heifLib)throw new Error('libheif not ready');const data=new Uint8ClampedArray(await file.arrayBuffer());const dec=new heifLib.HeifDecoder();const imgs=dec.decode(data);if(!imgs||!imgs.length)throw new Error('decode failed');const img=imgs[0];const w=img.get_width(),h=img.get_height();const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');const id=ctx.createImageData(w,h);await new Promise((res,rej)=>img.display(id,r=>r?res():rej()));ctx.putImageData(id,0,0);const url=await new Promise(res=>canvas.toBlob(b=>res(URL.createObjectURL(b)),'image/jpeg',0.9));return{url,realType:'heic'};}
 
+// ── 定数 ─────────────────────────────────────────────────────────
 const IMG_EXTS=['jpg','jpeg','png','gif','webp','avif','svg','bmp','tiff','tif'];
 const HEIC_EXTS=['heic','heif'];
 const VIDEO_EXTS=['mp4','webm','mov'];
-const ALL_EXTS=[...IMG_EXTS,...HEIC_EXTS,...VIDEO_EXTS];
+const ICO_EXTS=['ico'];
+const PDF_EXTS=['pdf'];
+const ALL_EXTS=[...IMG_EXTS,...HEIC_EXTS,...VIDEO_EXTS,...ICO_EXTS,...PDF_EXTS];
 function extOf(n){return(n||'').split('.').pop().toLowerCase();}
-function isImage(n){return[...IMG_EXTS,...HEIC_EXTS].includes(extOf(n));}
+function isImage(n){return[...IMG_EXTS,...HEIC_EXTS,...ICO_EXTS].includes(extOf(n));}
 function isVideo(n){return VIDEO_EXTS.includes(extOf(n));}
 function isHeic(n){return HEIC_EXTS.includes(extOf(n));}
-function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function isIco(n){return ICO_EXTS.includes(extOf(n));}
+function isPdf(n){return PDF_EXTS.includes(extOf(n));}
 
 let rootNode=null,currentNode=null,filteredFiles=[],objectURLs=[],currentIdx=0;
 const thumbCache=new Map();
@@ -179,11 +189,11 @@ const isFileProtocol=window.location.protocol==='file:';
 if(isFileProtocol){document.getElementById('emptyState').style.display='none';document.getElementById('emptyStateFile').style.display='flex';}
 
 function revokeAll(){objectURLs.forEach(u=>{try{URL.revokeObjectURL(u);}catch(e){}});objectURLs=[];}
-function cacheKey(file){return file.webkitRelativePath||`${file.name}__${file.size}`;}
+function cacheKey(f){return f.webkitRelativePath||`${f.name}__${f.size}`;}
 function clearThumbCache(){thumbCache.forEach(v=>{try{URL.revokeObjectURL(v.url);}catch(e){}});thumbCache.clear();}
-
 async function makeURL(file){let url,realType;if(isHeic(file.name)){const r=await heicToURL(file);url=r.url;realType=r.realType;}else{url=URL.createObjectURL(file);realType=null;}objectURLs.push(url);return{url,realType};}
 
+// ── Drop ─────────────────────────────────────────────────────────
 const dropOverlay=document.getElementById('dropOverlay');
 let dragCounter=0;
 document.body.addEventListener('dragenter',e=>{if(isFileProtocol)return;e.preventDefault();dragCounter++;dropOverlay.classList.add('active');});
@@ -193,12 +203,12 @@ document.body.addEventListener('drop',async e=>{
   if(isFileProtocol)return;e.preventDefault();dragCounter=0;dropOverlay.classList.remove('active');
   const entries=Array.from(e.dataTransfer.items).filter(i=>i.kind==='file').map(i=>i.webkitGetAsEntry()).filter(Boolean);
   if(!entries.length)return;revokeAll();clearThumbCache();document.getElementById('btnReload').style.display='';
-  if(entries.length===1&&entries[0].isDirectory){const children=await readDirEntries(entries[0]);rootNode=makeEntryNode(entries[0].name,children);}
+  if(entries.length===1&&entries[0].isDirectory){const ch=await readDirEntries(entries[0]);rootNode=makeEntryNode(entries[0].name,ch);}
   else{const files=await Promise.all(entries.filter(e=>e.isFile&&ALL_EXTS.includes(extOf(e.name))).map(e=>getEntryFile(e)));rootNode={name:'Dropped files',entry:null,files,children:[],loaded:true,el:null,parent:null};}
   renderTree();selectNode(rootNode);
 });
 
-function readDirEntries(d){return new Promise(res=>{const r=d.createReader();const res2=[];function read(){r.readEntries(b=>{if(!b.length){res(res2);return;}res2.push(...b);read();});}read();});}
+function readDirEntries(d){return new Promise(res=>{const r=d.createReader();const a=[];function read(){r.readEntries(b=>{if(!b.length){res(a);return;}a.push(...b);read();});}read();});}
 function getEntryFile(e){return new Promise((res,rej)=>e.file(res,rej));}
 function makeEntryNode(name,entries){return{name,entry:null,files:entries.filter(e=>e.isFile&&ALL_EXTS.includes(extOf(e.name))),children:entries.filter(e=>e.isDirectory).sort((a,b)=>a.name.localeCompare(b.name,'ja')).map(c=>({name:c.name,entry:c,files:null,children:null,loaded:false,el:null,parent:null})),loaded:true,el:null,parent:null};}
 
@@ -206,41 +216,29 @@ document.getElementById('btnPick').addEventListener('click',()=>document.getElem
 document.getElementById('fileInput').addEventListener('change',e=>{
   const files=Array.from(e.target.files);if(!files.length)return;
   revokeAll();clearThumbCache();document.getElementById('btnReload').style.display='';
-  const rootName=files[0].webkitRelativePath.split('/')[0]||'Folder';
-  rootNode=buildTreeFromFileList(rootName,files);renderTree();selectNode(rootNode);
+  const rn=files[0].webkitRelativePath.split('/')[0]||'Folder';
+  rootNode=buildTreeFromFileList(rn,files);renderTree();selectNode(rootNode);
 });
 
 function buildTreeFromFileList(rootName,files){
-  const nodeMap=new Map();
-  const root={name:rootName,entry:null,files:[],children:[],loaded:true,el:null,parent:null,_fo:[]};
-  nodeMap.set(rootName,root);
+  const nm=new Map();
+  const root={name:rootName,entry:null,files:[],children:[],loaded:true,el:null,parent:null,_fo:[]};nm.set(rootName,root);
   files.forEach(f=>{
     if(!ALL_EXTS.includes(extOf(f.name)))return;
     const parts=f.webkitRelativePath.split('/');
     if(parts.length===2){root._fo.push(f);}
-    else if(parts.length>=3){
-      let cur=root;
-      for(let i=1;i<parts.length-1;i++){const key=parts.slice(0,i+1).join('/');if(!nodeMap.has(key)){const node={name:parts[i],entry:null,files:[],children:[],loaded:true,el:null,parent:cur,_fo:[]};nodeMap.set(key,node);cur.children.push(node);}cur=nodeMap.get(key);}
-      cur._fo.push(f);
-    }
+    else if(parts.length>=3){let cur=root;for(let i=1;i<parts.length-1;i++){const key=parts.slice(0,i+1).join('/');if(!nm.has(key)){const node={name:parts[i],entry:null,files:[],children:[],loaded:true,el:null,parent:cur,_fo:[]};nm.set(key,node);cur.children.push(node);}cur=nm.get(key);}cur._fo.push(f);}
   });
-  nodeMap.forEach(n=>{n.files=n._fo;delete n._fo;n.children.sort((a,b)=>a.name.localeCompare(b.name,'ja'));});
-  return root;
+  nm.forEach(n=>{n.files=n._fo;delete n._fo;n.children.sort((a,b)=>a.name.localeCompare(b.name,'ja'));});return root;
 }
 
 document.getElementById('btnReload').addEventListener('click',()=>{clearThumbCache();gallery.innerHTML='';renderGallery();});
-
 const treePanel=document.getElementById('treePanel');
 const treeScroll=document.getElementById('treeScroll');
 document.getElementById('btnToggleTree').addEventListener('click',()=>treePanel.classList.toggle('collapsed'));
 
 function renderTree(){treeScroll.innerHTML='';if(!rootNode)return;treeScroll.appendChild(buildTreeNodeEl(rootNode,0,true));}
-
-async function expandNode(node){
-  if(node.loaded)return;node.loaded=true;
-  if(node.entry){const children=await readDirEntries(node.entry);node.files=children.filter(c=>c.isFile&&ALL_EXTS.includes(extOf(c.name)));node.children=children.filter(c=>c.isDirectory).map(c=>({name:c.name,entry:c,files:null,children:null,loaded:false,el:null,parent:node})).sort((a,b)=>a.name.localeCompare(b.name,'ja'));}
-  updateTreeNodeEl(node);
-}
+async function expandNode(node){if(node.loaded)return;node.loaded=true;if(node.entry){const ch=await readDirEntries(node.entry);node.files=ch.filter(c=>c.isFile&&ALL_EXTS.includes(extOf(c.name)));node.children=ch.filter(c=>c.isDirectory).map(c=>({name:c.name,entry:c,files:null,children:null,loaded:false,el:null,parent:node})).sort((a,b)=>a.name.localeCompare(b.name,'ja'));}updateTreeNodeEl(node);}
 
 function buildTreeNodeEl(node,depth,autoExpand=false){
   const wrap=document.createElement('div');wrap.className='tree-node';node.el=wrap;
@@ -251,7 +249,7 @@ function buildTreeNodeEl(node,depth,autoExpand=false){
   row.appendChild(toggle);row.appendChild(icon);row.appendChild(label);wrap.appendChild(row);
   const childrenEl=document.createElement('div');childrenEl.className='tree-children';wrap.appendChild(childrenEl);
   if(!node.children||node.children.length===0)toggle.classList.add('empty');
-  toggle.addEventListener('click',async e=>{e.stopPropagation();if(!node.loaded)await expandNode(node);if(node.children&&node.children.length>0){const isOpen=childrenEl.classList.toggle('open');toggle.classList.toggle('open',isOpen);icon.textContent=isOpen?'📂':'📁';if(isOpen&&childrenEl.children.length===0)node.children.forEach(c=>childrenEl.appendChild(buildTreeNodeEl(c,depth+1)));}});
+  toggle.addEventListener('click',async e=>{e.stopPropagation();if(!node.loaded)await expandNode(node);if(node.children&&node.children.length>0){const o=childrenEl.classList.toggle('open');toggle.classList.toggle('open',o);icon.textContent=o?'📂':'📁';if(o&&childrenEl.children.length===0)node.children.forEach(c=>childrenEl.appendChild(buildTreeNodeEl(c,depth+1)));}});
   label.addEventListener('click',async e=>{e.stopPropagation();if(!node.loaded)await expandNode(node);selectNode(node);});
   row.addEventListener('keydown',async e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!node.loaded)await expandNode(node);selectNode(node);}});
   if(autoExpand&&node.children&&node.children.length>0){childrenEl.classList.add('open');toggle.classList.add('open');icon.textContent='📂';node.children.forEach(c=>childrenEl.appendChild(buildTreeNodeEl(c,depth+1)));}
@@ -276,6 +274,8 @@ const lbCounter=document.getElementById('lbCounter');
 function getSorted(files){const v=sortSelect.value;return[...files].sort((a,b)=>{const na=a.name||'',nb=b.name||'';if(v==='name')return na.localeCompare(nb,'ja');if(v==='name-desc')return nb.localeCompare(na,'ja');if(v==='size')return(b.size||0)-(a.size||0);if(v==='type')return extOf(na).localeCompare(extOf(nb));return 0;});}
 function getCurrentFiles(){return currentNode?currentNode.files||[]:[]}
 
+function badgeClass(name){if(isHeic(name))return' heic-badge';if(isVideo(name))return' video-badge';if(isPdf(name))return' pdf-badge';if(isIco(name))return' ico-badge';return'';}
+
 function renderGallery(){
   const q=filterInput.value.trim().toLowerCase();const raw=getCurrentFiles();
   filteredFiles=getSorted(raw).filter(f=>!q||(f.name||'').toLowerCase().includes(q));
@@ -288,9 +288,7 @@ function renderGallery(){
     const name=entry.name||'';
     const item=document.createElement('div');item.className='thumb-item';item.setAttribute('role','button');item.setAttribute('tabindex','0');item.setAttribute('aria-label',name+' - open');
     const loading=document.createElement('div');loading.className='thumb-loading';loading.innerHTML='<div class="thumb-spinner" aria-hidden="true"></div>';
-    const badge=document.createElement('div');
-    badge.className='ext-badge'+(isHeic(name)?' heic-badge':isVideo(name)?' video-badge':'');
-    badge.textContent=extOf(name).toUpperCase();badge.setAttribute('aria-hidden','true');badge.dataset.badge='true';
+    const badge=document.createElement('div');badge.className='ext-badge'+badgeClass(name);badge.textContent=extOf(name).toUpperCase();badge.setAttribute('aria-hidden','true');badge.dataset.badge='true';
     const infoEl=document.createElement('div');infoEl.className='thumb-info';
     const nameEl=document.createElement('div');nameEl.className='thumb-info-name';nameEl.textContent=name;
     const dimEl=document.createElement('div');dimEl.className='thumb-info-dim';dimEl.dataset.dim='true';
@@ -308,85 +306,89 @@ async function resolveFile(entry){return entry instanceof File?entry:getEntryFil
 async function loadThumb(entry,item,loading){
   try{
     const file=await resolveFile(entry);const key=cacheKey(file);
-    if(thumbCache.has(key)){const cached=thumbCache.get(key);applyThumbImage(item,loading,cached.url,cached.dim,cached.realType,file.name);if(cached.isVideo){addPlayOverlay(item);}return;}
+    if(thumbCache.has(key)){const cached=thumbCache.get(key);applyThumbImg(item,loading,cached);return;}
     if(isVideo(file.name)){await loadVideoThumb(file,item,loading,key);return;}
+    if(isPdf(file.name)){await loadPdfThumb(file,item,loading,key);return;}
+    // ICO: check multi
+    if(isIco(file.name)){
+      const header=new Uint8Array(await file.slice(0,6).arrayBuffer());
+      const count=header[4]|(header[5]<<8);
+      const badge=item.querySelector('[data-badge]');
+      if(badge&&count>=2){badge.textContent=`ICO(Multi)`;badge.title=`${count}-size multi ICO`;}
+    }
     const{url,realType}=await makeURL(file);
     if(realType&&realType!=='heic'&&isHeic(file.name)){const badge=item.querySelector('[data-badge]');if(badge){badge.textContent=`HEIC(${realType.toUpperCase()})`;badge.title=`Extension is HEIC but actual format is ${realType.toUpperCase()}`;}}
     const img=document.createElement('img');img.alt=file.name;img.loading='lazy';
-    img.onload=()=>{if(loading.parentNode===item)loading.remove();const dim=`${img.naturalWidth} × ${img.naturalHeight}`;const d=item.querySelector('[data-dim]');if(d)d.textContent=dim;thumbCache.set(key,{url,dim,realType,isVideo:false});};
+    img.onload=()=>{if(loading.parentNode===item)loading.remove();const dim=`${img.naturalWidth} × ${img.naturalHeight}`;const d=item.querySelector('[data-dim]');if(d)d.textContent=dim;thumbCache.set(key,{url,dim,realType,isVideo:false,isPdf:false});};
     img.onerror=()=>{loading.innerHTML='Failed';loading.style.color='#f87';};
     img.src=url;item.insertBefore(img,item.firstChild);
   }catch(e){loading.innerHTML='Failed';loading.style.color='#f87';}
 }
 
-function applyThumbImage(item,loading,url,dim,realType,filename){
-  const img=document.createElement('img');img.alt=filename;img.loading='lazy';
-  img.onload=()=>{if(loading.parentNode===item)loading.remove();const d=item.querySelector('[data-dim]');if(d&&dim)d.textContent=dim;};
-  img.src=url;item.insertBefore(img,item.firstChild);
-  if(realType&&realType!=='heic'&&isHeic(filename)){const badge=item.querySelector('[data-badge]');if(badge){badge.textContent=`HEIC(${realType.toUpperCase()})`;badge.title=`Extension is HEIC but actual format is ${realType.toUpperCase()}`;}}
+function applyThumbImg(item,loading,cached){
+  const img=document.createElement('img');img.loading='lazy';
+  img.onload=()=>{if(loading.parentNode===item)loading.remove();const d=item.querySelector('[data-dim]');if(d&&cached.dim)d.textContent=cached.dim;};
+  img.src=cached.url;item.insertBefore(img,item.firstChild);
+  if(cached.isVideo){const p=document.createElement('div');p.className='thumb-play';p.innerHTML='<div class="thumb-play-icon" aria-hidden="true">▶</div>';item.appendChild(p);}
 }
-
-function addPlayOverlay(item){const play=document.createElement('div');play.className='thumb-play';play.innerHTML='<div class="thumb-play-icon" aria-hidden="true">▶</div>';item.appendChild(play);}
 
 async function loadVideoThumb(file,item,loading,key){
   const url=URL.createObjectURL(file);objectURLs.push(url);
   const badge=item.querySelector('[data-badge]');
   return new Promise(res=>{
-    const video=document.createElement('video');video.src=url;video.muted=true;video.playsInline=true;video.preload='metadata';
-    const onError=()=>{if(loading.parentNode===item){loading.innerHTML='Unplayable';loading.style.color='#f87';loading.style.fontSize='10px';}if(badge){badge.textContent=extOf(file.name).toUpperCase();badge.className='ext-badge unplayable-badge';badge.title='Cannot play in this browser';}video.remove();res();};
-    video.addEventListener('error',onError);
-    video.addEventListener('loadedmetadata',()=>{clearTimeout(metaTimer);video.currentTime=Math.min(1,(video.duration||0)*0.1);});
-    video.addEventListener('seeked',()=>{
-      try{
-        const canvas=document.createElement('canvas');canvas.width=video.videoWidth||320;canvas.height=video.videoHeight||320;
-        canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
-        canvas.toBlob(blob=>{
-          const thumbUrl=URL.createObjectURL(blob);objectURLs.push(thumbUrl);
-          const img=document.createElement('img');img.alt=file.name;
-          img.onload=()=>{if(loading.parentNode===item)loading.remove();};
-          img.src=thumbUrl;item.insertBefore(img,item.firstChild);
-          const dim=`${video.videoWidth} × ${video.videoHeight}`;
-          const d=item.querySelector('[data-dim]');if(d)d.textContent=dim;
-          addPlayOverlay(item);
-          if(badge)badge.className='ext-badge video-badge';
-          thumbCache.set(key,{url:thumbUrl,dim,realType:null,isVideo:true});
-          video.remove();res();
-        },'image/jpeg',0.85);
-      }catch(e){onError();}
-    });
-    const metaTimer=setTimeout(()=>{if(video.readyState<1)onError();},30000);
-    video.load();
+    const v=document.createElement('video');v.src=url;v.muted=true;v.playsInline=true;v.preload='metadata';
+    const onErr=()=>{if(loading.parentNode===item){loading.innerHTML='Unplayable';loading.style.color='#f87';loading.style.fontSize='10px';}if(badge){badge.className='ext-badge unplayable-badge';badge.title='Cannot play in this browser';}v.remove();res();};
+    v.addEventListener('error',onErr);
+    v.addEventListener('loadedmetadata',()=>{clearTimeout(mt);v.currentTime=Math.min(1,(v.duration||0)*0.1);});
+    v.addEventListener('seeked',()=>{try{const c=document.createElement('canvas');c.width=v.videoWidth||320;c.height=v.videoHeight||320;c.getContext('2d').drawImage(v,0,0,c.width,c.height);c.toBlob(blob=>{const tu=URL.createObjectURL(blob);objectURLs.push(tu);const img=document.createElement('img');img.onload=()=>{if(loading.parentNode===item)loading.remove();};img.src=tu;item.insertBefore(img,item.firstChild);const dim=`${v.videoWidth} × ${v.videoHeight}`;const d=item.querySelector('[data-dim]');if(d)d.textContent=dim;const p=document.createElement('div');p.className='thumb-play';p.innerHTML='<div class="thumb-play-icon" aria-hidden="true">▶</div>';item.appendChild(p);if(badge)badge.className='ext-badge video-badge';thumbCache.set(key,{url:tu,dim,realType:null,isVideo:true,isPdf:false});v.remove();res();},'image/jpeg',0.85);}catch(e){onErr();}});
+    const mt=setTimeout(()=>{if(v.readyState<1)onErr();},30000);v.load();
   });
+}
+
+async function loadPdfThumb(file,item,loading,key){
+  try{
+    const pdfjsLib=await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs');
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+    const ps=document.getElementById('pdfStatus');if(ps){ps.textContent='PDF: OK';ps.className='heif-status ready';}
+    const buf=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    const page=await pdf.getPage(1);
+    const vp=page.getViewport({scale:1.5});
+    const canvas=document.createElement('canvas');canvas.width=vp.width;canvas.height=vp.height;
+    await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+    const thumbUrl=await new Promise(res=>canvas.toBlob(b=>res(URL.createObjectURL(b)),'image/jpeg',0.88));
+    objectURLs.push(thumbUrl);
+    const dim=`${Math.round(vp.width/1.5)} × ${Math.round(vp.height/1.5)} pt`;
+    thumbCache.set(key,{url:thumbUrl,dim,realType:null,isVideo:false,isPdf:true});
+    const img=document.createElement('img');img.alt=file.name;
+    img.onload=()=>{if(loading.parentNode===item)loading.remove();const d=item.querySelector('[data-dim]');if(d)d.textContent=dim;};
+    img.src=thumbUrl;item.insertBefore(img,item.firstChild);
+  }catch(e){loading.innerHTML='Failed';loading.style.color='#f87';}
 }
 
 async function openLightbox(idx){
   currentIdx=idx;await updateLightbox();lightbox.classList.add('open');
   const videoWrap=document.getElementById('lbVideoWrap');
-  if(videoWrap.style.display!=='none')document.getElementById('lbVideo').focus();
-  else lightbox.focus();
+  if(videoWrap.style.display!=='none')document.getElementById('lbVideo').focus();else lightbox.focus();
 }
 
 async function updateLightbox(){
   const entry=filteredFiles[currentIdx];const name=entry.name||'';
   lbFilename.textContent=name;lbCounter.textContent=(currentIdx+1)+' / '+filteredFiles.length;
   const lbDimEl=document.getElementById('lbDim');if(lbDimEl)lbDimEl.textContent='';
-  const imgWrap=document.getElementById('lbImgWrap');const videoWrap=document.getElementById('lbVideoWrap');const lbVideo=document.getElementById('lbVideo');
-  lbImg.src='';lbVideo.pause();lbVideo.src='';
+  const imgWrap=document.getElementById('lbImgWrap');const videoWrap=document.getElementById('lbVideoWrap');const pdfWrap=document.getElementById('lbPdfWrap');
+  const lbVideo=document.getElementById('lbVideo');const pdfFrame=document.getElementById('lbPdfFrame');
+  lbImg.src='';lbVideo.pause();lbVideo.src='';pdfFrame.src='';
+  imgWrap.style.display='none';videoWrap.style.display='none';pdfWrap.style.display='none';
   try{
     const file=await resolveFile(entry);
-    imgWrap.style.display='none';videoWrap.style.display='none';
-    if(isVideo(file.name)){
-      const url=URL.createObjectURL(file);objectURLs.push(url);
-      videoWrap.style.display='flex';lbVideo.src=url;lbVideo.load();
-      lbVideo.onloadedmetadata=()=>{if(lbDimEl)lbDimEl.textContent=lbVideo.videoWidth?`${lbVideo.videoWidth} × ${lbVideo.videoHeight}`:'';}
-    }else{
-      const{url}=await makeURL(file);imgWrap.style.display='flex';lbImg.src=url;lbImg.alt=name;
-      lbImg.onload=()=>{if(lbDimEl)lbDimEl.textContent=lbImg.naturalWidth?`${lbImg.naturalWidth} × ${lbImg.naturalHeight}`:'';}
-    }
+    if(isVideo(file.name)){const url=URL.createObjectURL(file);objectURLs.push(url);videoWrap.style.display='flex';lbVideo.src=url;lbVideo.load();lbVideo.onloadedmetadata=()=>{if(lbDimEl)lbDimEl.textContent=lbVideo.videoWidth?`${lbVideo.videoWidth} × ${lbVideo.videoHeight}`:''};}
+    else if(isPdf(file.name)){const url=URL.createObjectURL(file);objectURLs.push(url);pdfWrap.style.display='flex';pdfFrame.src=url;}
+    else{const{url}=await makeURL(file);imgWrap.style.display='flex';lbImg.src=url;lbImg.alt=name;lbImg.onload=()=>{if(lbDimEl)lbDimEl.textContent=lbImg.naturalWidth?`${lbImg.naturalWidth} × ${lbImg.naturalHeight}`:''};}
   }catch(e){imgWrap.style.display='flex';lbImg.alt='Failed to load';}
 }
 
-function closeLightbox(){const lbVideo=document.getElementById('lbVideo');lbVideo.pause();lbVideo.src='';lbImg.src='';lightbox.classList.remove('open');}
+function closeLightbox(){const lbVideo=document.getElementById('lbVideo');lbVideo.pause();lbVideo.src='';lbImg.src='';document.getElementById('lbPdfFrame').src='';lightbox.classList.remove('open');}
 document.getElementById('lbClose').addEventListener('click',closeLightbox);
 document.getElementById('lbPrev').addEventListener('click',async()=>{currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length;await updateLightbox();});
 document.getElementById('lbNext').addEventListener('click',async()=>{currentIdx=(currentIdx+1)%filteredFiles.length;await updateLightbox();});
