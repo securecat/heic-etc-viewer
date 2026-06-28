@@ -56,7 +56,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - PDF support (thumbnail generated from page 1 via PDF.js; lightbox displays via iframe)
 - ICO support (rendered natively by the browser; multi-size ICO files show an `ICO(Multi)` badge)
-- PDF: OK status indicator
+- `PDF: OK` status indicator
 - New badge colors (PDF: red, ICO: green)
 
 ## [1.3.0] - 2026-06-27
@@ -65,7 +65,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Video support (MP4, WebM, MOV)
 - Video thumbnail generation via frame extraction
-- `Unsupported` badge for MOV files that cannot be played
+- `Unplayable` badge for MOV files that cannot be played
 - Video player in lightbox view
 - Play button (▶) overlay on video thumbnails
 
@@ -109,7 +109,122 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Support for JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, and TIFF formats
 - Thumbnail grid view
 - Lightbox view on thumbnail click
-- Keyboard navigation (← → to move between images, Esc to close)
+- Keyboard navigation (`←` `→` to move between images, `Esc` to close)
 - Filename filter, sort options, and thumbnail size slider
 - Dark theme
+
+---
+
+# 更新履歴
+
+## [2.1.0] - 2026-06-28
+
+### 追加
+
+- 「HeV」アイコンをBase64エンコードしてdata URIのfaviconとして埋め込み
+
+### 変更
+
+- ヘッダーのアプリアイコンを「HeV」アイコンに変更
+- 全UIテキスト・aria属性を英語化
+- カラーパレット調整（ボーダー・バッジ・スクロールバー等）
+- サムネ帯の背景を不透過に
+- 市松模様・ズームボタンのON状態ハイライト強化
+- lightbox内の画角表示・左右ボタン不透過化
+- ズーム表示のheaderとlb-info両方を避けるマージン
+- スライドショー開始を常にファイル番号1から
+
+## [2.0.0] - 2026-06-28
+
+### 追加
+
+- 動画ループボタン（🔁）→ 動画表示時のみ表示
+- スライドショーボタン（▷）→ ギャラリー表示時に出現
+- スライドショー中は常にファイル番号1から開始・ループ
+- 秒数入力欄 + 「play video to end」チェックボックス
+- スライドショー中はズーム・市松・ループボタン非表示
+- `L` キーでループトグル
+
+### 変更
+
+- アプリ名の正式名称を「HEIC etc Viewer」に決定し、ファイル名を「image-viewer.html」から「heic-etc-viewer」に変更
+
+## [1.5.0] - 2026-06-28
+
+### 追加
+
+- ライトボックスに 🔍 ズームモードボタン
+- ドラッグで矩形選択→選択範囲をライトボックスいっぱいに拡大表示
+- 矩形外はクリップ（canvas描画方式で動画は遅延なし）
+- 市松模様背景トグル（▦ ボタン、`C` キー）
+
+### 変更
+
+- ズームモード ON/OFF は `Z` キーでもトグル
+- `Esc` でズーム解除 → モード終了 → lightbox を閉じる の順
+- ウィンドウリサイズで追従
+- PDF 表示時はズームボタン非表示
+
+## [1.4.0] - 2026-06-28
+
+### 追加
+
+- PDF対応（PDF.jsで1ページ目をサムネ生成、ライトボックスはiframe表示）
+- ICO対応（ブラウザネイティブで表示、マルチサイズICOは `ICO(Multi)` バッジ）
+- `PDF: OK` ステータス表示
+- バッジ色追加（PDF: 赤、ICO: 緑）
+
+## [1.3.0] - 2026-06-27
+
+### 追加
+
+- 動画対応（MP4・WebM・MOV）
+- 動画サムネイル生成（フレーム切り出し）
+- MOV再生不可の場合は「Unplayable」バッジ表示
+- ライトボックスで動画プレーヤー表示
+- 動画サムネに ▶ オーバーレイ
+
+### 変更
+
+- 対応ファイル点数表示を「files」形式に
+
+## [1.2.0] - 2026-06-27
+
+### 追加
+
+- 左側にフォルダツリーパネル（折りたたみ可能）
+- ツリーの展開・折りたたみはトグルアイコン（▶）で、フォルダ名クリックは選択のみ
+- ルートノードは自動展開
+- ☰ボタンでツリーパネルの開閉
+
+### 削除
+
+- パンくずナビを廃止（ツリーで代替）
+
+## [1.1.0] - 2026-06-27
+
+### 追加
+
+- HEIC/HEIF対応（libheif.js、マジックバイト判定で実体がJPEGのHEICも正しく処理）
+- フォルダのドロップ対応（ドロップオーバーレイ付き）
+- サブフォルダ一覧表示→クリックで中に入る（パンくずナビ付き）
+- `HEIC: OK` ステータス表示
+
+### 変更
+
+- `file://` 判定（ドロップ無効化＋案内表示）
+- `HEIC(JPEG)` バッジ表示
+
+## [1.0.0] - 2026-06-25
+
+### 追加
+
+- 初回リリース
+- ボタンでフォルダ選択（webkitdirectory）
+- JPEG・PNG・WebP・GIF・AVIF・SVG・BMP・TIFF対応
+- サムネイルグリッド表示
+- クリックでライトボックス表示
+- `←` `→` キーで前後移動、`Esc`で閉じる
+- ファイル名フィルター、並び替え、サムネサイズスライダー
+- ダークテーマ
 
