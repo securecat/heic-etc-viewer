@@ -41,22 +41,23 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [2.1.0] - 2026-06-28
+### [2.1.1] - 2026-06-28
 
 #### Added
 
-- Embedded "HeV" icon as a Base64-encoded data URI favicon
+- Added version number display in the app header (muted color)
 
 #### Changed
 
-- Replaced header app icon with "HeV" icon
-- Localized all UI text and aria attributes to English
-- Adjusted color palette (borders, badges, scrollbars, etc.)
-- Made thumbnail strip background fully opaque
-- Strengthened highlight style for active checkerboard and zoom buttons
-- Made image dimensions display and prev/next buttons fully opaque in lightbox
-- Added margin to zoom view to avoid overlap with header and lb-info bar
-- Slideshow now always starts from file `1`
+- Consolidated two separate empty-state elements into one; local server guide section now only shown when running on `file://`
+- Simplified the HTTP empty state to a single line of text
+- Translated remaining Japanese UI text, `title`, and `aria-label` attributes to English
+
+#### Fixed
+
+- Thumbnail error labels (e.g. "Unplayable", "Failed to load") now wrap to multiple lines before clipping
+- `$RECYCLE.BIN` folder is now excluded from the folder tree (both drag-and-drop and folder picker)
+- Lightbox image not displaying due to `width`/`height` HTML attributes overriding CSS dimensions
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -105,22 +106,23 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [2.1.0] - 2026-06-28
+### [2.1.1] - 2026-06-28
 
 #### 追加
 
-- 「HeV」アイコンをBase64エンコードしてdata URIのfaviconとして埋め込み
+- アプリヘッダーにバージョン番号を表示（ミュートカラー）
 
 #### 変更
 
-- ヘッダーのアプリアイコンを「HeV」アイコンに変更
-- 全UIテキスト・aria属性を英語化
-- カラーパレット調整（ボーダー・バッジ・スクロールバー等）
-- サムネ帯の背景を不透過に
-- 市松模様・ズームボタンのON状態ハイライト強化
-- lightbox内の画角表示・左右ボタン不透過化
-- ズーム表示のheaderとlb-info両方を避けるマージン
-- スライドショー開始を常にファイル番号1から
+- 初期状態の2つのdiv要素を1つに統合；ローカルサーバー案内は `file://` で動作時のみ表示
+- HTTPでの初期表示を1行の英語テキストに簡略化
+- UIテキスト・`title`・`aria-label` 属性の英語訳漏れを修正
+
+#### 修正
+
+- サムネイルのエラーラベル（「Unplayable」「Failed to load」など）が断ち切られる前に複数行に折り返されるよう対応
+- `$RECYCLE.BIN` フォルダをフォルダツリーから除外（ドラッグ＆ドロップ・フォルダ選択の両方）
+- lightbox内で静止画が表示されない問題を修正（HTML `width`/`height` 属性がCSSを上書きしていた）
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

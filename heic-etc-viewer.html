@@ -258,6 +258,15 @@ input[type="range"]::-webkit-slider-thumb {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 6px;
   color: var(--text-muted); font-size: 11px;
+  overflow: hidden;
+}
+.thumb-loading-text {
+  width: 100%;
+  padding: 0 6px;
+  box-sizing: border-box;
+  text-align: center;
+  word-break: break-word;
+  overflow: hidden;
 }
 .thumb-spinner {
   width: 18px; height: 18px;
@@ -372,7 +381,7 @@ input[type="range"]::-webkit-slider-thumb {
   display: flex; align-items: center; justify-content: center;
   padding: 50px 56px;
 }
-.lb-img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
+.lb-img-wrap img { width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
 .lb-video-wrap video { max-width: 100%; max-height: 100%; border-radius: 4px; outline: none; }
 
 /* ── zoom ── */
@@ -440,7 +449,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 <div class="toolbar" role="toolbar" aria-label="Toolbar">
   <button class="btn-icon" id="btnToggleTree" aria-label="Toggle folder tree" title="Toggle tree">☰</button>
-  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer</span>
+  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v2.1.1</span></span>
   <button class="btn primary" id="btnPick">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
   <span class="heif-status loading" id="heifStatus" aria-live="polite">HEIC…</span>
@@ -467,33 +476,29 @@ input[type="range"]::-webkit-slider-thumb {
 
   <!-- メインエリア -->
   <div class="main-area" id="mainArea">
-    <!-- 初期状態 (http) -->
-    <div class="empty-state" id="emptyState" role="region" aria-label="初期案内">
+    <!-- 初期状態 -->
+    <div class="empty-state" id="emptyState" role="region" aria-label="Welcome screen">
       <div class="empty-icon" aria-hidden="true">📂</div>
-      <h2>Drop folder here、またはボタンで選択</h2>
-      <p>JPEG・PNG・WebP・GIF・AVIF・SVG・HEIC に対応<br>ツリーで深いフォルダもナビゲートできます</p>
-    </div>
-    <!-- 初期状態 (file://) -->
-    <div class="empty-state" id="emptyStateFile" role="region" aria-label="初期案内（ローカル）" style="display:none">
-      <div class="empty-icon" aria-hidden="true">📂</div>
-      <h2>Use the Open Folder button above</h2>
-      <p>Run a local server to enable folder drag &amp; drop.<br><br>
-      In Command Prompt, navigate to the folder containing <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">heic-etc-viewer.html</code> and run:</p>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;width:100%;max-width:340px">
-        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px">
-          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">With Node.js</div>
-          <code style="font-size:13px;letter-spacing:0.02em">npx serve .</code>
+      <h2 id="emptyStateTitle">Drag a folder here, or use the Open Folder button above</h2>
+      <div id="localServerGuide" style="display:none;flex-direction:column;align-items:center;gap:14px;width:100%">
+        <p>Run a local server to enable folder drag &amp; drop.</p>
+        <p style="margin-top:8px">In Command Prompt, navigate to the folder containing <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">heic-etc-viewer.html</code> and run:</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;width:100%;max-width:340px;margin-left:auto;margin-right:auto">
+          <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px">
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">With Node.js</div>
+            <code style="font-size:13px;letter-spacing:0.02em">npx serve .</code>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px">
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">With Python</div>
+            <code style="font-size:13px;letter-spacing:0.02em">python -m http.server 8080</code>
+          </div>
         </div>
-        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px">
-          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">With Python</div>
-          <code style="font-size:13px;letter-spacing:0.02em">python -m http.server 8080</code>
-        </div>
+        <p style="margin-top:4px">Then open <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">http://localhost:3000/heic-etc-viewer.html</code> in your browser.</p>
       </div>
-      <p style="margin-top:4px">Then open <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">http://localhost:3000/heic-etc-viewer.html</code> in your browser.</p>
     </div>
     <!-- ギャラリー -->
     <div class="gallery-wrap" id="galleryWrap" style="display:none">
-      <main class="gallery" id="gallery" role="main" aria-label="Thumbnail gallery"></main>
+      <main class="gallery" id="gallery" aria-label="Thumbnail gallery"></main>
     </div>
   </div>
 </div>
@@ -525,12 +530,12 @@ input[type="range"]::-webkit-slider-thumb {
     </div>
     <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
   </div>
-  <div class="lb-img-wrap" id="lbImgWrap"><img id="lbImg" src="" alt=""></div>
+  <div class="lb-img-wrap" id="lbImgWrap"><img id="lbImg" src="" alt="" width="1" height="1"></div>
   <div class="lb-video-wrap" id="lbVideoWrap" style="display:none">
-    <video id="lbVideo" controls autoplay></video>
+    <video id="lbVideo" controls autoplay muted><track kind="captions" src=""></video>
   </div>
   <div class="lb-video-wrap" id="lbPdfWrap" style="display:none">
-    <iframe id="lbPdfFrame" style="width:100%;height:100%;border:none;border-radius:4px;" title="PDFビューワー"></iframe>
+    <iframe id="lbPdfFrame" style="width:100%;height:100%;border:none;border-radius:4px;" title="PDF viewer" loading="lazy"></iframe>
   </div>
   <button class="lb-nav prev" id="lbPrev" aria-label="Previous">‹</button>
   <button class="lb-nav next" id="lbNext" aria-label="Next">›</button>
@@ -662,8 +667,8 @@ document.getElementById('btnToggleTree').addEventListener('click', () => {
 // ── file:// 判定 ─────────────────────────────────────────────────
 const isFileProtocol = window.location.protocol === 'file:';
 if (isFileProtocol) {
-  document.getElementById('emptyState').style.display = 'none';
-  document.getElementById('emptyStateFile').style.display = 'flex';
+  document.getElementById('emptyStateTitle').textContent = 'Use the Open Folder button above';
+  document.getElementById('localServerGuide').style.display = 'flex';
 }
 
 // ── ドロップ ──────────────────────────────────────────────────────
@@ -704,7 +709,7 @@ document.body.addEventListener('drop', async e => {
     // 複数 or ファイル混在: 疑似ルートとして扱う（ツリー非対応）
     // ファイルだけ並べる
     const files = await Promise.all(entries.filter(e => e.isFile && ALL_EXTS.includes(extOf(e.name))).map(e => getEntryFile(e)));
-    loadFlatFiles(files, 'ドロップされたファイル');
+    loadFlatFiles(files, 'Dropped files');
     return;
   }
   await loadDirectoryEntry(dirEntry);
@@ -717,7 +722,7 @@ fileInput.addEventListener('change', async e => {
   if (!files.length) return;
   revokeAll();
   clearThumbCache();
-  const rootName = files[0].webkitRelativePath.split('/')[0] || 'フォルダ';
+  const rootName = files[0].webkitRelativePath.split('/')[0] || 'Folder';
   const node = buildTreeFromFileList(rootName, files);
   rootNode = node;
   renderTree();
@@ -781,7 +786,7 @@ async function expandNode(node) {
       }
     }
     node.children = children
-      .filter(c => c.isDirectory)
+      .filter(c => c.isDirectory && c.name !== '$RECYCLE.BIN')
       .map(c => ({ name: c.name, entry: c, files: null, children: null, loaded: false, el: null, parent: node }))
       .sort((a, b) => a.name.localeCompare(b.name, 'ja'));
   }
@@ -816,6 +821,7 @@ function buildTreeFromFileList(rootName, files) {
 
   files.forEach(f => {
     const parts = f.webkitRelativePath.split('/');
+    if (parts.includes('$RECYCLE.BIN')) return;
     // parts[0] = rootName, parts[last] = filename
     if (parts.length === 2) {
       if (ALL_EXTS.includes(extOf(f.name))) root._fileObjects.push(f);
@@ -1045,7 +1051,6 @@ function renderGallery() {
   filteredFiles = q ? sorted.filter(f => (f.name||'').toLowerCase().includes(q)) : sorted;
 
   emptyState.style.display = 'none';
-  document.getElementById('emptyStateFile').style.display = 'none';
   galleryWrap.style.display = 'flex';
   galleryWrap.style.flexDirection = 'column';
   gallery.innerHTML = '';
@@ -1059,13 +1064,7 @@ function renderGallery() {
   document.getElementById('btnSlideshow').style.display = (rootNode && hasSsTargets) ? '' : 'none';
 
   if (!rootNode) {
-    if (isFileProtocol) {
-      document.getElementById('emptyStateFile').style.display = 'flex';
-      document.getElementById('emptyState').style.display = 'none';
-    } else {
-      document.getElementById('emptyState').style.display = 'flex';
-      document.getElementById('emptyStateFile').style.display = 'none';
-    }
+    emptyState.style.display = 'flex';
     galleryWrap.style.display = 'none';
     return;
   }
@@ -1146,7 +1145,7 @@ async function loadThumb(entry, item, loading) {
       const badge = item.querySelector('[data-badge]');
       if (badge) {
         badge.textContent = `HEIC(${realType.toUpperCase()})`;
-        badge.title = `拡張子はHEICですが実体は${realType.toUpperCase()}です`;
+        badge.title = `File extension is HEIC but actual format is ${realType.toUpperCase()}`;
       }
     }
     // ICOのマルチサイズ判定
@@ -1156,7 +1155,7 @@ async function loadThumb(entry, item, loading) {
       const badge = item.querySelector('[data-badge]');
       if (badge && count >= 2) {
         badge.textContent = `ICO(Multi)`;
-        badge.title = `${count}サイズ入りのマルチICOです`;
+        badge.title = `Multi-size ICO (${count} sizes)`;
       }
       const img = document.createElement('img');
       img.alt = file.name; img.loading = 'lazy';
@@ -1167,7 +1166,7 @@ async function loadThumb(entry, item, loading) {
         if (dimEl) dimEl.textContent = dim;
         thumbCache.set(key, { url, dim, realType, icoCount: count });
       };
-      img.onerror = () => { loading.innerHTML='読込失敗'; loading.style.color='#f87'; };
+      img.onerror = () => { loading.innerHTML='<span class="thumb-loading-text">Failed to load</span>'; loading.style.color='#f87'; };
       img.src = url;
       item.insertBefore(img, item.firstChild);
       return;
@@ -1181,11 +1180,11 @@ async function loadThumb(entry, item, loading) {
       if (dimEl) dimEl.textContent = dim;
       thumbCache.set(key, { url, dim, realType });
     };
-    img.onerror = () => { loading.innerHTML='読込失敗'; loading.style.color='#f87'; };
+    img.onerror = () => { loading.innerHTML='<span class="thumb-loading-text">Failed to load</span>'; loading.style.color='#f87'; };
     img.src = url;
     item.insertBefore(img, item.firstChild);
   } catch(e) {
-    loading.innerHTML = '読込失敗';
+    loading.innerHTML = '<span class="thumb-loading-text">Failed to load</span>';
     loading.style.color = '#f87';
     console.warn('thumb failed:', entry.name, e);
   }
@@ -1205,14 +1204,14 @@ function applyThumbImage(item, loading, url, dim, realType, filename, icoCount) 
     const badge = item.querySelector('[data-badge]');
     if (badge) {
       badge.textContent = `HEIC(${realType.toUpperCase()})`;
-      badge.title = `拡張子はHEICですが実体は${realType.toUpperCase()}です`;
+      badge.title = `File extension is HEIC but actual format is ${realType.toUpperCase()}`;
     }
   }
   if (isIco(filename) && icoCount >= 2) {
     const badge = item.querySelector('[data-badge]');
     if (badge) {
       badge.textContent = 'ICO(Multi)';
-      badge.title = `${icoCount}サイズ入りのマルチICOです`;
+      badge.title = `Multi-size ICO (${icoCount} sizes)`;
     }
   }
 }
@@ -1257,7 +1256,7 @@ async function loadPdfThumb(file, item, loading, key) {
     img.src = thumbUrl;
     item.insertBefore(img, item.firstChild);
   } catch(e) {
-    loading.innerHTML = '読込失敗';
+    loading.innerHTML = '<span class="thumb-loading-text">Failed to load</span>';
     loading.style.color = '#f87';
     console.warn('pdf thumb failed:', file.name, e);
   }
@@ -1296,11 +1295,11 @@ async function loadVideoThumb(file, item, loading, key) {
 
     const onError = () => {
       if (loading.parentNode === item) {
-        loading.innerHTML = '再生不可';
+        loading.innerHTML = '<span class="thumb-loading-text">Unplayable</span>';
         loading.style.color = '#f87';
         loading.style.fontSize = '11px';
       }
-      if (badge) { badge.textContent = extOf(file.name).toUpperCase(); badge.className = 'ext-badge unplayable-badge'; badge.title = 'このブラウザでは再生できません'; }
+      if (badge) { badge.textContent = extOf(file.name).toUpperCase(); badge.className = 'ext-badge unplayable-badge'; badge.title = 'Cannot be played in this browser'; }
       video.remove();
       res();
     };
@@ -1414,7 +1413,7 @@ async function updateLightbox() {
   } catch(e) {
     imgWrap.style.display   = 'flex';
     videoWrap.style.display = 'none';
-    lbImg.alt = '表示できませんでした';
+    lbImg.alt = 'Failed to display';
   }
   setupZoomForCurrentMedia();
   if (ssActive) scheduleNext();

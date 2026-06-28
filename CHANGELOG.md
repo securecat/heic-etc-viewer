@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [2.1.1] - 2026-06-28
+
+### Added
+
+- Added version number display in the app header (muted color)
+
+### Changed
+
+- Consolidated two separate empty-state elements into one; local server guide section now only shown when running on `file://`
+- Simplified the HTTP empty state to a single line of text
+- Translated remaining Japanese UI text, `title`, and `aria-label` attributes to English
+
+### Fixed
+
+- Thumbnail error labels (e.g. "Unplayable", "Failed to load") now wrap to multiple lines before clipping
+- `$RECYCLE.BIN` folder is now excluded from the folder tree (both drag-and-drop and folder picker)
+- Lightbox image not displaying due to `width`/`height` HTML attributes overriding CSS dimensions
+
 ## [2.1.0] - 2026-06-28
 
 ### Added
@@ -116,6 +134,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [2.1.1] - 2026-06-28
+
+### 追加
+
+- アプリヘッダーにバージョン番号を表示（ミュートカラー）
+
+### 変更
+
+- 初期状態の2つのdiv要素を1つに統合；ローカルサーバー案内は `file://` で動作時のみ表示
+- HTTPでの初期表示を1行の英語テキストに簡略化
+- UIテキスト・`title`・`aria-label` 属性の英語訳漏れを修正
+
+### 修正
+
+- サムネイルのエラーラベル（「Unplayable」「Failed to load」など）が断ち切られる前に複数行に折り返されるよう対応
+- `$RECYCLE.BIN` フォルダをフォルダツリーから除外（ドラッグ＆ドロップ・フォルダ選択の両方）
+- lightbox内で静止画が表示されない問題を修正（HTML `width`/`height` 属性がCSSを上書きしていた）
 
 ## [2.1.0] - 2026-06-28
 
