@@ -41,23 +41,15 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [2.1.1] - 2026-06-28
+### [2.1.2] - 2026-06-29
 
 #### Added
 
-- Added version number display in the app header (muted color)
-
-#### Changed
-
-- Consolidated two separate empty-state elements into one; local server guide section now only shown when running on `file://`
-- Simplified the HTTP empty state to a single line of text
-- Translated remaining Japanese UI text, `title`, and `aria-label` attributes to English
+- Added a privacy note in the empty state (shown when running on a web server) clarifying that no data is sent to any server
 
 #### Fixed
 
-- Thumbnail error labels (e.g. "Unplayable", "Failed to load") now wrap to multiple lines before clipping
-- `$RECYCLE.BIN` folder is now excluded from the folder tree (both drag-and-drop and folder picker)
-- Lightbox image not displaying due to `width`/`height` HTML attributes overriding CSS dimensions
+- Video thumbnails incorrectly showing "Unplayable" for large video files due to a 30-second metadata load timeout; timeout removed as the `error` event already handles truly unplayable formats
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -102,27 +94,19 @@ npx serve .
 python -m http.server 8080
 ```
 
-ローカルサーバ―起動後、Chromeで `http://localhost:3000/heic-etc-viewer.html` を開きます。
+ローカルサーバー起動後、Chromeで `http://localhost:3000/heic-etc-viewer.html` を開きます。
 
 ## 更新履歴
 
-### [2.1.1] - 2026-06-28
+### [2.1.2] - 2026-06-29
 
 #### 追加
 
-- アプリヘッダーにバージョン番号を表示（ミュートカラー）
-
-#### 変更
-
-- 初期状態の2つのdiv要素を1つに統合；ローカルサーバー案内は `file://` で動作時のみ表示
-- HTTPでの初期表示を1行の英語テキストに簡略化
-- UIテキスト・`title`・`aria-label` 属性の英語訳漏れを修正
+- Webサーバー上で動作している場合、初期画面にプライバシーノートを表示（データはサーバーに送信されない旨）
 
 #### 修正
 
-- サムネイルのエラーラベル（「Unplayable」「Failed to load」など）が断ち切られる前に複数行に折り返されるよう対応
-- `$RECYCLE.BIN` フォルダをフォルダツリーから除外（ドラッグ＆ドロップ・フォルダ選択の両方）
-- lightbox内で静止画が表示されない問題を修正（HTML `width`/`height` 属性がCSSを上書きしていた）
+- 大きな動画ファイルで、メタデータ読み込みの30秒タイムアウトにより「Unplayable」と誤表示される問題を修正；`error` イベントが再生不可を検出するため、タイムアウト自体を削除
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

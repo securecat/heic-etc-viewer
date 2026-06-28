@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [2.1.2] - 2026-06-29
+
+### Added
+
+- Added a privacy note in the empty state (shown when running on a web server) clarifying that no data is sent to any server
+
+### Fixed
+
+- Video thumbnails incorrectly showing "Unplayable" for large video files due to a 30-second metadata load timeout; timeout removed as the `error` event already handles truly unplayable formats
+
 ## [2.1.1] - 2026-06-28
 
 ### Added
@@ -134,6 +144,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [2.1.2] - 2026-06-29
+
+### 追加
+
+- Webサーバー上で動作している場合、初期画面にプライバシーノートを表示（データはサーバーに送信されない旨）
+
+### 修正
+
+- 大きな動画ファイルで、メタデータ読み込みの30秒タイムアウトにより「Unplayable」と誤表示される問題を修正；`error` イベントが再生不可を検出するため、タイムアウト自体を削除
 
 ## [2.1.1] - 2026-06-28
 
