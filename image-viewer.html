@@ -6,48 +6,60 @@
 <title>Image Viewer</title>
 <style>
 :root {
-  --bg: #161616; --bg-card: #222; --bg-toolbar: #1c1c1c; --bg-drop: #1e2230;
+  --bg: #161616; --bg-card: #222; --bg-toolbar: #1c1c1c; --bg-tree: #1a1a1a; --bg-drop: #1e2230;
   --text: #e4e4e4; --text-muted: #777;
-  --border: rgba(255,255,255,0.09); --border-hover: rgba(255,255,255,0.18);
-  --accent: #6b8cff; --accent-hover: #5a7aee;
+  --border: #767676; --border-hover: rgba(255,255,255,0.18);
+  --accent: #699EFF; --accent-hover: #4D6EE1; --accent-bg: rgba(107,140,255,0.15);
   --thumb-bg: #242424; --overlay: rgba(0,0,0,0.9);
-  --folder-bg: #252830; --folder-hover: #2e3240;
-  --accent-bg: rgba(107,140,255,0.15);
-  --radius: 8px; --radius-lg: 12px;
+  --radius: 8px; --radius-lg: 12px; --tree-width: 220px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
 .toolbar { background: var(--bg-toolbar); border-bottom: 1px solid var(--border); padding: 8px 14px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; z-index: 100; }
-.app-title { font-size: 14px; font-weight: 600; white-space: nowrap; }
-.btn { background: transparent; border: 1px solid var(--border-hover); color: var(--text); border-radius: var(--radius); padding: 5px 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap; transition: background 0.15s; }
+.app-title { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.btn { background: transparent; border: 1px solid var(--border-hover); color: var(--text); border-radius: var(--radius); padding: 5px 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap; flex-shrink: 0; transition: background 0.15s; }
 .btn:hover { background: rgba(255,255,255,0.06); }
-.btn.primary { background: var(--accent); border-color: transparent; color: #fff; }
+.btn.primary { background: #4D6EE1; border-color: transparent; color: #fff; }
 .btn.primary:hover { background: var(--accent-hover); }
-.btn-icon { background: transparent; border: 1px solid var(--border-hover); color: var(--text); border-radius: var(--radius); width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; transition: background 0.15s; }
+.btn-icon { background: transparent; border: 1px solid #767676; color: var(--text); border-radius: var(--radius); width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; transition: background 0.15s; }
 .btn-icon:hover { background: rgba(255,255,255,0.06); }
-.toolbar-sep { flex: 1; }
+.toolbar-sep { flex: 1; min-width: 0; }
 .status { font-size: 11px; color: #E4E4E4; white-space: nowrap; }
 .heif-status { font-size: 11px; padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; }
 .heif-status.loading { background: rgba(255,200,0,0.12); color: #ffc; }
 .heif-status.ready   { background: rgba(100,255,150,0.1); color: #9fa; }
 .heif-status.error   { background: rgba(255,100,100,0.12); color: #faa; }
-.filter-input { background: var(--bg-card); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 4px 8px; font-size: 12px; outline: none; width: 130px; }
+.filter-input { background: var(--bg-card); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 4px 8px; font-size: 12px; outline: none; width: 120px; min-width: 0; }
 .filter-input::placeholder { color: #949494; }
 .filter-input:focus { border-color: var(--accent); }
-.sort-select { background: var(--bg-card); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 4px 6px; font-size: 12px; outline: none; }
-input[type="range"] { -webkit-appearance: none; width: 80px; height: 3px; border-radius: 2px; background: var(--border-hover); outline: none; cursor: pointer; }
-input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--accent); cursor: pointer; }
-
-.breadcrumb { display: none; align-items: center; gap: 4px; padding: 8px 16px; font-size: 12px; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--bg-toolbar); flex-wrap: wrap; }
-.breadcrumb.visible { display: flex; }
-.breadcrumb-item { cursor: pointer; color: var(--accent); padding: 2px 4px; border-radius: 4px; }
-.breadcrumb-item:hover { background: rgba(107,140,255,0.12); }
-.breadcrumb-item.current { color: var(--text); cursor: default; }
-.breadcrumb-item.current:hover { background: none; }
-.breadcrumb-sep { color: var(--border-hover); }
+.sort-select { background: var(--bg-card); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 4px 6px; font-size: 12px; outline: none; flex-shrink: 0; }
+input[type="range"] { -webkit-appearance: none; width: 70px; height: 3px; border-radius: 2px; background: #767676; outline: none; cursor: pointer; flex-shrink: 0; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); cursor: pointer; }
 
 .app-body { display: flex; flex: 1; overflow: hidden; }
+
+/* ── Tree panel ── */
+.tree-panel { width: var(--tree-width); min-width: var(--tree-width); background: var(--bg-tree); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; transition: width 0.2s, min-width 0.2s; flex-shrink: 0; }
+.tree-panel.collapsed { width: 0; min-width: 0; border-right: none; }
+.tree-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 4px 0; }
+.tree-scroll::-webkit-scrollbar { width: 4px; }
+.tree-scroll::-webkit-scrollbar-track { background: transparent; }
+.tree-scroll::-webkit-scrollbar-thumb { background: #003596; border-radius: 2px; }
+.tree-scroll::-webkit-scrollbar-thumb:hover { background: #1a4db0; }
+.tree-node { user-select: none; }
+.tree-row { display: flex; align-items: center; padding: 3px 0; cursor: pointer; border-radius: 5px; margin: 0 4px; font-size: 12px; color: #949494; white-space: nowrap; transition: background 0.1s, color 0.1s; }
+.tree-row:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+.tree-row.active { background: var(--accent-bg); color: #699EFF; }
+.tree-toggle { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 9px; flex-shrink: 0; color: #949494; transition: transform 0.15s; cursor: pointer; border-radius: 3px; }
+.tree-toggle:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+.tree-toggle.open { transform: rotate(90deg); }
+.tree-toggle.empty { opacity: 0; pointer-events: none; }
+.tree-icon { font-size: 13px; margin-right: 4px; flex-shrink: 0; }
+.tree-label { overflow: hidden; text-overflow: ellipsis; flex: 1; padding-right: 6px; }
+.tree-children { display: none; }
+.tree-children.open { display: block; }
+
 .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
 .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: var(--text-muted); padding: 40px; }
@@ -55,20 +67,11 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 13p
 .empty-state h2 { font-size: 14px; font-weight: 500; color: #949494; }
 .empty-state p { font-size: 12px; color: #949494; text-align: center; line-height: 1.7; }
 
-.folder-section { padding: 14px 16px 0; display: none; }
-.folder-section.visible { display: block; }
-.section-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
-.folder-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-.folder-item { display: flex; align-items: center; gap: 7px; background: var(--folder-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 12px 6px 10px; cursor: pointer; font-size: 13px; transition: background 0.15s; }
-.folder-item:hover { background: var(--folder-hover); border-color: var(--border-hover); }
-.folder-count { font-size: 11px; color: var(--text-muted); margin-left: 2px; }
-
 .gallery-wrap { flex: 1; overflow-y: auto; overflow-x: hidden; }
 .gallery-wrap::-webkit-scrollbar { width: 6px; }
 .gallery-wrap::-webkit-scrollbar-track { background: transparent; }
 .gallery-wrap::-webkit-scrollbar-thumb { background: #003596; border-radius: 3px; }
 .gallery-wrap::-webkit-scrollbar-thumb:hover { background: #1a4db0; }
-
 .gallery { padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--thumb-size, 160px), 1fr)); gap: 8px; align-content: start; }
 .no-images { grid-column: 1/-1; padding: 40px; text-align: center; color: #949494; font-size: 13px; }
 
@@ -113,6 +116,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 13p
 <body>
 
 <div class="toolbar" role="toolbar" aria-label="Toolbar">
+  <button class="btn-icon" id="btnToggleTree" aria-label="Toggle folder tree" title="Toggle tree">☰</button>
   <span class="app-title">📷 Image Viewer</span>
   <button class="btn primary" id="btnPick">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
@@ -127,16 +131,18 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 13p
     <option value="type">Type</option>
   </select>
   <input type="range" id="sizeSlider" min="80" max="300" value="190" step="55" aria-label="Thumbnail size">
+  <button class="btn-icon" id="btnReload" aria-label="Reload (clear cache)" title="Reload" style="display:none">↺</button>
 </div>
 
-<nav class="breadcrumb" id="breadcrumb" aria-label="Current location"></nav>
-
 <div class="app-body">
+  <aside class="tree-panel" id="treePanel" aria-label="Folder tree">
+    <div class="tree-scroll" id="treeScroll" role="tree"></div>
+  </aside>
   <div class="main-area" id="mainArea">
     <div class="empty-state" id="emptyState" role="region">
       <div class="empty-icon" aria-hidden="true">📂</div>
       <h2>Drop a folder or use the Open button</h2>
-      <p>Supports JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, HEIC/HEIF</p>
+      <p>Supports JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, HEIC/HEIF<br>Navigate deep folders with the tree panel</p>
     </div>
     <div class="empty-state" id="emptyStateFile" role="region" style="display:none">
       <div class="empty-icon" aria-hidden="true">📂</div>
@@ -154,10 +160,6 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 13p
         </div>
       </div>
       <p style="margin-top:4px">Then open <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">http://localhost:3000/image-viewer.html</code> in your browser.</p>
-    </div>
-    <div class="folder-section" id="folderSection">
-      <div class="section-label">Subfolders</div>
-      <div class="folder-grid" id="folderGrid"></div>
     </div>
     <div class="gallery-wrap" id="galleryWrap" style="display:none">
       <main class="gallery" id="gallery" role="main" aria-label="Thumbnail gallery"></main>
@@ -187,19 +189,14 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 13p
 
 <script src="https://cdn.jsdelivr.net/npm/libheif-js@1.19.8/libheif-wasm/libheif-bundle.js"></script>
 <script>
-// ── libheif ──────────────────────────────────────────────────────
 let heifLib = null;
 const heifStatus = document.getElementById('heifStatus');
 (async () => {
   try {
     if (typeof libheif === 'undefined') throw new Error('not found');
     heifLib = await libheif();
-    heifStatus.textContent = 'HEIC: OK';
-    heifStatus.className = 'heif-status ready';
-  } catch(e) {
-    heifStatus.textContent = 'HEIC: NG';
-    heifStatus.className = 'heif-status error';
-  }
+    heifStatus.textContent = 'HEIC: OK'; heifStatus.className = 'heif-status ready';
+  } catch(e) { heifStatus.textContent = 'HEIC: NG'; heifStatus.className = 'heif-status error'; }
 })();
 
 async function detectRealType(file) {
@@ -209,7 +206,6 @@ async function detectRealType(file) {
   if (h[0]===0x47&&h[1]===0x49&&h[2]===0x46) return 'gif';
   return 'heic';
 }
-
 async function heicToURL(file) {
   const realType = await detectRealType(file);
   if (realType !== 'heic') return { url: URL.createObjectURL(file), realType };
@@ -218,274 +214,304 @@ async function heicToURL(file) {
   const decoder = new heifLib.HeifDecoder();
   const images = decoder.decode(data);
   if (!images||!images.length) throw new Error('decode failed');
-  const img = images[0];
-  const w = img.get_width(), h = img.get_height();
-  const canvas = document.createElement('canvas');
-  canvas.width = w; canvas.height = h;
-  const ctx = canvas.getContext('2d');
-  const imageData = ctx.createImageData(w, h);
-  await new Promise((res,rej) => img.display(imageData, r => r ? res() : rej(new Error('display failed'))));
-  ctx.putImageData(imageData, 0, 0);
-  const url = await new Promise(res => canvas.toBlob(b => res(URL.createObjectURL(b)), 'image/jpeg', 0.9));
-  return { url, realType: 'heic' };
+  const img = images[0]; const w=img.get_width(), h=img.get_height();
+  const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+  const ctx=canvas.getContext('2d'); const imageData=ctx.createImageData(w,h);
+  await new Promise((res,rej)=>img.display(imageData,r=>r?res():rej(new Error('display failed'))));
+  ctx.putImageData(imageData,0,0);
+  const url=await new Promise(res=>canvas.toBlob(b=>res(URL.createObjectURL(b)),'image/jpeg',0.9));
+  return { url, realType:'heic' };
 }
 
-// ── 定数・状態 ───────────────────────────────────────────────────
-const IMG_EXTS  = ['jpg','jpeg','png','gif','webp','avif','svg','bmp','tiff','tif'];
-const HEIC_EXTS = ['heic','heif'];
-const ALL_EXTS  = [...IMG_EXTS, ...HEIC_EXTS];
+const IMG_EXTS=['jpg','jpeg','png','gif','webp','avif','svg','bmp','tiff','tif'];
+const HEIC_EXTS=['heic','heif'];
+const ALL_EXTS=[...IMG_EXTS,...HEIC_EXTS];
+function extOf(name){return(name||'').split('.').pop().toLowerCase();}
+function isImage(name){return ALL_EXTS.includes(extOf(name));}
+function isHeic(name){return HEIC_EXTS.includes(extOf(name));}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-function extOf(name) { return (name||'').split('.').pop().toLowerCase(); }
-function isImage(name) { return ALL_EXTS.includes(extOf(name)); }
-function isHeic(name)  { return HEIC_EXTS.includes(extOf(name)); }
-function escHtml(s)    { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+let rootNode=null, currentNode=null, filteredFiles=[], objectURLs=[], currentIdx=0;
+const thumbCache=new Map();
+const isFileProtocol=window.location.protocol==='file:';
 
-let navStack = [], currentEntries = null, filteredFiles = [], objectURLs = [], currentIdx = 0;
-const thumbCache = new Map();
+if (isFileProtocol) { document.getElementById('emptyState').style.display='none'; document.getElementById('emptyStateFile').style.display='flex'; }
 
-const isFileProtocol = window.location.protocol === 'file:';
-if (isFileProtocol) {
-  document.getElementById('emptyState').style.display = 'none';
-  document.getElementById('emptyStateFile').style.display = 'flex';
-}
-
-function revokeAll() { objectURLs.forEach(u => { try { URL.revokeObjectURL(u); } catch(e){} }); objectURLs = []; }
-function cacheKey(file) { return file.webkitRelativePath || `${file.name}__${file.size}`; }
+function revokeAll(){objectURLs.forEach(u=>{try{URL.revokeObjectURL(u);}catch(e){}});objectURLs=[];}
+function cacheKey(file){return file.webkitRelativePath||`${file.name}__${file.size}`;}
+function clearThumbCache(){thumbCache.forEach(v=>{try{URL.revokeObjectURL(v.url);}catch(e){}});thumbCache.clear();}
 
 async function makeURL(file) {
-  let url, realType;
-  if (isHeic(file.name)) { const r = await heicToURL(file); url = r.url; realType = r.realType; }
-  else { url = URL.createObjectURL(file); realType = null; }
+  let url,realType;
+  if (isHeic(file.name)){const r=await heicToURL(file);url=r.url;realType=r.realType;}
+  else{url=URL.createObjectURL(file);realType=null;}
   objectURLs.push(url);
-  return { url, realType };
+  return {url,realType};
 }
 
-// ── ドロップ ─────────────────────────────────────────────────────
-const dropOverlay = document.getElementById('dropOverlay');
-let dragCounter = 0;
-document.body.addEventListener('dragenter', e => { if (isFileProtocol) return; e.preventDefault(); dragCounter++; dropOverlay.classList.add('active'); });
-document.body.addEventListener('dragleave', e => { if (isFileProtocol) return; dragCounter--; if (dragCounter<=0) { dragCounter=0; dropOverlay.classList.remove('active'); } });
-document.body.addEventListener('dragover', e => { if (isFileProtocol) return; e.preventDefault(); });
-document.body.addEventListener('drop', async e => {
-  if (isFileProtocol) return;
-  e.preventDefault(); dragCounter=0; dropOverlay.classList.remove('active');
-  const entries = Array.from(e.dataTransfer.items).filter(i=>i.kind==='file').map(i=>i.webkitGetAsEntry()).filter(Boolean);
-  if (!entries.length) return;
-  revokeAll(); thumbCache.clear();
-  if (entries.length===1&&entries[0].isDirectory) {
-    const children = await readDirEntries(entries[0]);
-    const node = makeEntryNode(entries[0].name, children);
-    navStack=[node]; currentEntries=node;
+// ── Drop ─────────────────────────────────────────────────────────
+const dropOverlay=document.getElementById('dropOverlay');
+let dragCounter=0;
+document.body.addEventListener('dragenter',e=>{if(isFileProtocol)return;e.preventDefault();dragCounter++;dropOverlay.classList.add('active');});
+document.body.addEventListener('dragleave',e=>{if(isFileProtocol)return;dragCounter--;if(dragCounter<=0){dragCounter=0;dropOverlay.classList.remove('active');}});
+document.body.addEventListener('dragover',e=>{if(isFileProtocol)return;e.preventDefault();});
+document.body.addEventListener('drop',async e=>{
+  if(isFileProtocol)return;
+  e.preventDefault();dragCounter=0;dropOverlay.classList.remove('active');
+  const entries=Array.from(e.dataTransfer.items).filter(i=>i.kind==='file').map(i=>i.webkitGetAsEntry()).filter(Boolean);
+  if(!entries.length)return;
+  revokeAll();clearThumbCache();
+  document.getElementById('btnReload').style.display='';
+  if(entries.length===1&&entries[0].isDirectory){
+    const children=await readDirEntries(entries[0]);
+    const node=makeEntryNode(entries[0].name,children);
+    rootNode=node;renderTree();selectNode(node);
   } else {
-    const files = await Promise.all(entries.filter(e=>e.isFile&&isImage(e.name)).map(e=>getEntryFile(e)));
-    currentEntries = { type:'filelist', name:'/', directFiles:files, subFolderMap:new Map() };
-    navStack=[currentEntries];
+    const files=await Promise.all(entries.filter(e=>e.isFile&&isImage(e.name)).map(e=>getEntryFile(e)));
+    rootNode={name:'Dropped files',entry:null,files,children:[],loaded:true,el:null,parent:null};
+    renderTree();selectNode(rootNode);
   }
-  renderView();
 });
 
-function readDirEntries(dirEntry) {
-  return new Promise(res => {
-    const reader = dirEntry.createReader(); const results = [];
-    function read() { reader.readEntries(batch => { if(!batch.length){res(results);return;} results.push(...batch); read(); }); }
-    read();
-  });
+function readDirEntries(dirEntry){
+  return new Promise(res=>{const reader=dirEntry.createReader();const results=[];function read(){reader.readEntries(batch=>{if(!batch.length){res(results);return;}results.push(...batch);read();});}read();});
 }
-function getEntryFile(entry) { return new Promise((res,rej) => entry.file(res,rej)); }
-function makeEntryNode(name, entries) {
-  return { type:'entry', name, dirs: entries.filter(e=>e.isDirectory), files: entries.filter(e=>e.isFile&&isImage(e.name)) };
+function getEntryFile(entry){return new Promise((res,rej)=>entry.file(res,rej));}
+function makeEntryNode(name,entries){
+  return{name,entry:null,files:entries.filter(e=>e.isFile&&isImage(e.name)),children:entries.filter(e=>e.isDirectory).sort((a,b)=>a.name.localeCompare(b.name,'ja')).map(c=>({name:c.name,entry:c,files:null,children:null,loaded:false,el:null,parent:null})),loaded:true,el:null,parent:null};
 }
 
-// ── ボタン選択 ───────────────────────────────────────────────────
-document.getElementById('btnPick').addEventListener('click', () => document.getElementById('fileInput').click());
-document.getElementById('fileInput').addEventListener('change', e => {
-  const files = Array.from(e.target.files);
-  if (!files.length) return;
-  revokeAll(); thumbCache.clear();
-  const rootName = files[0].webkitRelativePath.split('/')[0]||'Folder';
-  const directFiles=[]; const subFolderMap=new Map();
-  files.forEach(f => {
-    const parts = f.webkitRelativePath.split('/');
-    if (parts.length===2&&isImage(f.name)) directFiles.push(f);
-    else if (parts.length>=3&&isImage(f.name)) { const sub=parts[1]; if(!subFolderMap.has(sub)) subFolderMap.set(sub,[]); subFolderMap.get(sub).push(f); }
-  });
-  currentEntries = { type:'filelist', name:rootName, directFiles, subFolderMap };
-  navStack=[currentEntries];
-  renderView();
+// ── Button ───────────────────────────────────────────────────────
+document.getElementById('btnPick').addEventListener('click',()=>document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change',e=>{
+  const files=Array.from(e.target.files);if(!files.length)return;
+  revokeAll();clearThumbCache();
+  document.getElementById('btnReload').style.display='';
+  const rootName=files[0].webkitRelativePath.split('/')[0]||'Folder';
+  rootNode=buildTreeFromFileList(rootName,files);
+  renderTree();selectNode(rootNode);
 });
 
-// ── 表示 ─────────────────────────────────────────────────────────
-const emptyState    = document.getElementById('emptyState');
-const galleryWrap   = document.getElementById('galleryWrap');
-const gallery       = document.getElementById('gallery');
-const folderSection = document.getElementById('folderSection');
-const folderGrid    = document.getElementById('folderGrid');
-const breadcrumb    = document.getElementById('breadcrumb');
-const statusText    = document.getElementById('statusText');
-const filterInput   = document.getElementById('filterInput');
-const sortSelect    = document.getElementById('sortSelect');
-const sizeSlider    = document.getElementById('sizeSlider');
-const lightbox      = document.getElementById('lightbox');
-const lbImg         = document.getElementById('lbImg');
-const lbFilename    = document.getElementById('lbFilename');
-const lbCounter     = document.getElementById('lbCounter');
-
-function renderView() {
-  emptyState.style.display='none'; document.getElementById('emptyStateFile').style.display='none';
-  galleryWrap.style.display='flex'; galleryWrap.style.flexDirection='column';
-  renderBreadcrumb(); renderFolders(); renderGallery();
-}
-
-function renderBreadcrumb() {
-  breadcrumb.innerHTML='';
-  breadcrumb.classList.toggle('visible', navStack.length>1);
-  navStack.forEach((node,i) => {
-    const span=document.createElement('span');
-    const isCurrent=i===navStack.length-1;
-    span.className='breadcrumb-item'+(isCurrent?' current':'');
-    span.textContent=node.name;
-    if (!isCurrent) span.addEventListener('click',()=>{ navStack=navStack.slice(0,i+1); currentEntries=navStack[navStack.length-1]; renderView(); });
-    breadcrumb.appendChild(span);
-    if (!isCurrent) { const sep=document.createElement('span'); sep.className='breadcrumb-sep'; sep.textContent='›'; sep.setAttribute('aria-hidden','true'); breadcrumb.appendChild(sep); }
+function buildTreeFromFileList(rootName,files){
+  const nodeMap=new Map();
+  const root={name:rootName,entry:null,files:[],children:[],loaded:true,el:null,parent:null,_fo:[]};
+  nodeMap.set(rootName,root);
+  files.forEach(f=>{
+    const parts=f.webkitRelativePath.split('/');
+    if(parts.length===2&&isImage(f.name)){root._fo.push(f);}
+    else if(parts.length>=3&&isImage(f.name)){
+      let cur=root;
+      for(let i=1;i<parts.length-1;i++){
+        const key=parts.slice(0,i+1).join('/');
+        if(!nodeMap.has(key)){const node={name:parts[i],entry:null,files:[],children:[],loaded:true,el:null,parent:cur,_fo:[]};nodeMap.set(key,node);cur.children.push(node);}
+        cur=nodeMap.get(key);
+      }
+      cur._fo.push(f);
+    }
   });
+  nodeMap.forEach(n=>{n.files=n._fo;delete n._fo;n.children.sort((a,b)=>a.name.localeCompare(b.name,'ja'));});
+  return root;
 }
 
-function renderFolders() {
-  folderGrid.innerHTML=''; let hasFolders=false;
-  if (currentEntries.type==='entry') {
-    const dirs=currentEntries.dirs||[];
-    hasFolders=dirs.length>0;
-    dirs.sort((a,b)=>a.name.localeCompare(b.name,'ja')).forEach(dir=>{
-      const btn=makeFolderBtn(dir.name,'',async()=>{ const children=await readDirEntries(dir); const node=makeEntryNode(dir.name,children); navStack.push(node); currentEntries=node; renderView(); });
-      folderGrid.appendChild(btn);
-    });
-  } else {
-    const map=currentEntries.subFolderMap||new Map(); hasFolders=map.size>0;
-    [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0],'ja')).forEach(([name,files])=>{
-      const btn=makeFolderBtn(name,files.length+'',()=>{ const node={type:'filelist',name,directFiles:files.filter(f=>isImage(f.name)),subFolderMap:new Map()}; navStack.push(node); currentEntries=node; renderView(); });
-      folderGrid.appendChild(btn);
-    });
+// ── Reload ───────────────────────────────────────────────────────
+document.getElementById('btnReload').addEventListener('click',()=>{clearThumbCache();gallery.innerHTML='';renderGallery();});
+
+// ── Tree ─────────────────────────────────────────────────────────
+const treePanel=document.getElementById('treePanel');
+const treeScroll=document.getElementById('treeScroll');
+document.getElementById('btnToggleTree').addEventListener('click',()=>treePanel.classList.toggle('collapsed'));
+
+function renderTree(){
+  treeScroll.innerHTML='';if(!rootNode)return;
+  treeScroll.appendChild(buildTreeNodeEl(rootNode,0,true));
+}
+
+async function expandNode(node){
+  if(node.loaded)return;node.loaded=true;
+  if(node.entry){
+    const children=await readDirEntries(node.entry);
+    node.files=children.filter(c=>c.isFile&&isImage(c.name));
+    node.children=children.filter(c=>c.isDirectory).map(c=>({name:c.name,entry:c,files:null,children:null,loaded:false,el:null,parent:node})).sort((a,b)=>a.name.localeCompare(b.name,'ja'));
   }
-  folderSection.classList.toggle('visible', hasFolders);
+  updateTreeNodeEl(node);
 }
 
-function makeFolderBtn(name, count, onClick) {
-  const btn=document.createElement('div'); btn.className='folder-item'; btn.setAttribute('role','button'); btn.setAttribute('tabindex','0');
-  btn.innerHTML=`<span aria-hidden="true">📁</span><span>${escHtml(name)}</span>${count?`<span class="folder-count">${escHtml(count)}</span>`:''}`;
-  btn.addEventListener('click',onClick); btn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onClick();}});
-  return btn;
+function buildTreeNodeEl(node,depth,autoExpand=false){
+  const wrap=document.createElement('div');wrap.className='tree-node';node.el=wrap;
+  const row=document.createElement('div');row.className='tree-row';row.style.paddingLeft=(8+depth*14)+'px';row.setAttribute('role','treeitem');row.setAttribute('aria-label',node.name);
+  const toggle=document.createElement('span');toggle.className='tree-toggle';toggle.setAttribute('aria-hidden','true');toggle.textContent='▶';
+  const icon=document.createElement('span');icon.className='tree-icon';icon.setAttribute('aria-hidden','true');icon.textContent='📁';
+  const label=document.createElement('span');label.className='tree-label';label.textContent=node.name;label.title=node.name;
+  row.appendChild(toggle);row.appendChild(icon);row.appendChild(label);wrap.appendChild(row);
+  const childrenEl=document.createElement('div');childrenEl.className='tree-children';wrap.appendChild(childrenEl);
+  const hasChildren=node.children===null||(node.children&&node.children.length>0);
+  if(!hasChildren)toggle.classList.add('empty');
+  toggle.addEventListener('click',async e=>{
+    e.stopPropagation();if(!node.loaded)await expandNode(node);
+    if(node.children&&node.children.length>0){
+      const isOpen=childrenEl.classList.toggle('open');toggle.classList.toggle('open',isOpen);icon.textContent=isOpen?'📂':'📁';
+      if(isOpen&&childrenEl.children.length===0)node.children.forEach(child=>childrenEl.appendChild(buildTreeNodeEl(child,depth+1)));
+    }
+  });
+  label.addEventListener('click',async e=>{e.stopPropagation();if(!node.loaded)await expandNode(node);selectNode(node);});
+  row.addEventListener('keydown',async e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!node.loaded)await expandNode(node);selectNode(node);}
+    if(e.key==='ArrowRight'){e.preventDefault();if(!node.loaded)await expandNode(node);if(node.children&&node.children.length>0&&!childrenEl.classList.contains('open')){childrenEl.classList.add('open');toggle.classList.add('open');icon.textContent='📂';if(childrenEl.children.length===0)node.children.forEach(child=>childrenEl.appendChild(buildTreeNodeEl(child,depth+1)));}}
+    if(e.key==='ArrowLeft'){e.preventDefault();childrenEl.classList.remove('open');toggle.classList.remove('open');icon.textContent='📁';}
+  });
+  if(autoExpand&&node.children&&node.children.length>0){
+    childrenEl.classList.add('open');toggle.classList.add('open');icon.textContent='📂';
+    node.children.forEach(child=>childrenEl.appendChild(buildTreeNodeEl(child,depth+1)));
+  }
+  return wrap;
 }
 
-function getImageFiles() {
-  if (!currentEntries) return [];
-  return currentEntries.type==='entry' ? (currentEntries.files||[]) : (currentEntries.directFiles||[]);
+function updateTreeNodeEl(node){
+  if(!node.el)return;
+  const toggle=node.el.querySelector('.tree-toggle');const childrenEl=node.el.querySelector('.tree-children');
+  if(!node.children||node.children.length===0){toggle.classList.add('empty');}
+  else{
+    toggle.classList.remove('empty');
+    if(node===rootNode&&childrenEl.children.length===0){
+      childrenEl.classList.add('open');toggle.classList.add('open');
+      const icon=node.el.querySelector('.tree-icon');if(icon)icon.textContent='📂';
+      node.children.forEach(child=>childrenEl.appendChild(buildTreeNodeEl(child,1)));
+    }
+  }
+  if(node===currentNode)renderGallery();
 }
 
-function getSorted(files) {
+function setActiveRow(node){
+  document.querySelectorAll('.tree-row.active').forEach(el=>el.classList.remove('active'));
+  if(node&&node.el){const row=node.el.querySelector('.tree-row');if(row){row.classList.add('active');row.scrollIntoView({block:'nearest'});}}
+}
+
+async function selectNode(node){
+  currentNode=node;setActiveRow(node);
+  if(node.entry&&!node.loaded)await expandNode(node);
+  renderGallery();
+}
+
+// ── Gallery ──────────────────────────────────────────────────────
+const emptyState=document.getElementById('emptyState');
+const galleryWrap=document.getElementById('galleryWrap');
+const gallery=document.getElementById('gallery');
+const statusText=document.getElementById('statusText');
+const filterInput=document.getElementById('filterInput');
+const sortSelect=document.getElementById('sortSelect');
+const sizeSlider=document.getElementById('sizeSlider');
+const lightbox=document.getElementById('lightbox');
+const lbImg=document.getElementById('lbImg');
+const lbFilename=document.getElementById('lbFilename');
+const lbCounter=document.getElementById('lbCounter');
+
+function getSorted(files){
   const v=sortSelect.value;
   return [...files].sort((a,b)=>{
-    const na=a.name||'', nb=b.name||'';
-    if (v==='name')      return na.localeCompare(nb,'ja');
-    if (v==='name-desc') return nb.localeCompare(na,'ja');
-    if (v==='size')      return (b.size||0)-(a.size||0);
-    if (v==='type')      return extOf(na).localeCompare(extOf(nb));
+    const na=a.name||'',nb=b.name||'';
+    if(v==='name')return na.localeCompare(nb,'ja');
+    if(v==='name-desc')return nb.localeCompare(na,'ja');
+    if(v==='size')return(b.size||0)-(a.size||0);
+    if(v==='type')return extOf(na).localeCompare(extOf(nb));
     return 0;
   });
 }
 
-function renderGallery() {
+function getCurrentFiles(){return currentNode?currentNode.files||[]:[]}
+
+function renderGallery(){
   const q=filterInput.value.trim().toLowerCase();
-  const raw=getImageFiles();
+  const raw=getCurrentFiles();
   filteredFiles=getSorted(raw).filter(f=>!q||(f.name||'').toLowerCase().includes(q));
+  emptyState.style.display='none';document.getElementById('emptyStateFile').style.display='none';
+  galleryWrap.style.display='flex';galleryWrap.style.flexDirection='column';
   gallery.innerHTML='';
   statusText.textContent=q?`${filteredFiles.length} / ${raw.length} files`:`${raw.length} files`;
-  if (!currentEntries) return;
-  if (!filteredFiles.length) {
-    const div=document.createElement('div'); div.className='no-images';
-    div.textContent=raw.length===0?'No supported files in this folder':`No files matching "${q}"`;
-    gallery.appendChild(div); return;
+  if(!rootNode){
+    if(isFileProtocol){document.getElementById('emptyStateFile').style.display='flex';document.getElementById('emptyState').style.display='none';}
+    else{document.getElementById('emptyState').style.display='flex';document.getElementById('emptyStateFile').style.display='none';}
+    galleryWrap.style.display='none';return;
   }
-  filteredFiles.forEach((file,i)=>{
-    const name=file.name||'';
-    const item=document.createElement('div'); item.className='thumb-item'; item.setAttribute('role','button'); item.setAttribute('tabindex','0'); item.setAttribute('aria-label',name+' - open');
-    const loading=document.createElement('div'); loading.className='thumb-loading'; loading.innerHTML='<div class="thumb-spinner" aria-hidden="true"></div>';
-    const badge=document.createElement('div'); badge.className='ext-badge'+(isHeic(name)?' heic-badge':''); badge.textContent=extOf(name).toUpperCase(); badge.setAttribute('aria-hidden','true'); badge.dataset.badge='true';
-    const infoEl=document.createElement('div'); infoEl.className='thumb-info';
-    const nameEl=document.createElement('div'); nameEl.className='thumb-info-name'; nameEl.textContent=name;
-    const dimEl=document.createElement('div'); dimEl.className='thumb-info-dim'; dimEl.dataset.dim='true';
-    infoEl.appendChild(nameEl); infoEl.appendChild(dimEl);
-    item.appendChild(loading); item.appendChild(badge); item.appendChild(infoEl);
+  if(!filteredFiles.length){
+    const div=document.createElement('div');div.className='no-images';
+    div.textContent=raw.length===0?'No supported files in this folder (try a subfolder in the tree)':`No files matching "${q}"`;
+    gallery.appendChild(div);return;
+  }
+  filteredFiles.forEach((entry,i)=>{
+    const name=entry.name||'';
+    const item=document.createElement('div');item.className='thumb-item';item.setAttribute('role','button');item.setAttribute('tabindex','0');item.setAttribute('aria-label',name+' - open');
+    const loading=document.createElement('div');loading.className='thumb-loading';loading.innerHTML='<div class="thumb-spinner" aria-hidden="true"></div>';
+    const badge=document.createElement('div');badge.className='ext-badge'+(isHeic(name)?' heic-badge':'');badge.textContent=extOf(name).toUpperCase();badge.setAttribute('aria-hidden','true');badge.dataset.badge='true';
+    const infoEl=document.createElement('div');infoEl.className='thumb-info';
+    const nameEl=document.createElement('div');nameEl.className='thumb-info-name';nameEl.textContent=name;
+    const dimEl=document.createElement('div');dimEl.className='thumb-info-dim';dimEl.dataset.dim='true';
+    infoEl.appendChild(nameEl);infoEl.appendChild(dimEl);
+    item.appendChild(loading);item.appendChild(badge);item.appendChild(infoEl);
     item.addEventListener('click',()=>openLightbox(i));
     item.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openLightbox(i);}});
     gallery.appendChild(item);
-    loadThumb(file, item, loading);
+    loadThumb(entry,item,loading);
   });
 }
 
-async function resolveFile(entry) { return entry instanceof File ? entry : getEntryFile(entry); }
+async function resolveFile(entry){return entry instanceof File?entry:getEntryFile(entry);}
 
-async function loadThumb(entry, item, loading) {
-  try {
-    const file=await resolveFile(entry);
-    const key=cacheKey(file);
-    if (thumbCache.has(key)) {
+async function loadThumb(entry,item,loading){
+  try{
+    const file=await resolveFile(entry);const key=cacheKey(file);
+    if(thumbCache.has(key)){
       const cached=thumbCache.get(key);
-      const img=document.createElement('img'); img.alt=file.name; img.loading='lazy';
-      img.onload=()=>{ if(loading.parentNode===item) loading.remove(); const d=item.querySelector('[data-dim]'); if(d&&cached.dim) d.textContent=cached.dim; };
-      img.src=cached.url; item.insertBefore(img,item.firstChild);
-      if (cached.realType&&cached.realType!=='heic'&&isHeic(file.name)) {
-        const badge=item.querySelector('[data-badge]'); if(badge){badge.textContent=`HEIC(${cached.realType.toUpperCase()})`;badge.title=`Extension is HEIC but actual format is ${cached.realType.toUpperCase()}`;}
-      }
-      return;
+      applyThumbImage(item,loading,cached.url,cached.dim,cached.realType,file.name,cached.icoCount);return;
     }
-    const {url,realType}=await makeURL(file);
-    if (realType&&realType!=='heic'&&isHeic(file.name)) {
-      const badge=item.querySelector('[data-badge]'); if(badge){badge.textContent=`HEIC(${realType.toUpperCase()})`;badge.title=`Extension is HEIC but actual format is ${realType.toUpperCase()}`;}
-    }
-    const img=document.createElement('img'); img.alt=file.name; img.loading='lazy';
-    img.onload=()=>{
-      if(loading.parentNode===item) loading.remove();
-      const dim=`${img.naturalWidth} × ${img.naturalHeight}`;
-      const d=item.querySelector('[data-dim]'); if(d) d.textContent=dim;
-      thumbCache.set(key,{url,dim,realType});
-    };
+    const{url,realType}=await makeURL(file);
+    if(realType&&realType!=='heic'&&isHeic(file.name)){const badge=item.querySelector('[data-badge]');if(badge){badge.textContent=`HEIC(${realType.toUpperCase()})`;badge.title=`Extension is HEIC but actual format is ${realType.toUpperCase()}`;}}
+    const img=document.createElement('img');img.alt=file.name;img.loading='lazy';
+    img.onload=()=>{if(loading.parentNode===item)loading.remove();const dim=`${img.naturalWidth} × ${img.naturalHeight}`;const d=item.querySelector('[data-dim]');if(d)d.textContent=dim;thumbCache.set(key,{url,dim,realType});};
     img.onerror=()=>{loading.innerHTML='Failed';loading.style.color='#f87';};
-    img.src=url; item.insertBefore(img,item.firstChild);
-  } catch(e) { loading.innerHTML='Failed'; loading.style.color='#f87'; }
+    img.src=url;item.insertBefore(img,item.firstChild);
+  }catch(e){loading.innerHTML='Failed';loading.style.color='#f87';}
 }
 
-async function openLightbox(idx) {
-  currentIdx=idx; await updateLightbox();
-  lightbox.classList.add('open'); lightbox.focus();
+function applyThumbImage(item,loading,url,dim,realType,filename){
+  const img=document.createElement('img');img.alt=filename;img.loading='lazy';
+  img.onload=()=>{if(loading.parentNode===item)loading.remove();const d=item.querySelector('[data-dim]');if(d&&dim)d.textContent=dim;};
+  img.src=url;item.insertBefore(img,item.firstChild);
+  if(realType&&realType!=='heic'&&isHeic(filename)){const badge=item.querySelector('[data-badge]');if(badge){badge.textContent=`HEIC(${realType.toUpperCase()})`;badge.title=`Extension is HEIC but actual format is ${realType.toUpperCase()}`;}}
 }
-async function updateLightbox() {
-  const entry=filteredFiles[currentIdx]; const name=entry.name||'';
-  lbFilename.textContent=name; lbCounter.textContent=(currentIdx+1)+' / '+filteredFiles.length;
-  const lbDimEl=document.getElementById('lbDim'); if(lbDimEl) lbDimEl.textContent='';
-  lbImg.src=''; lbImg.alt=name;
-  try {
+
+// ── Lightbox ─────────────────────────────────────────────────────
+async function openLightbox(idx){
+  currentIdx=idx;await updateLightbox();
+  lightbox.classList.add('open');lightbox.focus();
+}
+async function updateLightbox(){
+  const entry=filteredFiles[currentIdx];const name=entry.name||'';
+  lbFilename.textContent=name;lbCounter.textContent=(currentIdx+1)+' / '+filteredFiles.length;
+  const lbDimEl=document.getElementById('lbDim');if(lbDimEl)lbDimEl.textContent='';
+  lbImg.src='';lbImg.alt=name;
+  try{
     const file=await resolveFile(entry);
-    const {url}=await makeURL(file);
-    lbImg.src=url; lbImg.alt=name;
-    lbImg.onload=()=>{ if(lbDimEl) lbDimEl.textContent=lbImg.naturalWidth?`${lbImg.naturalWidth} × ${lbImg.naturalHeight}`:''; };
-  } catch(e) { lbImg.alt='Failed to load'; }
+    const{url}=await makeURL(file);
+    lbImg.src=url;lbImg.alt=name;
+    lbImg.onload=()=>{if(lbDimEl)lbDimEl.textContent=lbImg.naturalWidth?`${lbImg.naturalWidth} × ${lbImg.naturalHeight}`:'';}
+  }catch(e){lbImg.alt='Failed to load';}
 }
-function closeLightbox() { lightbox.classList.remove('open'); lbImg.src=''; }
+function closeLightbox(){lightbox.classList.remove('open');lbImg.src='';}
 
-document.getElementById('lbClose').addEventListener('click', closeLightbox);
-document.getElementById('lbPrev').addEventListener('click', async()=>{ currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length; await updateLightbox(); });
-document.getElementById('lbNext').addEventListener('click', async()=>{ currentIdx=(currentIdx+1)%filteredFiles.length; await updateLightbox(); });
-lightbox.addEventListener('click', e=>{ if(e.target===lightbox) closeLightbox(); });
-document.addEventListener('keydown', async e=>{
-  if (!lightbox.classList.contains('open')) return;
-  if (e.key==='Escape') closeLightbox();
-  if (e.key==='ArrowLeft')  { currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length; await updateLightbox(); }
-  if (e.key==='ArrowRight') { currentIdx=(currentIdx+1)%filteredFiles.length; await updateLightbox(); }
+document.getElementById('lbClose').addEventListener('click',closeLightbox);
+document.getElementById('lbPrev').addEventListener('click',async()=>{currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length;await updateLightbox();});
+document.getElementById('lbNext').addEventListener('click',async()=>{currentIdx=(currentIdx+1)%filteredFiles.length;await updateLightbox();});
+lightbox.addEventListener('click',e=>{if(e.target===lightbox)closeLightbox();});
+document.addEventListener('keydown',async e=>{
+  if(!lightbox.classList.contains('open'))return;
+  if(e.key==='Escape')closeLightbox();
+  if(e.key==='ArrowLeft'){currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length;await updateLightbox();}
+  if(e.key==='ArrowRight'){currentIdx=(currentIdx+1)%filteredFiles.length;await updateLightbox();}
 });
 
-sizeSlider.addEventListener('input', ()=>{ gallery.style.setProperty('--thumb-size', sizeSlider.value+'px'); });
-filterInput.addEventListener('input', renderGallery);
-sortSelect.addEventListener('change', renderGallery);
+sizeSlider.addEventListener('input',()=>{gallery.style.setProperty('--thumb-size',sizeSlider.value+'px');});
+filterInput.addEventListener('input',renderGallery);
+sortSelect.addEventListener('change',renderGallery);
 </script>
 </body>
 </html>
