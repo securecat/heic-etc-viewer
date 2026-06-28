@@ -20,7 +20,10 @@ Built as a single HTML file with no build tools or package dependencies.
 ## Installation
 
 The easiest way is to open the hosted version on GitHub Pages:
+
 **https://securecat.github.io/heic-etc-viewer/**
+
+> No data is sent to any server — all file processing happens locally between your browser and your local storage. 
 
 Alternatively, download heic-etc-viewer.html and open it directly in Chrome.
 
