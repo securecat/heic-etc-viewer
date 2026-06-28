@@ -27,6 +27,15 @@
   --radius-lg: 12px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--bg);
@@ -106,15 +115,16 @@ body {
   border-radius: var(--radius);
   padding: 4px 6px;
   font-size: 12px;
-  outline: none;
   flex-shrink: 0;
 }
+.sort-select:focus-visible { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 2px; }
 input[type="range"] {
   -webkit-appearance: none;
   width: 70px; height: 3px;
   border-radius: 2px; background: #767676;
-  outline: none; cursor: pointer; flex-shrink: 0;
+  cursor: pointer; flex-shrink: 0;
 }
+input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 12px; height: 12px;
@@ -171,6 +181,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .tree-row:hover { background: rgba(255,255,255,0.05); color: var(--text); }
 .tree-row.active { background: var(--accent-bg); color: #699EFF; }
+.tree-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .tree-toggle {
   width: 18px; height: 18px;
   display: flex; align-items: center; justify-content: center;
@@ -448,13 +459,14 @@ input[type="range"]::-webkit-slider-thumb {
 </head>
 <body>
 
-<div class="toolbar" role="toolbar" aria-label="Toolbar">
-  <button class="btn-icon" id="btnToggleTree" aria-label="Toggle folder tree" title="Toggle tree">☰</button>
-  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v2.1.2</span></span>
-  <button class="btn primary" id="btnPick">📁 Open Folder</button>
+<header class="toolbar" aria-label="Toolbar">
+  <h2 class="sr-only">Toolbar</h2>
+  <button class="btn-icon" id="btnToggleTree" aria-label="Toggle folder tree" title="Toggle tree" aria-expanded="true" aria-controls="treePanel">☰</button>
+  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v2.2.0</span></span>
+  <button class="btn primary" id="btnPick" aria-label="Open Folder">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
-  <span class="heif-status loading" id="heifStatus" aria-live="polite">HEIC…</span>
-  <span class="heif-status loading" id="pdfStatus" aria-live="polite">PDF…</span>
+  <span class="heif-status loading" id="heifStatus" aria-live="polite">HEIC...</span>
+  <span class="heif-status loading" id="pdfStatus" aria-live="polite">PDF...</span>
   <div class="toolbar-sep" aria-hidden="true"></div>
   <span class="status" id="statusText" aria-live="polite"></span>
   <input type="text" class="filter-input" id="filterInput" placeholder="Filter..." aria-label="Filter by filename">
@@ -467,16 +479,18 @@ input[type="range"]::-webkit-slider-thumb {
   <input type="range" id="sizeSlider" min="80" max="300" value="190" step="55" aria-label="Thumbnail size">
   <button class="btn-icon" id="btnReload" aria-label="Reload (clear cache)" title="Reload" style="display:none">↺</button>
   <button class="btn-icon" id="btnSlideshow" aria-label="Start slideshow" title="Slideshow" style="display:none">▷</button>
-</div>
+</header>
 
 <div class="app-body">
   <!-- ツリーパネル -->
-  <aside class="tree-panel" id="treePanel" aria-label="Folder tree">
-    <div class="tree-scroll" id="treeScroll" role="tree"></div>
-  </aside>
+  <nav class="tree-panel" id="treePanel" aria-label="Folder tree">
+    <h2 class="sr-only">Folder tree</h2>
+    <div class="tree-scroll" id="treeScroll" role="tree" aria-label="Folder tree" aria-busy="true"></div>
+  </nav>
 
   <!-- メインエリア -->
-  <div class="main-area" id="mainArea">
+  <main class="main-area" id="mainArea">
+    <h2 class="sr-only">Gallery</h2>
     <!-- 初期状態 -->
     <div class="empty-state" id="emptyState" role="region" aria-label="Welcome screen">
       <div class="empty-icon" aria-hidden="true">📂</div>
@@ -500,9 +514,9 @@ input[type="range"]::-webkit-slider-thumb {
     </div>
     <!-- ギャラリー -->
     <div class="gallery-wrap" id="galleryWrap" style="display:none">
-      <main class="gallery" id="gallery" aria-label="Thumbnail gallery"></main>
+      <div class="gallery" id="gallery" role="region" aria-label="Thumbnail gallery"></div>
     </div>
-  </div>
+  </main>
 </div>
 
 <!-- ズームキャンバス（lightbox上に固定） -->
@@ -510,7 +524,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 <!-- ドロップオーバーレイ -->
 <div class="drop-overlay" id="dropOverlay" aria-hidden="true">
-  <div>📂</div>
+  <div aria-hidden="true">📂</div>
   <div style="font-size:14px">Drop folder here</div>
 </div>
 
@@ -534,7 +548,7 @@ input[type="range"]::-webkit-slider-thumb {
   </div>
   <div class="lb-img-wrap" id="lbImgWrap"><img id="lbImg" src="" alt="" width="1" height="1"></div>
   <div class="lb-video-wrap" id="lbVideoWrap" style="display:none">
-    <video id="lbVideo" controls autoplay muted><track kind="captions" src=""></video>
+    <video id="lbVideo" controls><track kind="captions" src=""></video>
   </div>
   <div class="lb-video-wrap" id="lbPdfWrap" style="display:none">
     <iframe id="lbPdfFrame" style="width:100%;height:100%;border:none;border-radius:4px;" title="PDF viewer" loading="lazy"></iframe>
@@ -664,6 +678,8 @@ const dropOverlay= document.getElementById('dropOverlay');
 // ── ツリーパネル開閉 ──────────────────────────────────────────────
 document.getElementById('btnToggleTree').addEventListener('click', () => {
   treePanel.classList.toggle('collapsed');
+  const btn = document.getElementById('btnToggleTree');
+  btn.setAttribute('aria-expanded', String(!treePanel.classList.contains('collapsed')));
 });
 
 // ── file:// 判定 ─────────────────────────────────────────────────
@@ -864,15 +880,17 @@ function loadFlatFiles(files, name) {
 // ── ツリー描画 ────────────────────────────────────────────────────
 function renderTree() {
   treeScroll.innerHTML = '';
-  if (!rootNode) return;
+  if (!rootNode) { treeScroll.setAttribute('aria-busy', 'true'); return; }
   const el = buildTreeNodeEl(rootNode, 0, true);
   treeScroll.appendChild(el);
+  treeScroll.setAttribute('aria-busy', 'false');
 }
 
 function updateTreeHeader(node) {
   // treeHeader削除済み・何もしない
 }
 
+let _treeNodeId = 0;
 function buildTreeNodeEl(node, depth, autoExpand = false) {
   const wrap = document.createElement('div');
   wrap.className = 'tree-node';
@@ -883,10 +901,13 @@ function buildTreeNodeEl(node, depth, autoExpand = false) {
   row.style.paddingLeft = (8 + depth * 14) + 'px';
   row.setAttribute('role', 'treeitem');
   row.setAttribute('aria-label', node.name);
+  row.setAttribute('tabindex', '0');
 
   const toggle = document.createElement('span');
   toggle.className = 'tree-toggle';
-  toggle.setAttribute('aria-hidden', 'true');
+  toggle.setAttribute('role', 'button');
+  toggle.setAttribute('tabindex', '0');
+  toggle.setAttribute('aria-expanded', 'false');
   toggle.textContent = '▶';
 
   const icon = document.createElement('span');
@@ -896,8 +917,10 @@ function buildTreeNodeEl(node, depth, autoExpand = false) {
 
   const label = document.createElement('span');
   label.className = 'tree-label';
+  label.id = 'tl-' + (++_treeNodeId);
   label.textContent = node.name;
   label.title = node.name;
+  toggle.setAttribute('aria-describedby', label.id);
 
   row.appendChild(toggle);
   row.appendChild(icon);
@@ -910,7 +933,11 @@ function buildTreeNodeEl(node, depth, autoExpand = false) {
 
   // 子なし or 未読み込み判定
   const hasChildren = node.children === null || (node.children && node.children.length > 0);
-  if (!hasChildren) toggle.classList.add('empty');
+  if (!hasChildren) {
+    toggle.classList.add('empty');
+    toggle.setAttribute('tabindex', '-1');
+    toggle.setAttribute('aria-hidden', 'true');
+  }
 
   // クリック分離: トグル（▶）→ 展開・折りたたみのみ
   toggle.addEventListener('click', async e => {
@@ -919,6 +946,7 @@ function buildTreeNodeEl(node, depth, autoExpand = false) {
     if (node.children && node.children.length > 0) {
       const isOpen = childrenEl.classList.toggle('open');
       toggle.classList.toggle('open', isOpen);
+      toggle.setAttribute('aria-expanded', String(isOpen));
       icon.textContent = isOpen ? '📂' : '📁';
       if (isOpen && childrenEl.children.length === 0) {
         node.children.forEach(child => {
@@ -926,6 +954,9 @@ function buildTreeNodeEl(node, depth, autoExpand = false) {
         });
       }
     }
+  });
+  toggle.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle.click(); }
   });
 
   // クリック分離: ラベル → 選択のみ（展開状態は変えない）
@@ -948,6 +979,7 @@ function buildTreeNodeEl(node, depth, autoExpand = false) {
       if (node.children && node.children.length > 0 && !childrenEl.classList.contains('open')) {
         childrenEl.classList.add('open');
         toggle.classList.add('open');
+        toggle.setAttribute('aria-expanded', 'true');
         icon.textContent = '📂';
         if (childrenEl.children.length === 0) {
           node.children.forEach(child => {
@@ -960,6 +992,7 @@ function buildTreeNodeEl(node, depth, autoExpand = false) {
       e.preventDefault();
       childrenEl.classList.remove('open');
       toggle.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
       icon.textContent = '📁';
     }
   });
@@ -968,6 +1001,7 @@ function buildTreeNodeEl(node, depth, autoExpand = false) {
   if (autoExpand && node.children && node.children.length > 0) {
     childrenEl.classList.add('open');
     toggle.classList.add('open');
+    toggle.setAttribute('aria-expanded', 'true');
     icon.textContent = '📂';
     node.children.forEach(child => {
       childrenEl.appendChild(buildTreeNodeEl(child, depth + 1));
@@ -983,12 +1017,17 @@ function updateTreeNodeEl(node) {
   const childrenEl = node.el.querySelector('.tree-children');
   if (!node.children || node.children.length === 0) {
     toggle.classList.add('empty');
+    toggle.setAttribute('tabindex', '-1');
+    toggle.setAttribute('aria-hidden', 'true');
   } else {
     toggle.classList.remove('empty');
+    toggle.setAttribute('tabindex', '0');
+    toggle.removeAttribute('aria-hidden');
     // ルートノード（depth=0相当）は自動展開して子を描画
     if (node === rootNode && childrenEl.children.length === 0) {
       childrenEl.classList.add('open');
       toggle.classList.add('open');
+      toggle.setAttribute('aria-expanded', 'true');
       const icon = node.el.querySelector('.tree-icon');
       if (icon) icon.textContent = '📂';
       node.children.forEach(child => {
@@ -1387,12 +1426,16 @@ async function updateLightbox() {
     if (isVideo(file.name)) {
       zoomBtn.style.display = '';
       loopBtn.style.display = '';
+      loopBtn.style.background = videoLoop ? 'rgba(105,158,255,0.15)' : '';
+      loopBtn.style.borderColor = videoLoop ? '#699EFF' : '';
+      loopBtn.title = videoLoop ? 'Loop: ON' : 'Loop: OFF';
       lbVideo.loop = videoLoop;
       const url = URL.createObjectURL(file);
       objectURLs.push(url);
       videoWrap.style.display = 'flex';
       lbVideo.src = url;
       lbVideo.load();
+      lbVideo.play().catch(() => {});
       lbVideo.onloadedmetadata = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbVideo.videoWidth ? `${lbVideo.videoWidth} × ${lbVideo.videoHeight}` : ''; };
     } else if (isPdf(file.name)) {
       zoomBtn.style.display = 'none';
@@ -1791,7 +1834,7 @@ function setupZoomForCurrentMedia() {
 
 // ── 動画ループボタン ──────────────────────────────────────────────
 const lbLoopBtn = document.getElementById('lbLoopBtn');
-let videoLoop = false;
+let videoLoop = true;
 
 lbLoopBtn.addEventListener('click', () => {
   videoLoop = !videoLoop;

@@ -41,15 +41,19 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [2.1.2] - 2026-06-29
+### [2.2.0] - 2026-06-29
 
 #### Added
 
-- Added a privacy note in the empty state (shown when running on a web server) clarifying that no data is sent to any server
+- Keyboard focus indicators for the sort dropdown and thumbnail size slider
+- Folder tree rows and toggle buttons are now focusable via the Tab key
+- Toggle buttons in the folder tree have `aria-expanded` to reflect open/collapse state, and `aria-describedby` to associate them with the corresponding folder name; activatable with Enter or Space
+- Landmark elements: toolbar (`<header>`), folder tree (`<nav>`), gallery area (`<main>`)
+- `.sr-only` headings ("Toolbar", "Folder tree", "Gallery") inside each landmark for heading-based screen reader navigation
 
-#### Fixed
+#### Changed
 
-- Video thumbnails incorrectly showing "Unplayable" for large video files due to a 30-second metadata load timeout; timeout removed as the `error` event already handles truly unplayable formats
+- Lightbox video now starts with audio on and loop on by default
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -98,15 +102,19 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [2.1.2] - 2026-06-29
+### [2.2.0] - 2026-06-29
 
 #### 追加
 
-- Webサーバー上で動作している場合、初期画面にプライバシーノートを表示（データはサーバーに送信されない旨）
+- ソートプルダウンとサムネイルサイズスライダーにキーボードフォーカスインジケーターを追加
+- フォルダツリーのツリー行・トグルボタンをTabキーでフォーカス可能に
+- フォルダツリーのトグルボタンに `aria-expanded`（開閉状態の明示）と `aria-describedby`（フォルダ名との関連付け）を追加；Enter/Spaceで操作可能
+- ランドマーク要素を整備：ツールバー（`<header>`）、フォルダツリー（`<nav>`）、ギャラリーエリア（`<main>`）
+- 各ランドマーク内に `.sr-only` 見出し（「Toolbar」「Folder tree」「Gallery」）を追加；スクリーンリーダーの見出しジャンプでも移動可能に
 
-#### 修正
+#### 変更
 
-- 大きな動画ファイルで、メタデータ読み込みの30秒タイムアウトにより「Unplayable」と誤表示される問題を修正；`error` イベントが再生不可を検出するため、タイムアウト自体を削除
+- ライトボックスの動画：初期状態を音声ON・ループONに変更
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

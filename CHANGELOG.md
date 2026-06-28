@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [2.2.0] - 2026-06-29
+
+### Added
+
+- Keyboard focus indicators for the sort dropdown and thumbnail size slider
+- Folder tree rows and toggle buttons are now focusable via the Tab key
+- Toggle buttons in the folder tree have `aria-expanded` to reflect open/collapse state, and `aria-describedby` to associate them with the corresponding folder name; activatable with Enter or Space
+- Landmark elements: toolbar (`<header>`), folder tree (`<nav>`), gallery area (`<main>`)
+- `.sr-only` headings ("Toolbar", "Folder tree", "Gallery") inside each landmark for heading-based screen reader navigation
+
+### Changed
+
+- Lightbox video now starts with audio on and loop on by default
+
 ## [2.1.2] - 2026-06-29
 
 ### Added
@@ -144,6 +158,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [2.2.0] - 2026-06-29
+
+### 追加
+
+- ソートプルダウンとサムネイルサイズスライダーにキーボードフォーカスインジケーターを追加
+- フォルダツリーのツリー行・トグルボタンをTabキーでフォーカス可能に
+- フォルダツリーのトグルボタンに `aria-expanded`（開閉状態の明示）と `aria-describedby`（フォルダ名との関連付け）を追加；Enter/Spaceで操作可能
+- ランドマーク要素を整備：ツールバー（`<header>`）、フォルダツリー（`<nav>`）、ギャラリーエリア（`<main>`）
+- 各ランドマーク内に `.sr-only` 見出し（「Toolbar」「Folder tree」「Gallery」）を追加；スクリーンリーダーの見出しジャンプでも移動可能に
+
+### 変更
+
+- ライトボックスの動画：初期状態を音声ON・ループONに変更
 
 ## [2.1.2] - 2026-06-29
 
