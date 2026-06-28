@@ -23,7 +23,7 @@ The easiest way is to open the hosted version on GitHub Pages:
 
 **https://securecat.github.io/heic-etc-viewer/**
 
-> No data is sent to any server — all file processing happens locally between your browser and your local storage. 
+> Your files never leave your device. 
 
 Alternatively, download heic-etc-viewer.html and open it directly in Chrome.
 
@@ -41,13 +41,22 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [1.0.0] — 2026-06-28
+### [2.1.0] - 2026-06-28
+
+#### Added
+
+- Embedded "HeV" icon as a Base64-encoded data URI favicon
 
 #### Changed
 
-- UI Polish
-- Renamed from "Image Viewer" to "HEIC etc Viewer"
-- Added `HeV` icon
+- Replaced header app icon with "HeV" icon
+- Localized all UI text and aria attributes to English
+- Adjusted color palette (borders, badges, scrollbars, etc.)
+- Made thumbnail strip background fully opaque
+- Strengthened highlight style for active checkerboard and zoom buttons
+- Made image dimensions display and prev/next buttons fully opaque in lightbox
+- Added margin to zoom view to avoid overlap with header and lb-info bar
+- Slideshow now always starts from file `1`
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 

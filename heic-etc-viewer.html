@@ -4,22 +4,81 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HEIC etc Viewer</title>
+<link rel="icon" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAACXBIWXMAAAsTAAALEwEAmpwYAAABSElEQVQokc2SoYoCYRSFv1kXFUUGQUEYEQWHcYImEeNki0wSQYwmX8LsQyi+gFnEYrH4AjbBZtUBMXiX8YrLyhY37S3/F875z7lwDRHhnfl4S80fDc1mczweA77vD4fDF4Xrugrlcjl8dIderycisVjMdV35Odw1T3hUMk0TSCQS8XgcmM1mhUJhsVj80knu1nq9Pp/PgXa7LSLRaBTI5XLPj6fTqcInkEqlttut7/tAqVQCrteriBiGATiOAxwOB9u29/t9WOl2u2kf4HQ6aXImk1HY7XbAcrn0PK9YLIaGIAi63W4QBOl0+ng8qs627UajoTwYDNbrdaVSAcJKQDKZfIHNZqPgOI5Ka7Xat+FyuQDn81kTIpGILiAiq9Uqn88D1Wr1Yeh0Op7nabRlWcBkMhmNRq1WC7Asq9/vm6aZzWYB4/8d3xeBt4thuBNJPwAAAABJRU5ErkJggg==">
+<link rel="icon" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=">
 <style>
 :root {
-  --bg: #161616; --bg-card: #222; --bg-toolbar: #1c1c1c; --bg-tree: #1a1a1a;
-  --text: #e4e4e4; --text-muted: #777;
-  --border: #767676; --border-hover: rgba(255,255,255,0.18);
-  --accent: #699EFF; --accent-hover: #4D6EE1; --accent-bg: rgba(107,140,255,0.15);
-  --thumb-bg: #242424; --overlay: rgba(0,0,0,0.9);
-  --radius: 8px; --radius-lg: 12px; --tree-width: 220px;
+  --bg: #161616;
+  --bg-toolbar: #1c1c1c;
+  --bg-tree: #1a1a1a;
+  --bg-card: #222;
+  --bg-drop: #1e2230;
+  --text: #e4e4e4;
+  --text-muted: #949494;
+  --border: #767676;
+  --border-hover: rgba(255,255,255,0.18);
+  --accent: #699EFF;
+  --accent-hover: #4D6EE1;
+  --accent-bg: rgba(107,140,255,0.15);
+  --thumb-bg: #242424;
+  --overlay: rgba(0,0,0,0.9);
+  --tree-width: 220px;
+  --radius: 8px;
+  --radius-lg: 12px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-.toolbar { background: var(--bg-toolbar); border-bottom: 1px solid var(--border); padding: 8px 14px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; z-index: 100; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── toolbar ── */
+.toolbar {
+  background: var(--bg-toolbar);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+  z-index: 100;
+}
 .app-title { font-size: 13px; font-weight: 600; white-space: nowrap; }
-.btn.primary { background: #4D6EE1; border-color: transparent; color: #fff; border-radius: var(--radius); padding: 5px 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap; flex-shrink: 0; transition: background 0.15s; border: none; }
+.btn {
+  background: transparent;
+  border: 1px solid var(--border-hover);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.btn:hover { background: rgba(255,255,255,0.06); }
+.btn.primary { background: #4D6EE1; border-color: transparent; color: #fff; }
 .btn.primary:hover { background: var(--accent-hover); }
-.btn-icon { background: transparent; border: 1px solid #767676; color: var(--text); border-radius: var(--radius); width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; transition: background 0.15s; }
+.btn-icon {
+  background: transparent;
+  border: 1px solid #767676;
+  color: var(--text);
+  border-radius: var(--radius);
+  width: 28px; height: 28px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+  transition: background 0.15s;
+}
 .btn-icon:hover { background: rgba(255,255,255,0.06); }
 .toolbar-sep { flex: 1; min-width: 0; }
 .status { font-size: 11px; color: #E4E4E4; white-space: nowrap; }
@@ -27,25 +86,100 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .heif-status.loading { background: rgba(255,200,0,0.12); color: #ffc; }
 .heif-status.ready   { background: rgba(100,255,150,0.1); color: #9fa; }
 .heif-status.error   { background: rgba(255,100,100,0.12); color: #faa; }
-.filter-input { background: var(--bg-card); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 4px 8px; font-size: 12px; outline: none; width: 120px; min-width: 0; }
+.filter-input {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 4px 8px;
+  font-size: 12px;
+  outline: none;
+  width: 120px;
+  min-width: 0;
+}
 .filter-input::placeholder { color: #949494; }
 .filter-input:focus { border-color: var(--accent); }
-.sort-select { background: var(--bg-card); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 4px 6px; font-size: 12px; outline: none; flex-shrink: 0; }
-input[type="range"] { -webkit-appearance: none; width: 70px; height: 3px; border-radius: 2px; background: #767676; outline: none; cursor: pointer; flex-shrink: 0; }
-input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); cursor: pointer; }
-.app-body { display: flex; flex: 1; overflow: hidden; }
-.tree-panel { width: var(--tree-width); min-width: var(--tree-width); background: var(--bg-tree); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; transition: width 0.2s, min-width 0.2s; flex-shrink: 0; }
-.tree-panel.collapsed { width: 0; min-width: 0; border-right: none; }
-.tree-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 4px 0; }
+.sort-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 4px 6px;
+  font-size: 12px;
+  outline: none;
+  flex-shrink: 0;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 70px; height: 3px;
+  border-radius: 2px; background: #767676;
+  outline: none; cursor: pointer; flex-shrink: 0;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  border-radius: 50%; background: var(--accent); cursor: pointer;
+}
+
+/* ── body layout ── */
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── tree panel ── */
+.tree-panel {
+  width: var(--tree-width);
+  min-width: var(--tree-width);
+  background: var(--bg-tree);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.2s, min-width 0.2s;
+  flex-shrink: 0;
+}
+.tree-panel.collapsed {
+  width: 0;
+  min-width: 0;
+  border-right: none;
+}
+.tree-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 0;
+}
 .tree-scroll::-webkit-scrollbar { width: 4px; }
 .tree-scroll::-webkit-scrollbar-track { background: transparent; }
 .tree-scroll::-webkit-scrollbar-thumb { background: #003596; border-radius: 2px; }
 .tree-scroll::-webkit-scrollbar-thumb:hover { background: #1a4db0; }
 .tree-node { user-select: none; }
-.tree-row { display: flex; align-items: center; padding: 3px 0; cursor: pointer; border-radius: 5px; margin: 0 4px; font-size: 12px; color: #949494; white-space: nowrap; transition: background 0.1s, color 0.1s; }
+.tree-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 3px 0;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 0 4px;
+  font-size: 12px;
+  color: #949494;
+  white-space: nowrap;
+  transition: background 0.1s, color 0.1s;
+}
 .tree-row:hover { background: rgba(255,255,255,0.05); color: var(--text); }
 .tree-row.active { background: var(--accent-bg); color: #699EFF; }
-.tree-toggle { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 9px; flex-shrink: 0; color: #949494; transition: transform 0.15s; cursor: pointer; border-radius: 3px; }
+.tree-toggle {
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; flex-shrink: 0;
+  color: #949494;
+  transition: transform 0.15s;
+  cursor: pointer;
+  border-radius: 3px;
+}
 .tree-toggle:hover { background: rgba(255,255,255,0.08); color: var(--text); }
 .tree-toggle.open { transform: rotate(90deg); }
 .tree-toggle.empty { opacity: 0; pointer-events: none; }
@@ -53,85 +187,260 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12p
 .tree-label { overflow: hidden; text-overflow: ellipsis; flex: 1; padding-right: 6px; }
 .tree-children { display: none; }
 .tree-children.open { display: block; }
-.main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: var(--text-muted); padding: 40px; }
+
+/* ── drop overlay ── */
+.drop-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(107,140,255,0.08);
+  border: 3px dashed var(--accent);
+  z-index: 200;
+  pointer-events: none;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px;
+  font-size: 18px; color: var(--accent);
+}
+.drop-overlay.active { display: flex; }
+
+/* ── main area ── */
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── empty state ── */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--text-muted);
+  padding: 40px;
+}
 .empty-icon { font-size: 48px; opacity: 0.3; }
 .empty-state h2 { font-size: 14px; font-weight: 500; color: #949494; }
 .empty-state p { font-size: 12px; color: #949494; text-align: center; line-height: 1.7; }
-.gallery-wrap { flex: 1; overflow-y: auto; overflow-x: hidden; }
+
+/* ── gallery ── */
+.gallery-wrap {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
 .gallery-wrap::-webkit-scrollbar { width: 6px; }
 .gallery-wrap::-webkit-scrollbar-track { background: transparent; }
 .gallery-wrap::-webkit-scrollbar-thumb { background: #003596; border-radius: 3px; }
 .gallery-wrap::-webkit-scrollbar-thumb:hover { background: #1a4db0; }
-.gallery { padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--thumb-size, 160px), 1fr)); gap: 8px; align-content: start; }
+.gallery {
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--thumb-size, 160px), 1fr));
+  gap: 8px;
+  align-content: start;
+}
 .no-images { grid-column: 1/-1; padding: 40px; text-align: center; color: #949494; font-size: 13px; }
-.thumb-item { background: var(--thumb-bg); border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; position: relative; aspect-ratio: 1; transition: transform 0.15s; }
+.thumb-item {
+  background: var(--thumb-bg);
+  border-radius: var(--radius-lg);
+  overflow: hidden; cursor: pointer;
+  position: relative; aspect-ratio: 1;
+  transition: transform 0.15s;
+}
 .thumb-item:hover { transform: scale(1.03); }
 .thumb-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .thumb-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.thumb-loading { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--text-muted); font-size: 11px; }
-.thumb-spinner { width: 18px; height: 18px; border: 2px solid var(--border-hover); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.thumb-loading {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px;
+  color: var(--text-muted); font-size: 11px;
+}
+.thumb-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--border-hover);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
-.thumb-info { position: absolute; bottom: 0; left: 0; right: 0; display: flex; flex-direction: column; pointer-events: none; }
-.thumb-info::before { content: ''; display: block; height: 18px; background: linear-gradient(transparent, #000); opacity: 0; transition: opacity 0.15s; }
+.thumb-info {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  display: flex; flex-direction: column;
+  pointer-events: none;
+}
+/* グラデーション部分（テキスト行の上） */
+.thumb-info::before {
+  content: '';
+  display: block;
+  height: 18px;
+  background: linear-gradient(transparent, #000);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
 .thumb-item:hover .thumb-info::before { opacity: 0.72; }
-.thumb-info-name { font-size: 10px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: #000; padding: 1px 6px 0; opacity: 0; transition: opacity 0.15s; }
+.thumb-info-name {
+  font-size: 10px; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  background: #000;
+  padding: 1px 6px 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
 .thumb-item:hover .thumb-info-name { opacity: 0.85; }
-.thumb-info-dim { font-size: 9px; color: #ccc; white-space: nowrap; background: #000; padding: 1px 6px 4px; opacity: 0; transition: opacity 0.15s; }
+.thumb-info-dim {
+  font-size: 9px; color: #ccc;
+  white-space: nowrap;
+  background: #000;
+  padding: 1px 6px 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
 .thumb-item:hover .thumb-info-dim { opacity: 0.85; }
-.ext-badge { position: absolute; top: 5px; right: 5px; background: #333; border-radius: 4px; padding: 2px 4px; font-size: 9px; color: rgba(255,255,255,0.75); text-transform: uppercase; }
-.heic-badge { background: #4D5FCC; }
-.video-badge { background: #A86810; }
-.ico-badge { background: #2C864A; }
-.pdf-badge { background: #B84040; }
-.unplayable-badge { background: #B84040; }
-.thumb-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-.thumb-play-icon { width: 36px; height: 36px; background: rgba(0,0,0,0.55); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; padding-left: 3px; }
+.ext-badge {
+  position: absolute; top: 5px; right: 5px;
+  background: #333;
+  border-radius: 4px; padding: 2px 4px;
+  font-size: 9px; color: rgba(255,255,255,0.75);
+  text-transform: uppercase;
+}
+.heic-badge      { background: #4D5FCC; }
+.pdf-badge       { background: #B84040; }
+.ico-badge       { background: #2C864A; }
+.video-badge     { background: #A86810; }
+.unplayable-badge{ background: #B84040; }
+.thumb-play {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.thumb-play-icon {
+  width: 36px; height: 36px;
+  background: rgba(0,0,0,0.55);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; padding-left: 3px;
+  transition: background 0.15s;
+}
 .thumb-item:hover .thumb-play-icon { background: rgba(0,0,0,0.75); }
-.drop-overlay { display: none; position: fixed; inset: 0; background: rgba(107,140,255,0.08); border: 3px dashed var(--accent); z-index: 200; pointer-events: none; align-items: center; justify-content: center; flex-direction: column; gap: 12px; font-size: 18px; color: var(--accent); }
-.drop-overlay.active { display: flex; }
-.lightbox { display: none; position: fixed; inset: 0; background: var(--overlay); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
+.lb-video-wrap {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  padding: 50px 56px;
+}
+
+/* ── lightbox ── */
+.lightbox {
+  display: none; position: fixed; inset: 0;
+  background: var(--overlay); z-index: 1000;
+  flex-direction: column; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
 .lightbox.open { display: flex; }
-.lb-header { position: fixed; top: 0; left: 0; right: 0; padding: 10px 14px; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.65); backdrop-filter: blur(8px); }
+.lightbox.checker {
+  background-image:
+    linear-gradient(45deg, #666 25%, transparent 25%),
+    linear-gradient(-45deg, #666 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #666 75%),
+    linear-gradient(-45deg, transparent 75%, #666 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  background-color: #999;
+}
+.lb-header {
+  position: fixed; top: 0; left: 0; right: 0;
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(0,0,0,0.65); backdrop-filter: blur(8px);
+}
 .lb-file-group { flex: 1; display: flex; align-items: baseline; gap: 0.6em; min-width: 0; overflow: hidden; }
 .lb-filename { font-size: 13px; color: #E4E4E4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex-shrink: 1; }
 .lb-dim-text { font-size: 11px; color: #949494; white-space: nowrap; flex-shrink: 0; }
 .lb-counter { font-size: 12px; color: #949494; white-space: nowrap; }
-.lb-close { background: none; border: 1px solid #767676; color: rgba(255,255,255,0.75); border-radius: 6px; width: 28px; height: 28px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; }
+.lb-close {
+  background: none; border: 1px solid #767676;
+  color: rgba(255,255,255,0.75); border-radius: 6px;
+  width: 28px; height: 28px; cursor: pointer; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+}
 .lb-close:hover { background: rgba(255,255,255,0.1); }
-.lb-img-wrap { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 50px 56px; }
+.lb-img-wrap {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  padding: 50px 56px;
+}
 .lb-img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
-.lb-video-wrap { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 50px 56px; }
 .lb-video-wrap video { max-width: 100%; max-height: 100%; border-radius: 4px; outline: none; }
-.lb-pdf-wrap { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 50px 56px; }
-.lb-pdf-wrap iframe { width: 100%; height: 100%; border: none; border-radius: 4px; }
-.lb-nav { position: fixed; top: 50%; transform: translateY(-50%); background: #2a2a2a; border: 1px solid #767676; color: #E4E4E4; border-radius: 8px; width: 38px; height: 60px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+
+/* ── zoom ── */
+#lbZoomCanvas {
+  position: fixed;
+  cursor: crosshair;
+  z-index: 1010;
+  display: none;
+}
+#lbZoomCanvas.active { display: block; }
+/* ズームモード中はメディアのクリックを通す */
+.lb-zoomed-media {
+  cursor: zoom-out;
+}
+.lb-nav {
+  position: fixed; top: 50%; transform: translateY(-50%);
+  background: #2a2a2a; border: 1px solid #767676;
+  color: #E4E4E4; border-radius: 8px;
+  width: 38px; height: 60px; cursor: pointer; font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
 .lb-nav:hover { background: #3a3a3a; }
 .lb-nav.prev { left: 10px; }
 .lb-nav.next { right: 10px; }
-.lb-info { position: fixed; bottom: 0; left: 0; right: 0; padding: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); font-size: 11px; color: #949494; text-align: center; }
-
-/* ── zoom / checker ── */
-#lbZoomCanvas { position: fixed; cursor: crosshair; z-index: 1010; display: none; }
-#lbZoomCanvas.active { display: block; }
-.lightbox.checker {
-  background-image: linear-gradient(45deg,#666 25%,transparent 25%),linear-gradient(-45deg,#666 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#666 75%),linear-gradient(-45deg,transparent 75%,#666 75%);
-  background-size: 20px 20px; background-position: 0 0,0 10px,10px -10px,-10px 0px; background-color: #999;
+.lb-info {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  font-size: 11px; color: #949494; text-align: center;
 }
 
-/* ── slideshow ── */
-.lb-ss-controls { display: none; align-items: center; gap: 6px; flex-shrink: 0; }
+/* ── slideshow / loop ── */
+.lb-ss-controls {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
 .lb-ss-controls.visible { display: flex; }
-.lb-ss-sec { width: 44px; background: var(--bg-card); border: 1px solid #767676; color: var(--text); border-radius: var(--radius); padding: 3px 6px; font-size: 11px; text-align: center; outline: none; }
+.lb-ss-sec {
+  width: 44px;
+  background: var(--bg-card);
+  border: 1px solid #767676;
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 3px 6px;
+  font-size: 11px;
+  text-align: center;
+  outline: none;
+}
 .lb-ss-sec:focus { border-color: var(--accent); }
-.lb-ss-label { font-size: 11px; color: #949494; white-space: nowrap; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.lb-ss-label {
+  font-size: 11px;
+  color: #949494;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
 .lb-ss-label input[type="checkbox"] { cursor: pointer; accent-color: #699EFF; }
 </style>
 </head>
 <body>
+
 <div class="toolbar" role="toolbar" aria-label="Toolbar">
   <button class="btn-icon" id="btnToggleTree" aria-label="Toggle folder tree" title="Toggle tree">☰</button>
-  <span class="app-title">📷 HEIC etc Viewer</span>
+  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer</span>
   <button class="btn primary" id="btnPick">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
   <span class="heif-status loading" id="heifStatus" aria-live="polite">HEIC…</span>
@@ -149,496 +458,1469 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12p
   <button class="btn-icon" id="btnReload" aria-label="Reload (clear cache)" title="Reload" style="display:none">↺</button>
   <button class="btn-icon" id="btnSlideshow" aria-label="Start slideshow" title="Slideshow" style="display:none">▷</button>
 </div>
+
 <div class="app-body">
+  <!-- ツリーパネル -->
   <aside class="tree-panel" id="treePanel" aria-label="Folder tree">
     <div class="tree-scroll" id="treeScroll" role="tree"></div>
   </aside>
-  <div class="main-area">
-    <div class="empty-state" id="emptyState"><div class="empty-icon" aria-hidden="true">📂</div><h2>Drop a folder or use the Open button</h2><p>Supports JPEG, PNG, WebP, GIF, AVIF, SVG, HEIC, MP4, WebM, MOV, PDF, ICO<br>Navigate deep folders with the tree panel</p></div>
-    <div class="empty-state" id="emptyStateFile" style="display:none"><div class="empty-icon" aria-hidden="true">📂</div><h2>Use the Open Folder button above</h2><p>Run a local server to enable folder drag &amp; drop.<br><br>In Command Prompt, navigate to the folder containing <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">image-viewer.html</code> and run:</p><div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;width:100%;max-width:340px"><div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px"><div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">With Node.js</div><code style="font-size:13px">npx serve .</code></div><div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px"><div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">With Python</div><code style="font-size:13px">python -m http.server 8080</code></div></div><p style="margin-top:4px">Then open <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">http://localhost:3000/image-viewer.html</code> in your browser.</p></div>
+
+  <!-- メインエリア -->
+  <div class="main-area" id="mainArea">
+    <!-- 初期状態 (http) -->
+    <div class="empty-state" id="emptyState" role="region" aria-label="初期案内">
+      <div class="empty-icon" aria-hidden="true">📂</div>
+      <h2>Drop folder here、またはボタンで選択</h2>
+      <p>JPEG・PNG・WebP・GIF・AVIF・SVG・HEIC に対応<br>ツリーで深いフォルダもナビゲートできます</p>
+    </div>
+    <!-- 初期状態 (file://) -->
+    <div class="empty-state" id="emptyStateFile" role="region" aria-label="初期案内（ローカル）" style="display:none">
+      <div class="empty-icon" aria-hidden="true">📂</div>
+      <h2>Use the Open Folder button above</h2>
+      <p>Run a local server to enable folder drag &amp; drop.<br><br>
+      In Command Prompt, navigate to the folder containing <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">heic-etc-viewer.html</code> and run:</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;width:100%;max-width:340px">
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">With Node.js</div>
+          <code style="font-size:13px;letter-spacing:0.02em">npx serve .</code>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">With Python</div>
+          <code style="font-size:13px;letter-spacing:0.02em">python -m http.server 8080</code>
+        </div>
+      </div>
+      <p style="margin-top:4px">Then open <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:11px">http://localhost:3000/heic-etc-viewer.html</code> in your browser.</p>
+    </div>
+    <!-- ギャラリー -->
     <div class="gallery-wrap" id="galleryWrap" style="display:none">
       <main class="gallery" id="gallery" role="main" aria-label="Thumbnail gallery"></main>
     </div>
   </div>
 </div>
+
+<!-- ズームキャンバス（lightbox上に固定） -->
 <canvas id="lbZoomCanvas" aria-hidden="true"></canvas>
-<div class="drop-overlay" id="dropOverlay" aria-hidden="true"><div>📂</div><div style="font-size:14px">Drop folder here</div></div>
+
+<!-- ドロップオーバーレイ -->
+<div class="drop-overlay" id="dropOverlay" aria-hidden="true">
+  <div>📂</div>
+  <div style="font-size:14px">Drop folder here</div>
+</div>
+
+<!-- ライトボックス -->
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Media viewer" tabindex="-1">
   <div class="lb-header">
-    <div class="lb-file-group"><span class="lb-filename" id="lbFilename"></span><span class="lb-dim-text" id="lbDim"></span></div>
+    <div class="lb-file-group">
+      <span class="lb-filename" id="lbFilename"></span>
+      <span class="lb-dim-text" id="lbDim"></span>
+    </div>
     <span class="lb-counter" id="lbCounter"></span>
     <button class="lb-close" id="lbZoomBtn" aria-label="Zoom mode" title="Zoom (drag to select)" style="font-size:13px">🔍</button>
-    <button class="lb-close" id="lbLoopBtn" aria-label="Toggle loop" title="Loop video" style="font-size:13px;display:none">🔁</button>
+    <button class="lb-close" id="lbChecker" aria-label="Toggle checker background" title="Toggle background" style="font-size:11px;width:auto;padding:0 8px;letter-spacing:0.02em">▦</button>
+    <button class="lb-close" id="lbLoopBtn" aria-label="Toggle loop" title="Loop video" style="font-size:13px">🔁</button>
     <div class="lb-ss-controls" id="lbSsControls">
       <input type="text" class="lb-ss-sec" id="lbSsSec" value="4" inputmode="numeric" aria-label="Slideshow interval (seconds)">
       <span style="font-size:11px;color:#949494">sec</span>
       <label class="lb-ss-label"><input type="checkbox" id="lbSsFullVideo" checked> play video to end</label>
     </div>
-    <button class="lb-close" id="lbChecker" aria-label="Toggle checker background" title="Toggle background" style="font-size:11px;width:auto;padding:0 8px">▦</button>
     <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
   </div>
   <div class="lb-img-wrap" id="lbImgWrap"><img id="lbImg" src="" alt=""></div>
-  <div class="lb-video-wrap" id="lbVideoWrap" style="display:none"><video id="lbVideo" controls autoplay></video></div>
-  <div class="lb-pdf-wrap" id="lbPdfWrap" style="display:none"><iframe id="lbPdfFrame" title="PDF viewer"></iframe></div>
+  <div class="lb-video-wrap" id="lbVideoWrap" style="display:none">
+    <video id="lbVideo" controls autoplay></video>
+  </div>
+  <div class="lb-video-wrap" id="lbPdfWrap" style="display:none">
+    <iframe id="lbPdfFrame" style="width:100%;height:100%;border:none;border-radius:4px;" title="PDFビューワー"></iframe>
+  </div>
   <button class="lb-nav prev" id="lbPrev" aria-label="Previous">‹</button>
   <button class="lb-nav next" id="lbNext" aria-label="Next">›</button>
-  <div class="lb-info" aria-hidden="true">← → Navigate　Z: Zoom　C: Checker bg　L: Loop　Esc: Close / Stop zoom</div>
+  <div class="lb-info" aria-hidden="true">← → Navigate　Z: Zoom　C: Checker bg　L: Loop　Esc: Close / Stop slideshow</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/libheif-js@1.19.8/libheif-wasm/libheif-bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs" type="module" id="pdfScript"></script>
 <script>
-// ── libheif ──────────────────────────────────────────────────────
-let heifLib=null;
-const heifStatus=document.getElementById('heifStatus');
-(async()=>{try{if(typeof libheif==='undefined')throw new Error();heifLib=await libheif();heifStatus.textContent='HEIC: OK';heifStatus.className='heif-status ready';}catch(e){heifStatus.textContent='HEIC: NG';heifStatus.className='heif-status error';}})();
+// ── libheif ───────────────────────────────────────────────────────
+let heifLib = null;
+const heifStatus = document.getElementById('heifStatus');
+(async () => {
+  try {
+    if (typeof libheif === 'undefined') throw new Error('not found');
+    heifLib = await libheif();
+    heifStatus.textContent = 'HEIC: OK';
+    heifStatus.className = 'heif-status ready';
+  } catch(e) {
+    heifStatus.textContent = 'HEIC: NG';
+    heifStatus.className = 'heif-status error';
+  }
+})();
 
-async function detectRealType(file){const h=new Uint8Array(await file.slice(0,12).arrayBuffer());if(h[0]===0xFF&&h[1]===0xD8&&h[2]===0xFF)return'jpeg';if(h[0]===0x89&&h[1]===0x50&&h[2]===0x4E&&h[3]===0x47)return'png';if(h[0]===0x47&&h[1]===0x49&&h[2]===0x46)return'gif';return'heic';}
-async function heicToURL(file){const rt=await detectRealType(file);if(rt!=='heic')return{url:URL.createObjectURL(file),realType:rt};if(!heifLib)throw new Error('libheif not ready');const data=new Uint8ClampedArray(await file.arrayBuffer());const dec=new heifLib.HeifDecoder();const imgs=dec.decode(data);if(!imgs||!imgs.length)throw new Error('decode failed');const img=imgs[0];const w=img.get_width(),h=img.get_height();const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');const id=ctx.createImageData(w,h);await new Promise((res,rej)=>img.display(id,r=>r?res():rej()));ctx.putImageData(id,0,0);const url=await new Promise(res=>canvas.toBlob(b=>res(URL.createObjectURL(b)),'image/jpeg',0.9));return{url,realType:'heic'};}
-
-// ── 定数 ─────────────────────────────────────────────────────────
-const IMG_EXTS=['jpg','jpeg','png','gif','webp','avif','svg','bmp','tiff','tif'];
-const HEIC_EXTS=['heic','heif'];
-const VIDEO_EXTS=['mp4','webm','mov'];
-const ICO_EXTS=['ico'];
-const PDF_EXTS=['pdf'];
-const ALL_EXTS=[...IMG_EXTS,...HEIC_EXTS,...VIDEO_EXTS,...ICO_EXTS,...PDF_EXTS];
-function extOf(n){return(n||'').split('.').pop().toLowerCase();}
-function isImage(n){return[...IMG_EXTS,...HEIC_EXTS,...ICO_EXTS].includes(extOf(n));}
-function isVideo(n){return VIDEO_EXTS.includes(extOf(n));}
-function isHeic(n){return HEIC_EXTS.includes(extOf(n));}
-function isIco(n){return ICO_EXTS.includes(extOf(n));}
-function isPdf(n){return PDF_EXTS.includes(extOf(n));}
-
-let rootNode=null,currentNode=null,filteredFiles=[],objectURLs=[],currentIdx=0;
-const thumbCache=new Map();
-const isFileProtocol=window.location.protocol==='file:';
-if(isFileProtocol){document.getElementById('emptyState').style.display='none';document.getElementById('emptyStateFile').style.display='flex';}
-
-function revokeAll(){objectURLs.forEach(u=>{try{URL.revokeObjectURL(u);}catch(e){}});objectURLs=[];}
-function cacheKey(f){return f.webkitRelativePath||`${f.name}__${f.size}`;}
-function clearThumbCache(){thumbCache.forEach(v=>{try{URL.revokeObjectURL(v.url);}catch(e){}});thumbCache.clear();}
-async function makeURL(file){let url,realType;if(isHeic(file.name)){const r=await heicToURL(file);url=r.url;realType=r.realType;}else{url=URL.createObjectURL(file);realType=null;}objectURLs.push(url);return{url,realType};}
-
-// ── Drop ─────────────────────────────────────────────────────────
-const dropOverlay=document.getElementById('dropOverlay');
-let dragCounter=0;
-document.body.addEventListener('dragenter',e=>{if(isFileProtocol)return;e.preventDefault();dragCounter++;dropOverlay.classList.add('active');});
-document.body.addEventListener('dragleave',e=>{if(isFileProtocol)return;dragCounter--;if(dragCounter<=0){dragCounter=0;dropOverlay.classList.remove('active');}});
-document.body.addEventListener('dragover',e=>{if(isFileProtocol)return;e.preventDefault();});
-document.body.addEventListener('drop',async e=>{
-  if(isFileProtocol)return;e.preventDefault();dragCounter=0;dropOverlay.classList.remove('active');
-  const entries=Array.from(e.dataTransfer.items).filter(i=>i.kind==='file').map(i=>i.webkitGetAsEntry()).filter(Boolean);
-  if(!entries.length)return;revokeAll();clearThumbCache();document.getElementById('btnReload').style.display='';
-  if(entries.length===1&&entries[0].isDirectory){const ch=await readDirEntries(entries[0]);rootNode=makeEntryNode(entries[0].name,ch);}
-  else{const files=await Promise.all(entries.filter(e=>e.isFile&&ALL_EXTS.includes(extOf(e.name))).map(e=>getEntryFile(e)));rootNode={name:'Dropped files',entry:null,files,children:[],loaded:true,el:null,parent:null};}
-  renderTree();selectNode(rootNode);
-});
-
-function readDirEntries(d){return new Promise(res=>{const r=d.createReader();const a=[];function read(){r.readEntries(b=>{if(!b.length){res(a);return;}a.push(...b);read();});}read();});}
-function getEntryFile(e){return new Promise((res,rej)=>e.file(res,rej));}
-function makeEntryNode(name,entries){return{name,entry:null,files:entries.filter(e=>e.isFile&&ALL_EXTS.includes(extOf(e.name))),children:entries.filter(e=>e.isDirectory).sort((a,b)=>a.name.localeCompare(b.name,'ja')).map(c=>({name:c.name,entry:c,files:null,children:null,loaded:false,el:null,parent:null})),loaded:true,el:null,parent:null};}
-
-document.getElementById('btnPick').addEventListener('click',()=>document.getElementById('fileInput').click());
-document.getElementById('fileInput').addEventListener('change',e=>{
-  const files=Array.from(e.target.files);if(!files.length)return;
-  revokeAll();clearThumbCache();document.getElementById('btnReload').style.display='';
-  const rn=files[0].webkitRelativePath.split('/')[0]||'Folder';
-  rootNode=buildTreeFromFileList(rn,files);renderTree();selectNode(rootNode);
-});
-
-function buildTreeFromFileList(rootName,files){
-  const nm=new Map();
-  const root={name:rootName,entry:null,files:[],children:[],loaded:true,el:null,parent:null,_fo:[]};nm.set(rootName,root);
-  files.forEach(f=>{
-    if(!ALL_EXTS.includes(extOf(f.name)))return;
-    const parts=f.webkitRelativePath.split('/');
-    if(parts.length===2){root._fo.push(f);}
-    else if(parts.length>=3){let cur=root;for(let i=1;i<parts.length-1;i++){const key=parts.slice(0,i+1).join('/');if(!nm.has(key)){const node={name:parts[i],entry:null,files:[],children:[],loaded:true,el:null,parent:cur,_fo:[]};nm.set(key,node);cur.children.push(node);}cur=nm.get(key);}cur._fo.push(f);}
-  });
-  nm.forEach(n=>{n.files=n._fo;delete n._fo;n.children.sort((a,b)=>a.name.localeCompare(b.name,'ja'));});return root;
+async function detectRealType(file) {
+  const h = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  if (h[0]===0xFF && h[1]===0xD8 && h[2]===0xFF) return 'jpeg';
+  if (h[0]===0x89 && h[1]===0x50 && h[2]===0x4E && h[3]===0x47) return 'png';
+  if (h[0]===0x47 && h[1]===0x49 && h[2]===0x46) return 'gif';
+  return 'heic';
 }
 
-document.getElementById('btnReload').addEventListener('click',()=>{clearThumbCache();gallery.innerHTML='';renderGallery();});
-const treePanel=document.getElementById('treePanel');
-const treeScroll=document.getElementById('treeScroll');
-document.getElementById('btnToggleTree').addEventListener('click',()=>treePanel.classList.toggle('collapsed'));
+async function heicToURL(file) {
+  const realType = await detectRealType(file);
+  if (realType !== 'heic') return { url: URL.createObjectURL(file), realType };
+  if (!heifLib) throw new Error('libheif not ready');
+  const data = new Uint8ClampedArray(await file.arrayBuffer());
+  const decoder = new heifLib.HeifDecoder();
+  const images = decoder.decode(data);
+  if (!images || !images.length) throw new Error('decode failed');
+  const img = images[0];
+  const w = img.get_width(), h = img.get_height();
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  const imageData = ctx.createImageData(w, h);
+  await new Promise((res, rej) => img.display(imageData, r => r ? res() : rej(new Error('display failed'))));
+  ctx.putImageData(imageData, 0, 0);
+  const url = await new Promise(res => canvas.toBlob(b => res(URL.createObjectURL(b)), 'image/jpeg', 0.9));
+  return { url, realType: 'heic' };
+}
 
-function renderTree(){treeScroll.innerHTML='';if(!rootNode)return;treeScroll.appendChild(buildTreeNodeEl(rootNode,0,true));}
-async function expandNode(node){if(node.loaded)return;node.loaded=true;if(node.entry){const ch=await readDirEntries(node.entry);node.files=ch.filter(c=>c.isFile&&ALL_EXTS.includes(extOf(c.name)));node.children=ch.filter(c=>c.isDirectory).map(c=>({name:c.name,entry:c,files:null,children:null,loaded:false,el:null,parent:node})).sort((a,b)=>a.name.localeCompare(b.name,'ja'));}updateTreeNodeEl(node);}
+// ── 定数 ──────────────────────────────────────────────────────────
+const IMG_EXTS   = ['jpg','jpeg','png','gif','webp','avif','svg','bmp','tiff','tif'];
+const HEIC_EXTS  = ['heic','heif'];
+const VIDEO_EXTS = ['mp4','webm','mov'];
+const ICO_EXTS   = ['ico'];
+const PDF_EXTS   = ['pdf'];
+const ALL_EXTS   = [...IMG_EXTS, ...HEIC_EXTS, ...VIDEO_EXTS, ...ICO_EXTS, ...PDF_EXTS];
 
-function buildTreeNodeEl(node,depth,autoExpand=false){
-  const wrap=document.createElement('div');wrap.className='tree-node';node.el=wrap;
-  const row=document.createElement('div');row.className='tree-row';row.style.paddingLeft=(8+depth*14)+'px';row.setAttribute('role','treeitem');row.setAttribute('aria-label',node.name);
-  const toggle=document.createElement('span');toggle.className='tree-toggle';toggle.setAttribute('aria-hidden','true');toggle.textContent='▶';
-  const icon=document.createElement('span');icon.className='tree-icon';icon.setAttribute('aria-hidden','true');icon.textContent='📁';
-  const label=document.createElement('span');label.className='tree-label';label.textContent=node.name;label.title=node.name;
-  row.appendChild(toggle);row.appendChild(icon);row.appendChild(label);wrap.appendChild(row);
-  const childrenEl=document.createElement('div');childrenEl.className='tree-children';wrap.appendChild(childrenEl);
-  if(!node.children||node.children.length===0)toggle.classList.add('empty');
-  toggle.addEventListener('click',async e=>{e.stopPropagation();if(!node.loaded)await expandNode(node);if(node.children&&node.children.length>0){const o=childrenEl.classList.toggle('open');toggle.classList.toggle('open',o);icon.textContent=o?'📂':'📁';if(o&&childrenEl.children.length===0)node.children.forEach(c=>childrenEl.appendChild(buildTreeNodeEl(c,depth+1)));}});
-  label.addEventListener('click',async e=>{e.stopPropagation();if(!node.loaded)await expandNode(node);selectNode(node);});
-  row.addEventListener('keydown',async e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!node.loaded)await expandNode(node);selectNode(node);}});
-  if(autoExpand&&node.children&&node.children.length>0){childrenEl.classList.add('open');toggle.classList.add('open');icon.textContent='📂';node.children.forEach(c=>childrenEl.appendChild(buildTreeNodeEl(c,depth+1)));}
+function extOf(name)  { return (name||'').split('.').pop().toLowerCase(); }
+function isImage(name){ return [...IMG_EXTS,...HEIC_EXTS,...ICO_EXTS].includes(extOf(name)); }
+function isVideo(name){ return VIDEO_EXTS.includes(extOf(name)); }
+function isHeic(name) { return HEIC_EXTS.includes(extOf(name)); }
+function isIco(name)  { return ICO_EXTS.includes(extOf(name)); }
+function isPdf(name)  { return PDF_EXTS.includes(extOf(name)); }
+function escHtml(s)    { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── 状態 ──────────────────────────────────────────────────────────
+let rootNode       = null;  // ツリーのルートノード
+let currentNode    = null;  // 現在選択中のノード
+let filteredFiles  = [];
+let objectURLs     = [];
+let currentIdx     = 0;
+
+// サムネキャッシュ: "relativePath or name" → { url, dim }
+const thumbCache = new Map();
+
+function revokeAll() {
+  objectURLs.forEach(u => { try { URL.revokeObjectURL(u); } catch(e){} });
+  objectURLs = [];
+}
+
+function cacheKey(file) {
+  // webkitRelativePath があればそれをキーに、なければ name+size
+  return file.webkitRelativePath || `${file.name}__${file.size}`;
+}
+
+function clearThumbCache() {
+  thumbCache.forEach(v => { try { URL.revokeObjectURL(v.url); } catch(e){} });
+  thumbCache.clear();
+}
+
+async function makeURL(file) {
+  let url, realType;
+  if (isHeic(file.name)) {
+    const r = await heicToURL(file);
+    url = r.url; realType = r.realType;
+  } else {
+    url = URL.createObjectURL(file);
+    realType = null;
+  }
+  objectURLs.push(url);
+  return { url, realType };
+}
+
+// ── UI要素 ────────────────────────────────────────────────────────
+const treePanel  = document.getElementById('treePanel');
+const treeScroll = document.getElementById('treeScroll');
+const emptyState = document.getElementById('emptyState');
+const galleryWrap= document.getElementById('galleryWrap');
+const gallery    = document.getElementById('gallery');
+const statusText = document.getElementById('statusText');
+const filterInput= document.getElementById('filterInput');
+const sortSelect = document.getElementById('sortSelect');
+const sizeSlider = document.getElementById('sizeSlider');
+const fileInput  = document.getElementById('fileInput');
+const lightbox   = document.getElementById('lightbox');
+const lbImg      = document.getElementById('lbImg');
+const lbFilename = document.getElementById('lbFilename');
+const lbCounter  = document.getElementById('lbCounter');
+const dropOverlay= document.getElementById('dropOverlay');
+
+// ── ツリーパネル開閉 ──────────────────────────────────────────────
+document.getElementById('btnToggleTree').addEventListener('click', () => {
+  treePanel.classList.toggle('collapsed');
+});
+
+// ── file:// 判定 ─────────────────────────────────────────────────
+const isFileProtocol = window.location.protocol === 'file:';
+if (isFileProtocol) {
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('emptyStateFile').style.display = 'flex';
+}
+
+// ── ドロップ ──────────────────────────────────────────────────────
+let dragCounter = 0;
+document.body.addEventListener('dragenter', e => {
+  if (isFileProtocol) return;
+  e.preventDefault();
+  dragCounter++;
+  dropOverlay.classList.add('active');
+});
+document.body.addEventListener('dragleave', e => {
+  if (isFileProtocol) return;
+  dragCounter--;
+  if (dragCounter <= 0) { dragCounter = 0; dropOverlay.classList.remove('active'); }
+});
+document.body.addEventListener('dragover', e => {
+  if (isFileProtocol) return;
+  e.preventDefault();
+});
+document.body.addEventListener('drop', async e => {
+  if (isFileProtocol) return;
+  e.preventDefault();
+  dragCounter = 0;
+  dropOverlay.classList.remove('active');
+  // dataTransfer.items は同期的に取得する必要がある
+  const entries = Array.from(e.dataTransfer.items)
+    .filter(i => i.kind === 'file')
+    .map(i => i.webkitGetAsEntry())
+    .filter(Boolean);
+  if (!entries.length) return;
+  revokeAll();
+  clearThumbCache();
+  document.getElementById('btnReload').style.display = '';
+  let dirEntry;
+  if (entries.length === 1 && entries[0].isDirectory) {
+    dirEntry = entries[0];
+  } else {
+    // 複数 or ファイル混在: 疑似ルートとして扱う（ツリー非対応）
+    // ファイルだけ並べる
+    const files = await Promise.all(entries.filter(e => e.isFile && ALL_EXTS.includes(extOf(e.name))).map(e => getEntryFile(e)));
+    loadFlatFiles(files, 'ドロップされたファイル');
+    return;
+  }
+  await loadDirectoryEntry(dirEntry);
+});
+
+// ── ボタン選択 ────────────────────────────────────────────────────
+document.getElementById('btnPick').addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', async e => {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+  revokeAll();
+  clearThumbCache();
+  const rootName = files[0].webkitRelativePath.split('/')[0] || 'フォルダ';
+  const node = buildTreeFromFileList(rootName, files);
+  rootNode = node;
+  renderTree();
+  selectNode(node);
+  document.getElementById('btnReload').style.display = '';
+});
+
+// ── リロードボタン ────────────────────────────────────────────────
+document.getElementById('btnReload').addEventListener('click', () => {
+  clearThumbCache();
+  gallery.innerHTML = '';
+  renderGallery();
+});
+
+// ── FileSystemEntry → File ────────────────────────────────────────
+function getEntryFile(entry) {
+  return new Promise((res, rej) => entry.file(res, rej));
+}
+
+function readEntryChildren(dirEntry) {
+  return new Promise(res => {
+    const reader = dirEntry.createReader();
+    const results = [];
+    function read() {
+      reader.readEntries(batch => {
+        if (!batch.length) { res(results); return; }
+        results.push(...batch);
+        read();
+      });
+    }
+    read();
+  });
+}
+
+// ── ディレクトリエントリからツリー構築（遅延読み込み）──────────────
+async function loadDirectoryEntry(dirEntry) {
+  const node = {
+    name: dirEntry.name,
+    entry: dirEntry,
+    files: null,       // null = 未読み込み
+    children: null,    // null = 未読み込み
+    loaded: false,
+    el: null,
+    parent: null,
+  };
+  rootNode = node;
+  renderTree();
+  await expandNode(node);
+  selectNode(node);
+}
+
+async function expandNode(node) {
+  if (node.loaded) return;
+  node.loaded = true;
+  if (node.entry) {
+    const children = await readEntryChildren(node.entry);
+    node.files = [];
+    for (const c of children) {
+      if (c.isFile && ALL_EXTS.includes(extOf(c.name))) {
+        node.files.push(c); // FileSystemFileEntry として保持
+      }
+    }
+    node.children = children
+      .filter(c => c.isDirectory)
+      .map(c => ({ name: c.name, entry: c, files: null, children: null, loaded: false, el: null, parent: node }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+  }
+  updateTreeNodeEl(node);
+}
+
+// ── FileListからツリー構築 ────────────────────────────────────────
+function buildTreeFromFileList(rootName, files) {
+  // パス構造からノードツリーを作る
+  const nodeMap = new Map(); // path → node
+
+  function getOrCreate(parts, parentNode) {
+    const key = parts.join('/');
+    if (nodeMap.has(key)) return nodeMap.get(key);
+    const node = {
+      name: parts[parts.length - 1],
+      entry: null,
+      files: [],
+      children: [],
+      loaded: true,
+      el: null,
+      parent: parentNode,
+      _fileObjects: [],
+    };
+    nodeMap.set(key, node);
+    if (parentNode) parentNode.children.push(node);
+    return node;
+  }
+
+  const root = { name: rootName, entry: null, files: [], children: [], loaded: true, el: null, parent: null, _fileObjects: [] };
+  nodeMap.set(rootName, root);
+
+  files.forEach(f => {
+    const parts = f.webkitRelativePath.split('/');
+    // parts[0] = rootName, parts[last] = filename
+    if (parts.length === 2) {
+      if (ALL_EXTS.includes(extOf(f.name))) root._fileObjects.push(f);
+    } else {
+      // サブフォルダを辿る
+      let current = root;
+      for (let i = 1; i < parts.length - 1; i++) {
+        const pathSoFar = parts.slice(0, i + 1).join('/');
+        let child = nodeMap.get(pathSoFar);
+        if (!child) {
+          child = { name: parts[i], entry: null, files: [], children: [], loaded: true, el: null, parent: current, _fileObjects: [] };
+          nodeMap.set(pathSoFar, child);
+          current.children.push(child);
+        }
+        current = child;
+      }
+      if (ALL_EXTS.includes(extOf(f.name))) current._fileObjects.push(f);
+    }
+  });
+
+  // _fileObjects を files に変換（File オブジェクトをそのまま保持）
+  nodeMap.forEach(node => {
+    node.files = node._fileObjects;
+    delete node._fileObjects;
+    node.children.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+  });
+
+  return root;
+}
+
+function loadFlatFiles(files, name) {
+  rootNode = { name, entry: null, files, children: [], loaded: true, el: null, parent: null };
+  renderTree();
+  selectNode(rootNode);
+}
+
+// ── ツリー描画 ────────────────────────────────────────────────────
+function renderTree() {
+  treeScroll.innerHTML = '';
+  if (!rootNode) return;
+  const el = buildTreeNodeEl(rootNode, 0, true);
+  treeScroll.appendChild(el);
+}
+
+function updateTreeHeader(node) {
+  // treeHeader削除済み・何もしない
+}
+
+function buildTreeNodeEl(node, depth, autoExpand = false) {
+  const wrap = document.createElement('div');
+  wrap.className = 'tree-node';
+  node.el = wrap;
+
+  const row = document.createElement('div');
+  row.className = 'tree-row';
+  row.style.paddingLeft = (8 + depth * 14) + 'px';
+  row.setAttribute('role', 'treeitem');
+  row.setAttribute('aria-label', node.name);
+
+  const toggle = document.createElement('span');
+  toggle.className = 'tree-toggle';
+  toggle.setAttribute('aria-hidden', 'true');
+  toggle.textContent = '▶';
+
+  const icon = document.createElement('span');
+  icon.className = 'tree-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  icon.textContent = '📁';
+
+  const label = document.createElement('span');
+  label.className = 'tree-label';
+  label.textContent = node.name;
+  label.title = node.name;
+
+  row.appendChild(toggle);
+  row.appendChild(icon);
+  row.appendChild(label);
+  wrap.appendChild(row);
+
+  const childrenEl = document.createElement('div');
+  childrenEl.className = 'tree-children';
+  wrap.appendChild(childrenEl);
+
+  // 子なし or 未読み込み判定
+  const hasChildren = node.children === null || (node.children && node.children.length > 0);
+  if (!hasChildren) toggle.classList.add('empty');
+
+  // クリック分離: トグル（▶）→ 展開・折りたたみのみ
+  toggle.addEventListener('click', async e => {
+    e.stopPropagation();
+    if (!node.loaded) await expandNode(node);
+    if (node.children && node.children.length > 0) {
+      const isOpen = childrenEl.classList.toggle('open');
+      toggle.classList.toggle('open', isOpen);
+      icon.textContent = isOpen ? '📂' : '📁';
+      if (isOpen && childrenEl.children.length === 0) {
+        node.children.forEach(child => {
+          childrenEl.appendChild(buildTreeNodeEl(child, depth + 1));
+        });
+      }
+    }
+  });
+
+  // クリック分離: ラベル → 選択のみ（展開状態は変えない）
+  label.addEventListener('click', async e => {
+    e.stopPropagation();
+    if (!node.loaded) await expandNode(node);
+    selectNode(node);
+  });
+
+  // キーボード操作: row全体でEnter/Space → 選択、ArrowRight → 展開
+  row.addEventListener('keydown', async e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!node.loaded) await expandNode(node);
+      selectNode(node);
+    }
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      if (!node.loaded) await expandNode(node);
+      if (node.children && node.children.length > 0 && !childrenEl.classList.contains('open')) {
+        childrenEl.classList.add('open');
+        toggle.classList.add('open');
+        icon.textContent = '📂';
+        if (childrenEl.children.length === 0) {
+          node.children.forEach(child => {
+            childrenEl.appendChild(buildTreeNodeEl(child, depth + 1));
+          });
+        }
+      }
+    }
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      childrenEl.classList.remove('open');
+      toggle.classList.remove('open');
+      icon.textContent = '📁';
+    }
+  });
+
+  // 自動展開（ルートノード用）
+  if (autoExpand && node.children && node.children.length > 0) {
+    childrenEl.classList.add('open');
+    toggle.classList.add('open');
+    icon.textContent = '📂';
+    node.children.forEach(child => {
+      childrenEl.appendChild(buildTreeNodeEl(child, depth + 1));
+    });
+  }
+
   return wrap;
 }
-function updateTreeNodeEl(node){if(!node.el)return;const toggle=node.el.querySelector('.tree-toggle');const childrenEl=node.el.querySelector('.tree-children');if(!node.children||node.children.length===0){toggle.classList.add('empty');}else{toggle.classList.remove('empty');if(node===rootNode&&childrenEl.children.length===0){childrenEl.classList.add('open');toggle.classList.add('open');const icon=node.el.querySelector('.tree-icon');if(icon)icon.textContent='📂';node.children.forEach(c=>childrenEl.appendChild(buildTreeNodeEl(c,1)));}}if(node===currentNode)renderGallery();}
-function setActiveRow(node){document.querySelectorAll('.tree-row.active').forEach(el=>el.classList.remove('active'));if(node&&node.el){const row=node.el.querySelector('.tree-row');if(row){row.classList.add('active');row.scrollIntoView({block:'nearest'});}}}
-async function selectNode(node){currentNode=node;setActiveRow(node);if(node.entry&&!node.loaded)await expandNode(node);renderGallery();}
 
-const emptyState=document.getElementById('emptyState');
-const galleryWrap=document.getElementById('galleryWrap');
-const gallery=document.getElementById('gallery');
-const statusText=document.getElementById('statusText');
-const filterInput=document.getElementById('filterInput');
-const sortSelect=document.getElementById('sortSelect');
-const sizeSlider=document.getElementById('sizeSlider');
-const lightbox=document.getElementById('lightbox');
-const lbImg=document.getElementById('lbImg');
-const lbFilename=document.getElementById('lbFilename');
-const lbCounter=document.getElementById('lbCounter');
-
-function getSorted(files){const v=sortSelect.value;return[...files].sort((a,b)=>{const na=a.name||'',nb=b.name||'';if(v==='name')return na.localeCompare(nb,'ja');if(v==='name-desc')return nb.localeCompare(na,'ja');if(v==='size')return(b.size||0)-(a.size||0);if(v==='type')return extOf(na).localeCompare(extOf(nb));return 0;});}
-function getCurrentFiles(){return currentNode?currentNode.files||[]:[]}
-
-function badgeClass(name){if(isHeic(name))return' heic-badge';if(isVideo(name))return' video-badge';if(isPdf(name))return' pdf-badge';if(isIco(name))return' ico-badge';return'';}
-
-function renderGallery(){
-  const q=filterInput.value.trim().toLowerCase();const raw=getCurrentFiles();
-  filteredFiles=getSorted(raw).filter(f=>!q||(f.name||'').toLowerCase().includes(q));
-  emptyState.style.display='none';document.getElementById('emptyStateFile').style.display='none';
-  galleryWrap.style.display='flex';galleryWrap.style.flexDirection='column';gallery.innerHTML='';
-  statusText.textContent=q?`${filteredFiles.length} / ${raw.length} files`:`${raw.length} files`;
-  const hasSsTargets=filteredFiles.some(f=>isImage(f.name)||isVideo(f.name));
-  document.getElementById('btnSlideshow').style.display=(rootNode&&hasSsTargets)?'':'none';
-  if(!rootNode){if(isFileProtocol){document.getElementById('emptyStateFile').style.display='flex';document.getElementById('emptyState').style.display='none';}else{document.getElementById('emptyState').style.display='flex';document.getElementById('emptyStateFile').style.display='none';}galleryWrap.style.display='none';return;}
-  if(!filteredFiles.length){const div=document.createElement('div');div.className='no-images';div.textContent=raw.length===0?'No supported files in this folder (try a subfolder in the tree)':`No files matching "${q}"`;gallery.appendChild(div);return;}
-  filteredFiles.forEach((entry,i)=>{
-    const name=entry.name||'';
-    const item=document.createElement('div');item.className='thumb-item';item.setAttribute('role','button');item.setAttribute('tabindex','0');item.setAttribute('aria-label',name+' - open');
-    const loading=document.createElement('div');loading.className='thumb-loading';loading.innerHTML='<div class="thumb-spinner" aria-hidden="true"></div>';
-    const badge=document.createElement('div');badge.className='ext-badge'+badgeClass(name);badge.textContent=extOf(name).toUpperCase();badge.setAttribute('aria-hidden','true');badge.dataset.badge='true';
-    const infoEl=document.createElement('div');infoEl.className='thumb-info';
-    const nameEl=document.createElement('div');nameEl.className='thumb-info-name';nameEl.textContent=name;
-    const dimEl=document.createElement('div');dimEl.className='thumb-info-dim';dimEl.dataset.dim='true';
-    infoEl.appendChild(nameEl);infoEl.appendChild(dimEl);
-    item.appendChild(loading);item.appendChild(badge);item.appendChild(infoEl);
-    item.addEventListener('click',()=>openLightbox(i));
-    item.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openLightbox(i);}});
-    gallery.appendChild(item);
-    loadThumb(entry,item,loading);
-  });
-}
-
-async function resolveFile(entry){return entry instanceof File?entry:getEntryFile(entry);}
-
-async function loadThumb(entry,item,loading){
-  try{
-    const file=await resolveFile(entry);const key=cacheKey(file);
-    if(thumbCache.has(key)){const cached=thumbCache.get(key);applyThumbImg(item,loading,cached);return;}
-    if(isVideo(file.name)){await loadVideoThumb(file,item,loading,key);return;}
-    if(isPdf(file.name)){await loadPdfThumb(file,item,loading,key);return;}
-    // ICO: check multi
-    if(isIco(file.name)){
-      const header=new Uint8Array(await file.slice(0,6).arrayBuffer());
-      const count=header[4]|(header[5]<<8);
-      const badge=item.querySelector('[data-badge]');
-      if(badge&&count>=2){badge.textContent=`ICO(Multi)`;badge.title=`${count}-size multi ICO`;}
+function updateTreeNodeEl(node) {
+  if (!node.el) return;
+  const toggle = node.el.querySelector('.tree-toggle');
+  const childrenEl = node.el.querySelector('.tree-children');
+  if (!node.children || node.children.length === 0) {
+    toggle.classList.add('empty');
+  } else {
+    toggle.classList.remove('empty');
+    // ルートノード（depth=0相当）は自動展開して子を描画
+    if (node === rootNode && childrenEl.children.length === 0) {
+      childrenEl.classList.add('open');
+      toggle.classList.add('open');
+      const icon = node.el.querySelector('.tree-icon');
+      if (icon) icon.textContent = '📂';
+      node.children.forEach(child => {
+        childrenEl.appendChild(buildTreeNodeEl(child, 1));
+      });
     }
-    const{url,realType}=await makeURL(file);
-    if(realType&&realType!=='heic'&&isHeic(file.name)){const badge=item.querySelector('[data-badge]');if(badge){badge.textContent=`HEIC(${realType.toUpperCase()})`;badge.title=`Extension is HEIC but actual format is ${realType.toUpperCase()}`;}}
-    const img=document.createElement('img');img.alt=file.name;img.loading='lazy';
-    img.onload=()=>{if(loading.parentNode===item)loading.remove();const dim=`${img.naturalWidth} × ${img.naturalHeight}`;const d=item.querySelector('[data-dim]');if(d)d.textContent=dim;thumbCache.set(key,{url,dim,realType,isVideo:false,isPdf:false});};
-    img.onerror=()=>{loading.innerHTML='Failed';loading.style.color='#f87';};
-    img.src=url;item.insertBefore(img,item.firstChild);
-  }catch(e){loading.innerHTML='Failed';loading.style.color='#f87';}
+  }
+  // アクティブなノードなら表示更新
+  if (node === currentNode) renderGallery();
 }
 
-function applyThumbImg(item,loading,cached){
-  const img=document.createElement('img');img.loading='lazy';
-  img.onload=()=>{if(loading.parentNode===item)loading.remove();const d=item.querySelector('[data-dim]');if(d&&cached.dim)d.textContent=cached.dim;};
-  img.src=cached.url;item.insertBefore(img,item.firstChild);
-  if(cached.isVideo){const p=document.createElement('div');p.className='thumb-play';p.innerHTML='<div class="thumb-play-icon" aria-hidden="true">▶</div>';item.appendChild(p);}
+function setActiveRow(node) {
+  // 全アクティブ解除
+  document.querySelectorAll('.tree-row.active').forEach(el => el.classList.remove('active'));
+  if (node && node.el) {
+    const row = node.el.querySelector('.tree-row');
+    if (row) {
+      row.classList.add('active');
+      row.scrollIntoView({ block: 'nearest' });
+    }
+  }
 }
 
-async function loadVideoThumb(file,item,loading,key){
-  const url=URL.createObjectURL(file);objectURLs.push(url);
-  const badge=item.querySelector('[data-badge]');
-  return new Promise(res=>{
-    const v=document.createElement('video');v.src=url;v.muted=true;v.playsInline=true;v.preload='metadata';
-    const onErr=()=>{if(loading.parentNode===item){loading.innerHTML='Unplayable';loading.style.color='#f87';loading.style.fontSize='10px';}if(badge){badge.className='ext-badge unplayable-badge';badge.title='Cannot play in this browser';}v.remove();res();};
-    v.addEventListener('error',onErr);
-    v.addEventListener('loadedmetadata',()=>{clearTimeout(mt);v.currentTime=Math.min(1,(v.duration||0)*0.1);});
-    v.addEventListener('seeked',()=>{try{const c=document.createElement('canvas');c.width=v.videoWidth||320;c.height=v.videoHeight||320;c.getContext('2d').drawImage(v,0,0,c.width,c.height);c.toBlob(blob=>{const tu=URL.createObjectURL(blob);objectURLs.push(tu);const img=document.createElement('img');img.onload=()=>{if(loading.parentNode===item)loading.remove();};img.src=tu;item.insertBefore(img,item.firstChild);const dim=`${v.videoWidth} × ${v.videoHeight}`;const d=item.querySelector('[data-dim]');if(d)d.textContent=dim;const p=document.createElement('div');p.className='thumb-play';p.innerHTML='<div class="thumb-play-icon" aria-hidden="true">▶</div>';item.appendChild(p);if(badge)badge.className='ext-badge video-badge';thumbCache.set(key,{url:tu,dim,realType:null,isVideo:true,isPdf:false});v.remove();res();},'image/jpeg',0.85);}catch(e){onErr();}});
-    const mt=setTimeout(()=>{if(v.readyState<1)onErr();},30000);v.load();
+// ── ノード選択 → ギャラリー表示 ──────────────────────────────────
+async function selectNode(node) {
+  currentNode = node;
+  setActiveRow(node);
+  updateTreeHeader(node);
+  // entry ベースで未読み込みなら読む
+  if (node.entry && !node.loaded) await expandNode(node);
+  renderGallery();
+}
+
+function getCurrentFiles() {
+  if (!currentNode) return [];
+  const f = currentNode.files || [];
+  return f; // FileSystemFileEntry か File
+}
+
+async function resolveFile(entry) {
+  if (entry instanceof File) return entry;
+  return getEntryFile(entry);
+}
+
+// ── ギャラリー描画 ────────────────────────────────────────────────
+function getSorted(files) {
+  const v = sortSelect.value;
+  return [...files].sort((a, b) => {
+    const na = a.name||'', nb = b.name||'';
+    const sa = a.size||0,  sb = b.size||0;
+    if (v==='name')      return na.localeCompare(nb,'ja');
+    if (v==='name-desc') return nb.localeCompare(na,'ja');
+    if (v==='size')      return sb-sa;
+    if (v==='type')      return extOf(na).localeCompare(extOf(nb));
+    return 0;
   });
 }
 
-async function loadPdfThumb(file,item,loading,key){
-  try{
-    const pdfjsLib=await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs');
-    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
-    const ps=document.getElementById('pdfStatus');if(ps){ps.textContent='PDF: OK';ps.className='heif-status ready';}
-    const buf=await file.arrayBuffer();
-    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
-    const page=await pdf.getPage(1);
-    const vp=page.getViewport({scale:1.5});
-    const canvas=document.createElement('canvas');canvas.width=vp.width;canvas.height=vp.height;
-    await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
-    const thumbUrl=await new Promise(res=>canvas.toBlob(b=>res(URL.createObjectURL(b)),'image/jpeg',0.88));
+function renderGallery() {
+  const q = filterInput.value.trim().toLowerCase();
+  const raw = getCurrentFiles();
+  const sorted = getSorted(raw);
+  filteredFiles = q ? sorted.filter(f => (f.name||'').toLowerCase().includes(q)) : sorted;
+
+  emptyState.style.display = 'none';
+  document.getElementById('emptyStateFile').style.display = 'none';
+  galleryWrap.style.display = 'flex';
+  galleryWrap.style.flexDirection = 'column';
+  gallery.innerHTML = '';
+
+  statusText.textContent = q
+    ? `${filteredFiles.length} / ${raw.length} files`
+    : `${raw.length} files`;
+
+  // サムネが表示される状態ならスライドショーボタンも表示
+  const hasSsTargets = filteredFiles.some(f => isImage(f.name) || isVideo(f.name));
+  document.getElementById('btnSlideshow').style.display = (rootNode && hasSsTargets) ? '' : 'none';
+
+  if (!rootNode) {
+    if (isFileProtocol) {
+      document.getElementById('emptyStateFile').style.display = 'flex';
+      document.getElementById('emptyState').style.display = 'none';
+    } else {
+      document.getElementById('emptyState').style.display = 'flex';
+      document.getElementById('emptyStateFile').style.display = 'none';
+    }
+    galleryWrap.style.display = 'none';
+    return;
+  }
+
+  if (filteredFiles.length === 0) {
+    const div = document.createElement('div');
+    div.className = 'no-images';
+    div.textContent = raw.length === 0
+      ? 'No supported files in this folder (try a subfolder in the tree)'
+      : `No files matching "${q}"`;
+    gallery.appendChild(div);
+    return;
+  }
+
+  filteredFiles.forEach((entry, i) => {
+    const name = entry.name||'';
+    const item = document.createElement('div');
+    item.className = 'thumb-item';
+    item.setAttribute('role', 'button');
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('aria-label', name + ' - open');
+
+    const loading = document.createElement('div');
+    loading.className = 'thumb-loading';
+    loading.innerHTML = '<div class="thumb-spinner" aria-hidden="true"></div>';
+
+    const badge = document.createElement('div');
+    badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : isVideo(name) ? ' video-badge' : isPdf(name) ? ' pdf-badge' : isIco(name) ? ' ico-badge' : '');
+    badge.textContent = extOf(name).toUpperCase();
+    badge.setAttribute('aria-hidden', 'true');
+    badge.dataset.badge = 'true';
+
+    const infoEl = document.createElement('div');
+    infoEl.className = 'thumb-info';
+    const nameEl = document.createElement('div');
+    nameEl.className = 'thumb-info-name';
+    nameEl.textContent = name;
+    const dimEl = document.createElement('div');
+    dimEl.className = 'thumb-info-dim';
+    dimEl.dataset.dim = 'true';
+    infoEl.appendChild(nameEl);
+    infoEl.appendChild(dimEl);
+
+    item.appendChild(loading);
+    item.appendChild(badge);
+    item.appendChild(infoEl);
+    item.addEventListener('click', () => openLightbox(i));
+    item.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){e.preventDefault();openLightbox(i);} });
+    gallery.appendChild(item);
+
+    loadThumb(entry, item, loading);
+  });
+}
+
+async function loadThumb(entry, item, loading) {
+  try {
+    const file = await resolveFile(entry);
+    const key = cacheKey(file);
+
+    if (isVideo(file.name)) {
+      await loadVideoThumb(file, item, loading, key);
+      return;
+    }
+    if (isPdf(file.name)) {
+      await loadPdfThumb(file, item, loading, key);
+      return;
+    }
+
+    // キャッシュヒット
+    if (thumbCache.has(key)) {
+      const cached = thumbCache.get(key);
+      applyThumbImage(item, loading, cached.url, cached.dim, cached.realType, file.name, cached.icoCount);
+      return;
+    }
+
+    const { url, realType } = await makeURL(file);
+    if (realType && realType !== 'heic' && isHeic(file.name)) {
+      const badge = item.querySelector('[data-badge]');
+      if (badge) {
+        badge.textContent = `HEIC(${realType.toUpperCase()})`;
+        badge.title = `拡張子はHEICですが実体は${realType.toUpperCase()}です`;
+      }
+    }
+    // ICOのマルチサイズ判定
+    if (isIco(file.name)) {
+      const header = new Uint8Array(await file.slice(0, 6).arrayBuffer());
+      const count = header[4] | (header[5] << 8); // リトルエンディアン
+      const badge = item.querySelector('[data-badge]');
+      if (badge && count >= 2) {
+        badge.textContent = `ICO(Multi)`;
+        badge.title = `${count}サイズ入りのマルチICOです`;
+      }
+      const img = document.createElement('img');
+      img.alt = file.name; img.loading = 'lazy';
+      img.onload = () => {
+        if (loading.parentNode===item) loading.remove();
+        const dim = `${img.naturalWidth} × ${img.naturalHeight}`;
+        const dimEl = item.querySelector('[data-dim]');
+        if (dimEl) dimEl.textContent = dim;
+        thumbCache.set(key, { url, dim, realType, icoCount: count });
+      };
+      img.onerror = () => { loading.innerHTML='読込失敗'; loading.style.color='#f87'; };
+      img.src = url;
+      item.insertBefore(img, item.firstChild);
+      return;
+    }
+    const img = document.createElement('img');
+    img.alt = file.name; img.loading = 'lazy';
+    img.onload = () => {
+      if (loading.parentNode===item) loading.remove();
+      const dim = `${img.naturalWidth} × ${img.naturalHeight}`;
+      const dimEl = item.querySelector('[data-dim]');
+      if (dimEl) dimEl.textContent = dim;
+      thumbCache.set(key, { url, dim, realType });
+    };
+    img.onerror = () => { loading.innerHTML='読込失敗'; loading.style.color='#f87'; };
+    img.src = url;
+    item.insertBefore(img, item.firstChild);
+  } catch(e) {
+    loading.innerHTML = '読込失敗';
+    loading.style.color = '#f87';
+    console.warn('thumb failed:', entry.name, e);
+  }
+}
+
+function applyThumbImage(item, loading, url, dim, realType, filename, icoCount) {
+  const img = document.createElement('img');
+  img.alt = filename; img.loading = 'lazy';
+  img.onload = () => {
+    if (loading.parentNode===item) loading.remove();
+    const dimEl = item.querySelector('[data-dim]');
+    if (dimEl && dim) dimEl.textContent = dim;
+  };
+  img.src = url;
+  item.insertBefore(img, item.firstChild);
+  if (realType && realType !== 'heic' && isHeic(filename)) {
+    const badge = item.querySelector('[data-badge]');
+    if (badge) {
+      badge.textContent = `HEIC(${realType.toUpperCase()})`;
+      badge.title = `拡張子はHEICですが実体は${realType.toUpperCase()}です`;
+    }
+  }
+  if (isIco(filename) && icoCount >= 2) {
+    const badge = item.querySelector('[data-badge]');
+    if (badge) {
+      badge.textContent = 'ICO(Multi)';
+      badge.title = `${icoCount}サイズ入りのマルチICOです`;
+    }
+  }
+}
+
+async function loadPdfThumb(file, item, loading, key) {
+  // キャッシュヒット
+  if (key && thumbCache.has(key)) {
+    const cached = thumbCache.get(key);
+    const img = document.createElement('img');
+    img.alt = file.name;
+    img.onload = () => { if (loading.parentNode===item) loading.remove(); };
+    img.src = cached.url;
+    item.insertBefore(img, item.firstChild);
+    const dimEl = item.querySelector('[data-dim]');
+    if (dimEl && cached.dim) dimEl.textContent = cached.dim;
+    return;
+  }
+  try {
+    // PDF.jsはESモジュールなのでdynamic importで取得
+    const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs');
+    const ps = document.getElementById('pdfStatus'); if(ps){ ps.textContent='PDF: OK'; ps.className='heif-status ready'; }
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: 1.5 });
+    const canvas = document.createElement('canvas');
+    canvas.width  = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    const thumbUrl = await new Promise(res => canvas.toBlob(b => res(URL.createObjectURL(b)), 'image/jpeg', 0.88));
     objectURLs.push(thumbUrl);
-    const dim=`${Math.round(vp.width/1.5)} × ${Math.round(vp.height/1.5)} pt`;
-    thumbCache.set(key,{url:thumbUrl,dim,realType:null,isVideo:false,isPdf:true});
-    const img=document.createElement('img');img.alt=file.name;
-    img.onload=()=>{if(loading.parentNode===item)loading.remove();const d=item.querySelector('[data-dim]');if(d)d.textContent=dim;};
-    img.src=thumbUrl;item.insertBefore(img,item.firstChild);
-  }catch(e){loading.innerHTML='Failed';loading.style.color='#f87';}
+    const dim = `${Math.round(viewport.width / 1.5)} × ${Math.round(viewport.height / 1.5)} pt`;
+    if (key) thumbCache.set(key, { url: thumbUrl, dim });
+    const img = document.createElement('img');
+    img.alt = file.name;
+    img.onload = () => {
+      if (loading.parentNode===item) loading.remove();
+      const dimEl = item.querySelector('[data-dim]');
+      if (dimEl) dimEl.textContent = dim;
+    };
+    img.src = thumbUrl;
+    item.insertBefore(img, item.firstChild);
+  } catch(e) {
+    loading.innerHTML = '読込失敗';
+    loading.style.color = '#f87';
+    console.warn('pdf thumb failed:', file.name, e);
+  }
 }
 
-async function openLightbox(idx){
-  currentIdx=idx;await updateLightbox();lightbox.classList.add('open');
-  const videoWrap=document.getElementById('lbVideoWrap');
-  if(videoWrap.style.display!=='none')document.getElementById('lbVideo').focus();else lightbox.focus();
+async function loadVideoThumb(file, item, loading, key) {
+  // キャッシュヒット
+  if (key && thumbCache.has(key)) {
+    const cached = thumbCache.get(key);
+    const img = document.createElement('img');
+    img.alt = file.name;
+    img.onload = () => { if (loading.parentNode===item) loading.remove(); };
+    img.src = cached.url;
+    item.insertBefore(img, item.firstChild);
+    const dimEl = item.querySelector('[data-dim]');
+    if (dimEl && cached.dim) dimEl.textContent = cached.dim;
+    const play = document.createElement('div');
+    play.className = 'thumb-play';
+    play.innerHTML = '<div class="thumb-play-icon" aria-hidden="true">▶</div>';
+    item.appendChild(play);
+    const badge = item.querySelector('[data-badge]');
+    if (badge) badge.className = 'ext-badge video-badge';
+    return;
+  }
+
+  const url = URL.createObjectURL(file);
+  objectURLs.push(url);
+  const badge = item.querySelector('[data-badge]');
+
+  return new Promise(res => {
+    const video = document.createElement('video');
+    video.src = url;
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+
+    const onError = () => {
+      if (loading.parentNode === item) {
+        loading.innerHTML = '再生不可';
+        loading.style.color = '#f87';
+        loading.style.fontSize = '11px';
+      }
+      if (badge) { badge.textContent = extOf(file.name).toUpperCase(); badge.className = 'ext-badge unplayable-badge'; badge.title = 'このブラウザでは再生できません'; }
+      video.remove();
+      res();
+    };
+
+    video.addEventListener('error', onError);
+    video.addEventListener('loadedmetadata', () => {
+      clearTimeout(metaTimer); // メタデータが来たらタイムアウト解除
+      video.currentTime = Math.min(1, (video.duration || 0) * 0.1);
+    });
+    video.addEventListener('seeked', () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width  = video.videoWidth  || 320;
+        canvas.height = video.videoHeight || 320;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(blob => {
+          const thumbUrl = URL.createObjectURL(blob);
+          objectURLs.push(thumbUrl);
+          const img = document.createElement('img');
+          img.alt = file.name;
+          img.onload = () => { if (loading.parentNode===item) loading.remove(); };
+          img.src = thumbUrl;
+          item.insertBefore(img, item.firstChild);
+          const dim = `${video.videoWidth} × ${video.videoHeight}`;
+          const dimEl = item.querySelector('[data-dim]');
+          if (dimEl) dimEl.textContent = dim;
+          const play = document.createElement('div');
+          play.className = 'thumb-play';
+          play.innerHTML = '<div class="thumb-play-icon" aria-hidden="true">▶</div>';
+          item.appendChild(play);
+          if (badge) { badge.className = 'ext-badge video-badge'; }
+          // キャッシュ保存
+          if (key) thumbCache.set(key, { url: thumbUrl, dim });
+          video.remove();
+          res();
+        }, 'image/jpeg', 0.85);
+      } catch(e) { onError(); }
+    });
+
+    // メタデータ取得のタイムアウト（30秒）。loadedmetadata が来たら解除される
+    const metaTimer = setTimeout(() => { if (video.readyState < 1) onError(); }, 30000);
+    video.load();
+  });
 }
 
-async function updateLightbox(){
-  const entry=filteredFiles[currentIdx];const name=entry.name||'';
-  lbFilename.textContent=name;lbCounter.textContent=(currentIdx+1)+' / '+filteredFiles.length;
-  const lbDimEl=document.getElementById('lbDim');if(lbDimEl)lbDimEl.textContent='';
-  const imgWrap=document.getElementById('lbImgWrap');const videoWrap=document.getElementById('lbVideoWrap');const pdfWrap=document.getElementById('lbPdfWrap');
-  const lbVideo=document.getElementById('lbVideo');const pdfFrame=document.getElementById('lbPdfFrame');
-  lbImg.src='';lbVideo.pause();lbVideo.src='';pdfFrame.src='';
-  imgWrap.style.display='none';videoWrap.style.display='none';pdfWrap.style.display='none';
-  try{
-    const file=await resolveFile(entry);
-    if(isVideo(file.name)){const url=URL.createObjectURL(file);objectURLs.push(url);videoWrap.style.display='flex';lbVideo.src=url;lbVideo.load();lbVideo.onloadedmetadata=()=>{if(lbDimEl)lbDimEl.textContent=lbVideo.videoWidth?`${lbVideo.videoWidth} × ${lbVideo.videoHeight}`:''};}
-    else if(isPdf(file.name)){const url=URL.createObjectURL(file);objectURLs.push(url);pdfWrap.style.display='flex';pdfFrame.src=url;}
-    else{const{url}=await makeURL(file);imgWrap.style.display='flex';lbImg.src=url;lbImg.alt=name;lbImg.onload=()=>{if(lbDimEl)lbDimEl.textContent=lbImg.naturalWidth?`${lbImg.naturalWidth} × ${lbImg.naturalHeight}`:''};}
-  }catch(e){imgWrap.style.display='flex';lbImg.alt='Failed to load';}
+// ── ライトボックス ────────────────────────────────────────────────
+async function openLightbox(idx) {
+  currentIdx = idx;
+  await updateLightbox();
+  lightbox.classList.add('open');
+  // 動画はvideo要素に、それ以外はlightbox本体にフォーカス
+  const videoWrap = document.getElementById('lbVideoWrap');
+  if (videoWrap.style.display !== 'none') {
+    document.getElementById('lbVideo').focus();
+  } else {
+    lightbox.focus();
+  }
+}
+async function updateLightbox() {
+  const entry = filteredFiles[currentIdx];
+  const name = entry.name||'';
+  lbFilename.textContent = name;
+  lbCounter.textContent = (currentIdx+1) + ' / ' + filteredFiles.length;
+  const lbDimEl = document.getElementById('lbDim'); if(lbDimEl) lbDimEl.textContent = '';
+
+  const imgWrap   = document.getElementById('lbImgWrap');
+  const videoWrap = document.getElementById('lbVideoWrap');
+  const lbVideo   = document.getElementById('lbVideo');
+  const lbImg     = document.getElementById('lbImg');
+
+  // 前のメディアをクリア
+  lbImg.src = ''; lbVideo.pause(); lbVideo.src = '';
+  resetZoom();
+
+  try {
+    const file = await resolveFile(entry);
+    const pdfWrap   = document.getElementById('lbPdfWrap');
+    const pdfFrame  = document.getElementById('lbPdfFrame');
+    pdfFrame.src = '';
+    imgWrap.style.display   = 'none';
+    videoWrap.style.display = 'none';
+    pdfWrap.style.display   = 'none';
+    const zoomBtn = document.getElementById('lbZoomBtn');
+    const loopBtn = document.getElementById('lbLoopBtn');
+    if (isVideo(file.name)) {
+      zoomBtn.style.display = '';
+      loopBtn.style.display = '';
+      lbVideo.loop = videoLoop;
+      const url = URL.createObjectURL(file);
+      objectURLs.push(url);
+      videoWrap.style.display = 'flex';
+      lbVideo.src = url;
+      lbVideo.load();
+      lbVideo.onloadedmetadata = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbVideo.videoWidth ? `${lbVideo.videoWidth} × ${lbVideo.videoHeight}` : ''; };
+    } else if (isPdf(file.name)) {
+      zoomBtn.style.display = 'none';
+      loopBtn.style.display = 'none';
+      exitZoomMode();
+      const url = URL.createObjectURL(file);
+      objectURLs.push(url);
+      pdfWrap.style.display = 'flex';
+      pdfFrame.src = url;
+    } else {
+      zoomBtn.style.display = '';
+      loopBtn.style.display = 'none';
+      const { url } = await makeURL(file);
+      imgWrap.style.display = 'flex';
+      lbImg.src = url; lbImg.alt = name;
+      lbImg.onload = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbImg.naturalWidth ? `${lbImg.naturalWidth} × ${lbImg.naturalHeight}` : ''; };
+    }
+  } catch(e) {
+    imgWrap.style.display   = 'flex';
+    videoWrap.style.display = 'none';
+    lbImg.alt = '表示できませんでした';
+  }
   setupZoomForCurrentMedia();
+  if (ssActive) scheduleNext();
+}
+function closeLightbox() {
+  if (ssActive) stopSlideshow();
+  exitZoomMode();
+  const lbVideo = document.getElementById('lbVideo');
+  lbVideo.pause(); lbVideo.src = '';
+  document.getElementById('lbImg').src = '';
+  document.getElementById('lbPdfFrame').src = '';
+  lightbox.classList.remove('open', 'checker');
+  const btn = document.getElementById('lbChecker');
+  btn.style.background = '';
+  btn.style.borderColor = '';
+  btn.title = 'Toggle checker background';
 }
 
-function closeLightbox(){if(ssActive)stopSlideshow();exitZoomMode();const lbVideo=document.getElementById('lbVideo');lbVideo.pause();lbVideo.src='';lbImg.src='';document.getElementById('lbPdfFrame').src='';lightbox.classList.remove('open');const btn=document.getElementById('lbChecker');btn.style.background='';btn.style.borderColor='';}
-document.getElementById('lbClose').addEventListener('click',closeLightbox);
-document.getElementById('lbPrev').addEventListener('click',async()=>{currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length;await updateLightbox();});
-document.getElementById('lbNext').addEventListener('click',async()=>{currentIdx=(currentIdx+1)%filteredFiles.length;await updateLightbox();});
-lightbox.addEventListener('click',e=>{if(e.target===lightbox)closeLightbox();});
-document.addEventListener('keydown',async e=>{
-  if(!lightbox.classList.contains('open'))return;
-  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
-  if(e.key==='Escape'){if(zoomed){resetZoom();if(zoomMode){syncZoomCanvas();zoomCanvas.classList.add('active');}lbZoomBtn.title='Exit zoom mode';}else if(zoomMode){exitZoomMode();}else{closeLightbox();}return;}
-  if(e.key==='ArrowLeft'&&!zoomed){currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length;await updateLightbox();}
-  if(e.key==='ArrowRight'&&!zoomed){currentIdx=(currentIdx+1)%filteredFiles.length;await updateLightbox();}
-  if(e.key==='l'||e.key==='L'){lbLoopBtn.click();return;}
-  if(e.key==='z'||e.key==='Z'){if(zoomed){resetZoom();syncZoomCanvas();zoomCanvas.classList.add('active');lbZoomBtn.title='Exit zoom mode';}else if(zoomMode){exitZoomMode();}else{enterZoomMode();}}
-  if(e.key==='c'||e.key==='C'){const isChecker=lightbox.classList.toggle('checker');const btn=document.getElementById('lbChecker');btn.style.background=isChecker?'rgba(105,158,255,0.15)':'';btn.style.borderColor=isChecker?'#699EFF':'';btn.title=isChecker?'Switch to dark background':'Toggle checker background';}
+document.getElementById('lbClose').addEventListener('click', closeLightbox);
+document.getElementById('lbChecker').addEventListener('click', () => {
+  const isChecker = lightbox.classList.toggle('checker');
+  const btn = document.getElementById('lbChecker');
+  btn.style.background = isChecker ? 'rgba(105,158,255,0.15)' : '';
+  btn.style.borderColor = isChecker ? '#699EFF' : '';
+  btn.title = isChecker ? 'Switch to dark background' : 'Toggle checker background';
+});
+document.getElementById('lbPrev').addEventListener('click', async () => {
+  currentIdx = (currentIdx-1+filteredFiles.length)%filteredFiles.length;
+  await updateLightbox();
+});
+document.getElementById('lbNext').addEventListener('click', async () => {
+  currentIdx = (currentIdx+1)%filteredFiles.length;
+  await updateLightbox();
+});
+lightbox.addEventListener('click', e => { if(e.target===lightbox) closeLightbox(); });
+document.addEventListener('keydown', async e => {
+  if (!lightbox.classList.contains('open')) return;
+  // テキスト入力中は無視
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+  if (e.key === 'Escape') {
+    if (zoomed) {
+      // ズーム中ならズーム解除
+      resetZoom();
+      if (zoomMode) { syncZoomCanvas(); zoomCanvas.classList.add('active'); }
+      lbZoomBtn.title = 'Exit zoom mode';
+    } else if (zoomMode) {
+      exitZoomMode();
+    } else {
+      closeLightbox();
+    }
+    return;
+  }
+  if (e.key === 'ArrowLeft'  && !zoomed) { e.preventDefault(); currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length; await updateLightbox(); }
+  if (e.key === 'ArrowRight' && !zoomed) { e.preventDefault(); currentIdx=(currentIdx+1)%filteredFiles.length; await updateLightbox(); }
+  if (e.key === 'l' || e.key === 'L') { lbLoopBtn.click(); return; }
+  if (e.key === 'z' || e.key === 'Z') {
+    if (zoomed) {
+      resetZoom();
+      syncZoomCanvas();
+      zoomCanvas.classList.add('active');
+      lbZoomBtn.title = 'Exit zoom mode';
+    } else if (zoomMode) {
+      exitZoomMode();
+    } else {
+      enterZoomMode();
+    }
+  }
+  if (e.key === 'c' || e.key === 'C') {
+    const isChecker = lightbox.classList.toggle('checker');
+    const btn = document.getElementById('lbChecker');
+    btn.style.background = isChecker ? 'rgba(105,158,255,0.15)' : '';
+    btn.style.borderColor = isChecker ? '#699EFF' : '';
+    btn.title = isChecker ? 'Switch to dark background' : 'Toggle checker background';
+  }
 });
 
-// ── Zoom ─────────────────────────────────────────────────────────
-const zoomCanvas=document.getElementById('lbZoomCanvas');
-const zoomCtx=zoomCanvas.getContext('2d');
-const lbZoomBtn=document.getElementById('lbZoomBtn');
-let zoomMode=false,zoomed=false,zoomDragging=false,zoomStart={x:0,y:0},currentZoom=null;
-let zoomRafId=null;
 
-function enterZoomMode(){zoomMode=true;lbZoomBtn.style.background='rgba(105,158,255,0.15)';lbZoomBtn.style.borderColor='#699EFF';lbZoomBtn.title='Exit zoom mode';syncZoomCanvas();zoomCanvas.classList.add('active');}
-function exitZoomMode(){zoomMode=false;lbZoomBtn.style.background='';lbZoomBtn.style.borderColor='';lbZoomBtn.title='Zoom (drag to select)';resetZoom();zoomCanvas.classList.remove('active');}
+// ── ズーム機能 ────────────────────────────────────────────────────
+const zoomCanvas = document.getElementById('lbZoomCanvas');
+const zoomCtx    = zoomCanvas.getContext('2d');
+let zoomMode     = false;   // ズームモードON/OFF
+let zoomed       = false;   // 現在ズーム中か
+let zoomDragging = false;
+let zoomStart    = { x: 0, y: 0 };
+let wasPlaying   = false;
+let currentZoom  = null;    // { originX, originY, clipW, clipH }
 
-lbZoomBtn.addEventListener('click',()=>{
-  if(zoomed){resetZoom();syncZoomCanvas();zoomCanvas.classList.add('active');lbZoomBtn.title='Exit zoom mode';}
-  else if(zoomMode){exitZoomMode();}else{enterZoomMode();}
-});
+const lbZoomBtn  = document.getElementById('lbZoomBtn');
 
-document.getElementById('lbChecker').addEventListener('click',()=>{
-  const isChecker=lightbox.classList.toggle('checker');
-  const btn=document.getElementById('lbChecker');
-  btn.style.background=isChecker?'rgba(105,158,255,0.15)':'';btn.style.borderColor=isChecker?'#699EFF':'';
-  btn.title=isChecker?'Switch to dark background':'Toggle checker background';
-});
-
-function syncZoomCanvas(){
-  const lbRect=lightbox.getBoundingClientRect();
-  const headerH=document.querySelector('.lb-header').getBoundingClientRect().height;
-  const infoH=document.querySelector('.lb-info').getBoundingClientRect().height;
-  zoomCanvas.style.left=lbRect.left+'px';zoomCanvas.style.top=(lbRect.top+headerH)+'px';
-  zoomCanvas.style.width=lbRect.width+'px';zoomCanvas.style.height=(lbRect.height-headerH-infoH)+'px';
-  zoomCanvas.width=lbRect.width;zoomCanvas.height=lbRect.height-headerH-infoH;
-}
-
-function getCurrentMediaEl(){
-  const iw=document.getElementById('lbImgWrap');if(iw.style.display!=='none')return document.getElementById('lbImg');
-  const vw=document.getElementById('lbVideoWrap');if(vw.style.display!=='none')return document.getElementById('lbVideo');
+function getCurrentMediaEl() {
+  const imgWrap = document.getElementById('lbImgWrap');
+  if (imgWrap.style.display !== 'none') return document.getElementById('lbImg');
+  const videoWrap = document.getElementById('lbVideoWrap');
+  if (videoWrap.style.display !== 'none') return document.getElementById('lbVideo');
   return null;
 }
 
-function stopZoomRender(){if(zoomRafId){cancelAnimationFrame(zoomRafId);zoomRafId=null;}}
-
-function resetZoom(){
-  zoomed=false;zoomDragging=false;stopZoomRender();
-  if(zoomCanvas)zoomCtx.clearRect(0,0,zoomCanvas.width,zoomCanvas.height);
-  const container=document.getElementById('lbZoomContainer');if(container)container.remove();
-  const media=getCurrentMediaEl();
-  if(media){media.style.visibility='';media.style.transform='';media.style.transformOrigin='';media.style.borderRadius='';media.style.position='';media.style.left='';media.style.top='';}
-  currentZoom=null;if(zoomMode)lbZoomBtn.title='Exit zoom mode';
+function enterZoomMode() {
+  zoomMode = true;
+  lbZoomBtn.style.background = 'rgba(105,158,255,0.15)';
+  lbZoomBtn.style.borderColor = '#699EFF';
+  lbZoomBtn.title = 'Exit zoom mode';
+  syncZoomCanvas();
+  zoomCanvas.classList.add('active');
 }
 
-function applyZoom(media,originX,originY,clipW,clipH,headerH){
-  if(!media)return;
-  if(headerH===undefined)headerH=document.querySelector('.lb-header').getBoundingClientRect().height;
-  const infoH=document.querySelector('.lb-info').getBoundingClientRect().height;
-  stopZoomRender();const existing=document.getElementById('lbZoomContainer');if(existing)existing.remove();
-  const lbRect=lightbox.getBoundingClientRect();const pad=16;
-  const availW=lbRect.width-pad*2;const availH=lbRect.height-headerH-infoH-pad*2;
-  const scale=Math.min(availW/clipW,availH/clipH);
-  const dispW=Math.round(clipW*scale);const dispH=Math.round(clipH*scale);
-  const left=lbRect.left+(lbRect.width-dispW)/2;const top=lbRect.top+headerH+pad+(availH-dispH)/2;
-  const container=document.createElement('div');container.id='lbZoomContainer';
-  container.style.cssText=`position:fixed;left:${left}px;top:${top}px;width:${dispW}px;height:${dispH}px;overflow:hidden;z-index:1005;border-radius:4px;box-shadow:0 0 0 2px rgba(255,255,255,0.15),0 8px 40px rgba(0,0,0,0.7);`;
-  if(media.tagName==='VIDEO'){
-    const dc=document.createElement('canvas');dc.width=dispW;dc.height=dispH;dc.style.cssText='display:block;width:100%;height:100%;';
-    container.appendChild(dc);document.body.appendChild(container);
-    media.style.visibility='hidden';
-    const mRect=media.getBoundingClientRect();
-    const sx=originX*(media.videoWidth/mRect.width);const sy=originY*(media.videoHeight/mRect.height);
-    const sw=clipW*(media.videoWidth/mRect.width);const sh=clipH*(media.videoHeight/mRect.height);
-    const ctx=dc.getContext('2d');
-    function render(){if(!zoomed)return;ctx.drawImage(media,sx,sy,sw,sh,0,0,dc.width,dc.height);zoomRafId=requestAnimationFrame(render);}
-    zoomRafId=requestAnimationFrame(render);
-  }else{
-    const mRect=media.getBoundingClientRect();const mW=mRect.width*scale;const mH=mRect.height*scale;
-    const inner=document.createElement('img');inner.src=media.src;inner.alt=media.alt||'';
-    inner.style.cssText=`position:absolute;width:${mW}px;height:${mH}px;left:${-originX*scale}px;top:${-originY*scale}px;object-fit:contain;max-width:none;max-height:none;`;
-    container.appendChild(inner);document.body.appendChild(container);
-    media.style.visibility='hidden';
+function exitZoomMode() {
+  zoomMode = false;
+  lbZoomBtn.style.background = '';
+  lbZoomBtn.style.borderColor = '';
+  lbZoomBtn.title = 'Zoom (drag to select)';
+  resetZoom();
+  zoomCanvas.classList.remove('active');
+}
+
+lbZoomBtn.addEventListener('click', () => {
+  if (zoomed) {
+    // ズーム中 → ズーム解除（モードは維持）
+    resetZoom();
+    syncZoomCanvas();
+    zoomCanvas.classList.add('active');
+  } else if (zoomMode) {
+    // ズームモード中（未ズーム）→ モード終了
+    exitZoomMode();
+  } else {
+    // 通常 → ズームモード開始
+    enterZoomMode();
   }
-  currentZoom._container=container;
+});
+
+function syncZoomCanvas() {
+  const lbRect  = lightbox.getBoundingClientRect();
+  const headerH = document.querySelector('.lb-header').getBoundingClientRect().height;
+  const infoH   = document.querySelector('.lb-info').getBoundingClientRect().height;
+  zoomCanvas.style.left   = lbRect.left + 'px';
+  zoomCanvas.style.top    = (lbRect.top + headerH) + 'px';
+  zoomCanvas.style.width  = lbRect.width + 'px';
+  zoomCanvas.style.height = (lbRect.height - headerH - infoH) + 'px';
+  zoomCanvas.width  = lbRect.width;
+  zoomCanvas.height = lbRect.height - headerH - infoH;
 }
 
-zoomCanvas.addEventListener('mousedown',e=>{
-  if(!zoomMode||zoomed)return;e.preventDefault();syncZoomCanvas();
-  const rect=zoomCanvas.getBoundingClientRect();
-  zoomStart.x=e.clientX-rect.left;zoomStart.y=e.clientY-rect.top;
-  zoomDragging=true;zoomCtx.clearRect(0,0,zoomCanvas.width,zoomCanvas.height);
-});
-zoomCanvas.addEventListener('mousemove',e=>{
-  if(!zoomDragging)return;
-  const rect=zoomCanvas.getBoundingClientRect();const cx=e.clientX-rect.left;const cy=e.clientY-rect.top;
-  const sx=zoomStart.x,sy=zoomStart.y;
-  zoomCtx.clearRect(0,0,zoomCanvas.width,zoomCanvas.height);
-  zoomCtx.fillStyle='rgba(0,0,0,0.4)';zoomCtx.fillRect(0,0,zoomCanvas.width,zoomCanvas.height);
-  const rx=Math.min(sx,cx),ry=Math.min(sy,cy),rw=Math.abs(cx-sx),rh=Math.abs(cy-sy);
-  zoomCtx.clearRect(rx,ry,rw,rh);zoomCtx.strokeStyle='rgba(255,255,255,0.9)';zoomCtx.lineWidth=1.5;zoomCtx.strokeRect(rx+0.5,ry+0.5,rw-1,rh-1);
-});
-zoomCanvas.addEventListener('mouseup',e=>{
-  if(!zoomDragging)return;zoomDragging=false;
-  const rect=zoomCanvas.getBoundingClientRect();const ex=e.clientX-rect.left;const ey=e.clientY-rect.top;
-  const rw=Math.abs(ex-zoomStart.x),rh=Math.abs(ey-zoomStart.y);
-  zoomCtx.clearRect(0,0,zoomCanvas.width,zoomCanvas.height);
-  if(rw<8||rh<8)return;
-  const rx=Math.min(zoomStart.x,ex),ry=Math.min(zoomStart.y,ey);
-  const headerH=document.querySelector('.lb-header').getBoundingClientRect().height;
-  const vx=rx+rect.left;const vy=ry+rect.top;
-  const media=getCurrentMediaEl();if(!media)return;
-  const mRect=media.getBoundingClientRect();
-  const clipLeft=Math.max(vx,mRect.left);const clipTop=Math.max(vy,mRect.top);
-  const clipRight=Math.min(vx+rw,mRect.right);const clipBottom=Math.min(vy+rh,mRect.bottom);
-  const clipW=clipRight-clipLeft;const clipH=clipBottom-clipTop;if(clipW<4||clipH<4)return;
-  const originX=clipLeft-mRect.left;const originY=clipTop-mRect.top;
-  currentZoom={ratioX:originX/mRect.width,ratioY:originY/mRect.height,ratioW:clipW/mRect.width,ratioH:clipH/mRect.height};
-  applyZoom(media,originX,originY,clipW,clipH,headerH);
-  zoomed=true;zoomCanvas.classList.remove('active');lbZoomBtn.title='Release zoom';
+
+// canvas座標 → メディア上の座標に変換（未使用・削除）
+
+
+zoomCanvas.addEventListener('mousedown', (e) => {
+  if (!zoomMode || zoomed) return;
+  e.preventDefault();
+  syncZoomCanvas();
+
+  const rect = zoomCanvas.getBoundingClientRect();
+  zoomStart.x = e.clientX - rect.left;
+  zoomStart.y = e.clientY - rect.top;
+  zoomDragging = true;
+
+  zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
 });
 
-window.addEventListener('resize',()=>{
-  if(!zoomed||!currentZoom)return;
-  const media=getCurrentMediaEl();if(!media)return;
-  requestAnimationFrame(()=>{
-    media.style.visibility='hidden';
-    const mRect=media.getBoundingClientRect();
-    const headerH=document.querySelector('.lb-header').getBoundingClientRect().height;
-    applyZoom(media,currentZoom.ratioX*mRect.width,currentZoom.ratioY*mRect.height,currentZoom.ratioW*mRect.width,currentZoom.ratioH*mRect.height,headerH);
+zoomCanvas.addEventListener('mousemove', (e) => {
+  if (!zoomDragging) return;
+  const rect = zoomCanvas.getBoundingClientRect();
+  const cx = e.clientX - rect.left;
+  const cy = e.clientY - rect.top;
+  const sx = zoomStart.x, sy = zoomStart.y;
+
+  zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
+  zoomCtx.fillStyle = 'rgba(0,0,0,0.4)';
+  zoomCtx.fillRect(0, 0, zoomCanvas.width, zoomCanvas.height);
+  const rx = Math.min(sx, cx), ry = Math.min(sy, cy);
+  const rw = Math.abs(cx - sx),  rh = Math.abs(cy - sy);
+  zoomCtx.clearRect(rx, ry, rw, rh);
+  zoomCtx.strokeStyle = 'rgba(255,255,255,0.9)';
+  zoomCtx.lineWidth = 1.5;
+  zoomCtx.strokeRect(rx + 0.5, ry + 0.5, rw - 1, rh - 1);
+});
+
+zoomCanvas.addEventListener('mouseup', (e) => {
+  if (!zoomDragging) return;
+  zoomDragging = false;
+
+  const rect = zoomCanvas.getBoundingClientRect();
+  const ex = e.clientX - rect.left;
+  const ey = e.clientY - rect.top;
+  const sx = zoomStart.x, sy = zoomStart.y;
+  const rw = Math.abs(ex - sx), rh = Math.abs(ey - sy);
+
+  zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
+
+  if (rw < 8 || rh < 8) {
+    const video = document.getElementById('lbVideo');
+    const videoWrap = document.getElementById('lbVideoWrap');
+    if (videoWrap.style.display !== 'none' && wasPlaying) video.play();
+    return;
+  }
+
+  const rx = Math.min(sx, ex), ry = Math.min(sy, ey);
+
+  // canvas座標（headerH下が原点）→ viewport座標
+  const headerH = document.querySelector('.lb-header').getBoundingClientRect().height;
+  const vx = rx + rect.left;
+  const vy = ry + rect.top;
+
+  // メディアの現在の画面位置
+  const media = getCurrentMediaEl();
+  if (!media) return;
+  const mRect = media.getBoundingClientRect();
+
+  // 選択範囲をメディア座標にクランプ
+  const clipLeft   = Math.max(vx,      mRect.left);
+  const clipTop    = Math.max(vy,      mRect.top);
+  const clipRight  = Math.min(vx + rw, mRect.right);
+  const clipBottom = Math.min(vy + rh, mRect.bottom);
+  const clipW = clipRight - clipLeft;
+  const clipH = clipBottom - clipTop;
+  if (clipW < 4 || clipH < 4) return;
+
+  // メディア左上からの相対座標（transform-originに使う）
+  const originX = clipLeft - mRect.left;
+  const originY = clipTop  - mRect.top;
+
+  // ズーム情報をメディアサイズに対する比率で保存（リサイズ時に再計算できるよう）
+  currentZoom = {
+    ratioX:  originX / mRect.width,
+    ratioY:  originY / mRect.height,
+    ratioW:  clipW   / mRect.width,
+    ratioH:  clipH   / mRect.height,
+  };
+  applyZoom(media, originX, originY, clipW, clipH, headerH);
+
+  // 元動画の映像を隠す（visibility:hidden で音声は継続）
+  media.style.visibility = 'hidden';
+
+  zoomed = true;
+  zoomCanvas.classList.remove('active');
+  lbZoomBtn.title = 'Release zoom';
+});
+
+// ズームcanvas描画ループ（動画専用）
+let zoomRafId = null;
+function startZoomRender(srcVideo, dispCanvas, sx, sy, sw, sh) {
+  const ctx = dispCanvas.getContext('2d');
+  function render() {
+    if (!zoomed) return;
+    ctx.drawImage(srcVideo, sx, sy, sw, sh, 0, 0, dispCanvas.width, dispCanvas.height);
+    zoomRafId = requestAnimationFrame(render);
+  }
+  zoomRafId = requestAnimationFrame(render);
+}
+function stopZoomRender() {
+  if (zoomRafId) { cancelAnimationFrame(zoomRafId); zoomRafId = null; }
+}
+
+// ズームを実際に適用する関数（resize時も呼ぶ）
+function applyZoom(media, originX, originY, clipW, clipH, headerH) {
+  if (!media) return;
+  if (headerH === undefined) headerH = document.querySelector('.lb-header').getBoundingClientRect().height;
+  const infoH = document.querySelector('.lb-info').getBoundingClientRect().height;
+
+  stopZoomRender();
+  const existing = document.getElementById('lbZoomContainer');
+  if (existing) existing.remove();
+
+  const lbRect = lightbox.getBoundingClientRect();
+  const pad    = 16;
+  const availW = lbRect.width  - pad * 2;
+  const availH = lbRect.height - headerH - infoH - pad * 2;
+  const scale  = Math.min(availW / clipW, availH / clipH);
+  const dispW  = Math.round(clipW * scale);
+  const dispH  = Math.round(clipH * scale);
+
+  const left = lbRect.left + (lbRect.width  - dispW) / 2;
+  const top  = lbRect.top  + headerH + pad + (availH - dispH) / 2;
+
+  const container = document.createElement('div');
+  container.id = 'lbZoomContainer';
+  container.style.cssText = `
+    position: fixed;
+    left: ${left}px; top: ${top}px;
+    width: ${dispW}px; height: ${dispH}px;
+    overflow: hidden; z-index: 1005;
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.15), 0 8px 40px rgba(0,0,0,0.7);
+  `;
+
+  if (media.tagName === 'VIDEO') {
+    // 動画: canvasに毎フレーム元動画から切り出し描画（遅延ゼロ）
+    const dispCanvas = document.createElement('canvas');
+    dispCanvas.width  = dispW;
+    dispCanvas.height = dispH;
+    dispCanvas.style.cssText = 'display:block;width:100%;height:100%;';
+    container.appendChild(dispCanvas);
+    document.body.appendChild(container);
+
+    // 元動画上の選択矩形（ピクセル座標）を計算
+    const mRect   = media.getBoundingClientRect();
+    const scaleNW = media.videoWidth  / mRect.width;
+    const scaleNH = media.videoHeight / mRect.height;
+    const sx = originX * scaleNW;
+    const sy = originY * scaleNH;
+    const sw = clipW   * scaleNW;
+    const sh = clipH   * scaleNH;
+
+    startZoomRender(media, dispCanvas, sx, sy, sw, sh);
+  } else {
+    // 画像: imgをoverflow:hiddenコンテナ内にoffset配置
+    const mRect  = media.getBoundingClientRect();
+    const mDispW = mRect.width  * scale;
+    const mDispH = mRect.height * scale;
+    const innerEl = document.createElement('img');
+    innerEl.src = media.src;
+    innerEl.alt = media.alt || '';
+    innerEl.style.cssText = `
+      position: absolute;
+      width: ${mDispW}px; height: ${mDispH}px;
+      left: ${-originX * scale}px; top: ${-originY * scale}px;
+      object-fit: contain; max-width: none; max-height: none;
+    `;
+    container.appendChild(innerEl);
+    document.body.appendChild(container);
+  }
+
+  currentZoom._container = container;
+  currentZoom._scale = scale;
+}
+
+// リサイズ時にズームを再適用
+window.addEventListener('resize', () => {
+  if (!zoomed || !currentZoom) return;
+  const media = getCurrentMediaEl();
+  if (!media) return;
+  // リサイズ後のメディアサイズが確定してから再計算
+  requestAnimationFrame(() => {
+    media.style.visibility = 'hidden';
+    const mRect   = media.getBoundingClientRect();
+    const originX = currentZoom.ratioX * mRect.width;
+    const originY = currentZoom.ratioY * mRect.height;
+    const clipW   = currentZoom.ratioW * mRect.width;
+    const clipH   = currentZoom.ratioH * mRect.height;
+    const headerH = document.querySelector('.lb-header').getBoundingClientRect().height;
+    applyZoom(media, originX, originY, clipW, clipH, headerH);
   });
-  if(zoomMode)syncZoomCanvas();
+  if (zoomMode) syncZoomCanvas();
 });
 
-function setupZoomForCurrentMedia(){if(zoomMode){syncZoomCanvas();zoomCanvas.classList.add('active');}}
+function resetZoom() {
+  zoomed = false;
+  zoomDragging = false;
+  stopZoomRender();
+  if (zoomCanvas) zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
+  const container = document.getElementById('lbZoomContainer');
+  if (container) container.remove();
+  const media = getCurrentMediaEl();
+  if (media) {
+    media.style.visibility = '';
+    media.style.transform = '';
+    media.style.transformOrigin = '';
+    media.style.borderRadius = '';
+    media.style.position = '';
+    media.style.left = '';
+    media.style.top  = '';
+  }
+  currentZoom = null;
+  if (zoomMode) lbZoomBtn.title = 'Exit zoom mode';
+}
+
+function setupZoomForCurrentMedia() {
+  if (zoomMode) {
+    syncZoomCanvas();
+    zoomCanvas.classList.add('active');
+  }
+}
 
 
-// ── Video Loop ────────────────────────────────────────────────────
-const lbLoopBtn=document.getElementById('lbLoopBtn');
-let videoLoop=false;
-lbLoopBtn.addEventListener('click',()=>{
-  videoLoop=!videoLoop;
-  document.getElementById('lbVideo').loop=videoLoop;
-  lbLoopBtn.style.background=videoLoop?'rgba(105,158,255,0.15)':'';
-  lbLoopBtn.style.borderColor=videoLoop?'#699EFF':'';
-  lbLoopBtn.title=videoLoop?'Loop: ON':'Loop: OFF';
+// ── 動画ループボタン ──────────────────────────────────────────────
+const lbLoopBtn = document.getElementById('lbLoopBtn');
+let videoLoop = false;
+
+lbLoopBtn.addEventListener('click', () => {
+  videoLoop = !videoLoop;
+  const lbVideo = document.getElementById('lbVideo');
+  lbVideo.loop = videoLoop;
+  lbLoopBtn.style.background = videoLoop ? 'rgba(105,158,255,0.15)' : '';
+  lbLoopBtn.style.borderColor = videoLoop ? '#699EFF' : '';
+  lbLoopBtn.title = videoLoop ? 'Loop: ON' : 'Loop: OFF';
 });
 
-// ── Slideshow ─────────────────────────────────────────────────────
-const btnSlideshow=document.getElementById('btnSlideshow');
-const lbSsControls=document.getElementById('lbSsControls');
-const lbSsSec=document.getElementById('lbSsSec');
-const lbSsFullVideo=document.getElementById('lbSsFullVideo');
-let ssActive=false,ssTimer=null;
+// Lキーでもループトグル
+// (keydownハンドラ内に追加済み)
 
-function getSsFiles(){return filteredFiles.filter(f=>isImage(f.name)||isVideo(f.name));}
+// ── スライドショー ────────────────────────────────────────────────
+const btnSlideshow = document.getElementById('btnSlideshow');
+const lbSsControls = document.getElementById('lbSsControls');
+const lbSsSec      = document.getElementById('lbSsSec');
+const lbSsFullVideo= document.getElementById('lbSsFullVideo');
+let ssActive   = false;
+let ssTimer    = null;
 
-function startSlideshow(){
-  ssActive=true;
-  btnSlideshow.style.background='rgba(105,158,255,0.15)';btnSlideshow.style.borderColor='#699EFF';
-  btnSlideshow.title='Stop slideshow';btnSlideshow.textContent='⏹';
+// 画像・動画のみ対象のインデックスリストを取得
+function getSsFiles() {
+  return filteredFiles.filter(f => isImage(f.name) || isVideo(f.name));
+}
+
+function startSlideshow() {
+  ssActive = true;
+  btnSlideshow.style.background  = 'rgba(105,158,255,0.15)';
+  btnSlideshow.style.borderColor = '#699EFF';
+  btnSlideshow.title = 'Stop slideshow';
+  btnSlideshow.textContent = '⏹';
   lbSsControls.classList.add('visible');
-  document.getElementById('lbZoomBtn').style.display='none';
-  document.getElementById('lbChecker').style.display='none';
-  document.getElementById('lbLoopBtn').style.display='none';
-  const ssFiles=getSsFiles();if(!ssFiles.length)return stopSlideshow();
-  currentIdx=filteredFiles.indexOf(ssFiles[0]);
-  if(!lightbox.classList.contains('open'))openLightbox(currentIdx);
+  // ズーム・市松・ループボタンを非表示
+  document.getElementById('lbZoomBtn').style.display = 'none';
+  document.getElementById('lbChecker').style.display = 'none';
+  document.getElementById('lbLoopBtn').style.display = 'none';
+  // 最初のSS対象ファイルへ（常に先頭から）
+  const ssFiles = getSsFiles();
+  if (!ssFiles.length) return stopSlideshow();
+  currentIdx = filteredFiles.indexOf(ssFiles[0]);
+  if (!lightbox.classList.contains('open')) {
+    openLightbox(currentIdx);
+  }
   scheduleNext();
 }
 
-function stopSlideshow(){
-  ssActive=false;clearTimeout(ssTimer);ssTimer=null;
-  btnSlideshow.style.background='';btnSlideshow.style.borderColor='';
-  btnSlideshow.title='Slideshow';btnSlideshow.textContent='▷';
+function stopSlideshow() {
+  ssActive = false;
+  clearTimeout(ssTimer);
+  ssTimer = null;
+  btnSlideshow.style.background  = '';
+  btnSlideshow.style.borderColor = '';
+  btnSlideshow.title = 'Slideshow';
+  btnSlideshow.textContent = '▷';
   lbSsControls.classList.remove('visible');
-  document.getElementById('lbZoomBtn').style.display='';
-  document.getElementById('lbChecker').style.display='';
-  const cur=filteredFiles[currentIdx];
-  document.getElementById('lbLoopBtn').style.display=(cur&&isVideo(cur.name))?'':'none';
+  document.getElementById('lbZoomBtn').style.display = '';
+  document.getElementById('lbChecker').style.display = '';
+  // ループボタンは現在のファイルが動画の時のみ再表示
+  const _curEntry = filteredFiles[currentIdx];
+  document.getElementById('lbLoopBtn').style.display = (_curEntry && isVideo(_curEntry.name)) ? '' : 'none';
 }
 
-function scheduleNext(){
-  clearTimeout(ssTimer);if(!ssActive)return;
-  const entry=filteredFiles[currentIdx];const isVid=entry&&isVideo(entry.name);
-  if(isVid&&lbSsFullVideo.checked)return;
-  const sec=Math.max(1,parseInt(lbSsSec.value)||4);
-  ssTimer=setTimeout(()=>advanceSlideshowTo('next'),sec*1000);
+function scheduleNext() {
+  clearTimeout(ssTimer);
+  if (!ssActive) return;
+  const entry = filteredFiles[currentIdx];
+  const isVid = entry && isVideo(entry.name);
+
+  if (isVid && lbSsFullVideo.checked) {
+    // 動画は再生終了で次へ（lbVideo.endedイベントで処理）
+    return;
+  }
+  const sec = Math.max(1, parseInt(lbSsSec.value) || 4);
+  ssTimer = setTimeout(() => advanceSlideshowTo('next'), sec * 1000);
 }
 
-async function advanceSlideshowTo(dir){
-  clearTimeout(ssTimer);if(!ssActive)return;
-  const ssFiles=getSsFiles();if(!ssFiles.length)return;
-  let nextIdx=currentIdx;let tries=0;
-  do{nextIdx=dir==='next'?(nextIdx+1)%filteredFiles.length:(nextIdx-1+filteredFiles.length)%filteredFiles.length;tries++;if(tries>filteredFiles.length)break;}
-  while(!isImage(filteredFiles[nextIdx].name)&&!isVideo(filteredFiles[nextIdx].name));
-  currentIdx=nextIdx;await updateLightbox();scheduleNext();
+async function advanceSlideshowTo(dir) {
+  clearTimeout(ssTimer);
+  if (!ssActive) return;
+  const ssFiles = getSsFiles();
+  if (!ssFiles.length) return;
+  // SS対象ファイルだけで次/前を探す
+  let nextIdx = currentIdx;
+  let tries = 0;
+  do {
+    nextIdx = dir === 'next'
+      ? (nextIdx + 1) % filteredFiles.length
+      : (nextIdx - 1 + filteredFiles.length) % filteredFiles.length;
+    tries++;
+    if (tries > filteredFiles.length) break;
+  } while (!isImage(filteredFiles[nextIdx].name) && !isVideo(filteredFiles[nextIdx].name));
+  currentIdx = nextIdx;
+  await updateLightbox();
+  scheduleNext();
 }
 
-document.getElementById('lbVideo').addEventListener('ended',()=>{if(ssActive&&lbSsFullVideo.checked)advanceSlideshowTo('next');});
-lbSsSec.addEventListener('input',()=>{if(ssActive){clearTimeout(ssTimer);scheduleNext();}});
-lbSsSec.addEventListener('blur',()=>{const v=parseInt(lbSsSec.value);lbSsSec.value=(isNaN(v)||v<1)?4:v;});
-lbSsSec.addEventListener('keydown',e=>{if(e.key==='Enter')lbSsSec.blur();});
-lbSsFullVideo.addEventListener('change',()=>{if(ssActive){clearTimeout(ssTimer);scheduleNext();}});
-btnSlideshow.addEventListener('click',()=>{if(ssActive)stopSlideshow();else startSlideshow();});
+// 動画再生終了で次へ
+document.getElementById('lbVideo').addEventListener('ended', () => {
+  if (ssActive && lbSsFullVideo.checked) {
+    advanceSlideshowTo('next');
+  }
+});
 
-// setupZoomForCurrentMediaの後にscheduleNextを追加
-const _origSetupZoom=setupZoomForCurrentMedia;
-function setupZoomForCurrentMedia(){_origSetupZoom();if(ssActive)scheduleNext();}
+// 秒数変更で即時反映
+lbSsSec.addEventListener('input', () => {
+  if (ssActive) { clearTimeout(ssTimer); scheduleNext(); }
+});
+lbSsSec.addEventListener('blur', () => {
+  const v = parseInt(lbSsSec.value);
+  lbSsSec.value = (isNaN(v) || v < 1) ? 4 : v;
+});
+lbSsSec.addEventListener('keydown', e => {
+  if (e.key === 'Enter') lbSsSec.blur();
+});
+lbSsFullVideo.addEventListener('change', () => {
+  if (ssActive) { clearTimeout(ssTimer); scheduleNext(); }
+});
 
-sizeSlider.addEventListener('input',()=>{gallery.style.setProperty('--thumb-size',sizeSlider.value+'px');});
-filterInput.addEventListener('input',renderGallery);
-sortSelect.addEventListener('change',renderGallery);
+btnSlideshow.addEventListener('click', () => {
+  if (ssActive) stopSlideshow(); else startSlideshow();
+});
+
+sizeSlider.addEventListener('input', () => {
+  gallery.style.setProperty('--thumb-size', sizeSlider.value+'px');
+});
+filterInput.addEventListener('input', renderGallery);
+sortSelect.addEventListener('change', renderGallery);
 </script>
 </body>
 </html>
