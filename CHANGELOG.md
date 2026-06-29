@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [2.3.1] - 2026-06-29
+
+### Fixed
+
+- Tile view scroll position was reset to the top on relayout; fixed by reading scroll position before clearing the gallery
+- Slider value was not applied when switching between tile and default view
+- Reload button is no longer shown when a folder was opened via the file dialog (reload has no meaningful effect in this mode)
+
+### Changed
+
+- Folder exclusion rule expanded: all folders starting with `.` or `$` are now excluded from the tree (previously only `$RECYCLE.BIN` was excluded)
+
 ## [2.3.0] - 2026-06-29
 
 ### Added
@@ -184,6 +196,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [2.3.1] - 2026-06-29
+
+### 修正
+
+- タイルビューで再レイアウト時にスクロール位置がトップに戻ってしまう問題を修正（ギャラリーのクリア前にスクロール位置を保存するよう変更）
+- タイルビューとデフォルトビューの切り替え時に、スライダーの値が反映されていなかった問題を修正
+- ファイル選択ボタン経由でフォルダを開いた場合はリロードボタンを非表示に（この場合リロードは意味をなさないため）
+
+### 変更
+
+- フォルダの除外ルールを拡張：`$RECYCLE.BIN` だけでなく、`$` または `.` で始まるフォルダすべてをツリーから除外するよう変更
 
 ## [2.3.0] - 2026-06-29
 

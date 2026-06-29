@@ -41,23 +41,17 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [2.3.0] - 2026-06-29
+### [2.3.1] - 2026-06-29
 
-#### Added
+#### Fixed
 
-- Tile view layout mode: images fill the viewport width in justified rows while maintaining original aspect ratios; toggle between tile and default grid view via the ◰ button in the toolbar; the size slider controls target row height in tile mode
+- Tile view scroll position was reset to the top on relayout; fixed by reading scroll position before clearing the gallery
+- Slider value was not applied when switching between tile and default view
+- Reload button is no longer shown when a folder was opened via the file dialog (reload has no meaningful effect in this mode)
 
 #### Changed
 
-- Icon button `aria-label` and `title` attributes are now always identical and describe the resulting action (what clicking will do)
-  - Folder tree toggle: "Hide folder tree" / "Show folder tree"
-  - Checker background button: "Switch to checker background" / "Switch to default background"
-  - Tile view button: "Switch to tile view" / "Switch to default view"
-  - Lightbox close button: added `title="Close"`
-
-#### Removed
-
-- HEIC and PDF status badges from the header (debug artifacts from early development, no longer needed)
+- Folder exclusion rule expanded: all folders starting with `.` or `$` are now excluded from the tree (previously only `$RECYCLE.BIN` was excluded)
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -106,23 +100,17 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [2.3.0] - 2026-06-29
+### [2.3.1] - 2026-06-29
 
-#### 追加
+#### 修正
 
-- タイルビューレイアウトモード：画像が縦横比を維持したまま、ビューポート幅いっぱいに並ぶJustifiedレイアウト；ツールバーの ◰ ボタンでグリッドビューとの切り替えが可能；タイルモード時はサイズスライダーが行の高さを制御
+- タイルビューで再レイアウト時にスクロール位置がトップに戻ってしまう問題を修正（ギャラリーのクリア前にスクロール位置を保存するよう変更）
+- タイルビューとデフォルトビューの切り替え時に、スライダーの値が反映されていなかった問題を修正
+- ファイル選択ボタン経由でフォルダを開いた場合はリロードボタンを非表示に（この場合リロードは意味をなさないため）
 
 #### 変更
 
-- アイコンボタンの `aria-label` と `title` 属性を整理：常に同じ値で、クリック後の動作（アクション）を説明するよう統一
-  - フォルダツリーの開閉ボタン：「Hide folder tree」 / 「Show folder tree」
-  - 市松模様ボタン：「Switch to checker background」 / 「Switch to default background」
-  - タイルビューボタン：「Switch to tile view」 / 「Switch to default view」
-  - ライトボックスのCloseボタンに `title="Close"` を追加
-
-#### 削除
-
-- ヘッダーのHEIC・PDFステータスバッジを削除（開発初期のデバッグ用バッジ、現在は不要）
+- フォルダの除外ルールを拡張：`$RECYCLE.BIN` だけでなく、`$` または `.` で始まるフォルダすべてをツリーから除外するよう変更
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
