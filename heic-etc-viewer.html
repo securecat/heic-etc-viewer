@@ -483,7 +483,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 <header class="toolbar" aria-label="Toolbar">
   <h2 class="sr-only">Toolbar</h2>
-  <button class="btn-icon" id="btnToggleTree" aria-label="Toggle folder tree" title="Toggle tree" aria-expanded="true" aria-controls="treePanel">☰</button>
+  <button class="btn-icon" id="btnToggleTree" aria-label="Hide folder tree" title="Hide folder tree" aria-expanded="true" aria-controls="treePanel">☰</button>
   <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v2.2.1</span></span>
   <button class="btn primary" id="btnPick" aria-label="Open Folder">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
@@ -560,7 +560,7 @@ input[type="range"]::-webkit-slider-thumb {
     </div>
     <span class="lb-counter" id="lbCounter"></span>
     <button class="lb-close" id="lbZoomBtn" aria-label="Zoom mode" title="Zoom (drag to select)" style="font-size:13px">🔍</button>
-    <button class="lb-close" id="lbChecker" aria-label="Toggle checker background" title="Toggle background" style="font-size:11px;width:auto;padding:0 8px;letter-spacing:0.02em">▦</button>
+    <button class="lb-close" id="lbChecker" aria-label="Switch to checker background" title="Switch to checker background" style="font-size:11px;width:auto;padding:0 8px;letter-spacing:0.02em">▦</button>
     <button class="lb-close" id="lbLoopBtn" aria-label="Toggle loop" title="Loop video" style="font-size:13px">🔁</button>
     <div class="lb-ss-controls" id="lbSsControls">
       <input type="text" class="lb-ss-sec" id="lbSsSec" value="4" inputmode="numeric" aria-label="Slideshow interval (seconds)">
@@ -706,7 +706,11 @@ const dropOverlay= document.getElementById('dropOverlay');
 document.getElementById('btnToggleTree').addEventListener('click', () => {
   treePanel.classList.toggle('collapsed');
   const btn = document.getElementById('btnToggleTree');
-  btn.setAttribute('aria-expanded', String(!treePanel.classList.contains('collapsed')));
+  const isExpanded = !treePanel.classList.contains('collapsed');
+  btn.setAttribute('aria-expanded', String(isExpanded));
+  const label = isExpanded ? 'Hide folder tree' : 'Show folder tree';
+  btn.setAttribute('aria-label', label);
+  btn.title = label;
 });
 
 // ── file:// 判定 ─────────────────────────────────────────────────
@@ -1630,7 +1634,9 @@ document.getElementById('lbChecker').addEventListener('click', () => {
   const btn = document.getElementById('lbChecker');
   btn.style.background = isChecker ? 'rgba(105,158,255,0.15)' : '';
   btn.style.borderColor = isChecker ? '#699EFF' : '';
-  btn.title = isChecker ? 'Switch to dark background' : 'Toggle checker background';
+  const label = isChecker ? 'Switch to default background' : 'Switch to checker background';
+  btn.title = label;
+  btn.setAttribute('aria-label', label);
 });
 document.getElementById('lbPrev').addEventListener('click', async () => {
   currentIdx = (currentIdx-1+filteredFiles.length)%filteredFiles.length;
@@ -1679,7 +1685,9 @@ document.addEventListener('keydown', async e => {
     const btn = document.getElementById('lbChecker');
     btn.style.background = isChecker ? 'rgba(105,158,255,0.15)' : '';
     btn.style.borderColor = isChecker ? '#699EFF' : '';
-    btn.title = isChecker ? 'Switch to dark background' : 'Toggle checker background';
+    const label = isChecker ? 'Switch to default background' : 'Switch to checker background';
+    btn.title = label;
+    btn.setAttribute('aria-label', label);
   }
 });
 
