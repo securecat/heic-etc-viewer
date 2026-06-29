@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [2.2.1] - 2026-06-29
+
+### Fixed
+
+- Zoom, checkerboard, and loop buttons reappeared during slideshow when switching between files
+- During slideshow, a video with loop enabled and `play video to end` checked would loop indefinitely and never advance to the next slide
+- During slideshow, a video shorter than the slide interval with `play video to end` unchecked would freeze on the last frame until the interval expired; the slideshow now advances as soon as the video ends
+
 ## [2.2.0] - 2026-06-29
 
 ### Added
@@ -158,6 +166,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [2.2.1] - 2026-06-29
+
+### 修正
+
+- スライドショー中にファイルが切り替わるたびにズーム・市松・ループボタンが再表示されてしまう問題を修正
+- スライドショーで `play video to end` にチェックが入っている場合、ループ再生が有効な動画が終端までいってもループしてしまい、スライドが進まなくなる問題を修正
+- スライドショーで `play video to end` が未チェックの場合、スライド表示時間より短い動画が最後のコマでスライド表示時間の分だけ静止してしまう問題を修正（動画の再生終了時点で次のスライドへ進むよう変更）
 
 ## [2.2.0] - 2026-06-29
 

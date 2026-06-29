@@ -41,19 +41,13 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [2.2.0] - 2026-06-29
+### [2.2.1] - 2026-06-29
 
-#### Added
+#### Fixed
 
-- Keyboard focus indicators for the sort dropdown and thumbnail size slider
-- Folder tree rows and toggle buttons are now focusable via the Tab key
-- Toggle buttons in the folder tree have `aria-expanded` to reflect open/collapse state, and `aria-describedby` to associate them with the corresponding folder name; activatable with Enter or Space
-- Landmark elements: toolbar (`<header>`), folder tree (`<nav>`), gallery area (`<main>`)
-- `.sr-only` headings ("Toolbar", "Folder tree", "Gallery") inside each landmark for heading-based screen reader navigation
-
-#### Changed
-
-- Lightbox video now starts with audio on and loop on by default
+- Zoom, checkerboard, and loop buttons reappeared during slideshow when switching between files
+- During slideshow, a video with loop enabled and `play video to end` checked would loop indefinitely and never advance to the next slide
+- During slideshow, a video shorter than the slide interval with `play video to end` unchecked would freeze on the last frame until the interval expired; the slideshow now advances as soon as the video ends
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -102,19 +96,13 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [2.2.0] - 2026-06-29
+### [2.2.1] - 2026-06-29
 
-#### 追加
+#### 修正
 
-- ソートプルダウンとサムネイルサイズスライダーにキーボードフォーカスインジケーターを追加
-- フォルダツリーのツリー行・トグルボタンをTabキーでフォーカス可能に
-- フォルダツリーのトグルボタンに `aria-expanded`（開閉状態の明示）と `aria-describedby`（フォルダ名との関連付け）を追加；Enter/Spaceで操作可能
-- ランドマーク要素を整備：ツールバー（`<header>`）、フォルダツリー（`<nav>`）、ギャラリーエリア（`<main>`）
-- 各ランドマーク内に `.sr-only` 見出し（「Toolbar」「Folder tree」「Gallery」）を追加；スクリーンリーダーの見出しジャンプでも移動可能に
-
-#### 変更
-
-- ライトボックスの動画：初期状態を音声ON・ループONに変更
+- スライドショー中にファイルが切り替わるたびにズーム・市松・ループボタンが再表示されてしまう問題を修正
+- スライドショーで `play video to end` にチェックが入っている場合、ループ再生が有効な動画が終端までいってもループしてしまい、スライドが進まなくなる問題を修正
+- スライドショーで `play video to end` が未チェックの場合、スライド表示時間より短い動画が最後のコマで静止してしまう問題を修正（動画の再生終了時点で次のスライドへ進むよう変更）
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

@@ -462,7 +462,7 @@ input[type="range"]::-webkit-slider-thumb {
 <header class="toolbar" aria-label="Toolbar">
   <h2 class="sr-only">Toolbar</h2>
   <button class="btn-icon" id="btnToggleTree" aria-label="Toggle folder tree" title="Toggle tree" aria-expanded="true" aria-controls="treePanel">☰</button>
-  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v2.2.0</span></span>
+  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v2.2.1</span></span>
   <button class="btn primary" id="btnPick" aria-label="Open Folder">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
   <span class="heif-status loading" id="heifStatus" aria-live="polite">HEIC...</span>
@@ -1424,12 +1424,12 @@ async function updateLightbox() {
     const zoomBtn = document.getElementById('lbZoomBtn');
     const loopBtn = document.getElementById('lbLoopBtn');
     if (isVideo(file.name)) {
-      zoomBtn.style.display = '';
-      loopBtn.style.display = '';
+      zoomBtn.style.display = ssActive ? 'none' : '';
+      loopBtn.style.display = ssActive ? 'none' : '';
       loopBtn.style.background = videoLoop ? 'rgba(105,158,255,0.15)' : '';
       loopBtn.style.borderColor = videoLoop ? '#699EFF' : '';
       loopBtn.title = videoLoop ? 'Loop: ON' : 'Loop: OFF';
-      lbVideo.loop = videoLoop;
+      lbVideo.loop = ssActive ? false : videoLoop;
       const url = URL.createObjectURL(file);
       objectURLs.push(url);
       videoWrap.style.display = 'flex';
@@ -1446,7 +1446,7 @@ async function updateLightbox() {
       pdfWrap.style.display = 'flex';
       pdfFrame.src = url;
     } else {
-      zoomBtn.style.display = '';
+      zoomBtn.style.display = ssActive ? 'none' : '';
       loopBtn.style.display = 'none';
       const { url } = await makeURL(file);
       imgWrap.style.display = 'flex';
@@ -1868,10 +1868,11 @@ function startSlideshow() {
   btnSlideshow.title = 'Stop slideshow';
   btnSlideshow.textContent = '⏹';
   lbSsControls.classList.add('visible');
-  // ズーム・市松・ループボタンを非表示
+  // ズーム・市松・ループボタンを非表示、動画ループを強制解除
   document.getElementById('lbZoomBtn').style.display = 'none';
   document.getElementById('lbChecker').style.display = 'none';
   document.getElementById('lbLoopBtn').style.display = 'none';
+  document.getElementById('lbVideo').loop = false;
   // 最初のSS対象ファイルへ（常に先頭から）
   const ssFiles = getSsFiles();
   if (!ssFiles.length) return stopSlideshow();
@@ -1893,9 +1894,10 @@ function stopSlideshow() {
   lbSsControls.classList.remove('visible');
   document.getElementById('lbZoomBtn').style.display = '';
   document.getElementById('lbChecker').style.display = '';
-  // ループボタンは現在のファイルが動画の時のみ再表示
+  // ループボタンは現在のファイルが動画の時のみ再表示、ループ設定を復元
   const _curEntry = filteredFiles[currentIdx];
   document.getElementById('lbLoopBtn').style.display = (_curEntry && isVideo(_curEntry.name)) ? '' : 'none';
+  document.getElementById('lbVideo').loop = videoLoop;
 }
 
 function scheduleNext() {
@@ -1934,9 +1936,7 @@ async function advanceSlideshowTo(dir) {
 
 // 動画再生終了で次へ
 document.getElementById('lbVideo').addEventListener('ended', () => {
-  if (ssActive && lbSsFullVideo.checked) {
-    advanceSlideshowTo('next');
-  }
+  if (ssActive) advanceSlideshowTo('next');
 });
 
 // 秒数変更で即時反映
