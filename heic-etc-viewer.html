@@ -88,7 +88,9 @@ body {
   font-size: 14px; flex-shrink: 0;
   transition: background 0.15s;
 }
-.btn-icon:hover { background: rgba(255,255,255,0.06); }
+.btn-icon:hover { background: #6c6c6c; }
+.btn-icon:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.btn-icon.is-active { border-color: #699EFF; }
 .toolbar-sep { flex: 1; min-width: 0; }
 .status { font-size: 11px; color: #E4E4E4; white-space: nowrap; }
 .filter-input {
@@ -113,14 +115,14 @@ body {
   font-size: 12px;
   flex-shrink: 0;
 }
-.sort-select:focus-visible { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 2px; }
+.sort-select:focus-visible { border-color: #fff; outline: 2px solid #fff; outline-offset: 2px; }
 input[type="range"] {
   -webkit-appearance: none;
   width: 70px; height: 3px;
   border-radius: 2px; background: #767676;
   cursor: pointer; flex-shrink: 0;
 }
-input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+input[type="range"]:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 12px; height: 12px;
@@ -405,13 +407,17 @@ input[type="range"]::-webkit-slider-thumb {
   width: 28px; height: 28px; cursor: pointer; font-size: 15px;
   display: flex; align-items: center; justify-content: center;
 }
-.lb-close:hover { background: rgba(255,255,255,0.1); }
+.lb-close:hover { background: #6c6c6c; }
+.lb-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.lb-close.is-active { border-color: #699EFF; }
 .lb-img-wrap {
   width: 100%; height: 100%;
   display: flex; align-items: center; justify-content: center;
   padding: 50px 56px;
 }
 .lb-img-wrap img { width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
+#lbImg:fullscreen { width: 100vw; height: 100vh; max-width: none; max-height: none; object-fit: contain; background: #000; border-radius: 0; }
+#lbImg::backdrop { background: #000; }
 .lb-video-wrap video { max-width: 100%; max-height: 100%; border-radius: 4px; outline: none; }
 
 /* ── zoom ── */
@@ -480,7 +486,7 @@ input[type="range"]::-webkit-slider-thumb {
 <header class="toolbar" aria-label="Toolbar">
   <h2 class="sr-only">Toolbar</h2>
   <button class="btn-icon" id="btnToggleTree" aria-label="Hide folder tree" title="Hide folder tree" aria-expanded="true" aria-controls="treePanel">☰</button>
-  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v2.3.1</span></span>
+  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v2.3.2</span></span>
   <button class="btn primary" id="btnPick" aria-label="Open Folder">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
   <div class="toolbar-sep" aria-hidden="true"></div>
@@ -1575,8 +1581,7 @@ async function updateLightbox() {
     if (isVideo(file.name)) {
       zoomBtn.style.display = ssActive ? 'none' : '';
       loopBtn.style.display = ssActive ? 'none' : '';
-      loopBtn.style.background = videoLoop ? 'rgba(105,158,255,0.15)' : '';
-      loopBtn.style.borderColor = videoLoop ? '#699EFF' : '';
+      loopBtn.classList.toggle('is-active', videoLoop);
       loopBtn.title = videoLoop ? 'Loop: ON' : 'Loop: OFF';
       lbVideo.loop = ssActive ? false : videoLoop;
       const url = URL.createObjectURL(file);
@@ -1625,11 +1630,17 @@ function closeLightbox() {
 }
 
 document.getElementById('lbClose').addEventListener('click', closeLightbox);
+document.getElementById('lbImg').addEventListener('dblclick', () => {
+  if (!document.fullscreenElement) {
+    document.getElementById('lbImg').requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen();
+  }
+});
 document.getElementById('lbChecker').addEventListener('click', () => {
   const isChecker = lightbox.classList.toggle('checker');
   const btn = document.getElementById('lbChecker');
-  btn.style.background = isChecker ? 'rgba(105,158,255,0.15)' : '';
-  btn.style.borderColor = isChecker ? '#699EFF' : '';
+  btn.classList.toggle('is-active', isChecker);
   const label = isChecker ? 'Switch to default background' : 'Switch to checker background';
   btn.title = label;
   btn.setAttribute('aria-label', label);
@@ -1649,6 +1660,10 @@ document.addEventListener('keydown', async e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
   if (e.key === 'Escape') {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+      return;
+    }
     if (zoomed) {
       // ズーム中ならズーム解除
       resetZoom();
@@ -1679,8 +1694,7 @@ document.addEventListener('keydown', async e => {
   if (e.key === 'c' || e.key === 'C') {
     const isChecker = lightbox.classList.toggle('checker');
     const btn = document.getElementById('lbChecker');
-    btn.style.background = isChecker ? 'rgba(105,158,255,0.15)' : '';
-    btn.style.borderColor = isChecker ? '#699EFF' : '';
+    btn.classList.toggle('is-active', isChecker);
     const label = isChecker ? 'Switch to default background' : 'Switch to checker background';
     btn.title = label;
     btn.setAttribute('aria-label', label);
@@ -1710,8 +1724,7 @@ function getCurrentMediaEl() {
 
 function enterZoomMode() {
   zoomMode = true;
-  lbZoomBtn.style.background = 'rgba(105,158,255,0.15)';
-  lbZoomBtn.style.borderColor = '#699EFF';
+  lbZoomBtn.classList.add('is-active');
   lbZoomBtn.title = 'Exit zoom mode';
   syncZoomCanvas();
   zoomCanvas.classList.add('active');
@@ -1719,8 +1732,7 @@ function enterZoomMode() {
 
 function exitZoomMode() {
   zoomMode = false;
-  lbZoomBtn.style.background = '';
-  lbZoomBtn.style.borderColor = '';
+  lbZoomBtn.classList.remove('is-active');
   lbZoomBtn.title = 'Zoom (drag to select)';
   resetZoom();
   zoomCanvas.classList.remove('active');
@@ -1993,8 +2005,7 @@ lbLoopBtn.addEventListener('click', () => {
   videoLoop = !videoLoop;
   const lbVideo = document.getElementById('lbVideo');
   lbVideo.loop = videoLoop;
-  lbLoopBtn.style.background = videoLoop ? 'rgba(105,158,255,0.15)' : '';
-  lbLoopBtn.style.borderColor = videoLoop ? '#699EFF' : '';
+  lbLoopBtn.classList.toggle('is-active', videoLoop);
   lbLoopBtn.title = videoLoop ? 'Loop: ON' : 'Loop: OFF';
 });
 
@@ -2016,8 +2027,7 @@ function getSsFiles() {
 
 function startSlideshow() {
   ssActive = true;
-  btnSlideshow.style.background  = 'rgba(105,158,255,0.15)';
-  btnSlideshow.style.borderColor = '#699EFF';
+  btnSlideshow.classList.add('is-active');
   btnSlideshow.title = 'Stop slideshow';
   btnSlideshow.textContent = '⏹';
   lbSsControls.classList.add('visible');
@@ -2040,8 +2050,7 @@ function stopSlideshow() {
   ssActive = false;
   clearTimeout(ssTimer);
   ssTimer = null;
-  btnSlideshow.style.background  = '';
-  btnSlideshow.style.borderColor = '';
+  btnSlideshow.classList.remove('is-active');
   btnSlideshow.title = 'Slideshow';
   btnSlideshow.textContent = '▷';
   lbSsControls.classList.remove('visible');
@@ -2127,13 +2136,11 @@ document.getElementById('btnLayoutToggle').addEventListener('click', () => {
   if (layoutMode === 'tile') {
     btn.title = 'Switch to default view';
     btn.setAttribute('aria-label', 'Switch to default view');
-    btn.style.background = 'rgba(105,158,255,0.15)';
-    btn.style.borderColor = '#699EFF';
+    btn.classList.add('is-active');
   } else {
     btn.title = 'Switch to tile view';
     btn.setAttribute('aria-label', 'Switch to tile view');
-    btn.style.background = '';
-    btn.style.borderColor = '';
+    btn.classList.remove('is-active');
   }
   renderGallery();
 });

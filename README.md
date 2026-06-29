@@ -41,17 +41,12 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [2.3.1] - 2026-06-29
+### [2.3.2] - 2026-06-29
 
 #### Fixed
 
-- Tile view scroll position was reset to the top on relayout; fixed by reading scroll position before clearing the gallery
-- Slider value was not applied when switching between tile and default view
-- Reload button is no longer shown when a folder was opened via the file dialog (reload has no meaningful effect in this mode)
-
-#### Changed
-
-- Folder exclusion rule expanded: all folders starting with `.` or `$` are now excluded from the tree (previously only `$RECYCLE.BIN` was excluded)
+- Lightbox images can now be viewed fullscreen by double-clicking; double-click again or Esc to exit
+- Improved focus indicators and hover states for icon buttons and lightbox buttons
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -100,17 +95,12 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [2.3.1] - 2026-06-29
+### [2.3.2] - 2026-06-29
 
 #### 修正
 
-- タイルビューで再レイアウト時にスクロール位置がトップに戻ってしまう問題を修正（ギャラリーのクリア前にスクロール位置を保存するよう変更）
-- タイルビューとデフォルトビューの切り替え時に、スライダーの値が反映されていなかった問題を修正
-- ファイル選択ボタン経由でフォルダを開いた場合はリロードボタンを非表示に（この場合リロードは意味をなさないため）
-
-#### 変更
-
-- フォルダの除外ルールを拡張：`$RECYCLE.BIN` だけでなく、`$` または `.` で始まるフォルダすべてをツリーから除外するよう変更
+- ライトボックスで画像をダブルクリックすると全画面表示に；もう一度ダブルクリックまたはEscで解除
+- アイコンボタン・ライトボックスボタンのフォーカスインジケーターとhover表示のアクセシビリティを改善
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

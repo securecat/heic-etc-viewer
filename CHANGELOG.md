@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [2.3.2] - 2026-06-29
+
+### Fixed
+
+- Lightbox images can now be viewed fullscreen by double-clicking; double-click again or Esc to exit
+- Improved focus indicators and hover states for icon buttons and lightbox buttons
+
 ## [2.3.1] - 2026-06-29
 
 ### Fixed
@@ -196,6 +203,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [2.3.2] - 2026-06-29
+
+### 修正
+
+- ライトボックスで画像をダブルクリックすると全画面表示に；もう一度ダブルクリックまたはEscで解除
+- アイコンボタン・ライトボックスボタンのフォーカスインジケーターとhover表示のアクセシビリティを改善
 
 ## [2.3.1] - 2026-06-29
 
