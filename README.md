@@ -41,13 +41,23 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [2.2.1] - 2026-06-29
+### [2.3.0] - 2026-06-29
 
-#### Fixed
+#### Added
 
-- Zoom, checkerboard, and loop buttons reappeared during slideshow when switching between files
-- During slideshow, a video with loop enabled and `play video to end` checked would loop indefinitely and never advance to the next slide
-- During slideshow, a video shorter than the slide interval with `play video to end` unchecked would freeze on the last frame until the interval expired; the slideshow now advances as soon as the video ends
+- Tile view layout mode: images fill the viewport width in justified rows while maintaining original aspect ratios; toggle between tile and default grid view via the ◰ button in the toolbar; the size slider controls target row height in tile mode
+
+#### Changed
+
+- Icon button `aria-label` and `title` attributes are now always identical and describe the resulting action (what clicking will do)
+  - Folder tree toggle: "Hide folder tree" / "Show folder tree"
+  - Checker background button: "Switch to checker background" / "Switch to default background"
+  - Tile view button: "Switch to tile view" / "Switch to default view"
+  - Lightbox close button: added `title="Close"`
+
+#### Removed
+
+- HEIC and PDF status badges from the header (debug artifacts from early development, no longer needed)
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -96,13 +106,23 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [2.2.1] - 2026-06-29
+### [2.3.0] - 2026-06-29
 
-#### 修正
+#### 追加
 
-- スライドショー中にファイルが切り替わるたびにズーム・市松・ループボタンが再表示されてしまう問題を修正
-- スライドショーで `play video to end` にチェックが入っている場合、ループ再生が有効な動画が終端までいってもループしてしまい、スライドが進まなくなる問題を修正
-- スライドショーで `play video to end` が未チェックの場合、スライド表示時間より短い動画が最後のコマで静止してしまう問題を修正（動画の再生終了時点で次のスライドへ進むよう変更）
+- タイルビューレイアウトモード：画像が縦横比を維持したまま、ビューポート幅いっぱいに並ぶJustifiedレイアウト；ツールバーの ◰ ボタンでグリッドビューとの切り替えが可能；タイルモード時はサイズスライダーが行の高さを制御
+
+#### 変更
+
+- アイコンボタンの `aria-label` と `title` 属性を整理：常に同じ値で、クリック後の動作（アクション）を説明するよう統一
+  - フォルダツリーの開閉ボタン：「Hide folder tree」 / 「Show folder tree」
+  - 市松模様ボタン：「Switch to checker background」 / 「Switch to default background」
+  - タイルビューボタン：「Switch to tile view」 / 「Switch to default view」
+  - ライトボックスのCloseボタンに `title="Close"` を追加
+
+#### 削除
+
+- ヘッダーのHEIC・PDFステータスバッジを削除（開発初期のデバッグ用バッジ、現在は不要）
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
