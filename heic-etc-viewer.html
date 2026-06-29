@@ -658,6 +658,7 @@ function cacheKey(file) {
 function clearThumbCache() {
   thumbCache.forEach(v => { try { URL.revokeObjectURL(v.url); } catch(e){} });
   thumbCache.clear();
+  aspectRatioCache.clear();
 }
 
 async function makeURL(file) {
@@ -1108,7 +1109,7 @@ function getSorted(files) {
 function scheduleRelayout() {
   if (layoutMode === 'tile' && rootNode) {
     clearTimeout(_tileRelayoutTimer);
-    _tileRelayoutTimer = setTimeout(renderGallery, 200);
+    _tileRelayoutTimer = setTimeout(() => renderGallery({ preserveScroll: true }), 200);
   }
 }
 
@@ -1204,7 +1205,7 @@ function renderTileGallery() {
   });
 }
 
-function renderGallery() {
+function renderGallery({ preserveScroll = false } = {}) {
   const q = filterInput.value.trim().toLowerCase();
   const raw = getCurrentFiles();
   const sorted = getSorted(raw);
@@ -1242,8 +1243,10 @@ function renderGallery() {
   }
 
   if (layoutMode === 'tile') {
+    const scrollTop = preserveScroll ? galleryWrap.scrollTop : 0;
     gallery.classList.add('layout-tile');
     renderTileGallery();
+    galleryWrap.scrollTop = scrollTop;
     return;
   }
 
@@ -1335,8 +1338,8 @@ async function loadThumb(entry, item, loading) {
         if (dimEl) dimEl.textContent = dim;
         thumbCache.set(key, { url, dim, realType, icoCount: count });
         if (img.naturalWidth && img.naturalHeight) {
-          aspectRatioCache.set(file.name, img.naturalWidth / img.naturalHeight);
-          scheduleRelayout();
+          const r = img.naturalWidth / img.naturalHeight;
+          if (aspectRatioCache.get(file.name) !== r) { aspectRatioCache.set(file.name, r); scheduleRelayout(); }
         }
       };
       img.onerror = () => { loading.innerHTML='<span class="thumb-loading-text">Failed to load</span>'; loading.style.color='#f87'; };
@@ -1422,8 +1425,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dis
     objectURLs.push(thumbUrl);
     const dim = `${Math.round(viewport.width / 1.5)} × ${Math.round(viewport.height / 1.5)} pt`;
     if (key) thumbCache.set(key, { url: thumbUrl, dim });
-    aspectRatioCache.set(file.name, viewport.width / viewport.height);
-    scheduleRelayout();
+    const pdfR = viewport.width / viewport.height;
+    if (aspectRatioCache.get(file.name) !== pdfR) { aspectRatioCache.set(file.name, pdfR); scheduleRelayout(); }
     const img = document.createElement('img');
     img.alt = file.name;
     img.onload = () => {
@@ -1511,8 +1514,8 @@ async function loadVideoThumb(file, item, loading, key) {
           // キャッシュ保存
           if (key) thumbCache.set(key, { url: thumbUrl, dim });
           if (video.videoWidth && video.videoHeight) {
-            aspectRatioCache.set(file.name, video.videoWidth / video.videoHeight);
-            scheduleRelayout();
+            const vr = video.videoWidth / video.videoHeight;
+            if (aspectRatioCache.get(file.name) !== vr) { aspectRatioCache.set(file.name, vr); scheduleRelayout(); }
           }
           video.remove();
           res();
@@ -2132,7 +2135,7 @@ document.getElementById('btnLayoutToggle').addEventListener('click', () => {
 window.addEventListener('resize', () => {
   if (layoutMode === 'tile' && rootNode) {
     clearTimeout(_tileRelayoutTimer);
-    _tileRelayoutTimer = setTimeout(renderGallery, 150);
+    _tileRelayoutTimer = setTimeout(() => renderGallery({ preserveScroll: true }), 150);
   }
 });
 </script>
