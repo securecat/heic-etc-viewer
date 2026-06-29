@@ -237,6 +237,28 @@ input[type="range"]::-webkit-slider-thumb {
 .empty-state p { font-size: 12px; color: #949494; text-align: center; line-height: 1.7; }
 .empty-state .privacy-note { color: #f88; }
 
+/* ── tile (justified) layout ── */
+.gallery.layout-tile {
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  gap: 4px;
+}
+.gallery-tile-row {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.gallery.layout-tile .thumb-item {
+  aspect-ratio: unset;
+  height: 100%;
+  border-radius: var(--radius);
+  flex-shrink: 0;
+  transform: none;
+}
+.gallery.layout-tile .thumb-item:hover { transform: none; }
+
 /* ── gallery ── */
 .gallery-wrap {
   flex: 1;
@@ -477,6 +499,7 @@ input[type="range"]::-webkit-slider-thumb {
     <option value="type">Type</option>
   </select>
   <input type="range" id="sizeSlider" min="80" max="300" value="190" step="55" aria-label="Thumbnail size">
+  <button class="btn-icon" id="btnLayoutToggle" aria-label="Switch to tile view" title="Tile view" style="display:none">⊞</button>
   <button class="btn-icon" id="btnReload" aria-label="Reload (clear cache)" title="Reload" style="display:none">↺</button>
   <button class="btn-icon" id="btnSlideshow" aria-label="Start slideshow" title="Slideshow" style="display:none">▷</button>
 </header>
@@ -626,6 +649,10 @@ let currentNode    = null;  // 現在選択中のノード
 let filteredFiles  = [];
 let objectURLs     = [];
 let currentIdx     = 0;
+
+let layoutMode = 'grid'; // 'grid' | 'tile'
+const aspectRatioCache = new Map(); // filename → aspect ratio (populated as thumbs load)
+let _tileRelayoutTimer = null;
 
 // サムネキャッシュ: "relativePath or name" → { url, dim }
 const thumbCache = new Map();
@@ -1086,6 +1113,105 @@ function getSorted(files) {
   });
 }
 
+function scheduleRelayout() {
+  if (layoutMode === 'tile' && rootNode) {
+    clearTimeout(_tileRelayoutTimer);
+    _tileRelayoutTimer = setTimeout(renderGallery, 200);
+  }
+}
+
+function computeJustifiedRows(files, containerWidth, targetHeight, gap) {
+  const rows = [];
+  let row = [];
+  let rowRatioSum = 0;
+
+  for (const entry of files) {
+    const ratio = aspectRatioCache.get(entry.name) ||
+      (isVideo(entry.name) ? 16 / 9 : 3 / 2);
+    row.push({ entry, ratio });
+    rowRatioSum += ratio;
+
+    const naturalWidth = rowRatioSum * targetHeight + (row.length - 1) * gap;
+    if (naturalWidth >= containerWidth) {
+      const rowHeight = (containerWidth - (row.length - 1) * gap) / rowRatioSum;
+      rows.push({ items: [...row], rowHeight });
+      row = [];
+      rowRatioSum = 0;
+    }
+  }
+
+  if (row.length > 0) {
+    const naturalWidth = rowRatioSum * targetHeight + (row.length - 1) * gap;
+    if (naturalWidth >= containerWidth * 0.5) {
+      const rowHeight = (containerWidth - (row.length - 1) * gap) / rowRatioSum;
+      rows.push({ items: row, rowHeight });
+    } else {
+      rows.push({ items: row, rowHeight: targetHeight });
+    }
+  }
+
+  return rows;
+}
+
+function renderTileGallery() {
+  const gap = 4;
+  const containerWidth = gallery.clientWidth - gap * 2;
+  const targetHeight = parseInt(sizeSlider.value);
+
+  if (containerWidth <= 0) return;
+
+  const rows = computeJustifiedRows(filteredFiles, containerWidth, targetHeight, gap);
+
+  rows.forEach(({ items, rowHeight }) => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'gallery-tile-row';
+    rowEl.style.height = Math.round(rowHeight) + 'px';
+
+    items.forEach(({ entry, ratio }) => {
+      const i = filteredFiles.indexOf(entry);
+      const name = entry.name || '';
+      const item = document.createElement('div');
+      item.className = 'thumb-item';
+      item.style.flexBasis = Math.round(rowHeight * ratio) + 'px';
+      item.setAttribute('role', 'button');
+      item.setAttribute('tabindex', '0');
+      item.setAttribute('aria-label', name + ' - open');
+
+      const loading = document.createElement('div');
+      loading.className = 'thumb-loading';
+      loading.innerHTML = '<div class="thumb-spinner" aria-hidden="true"></div>';
+
+      const badge = document.createElement('div');
+      badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : isVideo(name) ? ' video-badge' : isPdf(name) ? ' pdf-badge' : isIco(name) ? ' ico-badge' : '');
+      badge.textContent = extOf(name).toUpperCase();
+      badge.setAttribute('aria-hidden', 'true');
+      badge.dataset.badge = 'true';
+
+      const infoEl = document.createElement('div');
+      infoEl.className = 'thumb-info';
+      const nameEl = document.createElement('div');
+      nameEl.className = 'thumb-info-name';
+      nameEl.textContent = name;
+      const dimEl = document.createElement('div');
+      dimEl.className = 'thumb-info-dim';
+      dimEl.dataset.dim = 'true';
+      infoEl.appendChild(nameEl);
+      infoEl.appendChild(dimEl);
+
+      item.appendChild(loading);
+      item.appendChild(badge);
+      item.appendChild(infoEl);
+      item.addEventListener('click', () => openLightbox(i));
+      item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(i); } });
+      rowEl.appendChild(item);
+
+      loadThumb(entry, item, loading);
+    });
+
+    gallery.appendChild(rowEl);
+  });
+}
+
 function renderGallery() {
   const q = filterInput.value.trim().toLowerCase();
   const raw = getCurrentFiles();
@@ -1101,9 +1227,10 @@ function renderGallery() {
     ? `${filteredFiles.length} / ${raw.length} files`
     : `${raw.length} files`;
 
-  // サムネが表示される状態ならスライドショーボタンも表示
+  // サムネが表示される状態ならスライドショー・レイアウト切替ボタンも表示
   const hasSsTargets = filteredFiles.some(f => isImage(f.name) || isVideo(f.name));
   document.getElementById('btnSlideshow').style.display = (rootNode && hasSsTargets) ? '' : 'none';
+  document.getElementById('btnLayoutToggle').style.display = rootNode ? '' : 'none';
 
   if (!rootNode) {
     emptyState.style.display = 'flex';
@@ -1112,6 +1239,7 @@ function renderGallery() {
   }
 
   if (filteredFiles.length === 0) {
+    gallery.classList.remove('layout-tile');
     const div = document.createElement('div');
     div.className = 'no-images';
     div.textContent = raw.length === 0
@@ -1121,6 +1249,13 @@ function renderGallery() {
     return;
   }
 
+  if (layoutMode === 'tile') {
+    gallery.classList.add('layout-tile');
+    renderTileGallery();
+    return;
+  }
+
+  gallery.classList.remove('layout-tile');
   filteredFiles.forEach((entry, i) => {
     const name = entry.name||'';
     const item = document.createElement('div');
@@ -1207,6 +1342,10 @@ async function loadThumb(entry, item, loading) {
         const dimEl = item.querySelector('[data-dim]');
         if (dimEl) dimEl.textContent = dim;
         thumbCache.set(key, { url, dim, realType, icoCount: count });
+        if (img.naturalWidth && img.naturalHeight) {
+          aspectRatioCache.set(file.name, img.naturalWidth / img.naturalHeight);
+          scheduleRelayout();
+        }
       };
       img.onerror = () => { loading.innerHTML='<span class="thumb-loading-text">Failed to load</span>'; loading.style.color='#f87'; };
       img.src = url;
@@ -1221,6 +1360,10 @@ async function loadThumb(entry, item, loading) {
       const dimEl = item.querySelector('[data-dim]');
       if (dimEl) dimEl.textContent = dim;
       thumbCache.set(key, { url, dim, realType });
+      if (img.naturalWidth && img.naturalHeight) {
+        aspectRatioCache.set(file.name, img.naturalWidth / img.naturalHeight);
+        scheduleRelayout();
+      }
     };
     img.onerror = () => { loading.innerHTML='<span class="thumb-loading-text">Failed to load</span>'; loading.style.color='#f87'; };
     img.src = url;
@@ -1288,6 +1431,8 @@ async function loadPdfThumb(file, item, loading, key) {
     objectURLs.push(thumbUrl);
     const dim = `${Math.round(viewport.width / 1.5)} × ${Math.round(viewport.height / 1.5)} pt`;
     if (key) thumbCache.set(key, { url: thumbUrl, dim });
+    aspectRatioCache.set(file.name, viewport.width / viewport.height);
+    scheduleRelayout();
     const img = document.createElement('img');
     img.alt = file.name;
     img.onload = () => {
@@ -1374,6 +1519,10 @@ async function loadVideoThumb(file, item, loading, key) {
           if (badge) { badge.className = 'ext-badge video-badge'; }
           // キャッシュ保存
           if (key) thumbCache.set(key, { url: thumbUrl, dim });
+          if (video.videoWidth && video.videoHeight) {
+            aspectRatioCache.set(file.name, video.videoWidth / video.videoHeight);
+            scheduleRelayout();
+          }
           video.remove();
           res();
         }, 'image/jpeg', 0.85);
@@ -1959,10 +2108,40 @@ btnSlideshow.addEventListener('click', () => {
 });
 
 sizeSlider.addEventListener('input', () => {
-  gallery.style.setProperty('--thumb-size', sizeSlider.value+'px');
+  if (layoutMode === 'grid') {
+    gallery.style.setProperty('--thumb-size', sizeSlider.value+'px');
+  } else {
+    renderGallery();
+  }
 });
 filterInput.addEventListener('input', renderGallery);
 sortSelect.addEventListener('change', renderGallery);
+
+document.getElementById('btnLayoutToggle').addEventListener('click', () => {
+  layoutMode = layoutMode === 'grid' ? 'tile' : 'grid';
+  const btn = document.getElementById('btnLayoutToggle');
+  if (layoutMode === 'tile') {
+    btn.textContent = '⊟';
+    btn.title = 'Grid view';
+    btn.setAttribute('aria-label', 'Switch to grid view');
+    btn.style.background = 'rgba(105,158,255,0.15)';
+    btn.style.borderColor = '#699EFF';
+  } else {
+    btn.textContent = '⊞';
+    btn.title = 'Tile view';
+    btn.setAttribute('aria-label', 'Switch to tile view');
+    btn.style.background = '';
+    btn.style.borderColor = '';
+  }
+  renderGallery();
+});
+
+window.addEventListener('resize', () => {
+  if (layoutMode === 'tile' && rootNode) {
+    clearTimeout(_tileRelayoutTimer);
+    _tileRelayoutTimer = setTimeout(renderGallery, 150);
+  }
+});
 </script>
 </body>
 </html>
