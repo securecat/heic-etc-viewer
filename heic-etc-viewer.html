@@ -499,7 +499,7 @@ input[type="range"]::-webkit-slider-thumb {
     <option value="type">Type</option>
   </select>
   <input type="range" id="sizeSlider" min="80" max="300" value="190" step="55" aria-label="Thumbnail size">
-  <button class="btn-icon" id="btnLayoutToggle" aria-label="Switch to tile view" title="Tile view" style="display:none">⊞</button>
+  <button class="btn-icon" id="btnLayoutToggle" aria-label="Switch to tile view" title="Tile view" style="display:none">◰</button>
   <button class="btn-icon" id="btnReload" aria-label="Reload (clear cache)" title="Reload" style="display:none">↺</button>
   <button class="btn-icon" id="btnSlideshow" aria-label="Start slideshow" title="Slideshow" style="display:none">▷</button>
 </header>
@@ -567,7 +567,7 @@ input[type="range"]::-webkit-slider-thumb {
       <span style="font-size:11px;color:#949494">sec</span>
       <label class="lb-ss-label"><input type="checkbox" id="lbSsFullVideo" checked> play video to end</label>
     </div>
-    <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
+    <button class="lb-close" id="lbClose" aria-label="Close" title="Close">✕</button>
   </div>
   <div class="lb-img-wrap" id="lbImgWrap"><img id="lbImg" src="" alt="" width="1" height="1"></div>
   <div class="lb-video-wrap" id="lbVideoWrap" style="display:none">
@@ -2121,14 +2121,12 @@ document.getElementById('btnLayoutToggle').addEventListener('click', () => {
   layoutMode = layoutMode === 'grid' ? 'tile' : 'grid';
   const btn = document.getElementById('btnLayoutToggle');
   if (layoutMode === 'tile') {
-    btn.textContent = '⊟';
-    btn.title = 'Grid view';
-    btn.setAttribute('aria-label', 'Switch to grid view');
+    btn.title = 'Switch to default view';
+    btn.setAttribute('aria-label', 'Switch to default view');
     btn.style.background = 'rgba(105,158,255,0.15)';
     btn.style.borderColor = '#699EFF';
   } else {
-    btn.textContent = '⊞';
-    btn.title = 'Tile view';
+    btn.title = 'Switch to tile view';
     btn.setAttribute('aria-label', 'Switch to tile view');
     btn.style.background = '';
     btn.style.borderColor = '';
