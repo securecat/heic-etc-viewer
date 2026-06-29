@@ -91,10 +91,6 @@ body {
 .btn-icon:hover { background: rgba(255,255,255,0.06); }
 .toolbar-sep { flex: 1; min-width: 0; }
 .status { font-size: 11px; color: #E4E4E4; white-space: nowrap; }
-.heif-status { font-size: 11px; padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; }
-.heif-status.loading { background: rgba(255,200,0,0.12); color: #ffc; }
-.heif-status.ready   { background: rgba(100,255,150,0.1); color: #9fa; }
-.heif-status.error   { background: rgba(255,100,100,0.12); color: #faa; }
 .filter-input {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -487,8 +483,6 @@ input[type="range"]::-webkit-slider-thumb {
   <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v2.2.1</span></span>
   <button class="btn primary" id="btnPick" aria-label="Open Folder">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
-  <span class="heif-status loading" id="heifStatus" aria-live="polite">HEIC...</span>
-  <span class="heif-status loading" id="pdfStatus" aria-live="polite">PDF...</span>
   <div class="toolbar-sep" aria-hidden="true"></div>
   <span class="status" id="statusText" aria-live="polite"></span>
   <input type="text" class="filter-input" id="filterInput" placeholder="Filter..." aria-label="Filter by filename">
@@ -586,17 +580,11 @@ input[type="range"]::-webkit-slider-thumb {
 <script>
 // ── libheif ───────────────────────────────────────────────────────
 let heifLib = null;
-const heifStatus = document.getElementById('heifStatus');
 (async () => {
   try {
     if (typeof libheif === 'undefined') throw new Error('not found');
     heifLib = await libheif();
-    heifStatus.textContent = 'HEIC: OK';
-    heifStatus.className = 'heif-status ready';
-  } catch(e) {
-    heifStatus.textContent = 'HEIC: NG';
-    heifStatus.className = 'heif-status error';
-  }
+  } catch(e) {}
 })();
 
 async function detectRealType(file) {
@@ -1421,8 +1409,7 @@ async function loadPdfThumb(file, item, loading, key) {
   try {
     // PDF.jsはESモジュールなのでdynamic importで取得
     const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs');
-    const ps = document.getElementById('pdfStatus'); if(ps){ ps.textContent='PDF: OK'; ps.className='heif-status ready'; }
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
     const buf = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
     const page = await pdf.getPage(1);
