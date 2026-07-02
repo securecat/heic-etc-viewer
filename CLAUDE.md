@@ -38,3 +38,9 @@
 ```
 - 古いバージョンの記載は不要（CHANGELOG.md へのリンクで補完済み）
 
+## Markuplint
+
+- `heic-etc-viewer.html` 内の `<script src="...">`（libheif-bundle.js 等）に対する「`defer` 属性が必要」という Markuplint エラーは無視してよい
+  - プログラムの都合上、`defer` を付けると読み込み順序が崩れて動作しなくなるため
+  - Markuplint 自体を無効化する必要はない（このルールだけの例外として無視すればOK）
+
