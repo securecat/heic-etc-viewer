@@ -75,11 +75,12 @@ body {
   transition: background 0.15s;
 }
 .btn:hover { background: rgba(255,255,255,0.06); }
+.btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .btn.primary { background: #4D6EE1; border-color: transparent; color: #fff; }
 .btn.primary:hover { background: var(--accent-hover); }
 .btn-icon {
   background: transparent;
-  border: 1px solid #767676;
+  border: 1px solid #fff;
   color: var(--text);
   border-radius: var(--radius);
   width: 28px; height: 28px;
@@ -95,20 +96,20 @@ body {
 .status { font-size: 11px; color: #E4E4E4; white-space: nowrap; }
 .filter-input {
   background: var(--bg-card);
-  border: 1px solid var(--border);
+  border: 1px solid #fff;
   color: var(--text);
   border-radius: var(--radius);
   padding: 4px 8px;
   font-size: 12px;
   outline: none;
-  width: 120px;
+  width: 60px;
   min-width: 0;
 }
 .filter-input::placeholder { color: #949494; }
 .filter-input:focus { border-color: var(--accent); }
 .sort-select {
   background: var(--bg-card);
-  border: 1px solid var(--border);
+  border: 1px solid #fff;
   color: var(--text);
   border-radius: var(--radius);
   padding: 4px 6px;
@@ -402,7 +403,7 @@ input[type="range"]::-webkit-slider-thumb {
 .lb-dim-text { font-size: 11px; color: #949494; white-space: nowrap; flex-shrink: 0; }
 .lb-counter { font-size: 12px; color: #949494; white-space: nowrap; }
 .lb-close {
-  background: none; border: 1px solid #767676;
+  background: none; border: 1px solid #fff;
   color: rgba(255,255,255,0.75); border-radius: 6px;
   width: 28px; height: 28px; cursor: pointer; font-size: 15px;
   display: flex; align-items: center; justify-content: center;
@@ -434,19 +435,48 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .lb-nav {
   position: fixed; top: 50%; transform: translateY(-50%);
-  background: #2a2a2a; border: 1px solid #767676;
+  background: #2a2a2a; border: 1px solid #fff;
   color: #E4E4E4; border-radius: 8px;
   width: 38px; height: 60px; cursor: pointer; font-size: 20px;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.15s;
 }
 .lb-nav:hover { background: #3a3a3a; }
+.lb-nav:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
 .lb-nav.prev { left: 10px; }
 .lb-nav.next { right: 10px; }
 .lb-info {
   position: fixed; bottom: 0; left: 0; right: 0;
+  min-height: 32px;
   padding: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
   font-size: 11px; color: #949494; text-align: center;
+}
+/* ── 変換保存 (Convert to...) ── */
+.convert-group {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+/* ライトボックス下マージンでは左端に固定配置。幅が狭い時は中央のヒントテキストに重なってよい */
+.lb-info .convert-group {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+}
+.convert-group select {
+  background: var(--bg-card);
+  border: 1px solid #fff;
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 4px 6px;
+  font-size: 12px;
+}
+.convert-group select:focus-visible { border-color: #fff; outline: 2px solid #fff; outline-offset: 2px; }
+/* v3.0.0の目玉機能であることが分かるよう目立たせる */
+.convert-group .btn {
+  background: #001C43;
+  border-color: #4D6EE1;
+  color: #DDDDDD;
+}
+.convert-group .btn:hover { background: #47638A; }
+.convert-group .convert-error {
+  font-size: 11px; color: #FF8A8A; white-space: nowrap;
 }
 
 /* ── slideshow / loop ── */
@@ -460,7 +490,7 @@ input[type="range"]::-webkit-slider-thumb {
 .lb-ss-sec {
   width: 44px;
   background: var(--bg-card);
-  border: 1px solid #767676;
+  border: 1px solid #fff;
   color: var(--text);
   border-radius: var(--radius);
   padding: 3px 6px;
@@ -486,9 +516,20 @@ input[type="range"]::-webkit-slider-thumb {
 <header class="toolbar" aria-label="Toolbar">
   <h2 class="sr-only">Toolbar</h2>
   <button class="btn-icon" id="btnToggleTree" aria-label="Hide folder tree" title="Hide folder tree" aria-expanded="true" aria-controls="treePanel">☰</button>
-  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v2.4.1</span></span>
+  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v3.0.0</span></span>
   <button class="btn primary" id="btnPick" aria-label="Open Folder">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
+  <div class="convert-group">
+    <select id="bulkConvertFormat" aria-label="Convert to format">
+      <option value="">Convert to...</option>
+      <option value="webp">WebP</option>
+      <option value="png">PNG</option>
+      <option value="jpeg">JPEG</option>
+      <option value="pdf">PDF</option>
+    </select>
+    <button class="btn" id="bulkConvertDownload">Download</button>
+    <span class="convert-error" id="bulkConvertError" aria-live="polite"></span>
+  </div>
   <div class="toolbar-sep" aria-hidden="true"></div>
   <span class="status" id="statusText" aria-live="polite"></span>
   <input type="text" class="filter-input" id="filterInput" placeholder="Filter..." aria-label="Filter by filename">
@@ -579,7 +620,20 @@ input[type="range"]::-webkit-slider-thumb {
   </div>
   <button class="lb-nav prev" id="lbPrev" aria-label="Previous">‹</button>
   <button class="lb-nav next" id="lbNext" aria-label="Next">›</button>
-  <div class="lb-info" aria-hidden="true">← → Navigate　Z: Zoom　C: Checker bg　L: Loop　Esc: Close / Stop slideshow</div>
+  <div class="lb-info">
+    <div class="convert-group">
+      <select id="lbConvertFormat" aria-label="Convert to format">
+        <option value="">Convert to...</option>
+        <option value="webp">WebP</option>
+        <option value="png">PNG</option>
+        <option value="jpeg">JPEG</option>
+        <option value="pdf">PDF</option>
+      </select>
+      <button class="btn" id="lbConvertDownload">Download</button>
+      <span class="convert-error" id="lbConvertError" aria-live="polite"></span>
+    </div>
+    <span aria-hidden="true">← → Navigate　Z: Zoom　C: Checker bg　L: Loop　Esc: Close / Stop slideshow</span>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/libheif-js@1.19.8/libheif-wasm/libheif-bundle.js"></script>
@@ -637,6 +691,115 @@ function isHeic(name) { return HEIC_EXTS.includes(extOf(name)); }
 function isIco(name)  { return ICO_EXTS.includes(extOf(name)); }
 function isPdf(name)  { return PDF_EXTS.includes(extOf(name)); }
 function escHtml(s)    { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── 変換保存（静的ラスター画像 → WebP/PNG/JPEG/PDF） ──────────────────
+const CONVERTIBLE_EXTS = ['jpg','jpeg','png','webp','avif','bmp','tiff','tif', ...HEIC_EXTS];
+function isConvertible(name) { return CONVERTIBLE_EXTS.includes(extOf(name)); }
+function baseName(name) { return (name||'').replace(/\.[^.]+$/, ''); }
+
+// 変換元ファイルを実寸のcanvasにデコードする（HEICはlibheifで直接デコード、他はブラウザネイティブ）
+async function decodeToCanvas(file) {
+  if (isHeic(file.name)) {
+    if (!heifLib) throw new Error('libheif not ready');
+    const data = new Uint8ClampedArray(await file.arrayBuffer());
+    const decoder = new heifLib.HeifDecoder();
+    const images = decoder.decode(data);
+    if (!images || !images.length) throw new Error('decode failed');
+    const img = images[0];
+    const w = img.get_width(), h = img.get_height();
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.createImageData(w, h);
+    await new Promise((res, rej) => img.display(imageData, r => r ? res() : rej(new Error('display failed'))));
+    ctx.putImageData(imageData, 0, 0);
+    return canvas;
+  }
+  const url = URL.createObjectURL(file);
+  try {
+    const el = await new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error('decode failed'));
+      image.src = url;
+    });
+    const canvas = document.createElement('canvas');
+    canvas.width = el.naturalWidth;
+    canvas.height = el.naturalHeight;
+    canvas.getContext('2d').drawImage(el, 0, 0);
+    return canvas;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+const CONVERT_MIME = { webp: 'image/webp', png: 'image/png', jpeg: 'image/jpeg' };
+const CONVERT_QUALITY = { webp: 0.92, jpeg: 0.92 };
+
+// アルファなし形式（JPEG/PDF）用に、透過部分を白で塗り潰したcanvasを作る
+function flattenOnWhite(canvas) {
+  const out = document.createElement('canvas');
+  out.width = canvas.width; out.height = canvas.height;
+  const ctx = out.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, out.width, out.height);
+  ctx.drawImage(canvas, 0, 0);
+  return out;
+}
+
+// ズーム選択の比率（表示サイズに対する割合）から、実寸canvas上の切り抜き範囲を計算して切り出す
+function cropCanvasByZoom(canvas, zoom) {
+  const sx = Math.round(zoom.ratioX * canvas.width);
+  const sy = Math.round(zoom.ratioY * canvas.height);
+  const sw = Math.round(zoom.ratioW * canvas.width);
+  const sh = Math.round(zoom.ratioH * canvas.height);
+  const out = document.createElement('canvas');
+  out.width = sw; out.height = sh;
+  out.getContext('2d').drawImage(canvas, sx, sy, sw, sh, 0, 0, sw, sh);
+  return out;
+}
+
+async function convertToBlob(file, targetFormat, cropZoom) {
+  let canvas = await decodeToCanvas(file);
+  if (cropZoom) canvas = cropCanvasByZoom(canvas, cropZoom);
+  if (targetFormat === 'pdf') {
+    const { jsPDF } = await import('https://cdn.jsdelivr.net/npm/jspdf@4.2.1/+esm');
+    const flat = flattenOnWhite(canvas);
+    // unit:'px' はjsPDF側の内部変換にバグがあり書き出しサイズが4/3倍になるため、
+    // unit:'pt' を使い1px=1ptとして直接ページサイズを指定する
+    const doc = new jsPDF({
+      unit: 'pt',
+      format: [flat.width, flat.height],
+      orientation: flat.width >= flat.height ? 'landscape' : 'portrait',
+    });
+    doc.addImage(flat, 'PNG', 0, 0, flat.width, flat.height);
+    return doc.output('blob');
+  }
+  const src = targetFormat === 'jpeg' ? flattenOnWhite(canvas) : canvas;
+  const mime = CONVERT_MIME[targetFormat];
+  const quality = CONVERT_QUALITY[targetFormat];
+  return new Promise((resolve, reject) => {
+    src.toBlob(b => b ? resolve(b) : reject(new Error('encode failed')), mime, quality);
+  });
+}
+
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function downloadAsZip(entries, zipFilename) {
+  const { downloadZip } = await import('https://cdn.jsdelivr.net/npm/client-zip@2.5.0/index.js');
+  const blob = await downloadZip(entries.map(e => ({ name: e.name, input: e.blob }))).blob();
+  triggerDownload(blob, zipFilename);
+}
+
+function convertExt(fmt) { return fmt === 'jpeg' ? 'jpg' : fmt; }
 
 // ── 状態 ──────────────────────────────────────────────────────────
 let rootNode       = null;  // ツリーのルートノード
@@ -1087,6 +1250,7 @@ async function selectNode(node) {
   currentNode = node;
   setActiveRow(node);
   updateTreeHeader(node);
+  clearBulkConvertError();
   // entry ベースで未読み込みなら読む
   if (node.entry && !node.loaded) await expandNode(node);
   renderGallery();
@@ -1541,10 +1705,17 @@ async function loadVideoThumb(file, item, loading, key) {
 }
 
 // ── ライトボックス ────────────────────────────────────────────────
+// ライトボックスをモーダル化：背後の要素をinertにしてキーボードフォーカスが漏れないようにする
+function setBackgroundInert(isInert) {
+  document.querySelector('.toolbar').inert = isInert;
+  document.querySelector('.app-body').inert = isInert;
+}
+
 async function openLightbox(idx) {
   currentIdx = idx;
   await updateLightbox();
   lightbox.classList.add('open');
+  setBackgroundInert(true);
   // 動画はvideo要素に、それ以外はlightbox本体にフォーカス
   const videoWrap = document.getElementById('lbVideoWrap');
   if (videoWrap.style.display !== 'none') {
@@ -1559,6 +1730,7 @@ async function updateLightbox() {
   lbFilename.textContent = name;
   lbCounter.textContent = (currentIdx+1) + ' / ' + filteredFiles.length;
   const lbDimEl = document.getElementById('lbDim'); if(lbDimEl) lbDimEl.textContent = '';
+  document.getElementById('lbConvertError').textContent = '';
 
   const imgWrap   = document.getElementById('lbImgWrap');
   const videoWrap = document.getElementById('lbVideoWrap');
@@ -1638,6 +1810,7 @@ function closeLightbox() {
   btn.style.background = '';
   btn.style.borderColor = '';
   btn.title = 'Toggle checker background';
+  setBackgroundInert(false);
 }
 
 document.getElementById('lbClose').addEventListener('click', closeLightbox);
@@ -2212,6 +2385,72 @@ window.addEventListener('resize', () => {
     _tileRelayoutTimer = setTimeout(() => renderGallery({ preserveScroll: true }), 150);
   }
 });
+
+// ── 変換保存: 個別ファイル（ライトボックス） ─────────────────────────
+document.getElementById('lbConvertDownload').addEventListener('click', async () => {
+  const fmt = document.getElementById('lbConvertFormat').value;
+  const errEl = document.getElementById('lbConvertError');
+  if (!fmt) {
+    errEl.textContent = 'Please select a file format';
+    return;
+  }
+  const entry = filteredFiles[currentIdx];
+  if (!entry || !isConvertible(entry.name)) {
+    errEl.textContent = 'This file cannot be converted';
+    return;
+  }
+  errEl.textContent = '';
+  try {
+    const file = await resolveFile(entry);
+    // ズーム中はズーム選択範囲だけを実寸で切り出して保存する
+    const cropZoom = zoomed ? currentZoom : null;
+    const blob = await convertToBlob(file, fmt, cropZoom);
+    triggerDownload(blob, `${baseName(entry.name)}.${convertExt(fmt)}`);
+  } catch (e) {
+    errEl.textContent = 'Conversion failed';
+  }
+});
+
+// ── 変換保存: フォルダ一括（header） ────────────────────────────────
+document.getElementById('bulkConvertDownload').addEventListener('click', async () => {
+  const fmt = document.getElementById('bulkConvertFormat').value;
+  const errEl = document.getElementById('bulkConvertError');
+  if (!fmt) {
+    errEl.textContent = 'Please select a file format';
+    return;
+  }
+  const convertibleEntries = filteredFiles.filter(f => isConvertible(f.name));
+  if (!convertibleEntries.length) {
+    errEl.textContent = 'No convertible files';
+    return;
+  }
+  errEl.textContent = '';
+  const ext = convertExt(fmt);
+
+  if (convertibleEntries.length === 1) {
+    const file = await resolveFile(convertibleEntries[0]);
+    const blob = await convertToBlob(file, fmt);
+    triggerDownload(blob, `${baseName(convertibleEntries[0].name)}.${ext}`);
+    return;
+  }
+
+  const results = [];
+  for (const entry of convertibleEntries) {
+    try {
+      const file = await resolveFile(entry);
+      const blob = await convertToBlob(file, fmt);
+      results.push({ name: `${baseName(entry.name)}.${ext}`, blob });
+    } catch (e) { /* 個別の失敗はスキップして続行 */ }
+    await new Promise(r => setTimeout(r, 30)); // UIをブロックしないよう小休止
+  }
+  const folderName = (currentNode && currentNode.name) || 'converted';
+  await downloadAsZip(results, `${folderName}.zip`);
+});
+
+function clearBulkConvertError() {
+  document.getElementById('bulkConvertError').textContent = '';
+}
+document.getElementById('btnReload').addEventListener('click', clearBulkConvertError);
 </script>
 </body>
 </html>

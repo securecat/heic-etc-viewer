@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.0.0] - 2026-07-03
+
+### Added
+
+- Convert & save (image → WebP / PNG / JPEG / PDF), the first step toward this app also being a converter, not just a viewer
+  - Per-file: a "Convert to..." select and Download button in the lightbox's bottom bar. Downloads the current file re-encoded in the chosen format, keeping the original resolution
+  - Per-folder (bulk): the same controls in the toolbar, next to "Open Folder". Converts every convertible file currently shown in the gallery; a single result downloads directly, multiple results are bundled into a zip named after the current folder
+  - Supported source formats for this first pass: HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF (static images only — video, animated GIF, and APNG are not yet supported)
+  - An inline error message appears next to the Download button when no format is selected, or (bulk only) when the current folder has no convertible files
+  - While zoomed in the lightbox, converting saves just the zoomed-in crop at full resolution instead of the whole image
+
+### Changed
+
+- The header's Filter field is now narrower (was 120px, now 60px) to make room for the new bulk convert controls
+- The Download buttons now use a distinct blue color scheme (background `#001C43`, border `#4D6EE1`, text `#DDDDDD`, hover background `#47638A`) instead of a transparent background, so they're actually visible
+- Most component borders (buttons, selects, inputs) that used a dim gray (`#767676`) are now white for legibility; layout separator borders (toolbar bottom edge, folder tree panel edge) are unchanged
+- The lightbox now traps keyboard focus while open (background content is marked `inert`), matching expected modal dialog behavior
+
+### Fixed
+
+- The Download buttons had no `:focus-visible` style, so the browser's default focus outline overlapped the button border; it now matches the rest of the app's focus ring style
+- The lightbox prev/next nav buttons had no `:focus-visible` style either; added one with a larger `outline-offset` (4px) than usual since the buttons are large enough that a 2px offset didn't read as a clearly separated ring
+
 ## [2.4.1] - 2026-07-02
 
 ### Fixed
@@ -220,6 +243,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.0.0] - 2026-07-03
+
+### 追加
+
+- 変換保存機能（画像 → WebP / PNG / JPEG / PDF）を追加。ビューワーだけでなくコンバーターとしての第一歩
+  - 個別ファイル：ライトボックス下部に「Convert to...」セレクトとDownloadボタンを設置。選択した形式に再エンコードして、元の解像度のままダウンロード
+  - フォルダ一括：同様のコントロールをツールバーの「Open Folder」の隣に設置。ギャラリーに表示中の変換可能なファイルをすべて変換。結果が1件ならそのままダウンロード、複数件なら表示中のフォルダ名のzipにまとめてダウンロード
+  - 今回対応する変換元形式：HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF（静止画のみ。動画・アニメGIF・APNGは今回未対応）
+  - 形式未選択でDownloadを押した時、または（一括の場合）フォルダ内に変換可能なファイルが無い時は、Downloadボタンの隣にエラーメッセージを表示
+  - ライトボックスでズーム中に変換すると、画像全体ではなくズーム選択範囲だけを実寸で切り出して保存する
+
+### 変更
+
+- 一括変換用のコントロールを置くスペース確保のため、ヘッダーのFilterフィールドを狭く変更（120px→60px）
+- Downloadボタンを、透過背景ではっきり見えなかった配色から、専用の青系配色（背景 `#001C43`、ボーダー `#4D6EE1`、文字 `#DDDDDD`、hover時背景 `#47638A`）に変更
+- ボタン・セレクト・入力欄など、視認性の低いグレー（`#767676`）だったボーダーの大半をwhiteに変更。レイアウトの境界線（ツールバー下端・フォルダツリーパネルの境界）はそのまま
+- ライトボックスを開いている間、背後のコンテンツを`inert`にしてキーボードフォーカスがモーダルの外に漏れないように変更（モーダルとして正しい挙動に）
+
+### 修正
+
+- Downloadボタンに`:focus-visible`スタイルが無く、ブラウザ標準のフォーカスリングがボタンのボーダーと重なっていた問題を修正。他のボタンと同じフォーカスリングスタイルに統一
+- ライトボックスの前後移動ボタンにも`:focus-visible`スタイルが無かったため追加。ボタン自体が大きいため、通常より広い`outline-offset`（4px）にしてリングが単体で視認できるように
 
 ## [2.4.1] - 2026-07-02
 
