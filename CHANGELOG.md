@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [2.4.1] - 2026-07-02
+
+### Fixed
+
+- Navigating to the previous/next file while zoomed (or while in zoom-selection mode) left the new file's lightbox starting in zoom-selection mode instead of a fully reset (non-zoom) state
+- The prev/next nav buttons were unclickable while zoom-selection mode was active, because the zoom-selection canvas overlapped them; the canvas now leaves the nav buttons' columns uncovered so they stay clickable in every zoom state
+
 ## [2.4.0] - 2026-07-02
 
 ### Added
@@ -213,6 +220,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [2.4.1] - 2026-07-02
+
+### 修正
+
+- ズーム中（またはズーム選択モード中）に前後のファイルへ移動すると、移動先のライトボックスがズーム選択モードのまま開始してしまう不具合を修正（完全にズーム解除された状態で開始するように）
+- ズーム選択モード中、前後移動ボタンがズーム選択用キャンバスに覆われてクリックできなかった問題を修正。キャンバスがnavボタンの列を避けて描画されるようになり、どのズーム状態でもボタンをクリックできるように
 
 ## [2.4.0] - 2026-07-02
 

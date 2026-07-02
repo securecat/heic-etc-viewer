@@ -41,15 +41,12 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [2.4.0] - 2026-07-02
+### [2.4.1] - 2026-07-02
 
-#### Added
+#### Fixed
 
-- Video rotate button in the lightbox: rotates the video 90° counter-clockwise per click, replacing the checkerboard button (which had no effect on opaque video)
-
-#### Changed
-
-- Zoom and video rotation are now mutually exclusive: the zoom button is hidden while a video is rotated, and the rotate button is hidden while zoom mode is active, since combining the two would misalign the zoom selection coordinates
+- Navigating to the previous/next file while zoomed (or while in zoom-selection mode) left the new file's lightbox starting in zoom-selection mode instead of a fully reset (non-zoom) state
+- The prev/next nav buttons were unclickable while zoom-selection mode was active, because the zoom-selection canvas overlapped them; the canvas now leaves the nav buttons' columns uncovered so they stay clickable in every zoom state
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -98,15 +95,12 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [2.4.0] - 2026-07-02
+### [2.4.1] - 2026-07-02
 
-#### 追加
+#### 修正
 
-- ライトボックスに動画回転ボタンを追加：クリックごとに動画を左回りに90°回転。市松模様ボタン（不透明な動画には効果がなかった）と入れ替え
-
-#### 変更
-
-- ズームと動画回転は併用不可に：回転中はズームボタンを、ズームモード中は回転ボタンを非表示。両方を組み合わせるとズーム選択範囲の座標がずれてしまうため
+- ズーム中（またはズーム選択モード中）に前後のファイルへ移動すると、移動先のライトボックスがズーム選択モードのまま開始してしまう不具合を修正（完全にズーム解除された状態で開始するように）
+- ズーム選択モード中、前後移動ボタンがズーム選択用キャンバスに覆われてクリックできなかった問題を修正。キャンバスがnavボタンの列を避けて描画されるようになり、どのズーム状態でもボタンをクリックできるように
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
