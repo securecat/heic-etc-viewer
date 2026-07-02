@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [2.4.0] - 2026-07-02
+
+### Added
+
+- Video rotate button in the lightbox: rotates the video 90° counter-clockwise per click, replacing the checkerboard button (which had no effect on opaque video)
+
+### Changed
+
+- Zoom and video rotation are now mutually exclusive: the zoom button is hidden while a video is rotated, and the rotate button is hidden while zoom mode is active, since combining the two would misalign the zoom selection coordinates
+
 ## [2.3.2] - 2026-06-29
 
 ### Fixed
@@ -203,6 +213,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [2.4.0] - 2026-07-02
+
+### 追加
+
+- ライトボックスに動画回転ボタンを追加：クリックごとに動画を左回りに90°回転。市松模様ボタン（不透明な動画には効果がなかった）と入れ替え
+
+### 変更
+
+- ズームと動画回転は併用不可に：回転中はズームボタンを、ズームモード中は回転ボタンを非表示。両方を組み合わせるとズーム選択範囲の座標がずれてしまうため
 
 ## [2.3.2] - 2026-06-29
 

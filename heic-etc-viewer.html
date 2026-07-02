@@ -486,7 +486,7 @@ input[type="range"]::-webkit-slider-thumb {
 <header class="toolbar" aria-label="Toolbar">
   <h2 class="sr-only">Toolbar</h2>
   <button class="btn-icon" id="btnToggleTree" aria-label="Hide folder tree" title="Hide folder tree" aria-expanded="true" aria-controls="treePanel">☰</button>
-  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v2.3.2</span></span>
+  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v2.4.0</span></span>
   <button class="btn primary" id="btnPick" aria-label="Open Folder">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
   <div class="toolbar-sep" aria-hidden="true"></div>
@@ -561,6 +561,7 @@ input[type="range"]::-webkit-slider-thumb {
     <span class="lb-counter" id="lbCounter"></span>
     <button class="lb-close" id="lbZoomBtn" aria-label="Zoom mode" title="Zoom (drag to select)" style="font-size:13px">🔍</button>
     <button class="lb-close" id="lbChecker" aria-label="Switch to checker background" title="Switch to checker background" style="font-size:11px;width:auto;padding:0 8px;letter-spacing:0.02em">▦</button>
+    <button class="lb-close" id="lbRotate" aria-label="Rotate the video 90° counter-clockwise." title="Rotate the video 90° counter-clockwise." style="display:none">&#x21B6;</button>
     <button class="lb-close" id="lbLoopBtn" aria-label="Toggle loop" title="Loop video" style="font-size:13px">🔁</button>
     <div class="lb-ss-controls" id="lbSsControls">
       <input type="text" class="lb-ss-sec" id="lbSsSec" value="4" inputmode="numeric" aria-label="Slideshow interval (seconds)">
@@ -1576,24 +1577,32 @@ async function updateLightbox() {
     imgWrap.style.display   = 'none';
     videoWrap.style.display = 'none';
     pdfWrap.style.display   = 'none';
-    const zoomBtn = document.getElementById('lbZoomBtn');
-    const loopBtn = document.getElementById('lbLoopBtn');
+    const zoomBtn   = document.getElementById('lbZoomBtn');
+    const loopBtn   = document.getElementById('lbLoopBtn');
+    const checkerBtn= document.getElementById('lbChecker');
+    const rotateBtn = document.getElementById('lbRotate');
     if (isVideo(file.name)) {
       zoomBtn.style.display = ssActive ? 'none' : '';
       loopBtn.style.display = ssActive ? 'none' : '';
       loopBtn.classList.toggle('is-active', videoLoop);
       loopBtn.title = videoLoop ? 'Loop: ON' : 'Loop: OFF';
+      checkerBtn.style.display = 'none';
+      rotateBtn.style.display = (ssActive || zoomMode) ? 'none' : '';
       lbVideo.loop = ssActive ? false : videoLoop;
+      videoRotation = 0;
+      applyVideoRotation();
       const url = URL.createObjectURL(file);
       objectURLs.push(url);
       videoWrap.style.display = 'flex';
       lbVideo.src = url;
       lbVideo.load();
       lbVideo.play().catch(() => {});
-      lbVideo.onloadedmetadata = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbVideo.videoWidth ? `${lbVideo.videoWidth} × ${lbVideo.videoHeight}` : ''; };
+      lbVideo.onloadedmetadata = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbVideo.videoWidth ? `${lbVideo.videoWidth} × ${lbVideo.videoHeight}` : ''; applyVideoRotation(); };
     } else if (isPdf(file.name)) {
       zoomBtn.style.display = 'none';
       loopBtn.style.display = 'none';
+      checkerBtn.style.display = ssActive ? 'none' : '';
+      rotateBtn.style.display = 'none';
       exitZoomMode();
       const url = URL.createObjectURL(file);
       objectURLs.push(url);
@@ -1602,6 +1611,8 @@ async function updateLightbox() {
     } else {
       zoomBtn.style.display = ssActive ? 'none' : '';
       loopBtn.style.display = 'none';
+      checkerBtn.style.display = ssActive ? 'none' : '';
+      rotateBtn.style.display = 'none';
       const { url } = await makeURL(file);
       imgWrap.style.display = 'flex';
       lbImg.src = url; lbImg.alt = name;
@@ -1728,6 +1739,8 @@ function enterZoomMode() {
   lbZoomBtn.title = 'Exit zoom mode';
   syncZoomCanvas();
   zoomCanvas.classList.add('active');
+  // ズームと回転は併用しない
+  document.getElementById('lbRotate').style.display = 'none';
 }
 
 function exitZoomMode() {
@@ -1736,6 +1749,10 @@ function exitZoomMode() {
   lbZoomBtn.title = 'Zoom (drag to select)';
   resetZoom();
   zoomCanvas.classList.remove('active');
+  const videoWrap = document.getElementById('lbVideoWrap');
+  if (videoWrap.style.display !== 'none' && !ssActive) {
+    document.getElementById('lbRotate').style.display = '';
+  }
 }
 
 lbZoomBtn.addEventListener('click', () => {
@@ -2012,6 +2029,42 @@ lbLoopBtn.addEventListener('click', () => {
 // Lキーでもループトグル
 // (keydownハンドラ内に追加済み)
 
+// ── 動画回転ボタン ──────────────────────────────────────────────
+const lbRotateBtn = document.getElementById('lbRotate');
+let videoRotation = 0; // 0/90/180/270、左回りに加算
+
+function applyVideoRotation() {
+  const lbVideo = document.getElementById('lbVideo');
+  const wrap = document.getElementById('lbVideoWrap');
+  const deg = ((videoRotation % 360) + 360) % 360;
+  lbVideo.style.transform = deg ? `rotate(${deg}deg)` : '';
+  // ズームと回転は併用しないため、回転中はズームボタンも隠す（enterZoomMode側で回転ボタンを隠すのと対）
+  lbZoomBtn.style.display = (ssActive || deg !== 0) ? 'none' : '';
+  const swapped = deg === 90 || deg === 270;
+  if (swapped && lbVideo.videoWidth && lbVideo.videoHeight) {
+    const cs = getComputedStyle(wrap);
+    const availW = wrap.clientWidth  - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const availH = wrap.clientHeight - parseFloat(cs.paddingTop)  - parseFloat(cs.paddingBottom);
+    const scale = Math.min(availW / lbVideo.videoHeight, availH / lbVideo.videoWidth);
+    lbVideo.style.width  = (lbVideo.videoWidth  * scale) + 'px';
+    lbVideo.style.height = (lbVideo.videoHeight * scale) + 'px';
+  } else {
+    lbVideo.style.width  = '';
+    lbVideo.style.height = '';
+  }
+}
+
+lbRotateBtn.addEventListener('click', () => {
+  videoRotation = (videoRotation - 90 + 360) % 360;
+  applyVideoRotation();
+});
+
+window.addEventListener('resize', () => {
+  if (videoRotation && document.getElementById('lbVideoWrap').style.display !== 'none') {
+    applyVideoRotation();
+  }
+});
+
 // ── スライドショー ────────────────────────────────────────────────
 const btnSlideshow = document.getElementById('btnSlideshow');
 const lbSsControls = document.getElementById('lbSsControls');
@@ -2031,9 +2084,10 @@ function startSlideshow() {
   btnSlideshow.title = 'Stop slideshow';
   btnSlideshow.textContent = '⏹';
   lbSsControls.classList.add('visible');
-  // ズーム・市松・ループボタンを非表示、動画ループを強制解除
+  // ズーム・市松・回転・ループボタンを非表示、動画ループを強制解除
   document.getElementById('lbZoomBtn').style.display = 'none';
   document.getElementById('lbChecker').style.display = 'none';
+  document.getElementById('lbRotate').style.display = 'none';
   document.getElementById('lbLoopBtn').style.display = 'none';
   document.getElementById('lbVideo').loop = false;
   // 最初のSS対象ファイルへ（常に先頭から）
@@ -2054,11 +2108,13 @@ function stopSlideshow() {
   btnSlideshow.title = 'Slideshow';
   btnSlideshow.textContent = '▷';
   lbSsControls.classList.remove('visible');
-  document.getElementById('lbZoomBtn').style.display = '';
-  document.getElementById('lbChecker').style.display = '';
-  // ループボタンは現在のファイルが動画の時のみ再表示、ループ設定を復元
+  // ループ・回転ボタンは現在のファイルが動画の時のみ、市松ボタンは動画以外の時のみ再表示
   const _curEntry = filteredFiles[currentIdx];
-  document.getElementById('lbLoopBtn').style.display = (_curEntry && isVideo(_curEntry.name)) ? '' : 'none';
+  const _curIsVideo = _curEntry && isVideo(_curEntry.name);
+  document.getElementById('lbZoomBtn').style.display = (_curIsVideo && videoRotation) ? 'none' : '';
+  document.getElementById('lbChecker').style.display = _curIsVideo ? 'none' : '';
+  document.getElementById('lbRotate').style.display = (_curIsVideo && !zoomMode) ? '' : 'none';
+  document.getElementById('lbLoopBtn').style.display = _curIsVideo ? '' : 'none';
   document.getElementById('lbVideo').loop = videoLoop;
 }
 

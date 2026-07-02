@@ -41,12 +41,15 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [2.3.2] - 2026-06-29
+### [2.4.0] - 2026-07-02
 
-#### Fixed
+#### Added
 
-- Lightbox images can now be viewed fullscreen by double-clicking; double-click again or Esc to exit
-- Improved focus indicators and hover states for icon buttons and lightbox buttons
+- Video rotate button in the lightbox: rotates the video 90° counter-clockwise per click, replacing the checkerboard button (which had no effect on opaque video)
+
+#### Changed
+
+- Zoom and video rotation are now mutually exclusive: the zoom button is hidden while a video is rotated, and the rotate button is hidden while zoom mode is active, since combining the two would misalign the zoom selection coordinates
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -95,12 +98,15 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [2.3.2] - 2026-06-29
+### [2.4.0] - 2026-07-02
 
-#### 修正
+#### 追加
 
-- ライトボックスで画像をダブルクリックすると全画面表示に；もう一度ダブルクリックまたはEscで解除
-- アイコンボタン・ライトボックスボタンのフォーカスインジケーターとhover表示のアクセシビリティを改善
+- ライトボックスに動画回転ボタンを追加：クリックごとに動画を左回りに90°回転。市松模様ボタン（不透明な動画には効果がなかった）と入れ替え
+
+#### 変更
+
+- ズームと動画回転は併用不可に：回転中はズームボタンを、ズームモード中は回転ボタンを非表示。両方を組み合わせるとズーム選択範囲の座標がずれてしまうため
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
