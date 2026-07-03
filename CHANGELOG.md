@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.0.1] - 2026-07-03
+
+### Changed
+
+- The Download button label now includes an emoji, matching the "Open Folder" button convention: 📁Download in the header (bulk), 📄Download in the lightbox (per-file)
+
 ## [3.0.0] - 2026-07-03
 
 ### Added
@@ -243,6 +249,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.0.1] - 2026-07-03
+
+### 変更
+
+- Downloadボタンのラベルに、「Open Folder」ボタンと同じ慣習で絵文字を追加：header内（一括）は📁Download、ライトボックス（個別ファイル）は📄Download
 
 ## [3.0.0] - 2026-07-03
 

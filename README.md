@@ -43,28 +43,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.0.0] - 2026-07-03
-
-#### Added
-
-- Convert & save (image → WebP / PNG / JPEG / PDF), the first step toward this app also being a converter, not just a viewer
-  - Per-file: a "Convert to..." select and Download button in the lightbox's bottom bar. Downloads the current file re-encoded in the chosen format, keeping the original resolution
-  - Per-folder (bulk): the same controls in the toolbar, next to "Open Folder". Converts every convertible file currently shown in the gallery; a single result downloads directly, multiple results are bundled into a zip named after the current folder
-  - Supported source formats for this first pass: HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF (static images only — video, animated GIF, and APNG are not yet supported)
-  - An inline error message appears next to the Download button when no format is selected, or (bulk only) when the current folder has no convertible files
-  - While zoomed in the lightbox, converting saves just the zoomed-in crop at full resolution instead of the whole image
+### [3.0.1] - 2026-07-03
 
 #### Changed
 
-- The header's Filter field is now narrower (was 120px, now 60px) to make room for the new bulk convert controls
-- The Download buttons now use a distinct blue color scheme instead of a transparent background, so they're actually visible
-- Most component borders (buttons, selects, inputs) that used a dim gray are now white for legibility; layout separator borders are unchanged
-- The lightbox now traps keyboard focus while open, matching expected modal dialog behavior
-
-#### Fixed
-
-- The Download buttons had no focus-visible style, so the browser's default focus outline overlapped the button border
-- The lightbox prev/next nav buttons had no focus-visible style either; added one with a larger outline-offset (4px) since the buttons are large enough that 2px didn't read as a clearly separated ring
+- The Download button label now includes an emoji, matching the "Open Folder" button convention: 📁Download in the header (bulk), 📄Download in the lightbox (per-file)
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -115,27 +98,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.0.0] - 2026-07-03
-
-#### 追加
-
-- 変換保存機能（画像 → WebP / PNG / JPEG / PDF）を追加。ビューワーだけでなくコンバーターとしての第一歩
-  - 個別ファイル：ライトボックス下部に「Convert to...」セレクトとDownloadボタンを設置。選択した形式に再エンコードして、元の解像度のままダウンロード
-  - フォルダ一括：同様のコントロールをツールバーの「Open Folder」の隣に設置。ギャラリーに表示中の変換可能なファイルをすべて変換。結果が1件ならそのままダウンロード、複数件なら表示中のフォルダ名のzipにまとめてダウンロード
-  - 今回対応する変換元形式：HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF（静止画のみ。動画・アニメGIF・APNGは今回未対応）
-  - 形式未選択でDownloadを押した時、または（一括の場合）フォルダ内に変換可能なファイルが無い時は、Downloadボタンの隣にエラーメッセージを表示
-  - ライトボックスでズーム中に変換すると、画像全体ではなくズーム選択範囲だけを実寸で切り出して保存する
+### [3.0.1] - 2026-07-03
 
 #### 変更
 
-- 一括変換用のコントロールを置くスペース確保のため、ヘッダーのFilterフィールドを狭く変更（120px→60px）
-- Downloadボタンを、透過背景ではっきり見えなかった配色から、専用の青系配色に変更
-- ボタン・セレクト・入力欄など、視認性の低いグレーだったボーダーの大半をwhiteに変更。レイアウトの境界線はそのまま
-- ライトボックスを開いている間、キーボードフォーカスがモーダルの外に漏れないように変更
-
-#### 修正
-
-- Downloadボタンのフォーカスリングがボタンのボーダーと重なっていた問題を修正
+- Downloadボタンのラベルに、「Open Folder」ボタンと同じ慣習で絵文字を追加：header内（一括）は📁Download、ライトボックス（個別ファイル）は📄Download
 - ライトボックスの前後移動ボタンにもフォーカスリングが無かったため追加。ボタンが大きいため`outline-offset`を4pxに拡大
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
