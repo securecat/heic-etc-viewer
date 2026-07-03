@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.0.2] - 2026-07-03
+
+### Fixed
+
+- The lightbox's prev/next nav buttons had a different hover color (`#3a3a3a`) than the header's icon buttons (`#6c6c6c`, e.g. tile view, slideshow); unified to match
+
 ## [3.0.1] - 2026-07-03
 
 ### Changed
@@ -249,6 +255,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.0.2] - 2026-07-03
+
+### 修正
+
+- ライトボックスの左右移動ボタンのhover色が、header内のアイコンボタン（タイルビュー・スライドショー等）の`#6c6c6c`と異なり`#3a3a3a`になっていたのを統一
 
 ## [3.0.1] - 2026-07-03
 

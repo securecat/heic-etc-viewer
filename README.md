@@ -43,11 +43,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.0.1] - 2026-07-03
+### [3.0.2] - 2026-07-03
 
-#### Changed
+#### Fixed
 
-- The Download button label now includes an emoji, matching the "Open Folder" button convention: 📁Download in the header (bulk), 📄Download in the lightbox (per-file)
+- The lightbox's prev/next nav buttons had a different hover color (`#3a3a3a`) than the header's icon buttons (`#6c6c6c`, e.g. tile view, slideshow); unified to match
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -98,11 +98,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.0.1] - 2026-07-03
+### [3.0.2] - 2026-07-03
 
-#### 変更
+#### 修正
 
-- Downloadボタンのラベルに、「Open Folder」ボタンと同じ慣習で絵文字を追加：header内（一括）は📁Download、ライトボックス（個別ファイル）は📄Download
+- ライトボックスの左右移動ボタンのhover色が、header内のアイコンボタン（タイルビュー・スライドショー等）の`#6c6c6c`と異なり`#3a3a3a`になっていたのを統一
 - ライトボックスの前後移動ボタンにもフォーカスリングが無かったため追加。ボタンが大きいため`outline-offset`を4pxに拡大
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
