@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'heic-etc-viewer.html'
+  workflow_dispatch:
 
 permissions:
   contents: read
