@@ -43,11 +43,12 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.0.2] - 2026-07-03
+### [3.1.0] - 2026-07-04
 
-#### Fixed
+#### Added
 
-- The lightbox's prev/next nav buttons had a different hover color (`#3a3a3a`) than the header's icon buttons (`#6c6c6c`, e.g. tile view, slideshow); unified to match
+- A new "PDF (combine into one)" option in the header's bulk convert dropdown, alongside the existing "PDF (individual files)": converting a folder's images now lets you choose between one PDF per file (zipped) or a single multi-page PDF with one image per page
+  - Requires at least 2 convertible files in the current folder; shows an inline error otherwise
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -98,11 +99,12 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.0.2] - 2026-07-03
+### [3.1.0] - 2026-07-04
 
-#### 修正
+#### 追加
 
-- ライトボックスの左右移動ボタンのhover色が、header内のアイコンボタン（タイルビュー・スライドショー等）の`#6c6c6c`と異なり`#3a3a3a`になっていたのを統一
+- header内の一括変換プルダウンに、既存の「PDF (individual files)」に加えて「PDF (combine into one)」を追加。フォルダ内の画像をPDFに変換する際、ファイルごとに個別のPDF（zip）にするか、1画像1ページの単一の複数ページPDFにまとめるかを選べるように
+  - 変換対象ファイルが2つ以上ないと選択できず、1つ以下の場合はエラーメッセージを表示
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

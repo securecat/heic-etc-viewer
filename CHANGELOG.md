@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.1.0] - 2026-07-04
+
+### Added
+
+- A new "PDF (combine into one)" option in the header's bulk convert dropdown, alongside the existing "PDF (individual files)": converting a folder's images now lets you choose between one PDF per file (zipped) or a single multi-page PDF with one image per page
+  - Requires at least 2 convertible files in the current folder; shows an inline error otherwise
+
 ## [3.0.2] - 2026-07-03
 
 ### Fixed
@@ -255,6 +262,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.1.0] - 2026-07-04
+
+### 追加
+
+- header内の一括変換プルダウンに、既存の「PDF (individual files)」に加えて「PDF (combine into one)」を追加。フォルダ内の画像をPDFに変換する際、ファイルごとに個別のPDF（zip）にするか、1画像1ページの単一の複数ページPDFにまとめるかを選べるように
+  - 変換対象ファイルが2つ以上ないと選択できず、1つ以下の場合はエラーメッセージを表示
 
 ## [3.0.2] - 2026-07-03
 
