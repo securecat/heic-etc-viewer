@@ -18,7 +18,7 @@
   --border: #767676;
   --border-hover: rgba(255,255,255,0.18);
   --accent: #699EFF;
-  --accent-hover: #4D6EE1;
+  --accent-hover: #2D4EC1;
   --accent-bg: rgba(107,140,255,0.15);
   --thumb-bg: #242424;
   --overlay: rgba(0,0,0,0.9);
@@ -77,7 +77,7 @@ body {
 .btn:hover { background: rgba(255,255,255,0.06); }
 .btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .btn.primary { background: #4D6EE1; border-color: transparent; color: #fff; }
-.btn.primary:hover { background: var(--accent-hover); }
+.btn.primary:hover, .btn.primary:active { background: var(--accent-hover); }
 .btn-icon {
   background: transparent;
   border: 1px solid #fff;
@@ -192,6 +192,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .tree-row:hover { background: rgba(255,255,255,0.05); color: var(--text); }
 .tree-row.active { background: var(--accent-bg); color: #699EFF; }
+.tree-row.active:hover { background-color: #1B375E; color: #8AB2FF; }
 .tree-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .tree-toggle {
   width: 18px; height: 18px;
@@ -1893,6 +1894,7 @@ function renderGallery({ preserveScroll = false } = {}) {
 
     tasks.push(() => loadThumb(entry, item, loading, myGeneration));
   });
+  galleryWrap.scrollTop = savedScrollTop;
   runThumbQueue(tasks, myGeneration);
 }
 

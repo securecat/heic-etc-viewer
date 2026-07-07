@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Video thumbnail generation (gallery grid and the "Thumbnail"/"Thumbnails" conversion) now tries a few points through the video instead of only the 10%-mark, skipping ones that look like a near-solid-color frame (fade-in/out, intro card) when a more detailed frame is available
 - The "Thumbnail"/"Thumbnails" download now reuses the frame already captured for the gallery grid instead of re-decoding the video from scratch
+- Hovering the selected folder in the tree now shows a distinct color (`#8AB2FF` text on `#1B375E` background) instead of the same color as a non-selected row
+- The "Open Folder" button's hover background is now `#2D4EC1`, also applied while pressed (previously identical to its resting color, so hovering had no visible effect)
+
+### Fixed
+
+- Switching from a folder scrolled partway down to another folder with enough files to scroll no longer starts the new gallery at the previous scroll position; it now always starts at the top (grid layout only scrolled back to top on a resize-triggered relayout, never on an actual folder switch)
+
+## [3.4.0] - 2026-07-08
 
 ### Added
 
@@ -333,6 +341,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - 動画のサムネイル生成（ギャラリー一覧・「Thumbnail」/「Thumbnails」変換の両方）を、再生時間10%地点だけでなく数地点を試すように変更。より内容の分かる地点があれば、ほぼ単色（フェードイン/アウト、イントロ画面など）のフレームを避けて選ぶ
 - 「Thumbnail」/「Thumbnails」のダウンロードは、ギャラリー表示用に生成済みのフレームを再利用するように変更（動画の再デコードなし）
+- ツリーで選択済みのフォルダにカーソルを重ねた時の色を、非選択行と同じ色ではなく専用の配色（背景`#1B375E`、文字`#8AB2FF`）に変更
+- 「Open Folder」ボタンのhover時の背景色を`#2D4EC1`に変更。押下時も同色を維持（これまでは通常時と同じ色でhoverしても見た目の変化がなかった）
+
+### 修正
+
+- スクロールした状態のフォルダから、スクロールが発生するほど内容の多い別のフォルダへ移動した際、新しいギャラリーが前のフォルダのスクロール位置のまま表示されてしまう問題を修正。常に先頭から表示されるように（グリッドレイアウトでは、リサイズ時の再レイアウトでしか先頭に戻しておらず、フォルダ切り替え時には戻していなかった）
+
+## [3.4.0] - 2026-07-08
 
 ### 追加
 
