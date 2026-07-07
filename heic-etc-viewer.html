@@ -58,7 +58,7 @@ body {
   flex-shrink: 0;
   z-index: 100;
 }
-.app-title { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.app-title { font-size: 13px; font-weight: 400; white-space: nowrap; }
 .btn {
   background: transparent;
   border: 1px solid var(--border-hover);
@@ -93,6 +93,7 @@ body {
 .btn-icon:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .btn-icon.is-active { border-color: #699EFF; }
 .toolbar-sep { flex: 1; min-width: 0; }
+.toolbar-divider { width: 1px; align-self: stretch; background: var(--border); flex-shrink: 0; }
 .status { font-size: 11px; color: #E4E4E4; white-space: nowrap; }
 .filter-input {
   background: var(--bg-card);
@@ -138,22 +139,33 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* ── tree panel ── */
-.tree-panel {
+.tree-column {
   width: var(--tree-width);
   min-width: var(--tree-width);
-  background: var(--bg-tree);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: width 0.2s, min-width 0.2s;
   flex-shrink: 0;
 }
-.tree-panel.collapsed {
-  width: 0;
-  min-width: 0;
-  border-right: none;
+.tree-panel {
+  background: var(--bg-tree);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
 }
+.app-footer {
+  background: var(--bg-tree);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  flex-shrink: 0;
+}
+.app-footer .app-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .tree-scroll {
   flex: 1;
   overflow-y: auto;
@@ -509,17 +521,57 @@ input[type="range"]::-webkit-slider-thumb {
   cursor: pointer;
 }
 .lb-ss-label input[type="checkbox"] { cursor: pointer; accent-color: #699EFF; }
+
+/* ── 設定・情報ダイアログ ── */
+#infoDialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid #fff;
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  width: calc(100vw - 40px);
+  max-width: 480px;
+  height: fit-content;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+#infoDialog::backdrop { background: var(--overlay); }
+.info-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.info-dialog-header h2 { font-size: 15px; font-weight: 600; }
+#infoDialog h3 {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 18px 0 6px;
+}
+#infoDialog h3:first-of-type { margin-top: 6px; }
+#infoDialog p { font-size: 12px; line-height: 1.7; color: var(--text); }
 </style>
 </head>
 <body>
 
 <header class="toolbar" aria-label="Toolbar">
   <h2 class="sr-only">Toolbar</h2>
-  <button class="btn-icon" id="btnToggleTree" aria-label="Hide folder tree" title="Hide folder tree" aria-expanded="true" aria-controls="treePanel">☰</button>
-  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v3.1.1</span></span>
   <button class="btn primary" id="btnPick" aria-label="Open Folder">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
+  <div class="toolbar-divider" aria-hidden="true"></div>
   <div class="convert-group">
+    <select id="bulkConvertSubject" aria-label="Convert subject">
+      <option value="image">Image</option>
+      <option value="video">Video</option>
+    </select>
     <select id="bulkConvertFormat" aria-label="Convert to format">
       <option value="">Convert to...</option>
       <option value="webp">WebP</option>
@@ -547,11 +599,18 @@ input[type="range"]::-webkit-slider-thumb {
 </header>
 
 <div class="app-body">
-  <!-- ツリーパネル -->
-  <nav class="tree-panel" id="treePanel" aria-label="Folder tree">
-    <h2 class="sr-only">Folder tree</h2>
-    <div class="tree-scroll" id="treeScroll" role="tree" aria-label="Folder tree" aria-busy="true"></div>
-  </nav>
+  <!-- ツリーパネル＋フッター -->
+  <div class="tree-column">
+    <nav class="tree-panel" id="treePanel" aria-label="Folder tree">
+      <h2 class="sr-only">Folder tree</h2>
+      <div class="tree-scroll" id="treeScroll" role="tree" aria-label="Folder tree" aria-busy="true"></div>
+    </nav>
+    <footer class="app-footer">
+      <h2 class="sr-only">App info</h2>
+      <span class="app-title">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v3.1.2</span></span>
+      <button class="btn-icon" id="btnSettingsInfo" aria-label="Settings & Information" title="Settings & Information">⚙</button>
+    </footer>
+  </div>
 
   <!-- メインエリア -->
   <main class="main-area" id="mainArea">
@@ -583,6 +642,19 @@ input[type="range"]::-webkit-slider-thumb {
     </div>
   </main>
 </div>
+
+<!-- 設定・情報ダイアログ -->
+<dialog id="infoDialog" aria-labelledby="infoDialogTitle">
+  <div class="info-dialog-header">
+    <h2 id="infoDialogTitle">Settings & Information</h2>
+    <button class="btn-icon" id="infoDialogClose" aria-label="Close">✕</button>
+  </div>
+  <h3>Supported file formats (view)</h3>
+  <p>HEIC/HEIF, JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO</p>
+  <h3>Convertible file formats</h3>
+  <p>Images — HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk)</p>
+  <p>Video — not yet supported</p>
+</dialog>
 
 <!-- ズームキャンバス（lightbox上に固定） -->
 <canvas id="lbZoomCanvas" aria-hidden="true"></canvas>
@@ -1014,7 +1086,6 @@ async function makeURL(file) {
 }
 
 // ── UI要素 ────────────────────────────────────────────────────────
-const treePanel  = document.getElementById('treePanel');
 const treeScroll = document.getElementById('treeScroll');
 const emptyState = document.getElementById('emptyState');
 const galleryWrap= document.getElementById('galleryWrap');
@@ -1030,16 +1101,44 @@ const lbFilename = document.getElementById('lbFilename');
 const lbCounter  = document.getElementById('lbCounter');
 const dropOverlay= document.getElementById('dropOverlay');
 
-// ── ツリーパネル開閉 ──────────────────────────────────────────────
-document.getElementById('btnToggleTree').addEventListener('click', () => {
-  treePanel.classList.toggle('collapsed');
-  const btn = document.getElementById('btnToggleTree');
-  const isExpanded = !treePanel.classList.contains('collapsed');
-  btn.setAttribute('aria-expanded', String(isExpanded));
-  const label = isExpanded ? 'Hide folder tree' : 'Show folder tree';
-  btn.setAttribute('aria-label', label);
-  btn.title = label;
+// ── 設定・情報ダイアログ ──────────────────────────────────────────
+const infoDialog = document.getElementById('infoDialog');
+document.getElementById('btnSettingsInfo').addEventListener('click', () => infoDialog.showModal());
+document.getElementById('infoDialogClose').addEventListener('click', () => infoDialog.close());
+
+// ── 変換対象（Image/Video）切り替え ──────────────────────────────
+const IMAGE_CONVERT_FORMAT_LIST = [
+  { value: '', label: 'Convert to...' },
+  { value: 'webp', label: 'WebP' },
+  { value: 'png', label: 'PNG' },
+  { value: 'jpeg', label: 'JPEG' },
+  { value: 'pdf', label: 'PDF (individual files)' },
+  { value: 'pdf-combined', label: 'PDF (combine into one)' },
+];
+const VIDEO_CONVERT_FORMAT_LIST = [
+  { value: '', label: 'Convert to...' },
+];
+function formatOptionsHTML(list) {
+  return list.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+}
+document.getElementById('bulkConvertSubject').addEventListener('change', e => {
+  document.getElementById('bulkConvertFormat').innerHTML =
+    formatOptionsHTML(e.target.value === 'video' ? VIDEO_CONVERT_FORMAT_LIST : IMAGE_CONVERT_FORMAT_LIST);
+  document.getElementById('bulkConvertError').textContent = '';
 });
+
+// 「Convert to...」の横幅を、Image/Videoどちらの選択肢の中でも最長のものに
+// 合わせて固定する（被写体切り替えのたびに幅がガタつかないように）
+(function fixConvertFormatWidth() {
+  const fmtSelect = document.getElementById('bulkConvertFormat');
+  const measure = fmtSelect.cloneNode(false);
+  measure.removeAttribute('id');
+  measure.style.cssText = 'position:absolute; visibility:hidden; left:-9999px; width:auto;';
+  measure.innerHTML = formatOptionsHTML([...IMAGE_CONVERT_FORMAT_LIST, ...VIDEO_CONVERT_FORMAT_LIST]);
+  document.body.appendChild(measure);
+  fmtSelect.style.width = Math.ceil(measure.getBoundingClientRect().width) + 'px';
+  measure.remove();
+})();
 
 // ── file:// 判定 ─────────────────────────────────────────────────
 const isFileProtocol = window.location.protocol === 'file:';

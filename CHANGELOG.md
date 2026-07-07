@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.1.2] - 2026-07-07
+
+### Added
+
+- A "Convert subject" dropdown (Image / Video) before the header's "Convert to..." control, laying the groundwork for an upcoming video converter; the format list still shown today is the "Image" one, "Video" is a placeholder until that feature ships
+  - The "Convert to..." dropdown's width is fixed to fit the longest option across both subjects, so it no longer resizes when switching between Image and Video
+- A gear-icon "Settings & Information" button in the new footer, opening a dialog that lists the app's supported (viewable) and convertible file formats — the intended home for future settings
+- A vertical divider in the header between "Open Folder" and the convert controls
+
+### Changed
+
+- The folder tree is now always visible; the header's show/hide toggle button has been removed
+- The app name and version moved from the header into a new one-line footer beneath the folder tree, and dropped the small app icon; the title's font weight is now regular instead of bold
+
 ## [3.1.1] - 2026-07-07
 
 ### Changed
@@ -273,6 +287,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.1.2] - 2026-07-07
+
+### 追加
+
+- header内「Convert to...」の前に「変換対象」プルダウン（Image / Video）を追加。今後の動画コンバーター機能に向けた土台。現状表示されている形式一覧は「Image」選択時のものと同じで、「Video」は仕様確定までの仮置き
+  - 「Convert to...」プルダウンの横幅は、Image/Videoどちらの選択肢の中でも最長のものに合わせて固定。切り替えても幅がガタつかないように
+- 新設したフッター内に、歯車アイコンの「Settings & Information」ボタンを追加。押すと、対応している（表示できる）ファイル形式と、変換できるファイル形式の一覧を示すダイアログが開く。今後の設定項目の置き場としても想定
+- header内「Open Folder」ボタンと変換コントロールの間に縦区切り線を追加
+
+### 変更
+
+- フォルダツリーを常時表示にし、header内の表示/非表示切り替えボタンを廃止
+- アプリ名とバージョン表記を、headerからフォルダツリー下の新しいフッター（1行分）へ移設し、アイコン表示を廃止。タイトルの文字の太さも、太字から標準に変更
 
 ## [3.1.1] - 2026-07-07
 
