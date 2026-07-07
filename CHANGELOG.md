@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.4.1] - 2026-07-08
+
+### Changed
+
+- Video thumbnail generation (gallery grid and the "Thumbnail"/"Thumbnails" conversion) now tries a few points through the video instead of only the 10%-mark, skipping ones that look like a near-solid-color frame (fade-in/out, intro card) when a more detailed frame is available
+- The "Thumbnail"/"Thumbnails" download now reuses the frame already captured for the gallery grid instead of re-decoding the video from scratch
+
+### Added
+
+- A "Thumbnail" ("Thumbnails" in the header's bulk dropdown) option in the video "Convert to..." menu: saves a JPEG snapshot taken from early in the video (10% into its duration, capped at 1 second). In the lightbox this downloads one image for the video being viewed; in the header it bundles one thumbnail per video into a zip when there's more than one
+
+## [3.3.1] - 2026-07-08
+
+### Fixed
+
+- The "Convert to..." dropdown's fixed width didn't leave room for the native select arrow when its longest option (the placeholder text itself, or "PDF (combine into one)") exactly filled the box, causing the arrow to overlap the trailing text in both the header and the lightbox
+
 ## [3.3.0] - 2026-07-08
 
 ### Added
@@ -309,6 +326,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.4.1] - 2026-07-08
+
+### 変更
+
+- 動画のサムネイル生成（ギャラリー一覧・「Thumbnail」/「Thumbnails」変換の両方）を、再生時間10%地点だけでなく数地点を試すように変更。より内容の分かる地点があれば、ほぼ単色（フェードイン/アウト、イントロ画面など）のフレームを避けて選ぶ
+- 「Thumbnail」/「Thumbnails」のダウンロードは、ギャラリー表示用に生成済みのフレームを再利用するように変更（動画の再デコードなし）
+
+### 追加
+
+- 動画の「Convert to...」メニューに「Thumbnail」（header一括では「Thumbnails」）を追加。動画の冒頭付近（再生時間の10%地点、最大1秒）のフレームをJPEGとして書き出す。ライトボックスでは表示中の動画1本分をダウンロード、headerでは対象が複数ある場合サムネイルをまとめてzipでダウンロード
+
+## [3.3.1] - 2026-07-08
+
+### 修正
+
+- 「Convert to...」プルダウンの固定幅が、最長の選択肢（プレースホルダー自体、または「PDF (combine into one)」）でぴったりの幅になっていたため、プルダウンの矢印アイコンの余白が確保できず、header・ライトボックスの両方でテキスト末尾と矢印が重なっていた問題を修正
 
 ## [3.3.0] - 2026-07-08
 

@@ -611,7 +611,7 @@ input[type="range"]::-webkit-slider-thumb {
     </nav>
     <footer class="app-footer">
       <h2 class="sr-only">App info</h2>
-      <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.3.0</span></span>
+      <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.4.1</span></span>
       <button class="btn-icon" id="btnSettingsInfo" aria-label="Settings & Information" title="Settings & Information">⚙</button>
     </footer>
   </div>
@@ -657,7 +657,7 @@ input[type="range"]::-webkit-slider-thumb {
   <p>HEIC/HEIF, JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO</p>
   <h3>Convertible file formats</h3>
   <p>Images — HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk)</p>
-  <p>Video — MP4, WebM, and MOV → Sound. Extracts the audio track as-is (no re-encoding), so the resulting file's actual codec depends on the source (e.g. AAC, Opus). Files with no audio track are skipped in bulk, or shown an error individually.</p>
+  <p>Video — MP4, WebM, and MOV → Sound or Thumbnail. Sound extracts the audio track as-is (no re-encoding), so the resulting file's actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video).</p>
   <h3>Export as a Zip</h3>
   <p>Doesn't convert anything — bundles every file currently shown in the gallery (after any filter) into a single zip, unchanged. Available by selecting "All" as the convert subject.</p>
 </dialog>
@@ -1030,6 +1030,90 @@ async function extractSoundBlob(file) {
   return new Blob([output.target.buffer], { type: output.format.mimeType });
 }
 
+// 動画から代表フレームを切り出す（ギャラリー表示・変換ダウンロードの両方から使う共通処理）。
+// 冒頭は暗転・フェードインで単色なことが多いため、動画内の複数地点を候補にして
+// 「ほぼ単色でない」フレームが見つかるまで安価な縮小キャンバスで判定してから、
+// 最終的に採用した地点だけをネイティブ解像度で書き出す。
+// 再生できない動画は err.code = 'unplayable' を投げる
+function captureVideoFrameBlob(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.src = url;
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    const cleanup = () => { video.remove(); URL.revokeObjectURL(url); };
+    video.addEventListener('error', () => {
+      cleanup();
+      const err = new Error('Cannot play video');
+      err.code = 'unplayable';
+      reject(err);
+    });
+
+    function seekTo(t) {
+      return new Promise(res => {
+        video.addEventListener('seeked', res, { once: true });
+        video.currentTime = t;
+      });
+    }
+
+    // 候補フレームの「単色っぽさ」を安価に判定するための縮小キャンバス
+    const probe = document.createElement('canvas');
+    probe.width = 16; probe.height = 16;
+    const probeCtx = probe.getContext('2d', { willReadFrequently: true });
+    function luminanceVariance() {
+      probeCtx.drawImage(video, 0, 0, 16, 16);
+      const { data } = probeCtx.getImageData(0, 0, 16, 16);
+      let sum = 0, sumSq = 0;
+      const n = data.length / 4;
+      for (let i = 0; i < data.length; i += 4) {
+        const lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        sum += lum;
+        sumSq += lum * lum;
+      }
+      const mean = sum / n;
+      return sumSq / n - mean * mean;
+    }
+
+    video.addEventListener('loadedmetadata', async () => {
+      try {
+        const duration = video.duration || 0;
+        const CANDIDATE_FRACTIONS = [0.1, 0.25, 0.4, 0.55, 0.7];
+        const BLANK_VARIANCE_THRESHOLD = 15; // 経験的なしきい値。これ未満はほぼ単色とみなす
+        let bestTime = 0, bestVariance = -1;
+        for (const frac of CANDIDATE_FRACTIONS) {
+          const t = duration ? Math.min(Math.max(duration - 0.05, 0), duration * frac) : 0;
+          await seekTo(t);
+          const v = luminanceVariance();
+          if (v > bestVariance) { bestVariance = v; bestTime = video.currentTime; }
+          if (v >= BLANK_VARIANCE_THRESHOLD) break; // 十分に内容のあるフレームが見つかった
+        }
+        await seekTo(bestTime);
+        const canvas = document.createElement('canvas');
+        canvas.width  = video.videoWidth  || 320;
+        canvas.height = video.videoHeight || 320;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(blob => {
+          cleanup();
+          blob ? resolve({ blob, width: canvas.width, height: canvas.height }) : reject(new Error('encode failed'));
+        }, 'image/jpeg', 0.88);
+      } catch (e) { cleanup(); reject(e); }
+    }, { once: true });
+
+    video.load();
+  });
+}
+
+// 変換ダウンロード用：ギャラリーで既に生成済みのサムネイルがあればそれを再利用し、二重に動画を読み込まない
+async function getVideoThumbnailBlob(file) {
+  const key = cacheKey(file);
+  const cached = key && thumbCache.get(key);
+  if (cached && cached.blob) return cached.blob;
+  const { blob } = await captureVideoFrameBlob(file);
+  return blob;
+}
+
 function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1145,6 +1229,7 @@ const IMAGE_CONVERT_FORMAT_LIST = [
 const VIDEO_CONVERT_FORMAT_LIST = [
   { value: '', label: 'Convert to...' },
   { value: 'sound', label: 'Sound' },
+  { value: 'thumbnail', label: 'Thumbnails' },
 ];
 // 「All」は変換を行わないため、プレースホルダーなしでこの1択のみとする
 const ALL_CONVERT_FORMAT_LIST = [
@@ -1166,6 +1251,7 @@ const LB_IMAGE_CONVERT_FORMAT_LIST = [
 const LB_VIDEO_CONVERT_FORMAT_LIST = [
   { value: '', label: 'Convert to...' },
   { value: 'sound', label: 'Sound' },
+  { value: 'thumbnail', label: 'Thumbnail' },
 ];
 const LB_CONVERT_FORMAT_LISTS = {
   image: LB_IMAGE_CONVERT_FORMAT_LIST,
@@ -1183,7 +1269,9 @@ function fixFormatSelectWidth(formatSelectId, lists) {
   measure.style.cssText = 'position:absolute; visibility:hidden; left:-9999px; width:auto;';
   measure.innerHTML = formatOptionsHTML(Object.values(lists).flat());
   document.body.appendChild(measure);
-  fmtSelect.style.width = Math.ceil(measure.getBoundingClientRect().width) + 'px';
+  // ネイティブのプルダウン矢印アイコン分の余白を確保しないと、テキストと矢印が重なってしまう
+  const ARROW_ALLOWANCE = 20;
+  fmtSelect.style.width = (Math.ceil(measure.getBoundingClientRect().width) + ARROW_ALLOWANCE) + 'px';
   measure.remove();
 }
 // header（フォルダ一括）: 変換対象プルダウンと連動させる
@@ -2013,70 +2101,41 @@ async function loadVideoThumb(file, item, loading, key, generation) {
   }
   if (generation !== galleryGeneration) return;
 
-  const url = URL.createObjectURL(file);
-  objectURLs.push(url);
   const badge = item.querySelector('[data-badge]');
 
-  return new Promise(res => {
-    const video = document.createElement('video');
-    video.src = url;
-    video.muted = true;
-    video.playsInline = true;
-    video.preload = 'metadata';
-
-    const onError = () => {
-      if (loading.parentNode === item) {
-        loading.innerHTML = '<span class="thumb-loading-text">Unplayable</span>';
-        loading.style.color = '#f87';
-        loading.style.fontSize = '11px';
-      }
-      if (badge) { badge.textContent = extOf(file.name).toUpperCase(); badge.className = 'ext-badge unplayable-badge'; badge.title = 'Cannot be played in this browser'; }
-      video.remove();
-      res();
-    };
-
-    video.addEventListener('error', onError);
-    video.addEventListener('loadedmetadata', () => {
-      video.currentTime = Math.min(1, (video.duration || 0) * 0.1);
-    });
-    video.addEventListener('seeked', () => {
-      try {
-        if (generation !== galleryGeneration) { video.remove(); res(); return; }
-        const canvas = document.createElement('canvas');
-        canvas.width  = video.videoWidth  || 320;
-        canvas.height = video.videoHeight || 320;
-        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(blob => {
-          if (generation !== galleryGeneration) { video.remove(); res(); return; }
-          const thumbUrl = URL.createObjectURL(blob);
-          objectURLs.push(thumbUrl);
-          const img = document.createElement('img');
-          img.alt = file.name;
-          img.onload = () => { if (loading.parentNode===item) loading.remove(); };
-          img.src = thumbUrl;
-          item.insertBefore(img, item.firstChild);
-          const dim = `${video.videoWidth} × ${video.videoHeight}`;
-          const dimEl = item.querySelector('[data-dim]');
-          if (dimEl) dimEl.textContent = dim;
-          const play = document.createElement('div');
-          play.className = 'thumb-play';
-          play.innerHTML = '<div class="thumb-play-icon" aria-hidden="true">▶</div>';
-          item.appendChild(play);
-          if (badge) { badge.className = 'ext-badge video-badge'; }
-          // キャッシュ保存
-          if (key) thumbCache.set(key, { url: thumbUrl, dim });
-          if (video.videoWidth && video.videoHeight) {
-            const vr = video.videoWidth / video.videoHeight;
-            if (aspectRatioCache.get(file.name) !== vr) { aspectRatioCache.set(file.name, vr); scheduleRelayout(); }
-          }
-          video.remove();
-          res();
-        }, 'image/jpeg', 0.85);
-      } catch(e) { onError(); }
-    });
-
-    video.load();
-  });
+  try {
+    const { blob, width, height } = await captureVideoFrameBlob(file);
+    if (generation !== galleryGeneration) return;
+    const thumbUrl = URL.createObjectURL(blob);
+    objectURLs.push(thumbUrl);
+    const img = document.createElement('img');
+    img.alt = file.name;
+    img.onload = () => { if (loading.parentNode===item) loading.remove(); };
+    img.src = thumbUrl;
+    item.insertBefore(img, item.firstChild);
+    const dim = `${width} × ${height}`;
+    const dimEl = item.querySelector('[data-dim]');
+    if (dimEl) dimEl.textContent = dim;
+    const play = document.createElement('div');
+    play.className = 'thumb-play';
+    play.innerHTML = '<div class="thumb-play-icon" aria-hidden="true">▶</div>';
+    item.appendChild(play);
+    if (badge) { badge.className = 'ext-badge video-badge'; }
+    // キャッシュ保存（Blobも保持しておき、変換ダウンロード時に再デコードせず使い回す）
+    if (key) thumbCache.set(key, { url: thumbUrl, dim, blob });
+    if (width && height) {
+      const vr = width / height;
+      if (aspectRatioCache.get(file.name) !== vr) { aspectRatioCache.set(file.name, vr); scheduleRelayout(); }
+    }
+  } catch (e) {
+    if (generation !== galleryGeneration) return;
+    if (loading.parentNode === item) {
+      loading.innerHTML = '<span class="thumb-loading-text">Unplayable</span>';
+      loading.style.color = '#f87';
+      loading.style.fontSize = '11px';
+    }
+    if (badge) { badge.textContent = extOf(file.name).toUpperCase(); badge.className = 'ext-badge unplayable-badge'; badge.title = 'Cannot be played in this browser'; }
+  }
 }
 
 // ── ライトボックス ────────────────────────────────────────────────
@@ -2795,6 +2854,22 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
     return;
   }
 
+  if (fmt === 'thumbnail') {
+    if (!entry || !isVideo(entry.name)) {
+      errEl.textContent = 'This file cannot be converted';
+      return;
+    }
+    errEl.textContent = '';
+    try {
+      const file = await resolveFile(entry);
+      const blob = await getVideoThumbnailBlob(file);
+      triggerDownload(blob, `${baseName(entry.name)}.jpg`);
+    } catch (e) {
+      errEl.textContent = 'Conversion failed';
+    }
+    return;
+  }
+
   if (!entry || !isConvertible(entry.name)) {
     errEl.textContent = 'This file cannot be converted';
     return;
@@ -2887,6 +2962,36 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
     }
     if (!results.length) {
       errEl.textContent = 'No video files with an audio track';
+      return;
+    }
+    if (results.length === 1) {
+      triggerDownload(results[0].blob, results[0].name);
+      return;
+    }
+    const folderName = (currentNode && currentNode.name) || 'converted';
+    await downloadAsZip(results, `${folderName}.zip`);
+    return;
+  }
+
+  // 「Thumbnails」: 動画ごとに代表フレームを切り出して画像化する
+  if (fmt === 'thumbnail') {
+    const videoEntries = filteredFiles.filter(f => isVideo(f.name));
+    if (!videoEntries.length) {
+      errEl.textContent = 'No video files';
+      return;
+    }
+    errEl.textContent = '';
+    const results = [];
+    for (const entry of videoEntries) {
+      try {
+        const file = await resolveFile(entry);
+        const blob = await getVideoThumbnailBlob(file);
+        results.push({ name: `${baseName(entry.name)}.jpg`, blob });
+      } catch (e) { /* 読み込めなかったものはスキップして続行 */ }
+      await new Promise(r => setTimeout(r, 30)); // UIをブロックしないよう小休止
+    }
+    if (!results.length) {
+      errEl.textContent = 'Could not generate thumbnails';
       return;
     }
     if (results.length === 1) {
