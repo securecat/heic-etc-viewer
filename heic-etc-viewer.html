@@ -516,7 +516,7 @@ input[type="range"]::-webkit-slider-thumb {
 <header class="toolbar" aria-label="Toolbar">
   <h2 class="sr-only">Toolbar</h2>
   <button class="btn-icon" id="btnToggleTree" aria-label="Hide folder tree" title="Hide folder tree" aria-expanded="true" aria-controls="treePanel">☰</button>
-  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v3.1.0</span></span>
+  <span class="app-title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3ElEQVRIie1VwXHCMBC8ZPKXOrBSgdwBlKASXII6gA5QB4gKcAeYChAdyB1IFTgTX3xzI8jEJPFMHtkP8oFu0d5q/TQMAyyJ50W7wz/BXyB4wQ/nXEoJAJqmUUoBgPc+xggAxpi6ru9uTik553BtrZVSAkCM0XsPAFJKay0MI2jP6XTCymq1wspmsxk+weVyud242+2wIoQYhuFHEtXsZCEEOhb/9qczWE0Hpb5d13GCjxnMRAihbVsAWI8AAKXU+XzmfYsTPDCD/X7PyY7HI1e8qqq7reZKlFJ6twRD0zR8DH3fo4XoB3jEUiJyGw0N4ZzLOQNDztl7b4yhSgiB9NFa46IkuF6vcA/tKD3txJ+FEJqmEUIgd0qJJoGX6QEXXSfidgT9Za5S13XlhL9h09cRvIJa4wBIWCr+QhapSY04oiiWBLc2/RKkRggBvSSEIIKXb19dmFoTAdmMR8gsgjSNDgC22+16vU4pxRipkdaa248TzJqBlLKqKlwbYzDS+Q0o8vxhAhj74iLnfDgccs5935NnSPHbx7kE1lohRFGkC0GmvH2cS6CUopcXQmtN6cQ1oZBAPGH+UYzUdU1ZVFSAvQ6VUhh2BAoJKSXn+yBYDs+Ldod/ghlYnOAN2cVD2mZK2wQAAAAASUVORK5CYII=" width="20" height="20" alt="" aria-hidden="true" style="vertical-align:middle;margin-right:4px;border-radius:4px">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v3.1.1</span></span>
   <button class="btn primary" id="btnPick" aria-label="Open Folder">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
   <div class="convert-group">
@@ -657,24 +657,173 @@ async function detectRealType(file) {
   return 'heic';
 }
 
+// ── サムネイル高速化：バイナリヘッダーだけを読んで実寸を取得する ──────
+// （フルデコードせずに済む形式のみ対応。対応外はnullを返し、呼び出し側は
+// 　従来通りのフルデコード経路にフォールバックする）
+const HEADER_DIM_EXTS = ['jpg','jpeg','png','gif','webp','bmp'];
+async function readHeaderDimensions(file) {
+  const ext = extOf(file.name);
+  if (!HEADER_DIM_EXTS.includes(ext)) return null;
+  const readLen = (ext === 'jpg' || ext === 'jpeg') ? 262144 : 65536;
+  const head = new Uint8Array(await file.slice(0, Math.min(readLen, file.size)).arrayBuffer());
+  try {
+    if (ext === 'png')  return readPngDims(head);
+    if (ext === 'gif')  return readGifDims(head);
+    if (ext === 'bmp')  return readBmpDims(head);
+    if (ext === 'webp') return readWebpDims(head);
+    return readJpegDims(head);
+  } catch (e) { return null; }
+}
+function readPngDims(b) {
+  if (b.length < 24 || !(b[0]===0x89 && b[1]===0x50 && b[2]===0x4E && b[3]===0x47)) return null;
+  const dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  return { width: dv.getUint32(16), height: dv.getUint32(20) };
+}
+function readGifDims(b) {
+  if (b.length < 10 || !(b[0]===0x47 && b[1]===0x49 && b[2]===0x46)) return null;
+  const dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  return { width: dv.getUint16(6, true), height: dv.getUint16(8, true) };
+}
+function readBmpDims(b) {
+  if (b.length < 26 || !(b[0]===0x42 && b[1]===0x4D)) return null;
+  const dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  const headerSize = dv.getUint32(14, true);
+  if (headerSize === 12) return { width: dv.getUint16(18, true), height: dv.getUint16(20, true) };
+  return { width: dv.getInt32(18, true), height: Math.abs(dv.getInt32(22, true)) };
+}
+function readWebpDims(b) {
+  if (b.length < 30) return null;
+  const dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  if (dv.getUint32(0) !== 0x52494646 || dv.getUint32(8) !== 0x57454250) return null; // "RIFF"/"WEBP"
+  const fourCC = String.fromCharCode(b[12], b[13], b[14], b[15]);
+  if (fourCC === 'VP8X') {
+    return {
+      width:  1 + (b[24] | (b[25] << 8) | (b[26] << 16)),
+      height: 1 + (b[27] | (b[28] << 8) | (b[29] << 16)),
+    };
+  }
+  if (fourCC === 'VP8 ') {
+    if (!(b[23]===0x9d && b[24]===0x01 && b[25]===0x2a)) return null; // 開始コード
+    return { width: (b[26] | (b[27] << 8)) & 0x3FFF, height: (b[28] | (b[29] << 8)) & 0x3FFF };
+  }
+  if (fourCC === 'VP8L') {
+    if (b[20] !== 0x2F) return null;
+    const bits = (b[21] | (b[22] << 8) | (b[23] << 16) | (b[24] << 24)) >>> 0;
+    return { width: (bits & 0x3FFF) + 1, height: ((bits >>> 14) & 0x3FFF) + 1 };
+  }
+  return null;
+}
+function readJpegDims(b) {
+  if (!(b[0]===0xFF && b[1]===0xD8)) return null;
+  const dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  let offset = 2;
+  while (offset + 4 <= b.length) {
+    if (b[offset] !== 0xFF) { offset++; continue; }
+    let marker = b[offset+1];
+    while (marker === 0xFF && offset+2 < b.length) { offset++; marker = b[offset+1]; } // パディング読み飛ばし
+    offset += 2;
+    if (marker === 0xD9) break; // EOI
+    if (marker === 0x01 || (marker >= 0xD0 && marker <= 0xD7)) continue; // ペイロード無しマーカー
+    if (offset + 2 > b.length) break;
+    const segLen = dv.getUint16(offset);
+    const isSOF = marker >= 0xC0 && marker <= 0xCF && marker !== 0xC4 && marker !== 0xC8 && marker !== 0xCC;
+    if (isSOF) {
+      if (offset + 7 > b.length) return null;
+      return { height: dv.getUint16(offset+3), width: dv.getUint16(offset+5) };
+    }
+    offset += segLen;
+  }
+  return null;
+}
+
+// createImageBitmapのresizeオプションで最初から縮小デコードし、フルデコードのコストを避ける
+async function createFastThumbBlob(file, dims, cap = 640) {
+  const opts = { resizeQuality: 'low' };
+  if (dims.width >= dims.height) opts.resizeWidth  = Math.min(cap, dims.width);
+  else                            opts.resizeHeight = Math.min(cap, dims.height);
+  const bitmap = await createImageBitmap(file, opts);
+  const canvas = document.createElement('canvas');
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+  canvas.getContext('2d').drawImage(bitmap, 0, 0);
+  bitmap.close();
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(b => b ? resolve(b) : reject(new Error('encode failed')), 'image/webp', 0.85);
+  });
+}
+
+// ── HEICサムネイル用デコードをWeb Workerへ逃がす ──────────────────
+// （メインスレッドをブロックしないよう、ギャラリーのサムネイル生成専用。
+// 　変換保存やズーム切り出し用のフルデコード（decodeToCanvas）は対象外）
+const HEIC_WORKER_SRC = `
+let heifLibPromise = null;
+function getHeifLib() {
+  if (!heifLibPromise) {
+    importScripts('https://cdn.jsdelivr.net/npm/libheif-js@1.19.8/libheif-wasm/libheif-bundle.js');
+    heifLibPromise = libheif();
+  }
+  return heifLibPromise;
+}
+self.onmessage = async (e) => {
+  const { id, buffer } = e.data;
+  try {
+    const heifLib = await getHeifLib();
+    const data = new Uint8ClampedArray(buffer);
+    const decoder = new heifLib.HeifDecoder();
+    const images = decoder.decode(data);
+    if (!images || !images.length) throw new Error('decode failed');
+    const img = images[0];
+    const w = img.get_width(), h = img.get_height();
+    const canvas = new OffscreenCanvas(w, h);
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.createImageData(w, h);
+    await new Promise((res, rej) => img.display(imageData, r => r ? res() : rej(new Error('display failed'))));
+    ctx.putImageData(imageData, 0, 0);
+    const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.9 });
+    self.postMessage({ id, blob });
+  } catch (err) {
+    self.postMessage({ id, error: (err && err.message) || String(err) });
+  }
+};
+`;
+let heicWorker = null;
+let heicWorkerReqId = 0;
+const heicWorkerPending = new Map();
+function getHeicWorker() {
+  if (!heicWorker) {
+    const blob = new Blob([HEIC_WORKER_SRC], { type: 'application/javascript' });
+    heicWorker = new Worker(URL.createObjectURL(blob));
+    heicWorker.onmessage = e => {
+      const { id, blob, error } = e.data;
+      const pending = heicWorkerPending.get(id);
+      if (!pending) return;
+      heicWorkerPending.delete(id);
+      if (error) pending.reject(new Error(error));
+      else pending.resolve(blob);
+    };
+    heicWorker.onerror = () => {
+      for (const pending of heicWorkerPending.values()) pending.reject(new Error('HEIC worker crashed'));
+      heicWorkerPending.clear();
+      heicWorker = null;
+    };
+  }
+  return heicWorker;
+}
+function decodeHeicInWorker(buffer) {
+  const worker = getHeicWorker();
+  const id = ++heicWorkerReqId;
+  return new Promise((resolve, reject) => {
+    heicWorkerPending.set(id, { resolve, reject });
+    worker.postMessage({ id, buffer }, [buffer]);
+  });
+}
+
 async function heicToURL(file) {
   const realType = await detectRealType(file);
   if (realType !== 'heic') return { url: URL.createObjectURL(file), realType };
-  if (!heifLib) throw new Error('libheif not ready');
-  const data = new Uint8ClampedArray(await file.arrayBuffer());
-  const decoder = new heifLib.HeifDecoder();
-  const images = decoder.decode(data);
-  if (!images || !images.length) throw new Error('decode failed');
-  const img = images[0];
-  const w = img.get_width(), h = img.get_height();
-  const canvas = document.createElement('canvas');
-  canvas.width = w; canvas.height = h;
-  const ctx = canvas.getContext('2d');
-  const imageData = ctx.createImageData(w, h);
-  await new Promise((res, rej) => img.display(imageData, r => r ? res() : rej(new Error('display failed'))));
-  ctx.putImageData(imageData, 0, 0);
-  const url = await new Promise(res => canvas.toBlob(b => res(URL.createObjectURL(b)), 'image/jpeg', 0.9));
-  return { url, realType: 'heic' };
+  const buffer = await file.arrayBuffer();
+  const blob = await decodeHeicInWorker(buffer);
+  return { url: URL.createObjectURL(blob), realType: 'heic' };
 }
 
 // ── 定数 ──────────────────────────────────────────────────────────
@@ -812,6 +961,25 @@ let currentIdx     = 0;
 let layoutMode = 'grid'; // 'grid' | 'tile'
 const aspectRatioCache = new Map(); // filename → aspect ratio (populated as thumbs load)
 let _tileRelayoutTimer = null;
+
+// サムネイル読み込みの世代管理＋同時実行数の制限。
+// フォルダ切り替えや絞り込みでギャラリーを再描画するたびに世代を進め、
+// 古い世代のタスクは開始前に打ち切ることで、切り替え連打でデコードが
+// 際限なく積み重なって固まる/クラッシュするのを防ぐ
+let galleryGeneration = 0;
+const THUMB_CONCURRENCY = 4;
+function runThumbQueue(tasks, generation) {
+  let idx = 0;
+  const worker = async () => {
+    while (idx < tasks.length) {
+      if (generation !== galleryGeneration) return;
+      const task = tasks[idx++];
+      await task();
+    }
+  };
+  const poolSize = Math.min(THUMB_CONCURRENCY, tasks.length);
+  return Promise.all(Array.from({ length: poolSize }, worker));
+}
 
 // サムネキャッシュ: "relativePath or name" → { url, dim }
 const thumbCache = new Map();
@@ -1322,7 +1490,7 @@ function computeJustifiedRows(files, containerWidth, targetHeight, gap) {
   return rows;
 }
 
-function renderTileGallery() {
+function renderTileGallery(generation) {
   const gap = 4;
   const containerWidth = gallery.clientWidth - gap * 2;
   const targetHeight = parseInt(sizeSlider.value);
@@ -1330,6 +1498,7 @@ function renderTileGallery() {
   if (containerWidth <= 0) return;
 
   const rows = computeJustifiedRows(filteredFiles, containerWidth, targetHeight, gap);
+  const tasks = [];
 
   rows.forEach(({ items, rowHeight }) => {
     const rowEl = document.createElement('div');
@@ -1374,11 +1543,13 @@ function renderTileGallery() {
       item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(i); } });
       rowEl.appendChild(item);
 
-      loadThumb(entry, item, loading);
+      tasks.push(() => loadThumb(entry, item, loading, generation));
     });
 
     gallery.appendChild(rowEl);
   });
+
+  runThumbQueue(tasks, generation);
 }
 
 function renderGallery({ preserveScroll = false } = {}) {
@@ -1386,6 +1557,11 @@ function renderGallery({ preserveScroll = false } = {}) {
   const raw = getCurrentFiles();
   const sorted = getSorted(raw);
   filteredFiles = q ? sorted.filter(f => (f.name||'').toLowerCase().includes(q)) : sorted;
+
+  // 再描画のたびに世代を進める。前の世代のサムネイル読み込みタスクは
+  // 開始前に打ち切られるので、フォルダ切り替え連打で積み重ならない
+  galleryGeneration++;
+  const myGeneration = galleryGeneration;
 
   const savedScrollTop = (layoutMode === 'tile' && preserveScroll) ? galleryWrap.scrollTop : 0;
 
@@ -1422,13 +1598,14 @@ function renderGallery({ preserveScroll = false } = {}) {
 
   if (layoutMode === 'tile') {
     gallery.classList.add('layout-tile');
-    renderTileGallery();
+    renderTileGallery(myGeneration);
     galleryWrap.scrollTop = savedScrollTop;
     return;
   }
 
   gallery.classList.remove('layout-tile');
   gallery.style.setProperty('--thumb-size', sizeSlider.value + 'px');
+  const tasks = [];
   filteredFiles.forEach((entry, i) => {
     const name = entry.name||'';
     const item = document.createElement('div');
@@ -1465,21 +1642,24 @@ function renderGallery({ preserveScroll = false } = {}) {
     item.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){e.preventDefault();openLightbox(i);} });
     gallery.appendChild(item);
 
-    loadThumb(entry, item, loading);
+    tasks.push(() => loadThumb(entry, item, loading, myGeneration));
   });
+  runThumbQueue(tasks, myGeneration);
 }
 
-async function loadThumb(entry, item, loading) {
+async function loadThumb(entry, item, loading, generation) {
+  if (generation !== galleryGeneration) return; // 開始前に世代が古くなっていたら何もしない
   try {
     const file = await resolveFile(entry);
+    if (generation !== galleryGeneration) return;
     const key = cacheKey(file);
 
     if (isVideo(file.name)) {
-      await loadVideoThumb(file, item, loading, key);
+      await loadVideoThumb(file, item, loading, key, generation);
       return;
     }
     if (isPdf(file.name)) {
-      await loadPdfThumb(file, item, loading, key);
+      await loadPdfThumb(file, item, loading, key, generation);
       return;
     }
 
@@ -1490,7 +1670,27 @@ async function loadThumb(entry, item, loading) {
       return;
     }
 
+    // 高速パス：バイナリヘッダーだけで実寸が分かる形式は、createImageBitmapで
+    // 最初から縮小デコードして高速化する（対応外の形式や失敗時は下の低速パスへ）
+    const fastDims = await readHeaderDimensions(file).catch(() => null);
+    if (generation !== galleryGeneration) return;
+    if (fastDims) {
+      try {
+        const blob = await createFastThumbBlob(file, fastDims);
+        if (generation !== galleryGeneration) return; // 重いデコードが終わる頃には古くなっているかもしれない
+        const url = URL.createObjectURL(blob);
+        objectURLs.push(url);
+        const dim = `${fastDims.width} × ${fastDims.height}`;
+        applyThumbImage(item, loading, url, dim, null, file.name);
+        thumbCache.set(key, { url, dim, realType: null });
+        const ratio = fastDims.width / fastDims.height;
+        if (aspectRatioCache.get(file.name) !== ratio) { aspectRatioCache.set(file.name, ratio); scheduleRelayout(); }
+        return;
+      } catch (e) { /* 失敗時は低速パスにフォールバック */ }
+    }
+
     const { url, realType } = await makeURL(file);
+    if (generation !== galleryGeneration) return;
     if (realType && realType !== 'heic' && isHeic(file.name)) {
       const badge = item.querySelector('[data-badge]');
       if (badge) {
@@ -1502,6 +1702,7 @@ async function loadThumb(entry, item, loading) {
     if (isIco(file.name)) {
       const header = new Uint8Array(await file.slice(0, 6).arrayBuffer());
       const count = header[4] | (header[5] << 8); // リトルエンディアン
+      if (generation !== galleryGeneration) return;
       const badge = item.querySelector('[data-badge]');
       if (badge && count >= 2) {
         badge.textContent = `ICO(Multi)`;
@@ -1510,6 +1711,7 @@ async function loadThumb(entry, item, loading) {
       const img = document.createElement('img');
       img.alt = file.name; img.loading = 'lazy';
       img.onload = () => {
+        if (generation !== galleryGeneration) return;
         if (loading.parentNode===item) loading.remove();
         const dim = `${img.naturalWidth} × ${img.naturalHeight}`;
         const dimEl = item.querySelector('[data-dim]');
@@ -1528,6 +1730,7 @@ async function loadThumb(entry, item, loading) {
     const img = document.createElement('img');
     img.alt = file.name; img.loading = 'lazy';
     img.onload = () => {
+      if (generation !== galleryGeneration) return;
       if (loading.parentNode===item) loading.remove();
       const dim = `${img.naturalWidth} × ${img.naturalHeight}`;
       const dimEl = item.querySelector('[data-dim]');
@@ -1542,8 +1745,10 @@ async function loadThumb(entry, item, loading) {
     img.src = url;
     item.insertBefore(img, item.firstChild);
   } catch(e) {
-    loading.innerHTML = '<span class="thumb-loading-text">Failed to load</span>';
-    loading.style.color = '#f87';
+    if (generation === galleryGeneration) {
+      loading.innerHTML = '<span class="thumb-loading-text">Failed to load</span>';
+      loading.style.color = '#f87';
+    }
     console.warn('thumb failed:', entry.name, e);
   }
 }
@@ -1574,7 +1779,7 @@ function applyThumbImage(item, loading, url, dim, realType, filename, icoCount) 
   }
 }
 
-async function loadPdfThumb(file, item, loading, key) {
+async function loadPdfThumb(file, item, loading, key, generation) {
   // キャッシュヒット
   if (key && thumbCache.has(key)) {
     const cached = thumbCache.get(key);
@@ -1592,6 +1797,7 @@ async function loadPdfThumb(file, item, loading, key) {
     const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs');
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
     const buf = await file.arrayBuffer();
+    if (generation !== galleryGeneration) return;
     const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
     const page = await pdf.getPage(1);
     const viewport = page.getViewport({ scale: 1.5 });
@@ -1599,7 +1805,9 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dis
     canvas.width  = viewport.width;
     canvas.height = viewport.height;
     await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    if (generation !== galleryGeneration) return; // 重いレンダリングが終わる頃には古くなっているかもしれない
     const thumbUrl = await new Promise(res => canvas.toBlob(b => res(URL.createObjectURL(b)), 'image/jpeg', 0.88));
+    if (generation !== galleryGeneration) return;
     objectURLs.push(thumbUrl);
     const dim = `${Math.round(viewport.width / 1.5)} × ${Math.round(viewport.height / 1.5)} pt`;
     if (key) thumbCache.set(key, { url: thumbUrl, dim });
@@ -1608,6 +1816,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dis
     const img = document.createElement('img');
     img.alt = file.name;
     img.onload = () => {
+      if (generation !== galleryGeneration) return;
       if (loading.parentNode===item) loading.remove();
       const dimEl = item.querySelector('[data-dim]');
       if (dimEl) dimEl.textContent = dim;
@@ -1615,13 +1824,14 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dis
     img.src = thumbUrl;
     item.insertBefore(img, item.firstChild);
   } catch(e) {
+    if (generation !== galleryGeneration) return;
     loading.innerHTML = '<span class="thumb-loading-text">Failed to load</span>';
     loading.style.color = '#f87';
     console.warn('pdf thumb failed:', file.name, e);
   }
 }
 
-async function loadVideoThumb(file, item, loading, key) {
+async function loadVideoThumb(file, item, loading, key, generation) {
   // キャッシュヒット
   if (key && thumbCache.has(key)) {
     const cached = thumbCache.get(key);
@@ -1640,6 +1850,7 @@ async function loadVideoThumb(file, item, loading, key) {
     if (badge) badge.className = 'ext-badge video-badge';
     return;
   }
+  if (generation !== galleryGeneration) return;
 
   const url = URL.createObjectURL(file);
   objectURLs.push(url);
@@ -1669,11 +1880,13 @@ async function loadVideoThumb(file, item, loading, key) {
     });
     video.addEventListener('seeked', () => {
       try {
+        if (generation !== galleryGeneration) { video.remove(); res(); return; }
         const canvas = document.createElement('canvas');
         canvas.width  = video.videoWidth  || 320;
         canvas.height = video.videoHeight || 320;
         canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
         canvas.toBlob(blob => {
+          if (generation !== galleryGeneration) { video.remove(); res(); return; }
           const thumbUrl = URL.createObjectURL(blob);
           objectURLs.push(thumbUrl);
           const img = document.createElement('img');

@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.1.1] - 2026-07-07
+
+### Changed
+
+- Faster gallery thumbnails for JPEG/PNG/GIF/WebP/BMP: dimensions are now read directly from the file header, then `createImageBitmap`'s resize option decodes the image pre-scaled instead of at full resolution
+- HEIC/HEIF thumbnail decoding now runs in a Web Worker instead of the main thread, so scrolling and other interactions no longer stall while thumbnails decode
+
+### Fixed
+
+- Switching to another folder while a large folder's thumbnails were still loading could pile up an unbounded number of concurrent decodes across folder switches, freezing the tab or crashing the browser; thumbnail loading is now capped to a few concurrent decodes and abandons stale work left over from a folder you've since navigated away from
+
 ## [3.1.0] - 2026-07-04
 
 ### Added
@@ -262,6 +273,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.1.1] - 2026-07-07
+
+### 変更
+
+- JPEG/PNG/GIF/WebP/BMPのギャラリーサムネイル生成を高速化。ファイルヘッダーから直接実寸を読み取り、`createImageBitmap`の縮小オプションでフル解像度ではなく最初から縮小した状態でデコードするように
+- HEIC/HEIFのサムネイルデコードをメインスレッドからWeb Workerへ移動。サムネイル生成中もスクロールなどの操作が固まらないように
+
+### 修正
+
+- 大きなフォルダのサムネイル読み込み中に別のフォルダへ切り替えると、フォルダ切り替えのたびに同時デコードが際限なく積み重なり、タブがフリーズしたりブラウザがクラッシュしたりすることがあった問題を修正。サムネイル読み込みの同時実行数を少数に制限し、すでに離れたフォルダの読み込みは打ち切るように
 
 ## [3.1.0] - 2026-07-04
 

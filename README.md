@@ -43,12 +43,16 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.1.0] - 2026-07-04
+### [3.1.1] - 2026-07-07
 
-#### Added
+#### Changed
 
-- A new "PDF (combine into one)" option in the header's bulk convert dropdown, alongside the existing "PDF (individual files)": converting a folder's images now lets you choose between one PDF per file (zipped) or a single multi-page PDF with one image per page
-  - Requires at least 2 convertible files in the current folder; shows an inline error otherwise
+- Faster gallery thumbnails for JPEG/PNG/GIF/WebP/BMP: dimensions are now read directly from the file header, then `createImageBitmap`'s resize option decodes the image pre-scaled instead of at full resolution
+- HEIC/HEIF thumbnail decoding now runs in a Web Worker instead of the main thread, so scrolling and other interactions no longer stall while thumbnails decode
+
+#### Fixed
+
+- Switching to another folder while a large folder's thumbnails were still loading could pile up an unbounded number of concurrent decodes across folder switches, freezing the tab or crashing the browser; thumbnail loading is now capped to a few concurrent decodes and abandons stale work left over from a folder you've since navigated away from
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -99,12 +103,16 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.1.0] - 2026-07-04
+### [3.1.1] - 2026-07-07
 
-#### 追加
+#### 変更
 
-- header内の一括変換プルダウンに、既存の「PDF (individual files)」に加えて「PDF (combine into one)」を追加。フォルダ内の画像をPDFに変換する際、ファイルごとに個別のPDF（zip）にするか、1画像1ページの単一の複数ページPDFにまとめるかを選べるように
-  - 変換対象ファイルが2つ以上ないと選択できず、1つ以下の場合はエラーメッセージを表示
+- JPEG/PNG/GIF/WebP/BMPのギャラリーサムネイル生成を高速化。ファイルヘッダーから直接実寸を読み取り、`createImageBitmap`の縮小オプションでフル解像度ではなく最初から縮小した状態でデコードするように
+- HEIC/HEIFのサムネイルデコードをメインスレッドからWeb Workerへ移動。サムネイル生成中もスクロールなどの操作が固まらないように
+
+#### 修正
+
+- 大きなフォルダのサムネイル読み込み中に別のフォルダへ切り替えると、フォルダ切り替えのたびに同時デコードが際限なく積み重なり、タブがフリーズしたりブラウザがクラッシュしたりすることがあった問題を修正。サムネイル読み込みの同時実行数を少数に制限し、すでに離れたフォルダの読み込みは打ち切るように
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
