@@ -571,6 +571,7 @@ input[type="range"]::-webkit-slider-thumb {
     <select id="bulkConvertSubject" aria-label="Convert subject">
       <option value="image">Image</option>
       <option value="video">Video</option>
+      <option value="all">All</option>
     </select>
     <select id="bulkConvertFormat" aria-label="Convert to format">
       <option value="">Convert to...</option>
@@ -607,7 +608,7 @@ input[type="range"]::-webkit-slider-thumb {
     </nav>
     <footer class="app-footer">
       <h2 class="sr-only">App info</h2>
-      <span class="app-title">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v3.1.2</span></span>
+      <span class="app-title">HEIC etc Viewer <span style="font-size:11px;color:#949494;font-weight:400">v3.2.0</span></span>
       <button class="btn-icon" id="btnSettingsInfo" aria-label="Settings & Information" title="Settings & Information">⚙</button>
     </footer>
   </div>
@@ -654,6 +655,8 @@ input[type="range"]::-webkit-slider-thumb {
   <h3>Convertible file formats</h3>
   <p>Images — HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk)</p>
   <p>Video — not yet supported</p>
+  <h3>Export as a Zip</h3>
+  <p>Doesn't convert anything — bundles every file currently shown in the gallery (after any filter) into a single zip, unchanged. Available by selecting "All" as the convert subject.</p>
 </dialog>
 
 <!-- ズームキャンバス（lightbox上に固定） -->
@@ -1106,7 +1109,7 @@ const infoDialog = document.getElementById('infoDialog');
 document.getElementById('btnSettingsInfo').addEventListener('click', () => infoDialog.showModal());
 document.getElementById('infoDialogClose').addEventListener('click', () => infoDialog.close());
 
-// ── 変換対象（Image/Video）切り替え ──────────────────────────────
+// ── 変換対象（Image/Video/All）切り替え ────────────────────────────
 const IMAGE_CONVERT_FORMAT_LIST = [
   { value: '', label: 'Convert to...' },
   { value: 'webp', label: 'WebP' },
@@ -1118,23 +1121,31 @@ const IMAGE_CONVERT_FORMAT_LIST = [
 const VIDEO_CONVERT_FORMAT_LIST = [
   { value: '', label: 'Convert to...' },
 ];
+// 「All」は変換を行わないため、プレースホルダーなしでこの1択のみとする
+const ALL_CONVERT_FORMAT_LIST = [
+  { value: 'zip', label: 'Export as a Zip' },
+];
+const CONVERT_FORMAT_LISTS = {
+  image: IMAGE_CONVERT_FORMAT_LIST,
+  video: VIDEO_CONVERT_FORMAT_LIST,
+  all: ALL_CONVERT_FORMAT_LIST,
+};
 function formatOptionsHTML(list) {
   return list.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
 }
 document.getElementById('bulkConvertSubject').addEventListener('change', e => {
-  document.getElementById('bulkConvertFormat').innerHTML =
-    formatOptionsHTML(e.target.value === 'video' ? VIDEO_CONVERT_FORMAT_LIST : IMAGE_CONVERT_FORMAT_LIST);
+  document.getElementById('bulkConvertFormat').innerHTML = formatOptionsHTML(CONVERT_FORMAT_LISTS[e.target.value]);
   document.getElementById('bulkConvertError').textContent = '';
 });
 
-// 「Convert to...」の横幅を、Image/Videoどちらの選択肢の中でも最長のものに
+// 「Convert to...」の横幅を、Image/Video/Allどの選択肢の中でも最長のものに
 // 合わせて固定する（被写体切り替えのたびに幅がガタつかないように）
 (function fixConvertFormatWidth() {
   const fmtSelect = document.getElementById('bulkConvertFormat');
   const measure = fmtSelect.cloneNode(false);
   measure.removeAttribute('id');
   measure.style.cssText = 'position:absolute; visibility:hidden; left:-9999px; width:auto;';
-  measure.innerHTML = formatOptionsHTML([...IMAGE_CONVERT_FORMAT_LIST, ...VIDEO_CONVERT_FORMAT_LIST]);
+  measure.innerHTML = formatOptionsHTML(Object.values(CONVERT_FORMAT_LISTS).flat());
   document.body.appendChild(measure);
   fmtSelect.style.width = Math.ceil(measure.getBoundingClientRect().width) + 'px';
   measure.remove();
@@ -2760,6 +2771,27 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
     errEl.textContent = 'Please select a file format';
     return;
   }
+
+  // 「All」: 変換せず、今表示中の全ファイル（フィルタ適用後）をそのままzipにまとめる
+  if (fmt === 'zip') {
+    if (!filteredFiles.length) {
+      errEl.textContent = 'No files to export';
+      return;
+    }
+    errEl.textContent = '';
+    const entries = [];
+    for (const entry of filteredFiles) {
+      try {
+        const file = await resolveFile(entry);
+        entries.push({ name: entry.name, blob: file });
+      } catch (e) { /* 個別の失敗はスキップして続行 */ }
+      await new Promise(r => setTimeout(r, 30)); // UIをブロックしないよう小休止
+    }
+    const exportName = (currentNode && currentNode.name) || 'export';
+    await downloadAsZip(entries, `${exportName}.zip`);
+    return;
+  }
+
   const convertibleEntries = filteredFiles.filter(f => isConvertible(f.name));
   if (!convertibleEntries.length) {
     errEl.textContent = 'No convertible files';

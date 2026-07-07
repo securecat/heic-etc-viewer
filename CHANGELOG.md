@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.2.0] - 2026-07-07
+
+### Added
+
+- An "All" option in the header's "Convert subject" dropdown. Selecting it swaps "Convert to..." for a single "Export as a Zip" choice, which bundles every file currently shown in the gallery (after any filter) into one zip, unchanged — no conversion, any file type
+- A note about "Export as a Zip" in the Settings & Information dialog, in its own section separate from the convertible-format listing
+
 ## [3.1.2] - 2026-07-07
 
 ### Added
@@ -287,6 +294,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.2.0] - 2026-07-07
+
+### 追加
+
+- header内「変換対象」プルダウンに「All」を追加。選択すると「Convert to...」が「Export as a Zip」の1択に切り替わり、今ギャラリーに表示中の全ファイル（フィルタ適用後、種類は問わない）を無変換のまま1つのzipにまとめてダウンロードできる
+- Settings & Informationダイアログに「Export as a Zip」についての説明を追加。変換対応形式の一覧とは別のセクションとして独立させた
 
 ## [3.1.2] - 2026-07-07
 
