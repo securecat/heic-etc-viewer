@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.3.0] - 2026-07-08
+
+### Added
+
+- Video conversion: "Sound" in the "Convert to..." dropdown (header bulk and lightbox single-file) extracts a video's audio track as-is, without re-encoding — the output file's actual codec depends on the source (e.g. AAC, Opus). Files with no audio track are skipped in bulk, or shown an error individually
+- The lightbox's "Convert to..." now automatically shows the right options (image formats, or "Sound") for the file currently being viewed
+- `title="Close"` on the Settings & Information dialog's close button
+
+### Changed
+
+- Accessibility: raised every font-size below 14px to 14px across the app (buttons, tree, footer, error messages, empty-state and file:// guidance text, lightbox controls, etc.), except the gallery thumbnail strip's filename/dimension text and loading/badge text, which stay as-is to fit small thumbnails
+  - The Settings & Information dialog now uses larger text throughout (18px heading, 14px section labels, 16px body)
+  - The gallery's format badge (HEIC/PDF/etc.) scales up to 12px once the thumbnail size slider is at or past the middle setting
+  - The Download button's padding was tightened slightly to keep its height unchanged after the font-size increase
+
 ## [3.2.0] - 2026-07-07
 
 ### Added
@@ -294,6 +309,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.3.0] - 2026-07-08
+
+### 追加
+
+- 動画変換：「Convert to...」（header一括・ライトボックス個別とも）に「Sound」を追加。動画から音声トラックをそのまま（再エンコードなし）取り出す。実際の出力コーデックは元データ次第（AAC、Opus等）。音声トラックが無いファイルは、一括ではスキップ、個別ではエラー表示
+- ライトボックスの「Convert to...」が、表示中のファイルに応じて（画像用の形式一覧／「Sound」）自動で切り替わるように
+- Settings & Informationダイアログの閉じるボタンに `title="Close"` を追加
+
+### 変更
+
+- アクセシビリティ改善：アプリ全体で14px未満だったfont-sizeをすべて14pxに引き上げ（ボタン、フォルダツリー、フッター、エラーメッセージ、空の状態や`file://`案内文、ライトボックスの各種コントロールなど）。ただし、ギャラリーのサムネイル帯のファイル名・画角サイズ表示、および読み込み中/失敗テキストと拡張子バッジは、小さいサムネイルでも崩れないよう現状維持
+  - Settings & Informationダイアログは全体的に文字を大きく（見出し18px、セクションラベル14px、本文16px）
+  - ギャラリーの拡張子バッジ（HEIC/PDF等）は、サムネイルサイズスライダーが中央以降になると12pxへ拡大
+  - Downloadボタンは、font-size引き上げ後も高さが変わらないようpaddingを微調整
 
 ## [3.2.0] - 2026-07-07
 
