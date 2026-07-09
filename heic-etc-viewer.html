@@ -434,6 +434,17 @@ input[type="range"]::-webkit-slider-thumb {
 .lb-img-wrap img { width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
 #lbImg:fullscreen { width: 100vw; height: 100vh; max-width: none; max-height: none; object-fit: contain; background: #000; border-radius: 0; }
 #lbImg::backdrop { background: #000; }
+/* ── 画像Diffモード（左右比較スライダー）── */
+.lb-diff-wrap { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 50px 56px; }
+.lb-diff-box { position: relative; width: 100%; height: 100%; cursor: ew-resize; }
+.lb-diff-box.frozen { cursor: pointer; }
+.lb-diff-box.frozen .lb-diff-divider { background: #ff8a00; }
+#lbDiffRight { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; border-radius: 4px; user-select: none; -webkit-user-drag: none; }
+#lbDiffLeft { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; border-radius: 4px; user-select: none; -webkit-user-drag: none; pointer-events: none; }
+.lb-diff-divider { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; margin-left: -1px; background: #fff; box-shadow: 0 0 4px rgba(0,0,0,0.6); pointer-events: none; z-index: 2; }
+.lb-diff-badge { position: absolute; top: 10px; background: #333; border-radius: 4px; padding: 3px 8px; font-size: 13px; color: rgba(255,255,255,0.85); text-transform: uppercase; pointer-events: none; z-index: 1; }
+.lb-diff-badge.left  { left: 10px; }
+.lb-diff-badge.right { right: 10px; }
 .lb-video-wrap video { max-width: 100%; max-height: 100%; border-radius: 4px; outline: none; }
 
 /* ── zoom ── */
@@ -580,8 +591,10 @@ input[type="range"]::-webkit-slider-thumb {
     <select id="bulkConvertFormat" aria-label="Convert to format">
       <option value="">Convert to...</option>
       <option value="webp">WebP</option>
+      <option value="webp-hc">WebP (High compression)</option>
       <option value="png">PNG</option>
       <option value="jpeg">JPEG</option>
+      <option value="jpeg-hc">JPEG (High compression)</option>
       <option value="pdf">PDF (individual files)</option>
       <option value="pdf-combined">PDF (combine into one)</option>
     </select>
@@ -612,7 +625,7 @@ input[type="range"]::-webkit-slider-thumb {
     </nav>
     <footer class="app-footer">
       <h2 class="sr-only">App info</h2>
-      <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.4.1</span></span>
+      <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.5.0</span></span>
       <button class="btn-icon" id="btnSettingsInfo" aria-label="Settings & Information" title="Settings & Information">⚙</button>
     </footer>
   </div>
@@ -657,10 +670,12 @@ input[type="range"]::-webkit-slider-thumb {
   <h3>Supported file formats (view)</h3>
   <p>HEIC/HEIF, JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO</p>
   <h3>Convertible file formats</h3>
-  <p>Images — HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk)</p>
+  <p>Images — HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size</p>
   <p>Video — MP4, WebM, and MOV → Sound or Thumbnail. Sound extracts the audio track as-is (no re-encoding), so the resulting file's actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video).</p>
   <h3>Export as a Zip</h3>
   <p>Doesn't convert anything — bundles every file currently shown in the gallery (after any filter) into a single zip, unchanged. Available by selecting "All" as the convert subject.</p>
+  <h3>Image diff mode</h3>
+  <p>Open a parent folder containing exactly two subfolders whose image files share the same filename (ignoring extension) to compare them. Opening a matched file in the lightbox shows both versions overlaid with a divider that follows your mouse — the alphabetically-first subfolder is on the left. Files without a match in the other subfolder, or matched pairs that aren't both images, display normally.</p>
 </dialog>
 
 <!-- ズームキャンバス（lightbox上に固定） -->
@@ -692,6 +707,15 @@ input[type="range"]::-webkit-slider-thumb {
     <button class="lb-close" id="lbClose" aria-label="Close" title="Close">✕</button>
   </div>
   <div class="lb-img-wrap" id="lbImgWrap"><img id="lbImg" src="" alt="" width="1" height="1"></div>
+  <div class="lb-diff-wrap" id="lbDiffWrap" style="display:none">
+    <div class="lb-diff-box" id="lbDiffBox" title="Click to lock/unlock the divider">
+      <img id="lbDiffRight" src="" alt="" width="1" height="1">
+      <img id="lbDiffLeft" src="" alt="" width="1" height="1">
+      <div class="lb-diff-divider" id="lbDiffDivider" aria-hidden="true"></div>
+      <div class="lb-diff-badge left" id="lbDiffBadgeLeft" aria-hidden="true"></div>
+      <div class="lb-diff-badge right" id="lbDiffBadgeRight" aria-hidden="true"></div>
+    </div>
+  </div>
   <div class="lb-video-wrap" id="lbVideoWrap" style="display:none">
     <video id="lbVideo" controls><track kind="captions" src=""></video>
   </div>
@@ -705,8 +729,10 @@ input[type="range"]::-webkit-slider-thumb {
       <select id="lbConvertFormat" aria-label="Convert to format">
         <option value="">Convert to...</option>
         <option value="webp">WebP</option>
+        <option value="webp-hc">WebP (High compression)</option>
         <option value="png">PNG</option>
         <option value="jpeg">JPEG</option>
+        <option value="jpeg-hc">JPEG (High compression)</option>
         <option value="pdf">PDF</option>
       </select>
       <button class="btn" id="lbConvertDownload" aria-label="Download">📄Download</button>
@@ -962,8 +988,8 @@ async function decodeToCanvas(file) {
   }
 }
 
-const CONVERT_MIME = { webp: 'image/webp', png: 'image/png', jpeg: 'image/jpeg' };
-const CONVERT_QUALITY = { webp: 0.92, jpeg: 0.92 };
+const CONVERT_MIME = { webp: 'image/webp', 'webp-hc': 'image/webp', png: 'image/png', jpeg: 'image/jpeg', 'jpeg-hc': 'image/jpeg' };
+const CONVERT_QUALITY = { webp: 0.92, 'webp-hc': 0.3, jpeg: 0.92, 'jpeg-hc': 0.3 };
 
 // アルファなし形式（JPEG/PDF）用に、透過部分を白で塗り潰したcanvasを作る
 function flattenOnWhite(canvas) {
@@ -1004,7 +1030,7 @@ async function convertToBlob(file, targetFormat, cropZoom) {
     doc.addImage(flat, 'PNG', 0, 0, flat.width, flat.height);
     return doc.output('blob');
   }
-  const src = targetFormat === 'jpeg' ? flattenOnWhite(canvas) : canvas;
+  const src = (targetFormat === 'jpeg' || targetFormat === 'jpeg-hc') ? flattenOnWhite(canvas) : canvas;
   const mime = CONVERT_MIME[targetFormat];
   const quality = CONVERT_QUALITY[targetFormat];
   return new Promise((resolve, reject) => {
@@ -1131,7 +1157,11 @@ async function downloadAsZip(entries, zipFilename) {
   triggerDownload(blob, zipFilename);
 }
 
-function convertExt(fmt) { return fmt === 'jpeg' ? 'jpg' : fmt; }
+function convertExt(fmt) {
+  if (fmt === 'jpeg' || fmt === 'jpeg-hc') return 'jpg';
+  if (fmt === 'webp-hc') return 'webp';
+  return fmt;
+}
 
 // ── 状態 ──────────────────────────────────────────────────────────
 let rootNode       = null;  // ツリーのルートノード
@@ -1140,6 +1170,7 @@ let filteredFiles  = [];
 let objectURLs     = [];
 let currentIdx     = 0;
 let lbCurrentSubject = 'image'; // ライトボックスの「Convert to...」が今どちら向けの中身かを覚えておく
+let diffPairMap = null; // Map<baseName, {left: entry, right: entry}> or null（画像Diffモード用）
 
 let layoutMode = 'grid'; // 'grid' | 'tile'
 const aspectRatioCache = new Map(); // filename → aspect ratio (populated as thumbs load)
@@ -1222,8 +1253,10 @@ document.getElementById('infoDialogClose').addEventListener('click', () => infoD
 const IMAGE_CONVERT_FORMAT_LIST = [
   { value: '', label: 'Convert to...' },
   { value: 'webp', label: 'WebP' },
+  { value: 'webp-hc', label: 'WebP (High compression)' },
   { value: 'png', label: 'PNG' },
   { value: 'jpeg', label: 'JPEG' },
+  { value: 'jpeg-hc', label: 'JPEG (High compression)' },
   { value: 'pdf', label: 'PDF (individual files)' },
   { value: 'pdf-combined', label: 'PDF (combine into one)' },
 ];
@@ -1245,8 +1278,10 @@ const CONVERT_FORMAT_LISTS = {
 const LB_IMAGE_CONVERT_FORMAT_LIST = [
   { value: '', label: 'Convert to...' },
   { value: 'webp', label: 'WebP' },
+  { value: 'webp-hc', label: 'WebP (High compression)' },
   { value: 'png', label: 'PNG' },
   { value: 'jpeg', label: 'JPEG' },
+  { value: 'jpeg-hc', label: 'JPEG (High compression)' },
   { value: 'pdf', label: 'PDF' },
 ];
 const LB_VIDEO_CONVERT_FORMAT_LIST = [
@@ -1347,6 +1382,7 @@ fileInput.addEventListener('change', async e => {
   const rootName = files[0].webkitRelativePath.split('/')[0] || 'Folder';
   const node = buildTreeFromFileList(rootName, files);
   rootNode = node;
+  await detectDiffPair(node);
   renderTree();
   selectNode(node);
 });
@@ -1397,6 +1433,7 @@ async function loadDirectoryEntry(dirEntry) {
   rootNode = node;
   renderTree();
   await expandNode(node);
+  await detectDiffPair(node);
   selectNode(node);
 }
 
@@ -1678,6 +1715,33 @@ function getCurrentFiles() {
 async function resolveFile(entry) {
   if (entry instanceof File) return entry;
   return getEntryFile(entry);
+}
+
+// ── 画像Diffモード：直下のサブフォルダがちょうど2つで、ベースネームが一致するファイルが
+// あれば、ライトボックスで左右比較表示できるようにペアを検出する ──────────────
+async function detectDiffPair(rootNode) {
+  diffPairMap = null;
+  if (!rootNode || !rootNode.children || rootNode.children.length !== 2) return;
+  const [leftNode, rightNode] = rootNode.children; // 両ツリー構築関数側で既に名前順ソート済み
+  if (leftNode.entry  && !leftNode.loaded)  await expandNode(leftNode);
+  if (rightNode.entry && !rightNode.loaded) await expandNode(rightNode);
+  const rightByBase = new Map((rightNode.files || []).map(f => [baseName(f.name), f]));
+  const map = new Map();
+  for (const f of (leftNode.files || [])) {
+    const b = baseName(f.name);
+    if (rightByBase.has(b)) map.set(b, { left: f, right: rightByBase.get(b) });
+  }
+  if (map.size > 0) diffPairMap = map;
+}
+
+// entryに、もう一方のフォルダの対になるファイルがあれば { partner, side } を返す
+function getDiffPartner(entry) {
+  if (!diffPairMap || !entry) return null;
+  const pair = diffPairMap.get(baseName(entry.name || ''));
+  if (!pair) return null;
+  if (pair.left === entry)  return { partner: pair.right, side: 'left' };
+  if (pair.right === entry) return { partner: pair.left,  side: 'right' };
+  return null;
 }
 
 // ── ギャラリー描画 ────────────────────────────────────────────────
@@ -2177,12 +2241,14 @@ async function updateLightbox() {
 
   const imgWrap   = document.getElementById('lbImgWrap');
   const videoWrap = document.getElementById('lbVideoWrap');
+  const diffWrap  = document.getElementById('lbDiffWrap');
   const lbVideo   = document.getElementById('lbVideo');
   const lbImg     = document.getElementById('lbImg');
 
   // 前のメディアをクリア
   lbImg.src = ''; lbVideo.pause(); lbVideo.src = '';
   resetZoom();
+  resetDiffMode();
 
   try {
     const file = await resolveFile(entry);
@@ -2192,6 +2258,7 @@ async function updateLightbox() {
     imgWrap.style.display   = 'none';
     videoWrap.style.display = 'none';
     pdfWrap.style.display   = 'none';
+    diffWrap.style.display  = 'none';
     const zoomBtn   = document.getElementById('lbZoomBtn');
     const loopBtn   = document.getElementById('lbLoopBtn');
     const checkerBtn= document.getElementById('lbChecker');
@@ -2224,14 +2291,20 @@ async function updateLightbox() {
       pdfWrap.style.display = 'flex';
       pdfFrame.src = url;
     } else {
-      zoomBtn.style.display = ssActive ? 'none' : '';
+      const diffInfo = getDiffPartner(entry);
+      const isDiff = diffInfo && isImage(diffInfo.partner.name || '');
+      zoomBtn.style.display = (ssActive || isDiff) ? 'none' : '';
       loopBtn.style.display = 'none';
       checkerBtn.style.display = ssActive ? 'none' : '';
       rotateBtn.style.display = 'none';
-      const { url } = await makeURL(file);
-      imgWrap.style.display = 'flex';
-      lbImg.src = url; lbImg.alt = name;
-      lbImg.onload = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbImg.naturalWidth ? `${lbImg.naturalWidth} × ${lbImg.naturalHeight}` : ''; };
+      if (isDiff) {
+        await renderDiffMode(file, diffInfo);
+      } else {
+        const { url } = await makeURL(file);
+        imgWrap.style.display = 'flex';
+        lbImg.src = url; lbImg.alt = name;
+        lbImg.onload = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbImg.naturalWidth ? `${lbImg.naturalWidth} × ${lbImg.naturalHeight}` : ''; };
+      }
     }
   } catch(e) {
     imgWrap.style.display   = 'flex';
@@ -2244,6 +2317,7 @@ async function updateLightbox() {
 function closeLightbox() {
   if (ssActive) stopSlideshow();
   exitZoomMode();
+  resetDiffMode();
   const lbVideo = document.getElementById('lbVideo');
   lbVideo.pause(); lbVideo.src = '';
   document.getElementById('lbImg').src = '';
@@ -2634,6 +2708,135 @@ function setupZoomForCurrentMedia() {
   }
 }
 
+// ── diff mode（2画像スライダー比較）────────────────────────────────
+const lbDiffBox        = document.getElementById('lbDiffBox');
+const lbDiffLeft       = document.getElementById('lbDiffLeft');
+const lbDiffRight      = document.getElementById('lbDiffRight');
+const lbDiffDivider    = document.getElementById('lbDiffDivider');
+const lbDiffBadgeLeft  = document.getElementById('lbDiffBadgeLeft');
+const lbDiffBadgeRight = document.getElementById('lbDiffBadgeRight');
+
+// object-fit:contain で実際に画像が描画されている範囲（レターボックスを除く）をボックス基準の座標で返す
+function diffContentRect(img, boxRect) {
+  const iw = img.naturalWidth, ih = img.naturalHeight;
+  if (!iw || !ih) return { left: 0, right: boxRect.width, top: 0, bottom: boxRect.height };
+  const boxAspect = boxRect.width / boxRect.height;
+  const imgAspect = iw / ih;
+  if (imgAspect > boxAspect) {
+    // 横幅いっぱいに表示され、上下にレターボックスが出る
+    const contentHeight = boxRect.width / imgAspect;
+    const offsetY = (boxRect.height - contentHeight) / 2;
+    return { left: 0, right: boxRect.width, top: offsetY, bottom: offsetY + contentHeight };
+  }
+  // 縦幅いっぱいに表示され、左右にレターボックス（ピラーボックス）が出る
+  const contentWidth = boxRect.height * imgAspect;
+  const offsetX = (boxRect.width - contentWidth) / 2;
+  return { left: offsetX, right: offsetX + contentWidth, top: 0, bottom: boxRect.height };
+}
+
+// バッジを、ボックスの角ではなく実際の画像の角に合わせて配置する
+function positionDiffBadges() {
+  const rect = lbDiffBox.getBoundingClientRect();
+  const rL = diffContentRect(lbDiffLeft, rect);
+  const rR = diffContentRect(lbDiffRight, rect);
+  lbDiffBadgeLeft.style.left  = (rL.left + 10) + 'px';
+  lbDiffBadgeLeft.style.top   = (rL.top + 10) + 'px';
+  lbDiffBadgeRight.style.right = (rect.width - rR.right + 10) + 'px';
+  lbDiffBadgeRight.style.top   = (rR.top + 10) + 'px';
+}
+
+let diffFrozen = false; // クリックで境界線の追従を一時停止できるようにする
+// 現在の境界線位置：両画像が実際に描画されている範囲（レターボックスを除く）の中での割合(0〜1)。
+// ボックス幅に対する%ではなく画像基準の割合で持つことで、リサイズでレターボックスの比率が
+// 変わっても「画像のどこで固定したか」がズレない
+let diffDividerFrac = 0.5;
+
+// 境界線の位置（画像範囲内の割合）を反映する。バッジも、画像と同じように境界線に断ち切られて
+// いくようにclip-pathで少しずつ隠す（pxで指定することで、ボックスよりずっと小さいバッジでも
+// パーセンテージ指定のような基準サイズのズレを起こさず正しく切り抜ける）
+function applyDiffDivider(frac) {
+  diffDividerFrac = frac;
+  const rect = lbDiffBox.getBoundingClientRect();
+  const rL = diffContentRect(lbDiffLeft, rect);
+  const rR = diffContentRect(lbDiffRight, rect);
+  const left  = Math.max(rL.left, rR.left);
+  const right = Math.min(rL.right, rR.right);
+  const x = left + frac * (right - left);
+  const pct = rect.width ? (x / rect.width * 100) : 50;
+  lbDiffLeft.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+  lbDiffDivider.style.left = pct + '%';
+
+  const leftBadgeW      = lbDiffBadgeLeft.offsetWidth;
+  const leftBadgeRight  = rL.left + 10 + leftBadgeW;
+  const rightBadgeW     = lbDiffBadgeRight.offsetWidth;
+  const rightBadgeLeft  = rR.right - 10 - rightBadgeW;
+
+  // 境界線が食い込んだ分だけ、バッジ自身の右（左バッジ）／左（右バッジ）を切り欠く
+  const leftClip  = Math.max(0, Math.min(leftBadgeW,  leftBadgeRight - x));
+  const rightClip = Math.max(0, Math.min(rightBadgeW, x - rightBadgeLeft));
+  lbDiffBadgeLeft.style.clipPath  = `inset(0 ${leftClip}px 0 0)`;
+  lbDiffBadgeRight.style.clipPath = `inset(0 0 0 ${rightClip}px)`;
+}
+
+lbDiffBox.addEventListener('mousemove', e => {
+  if (diffFrozen) return;
+  const rect = lbDiffBox.getBoundingClientRect();
+  const rL = diffContentRect(lbDiffLeft, rect);
+  const rR = diffContentRect(lbDiffRight, rect);
+  // 両画像に実際に描画されている範囲の重なりだけを、境界線が動ける範囲にする
+  const left  = Math.max(rL.left, rR.left);
+  const right = Math.min(rL.right, rR.right);
+  const x = Math.max(left, Math.min(right, e.clientX - rect.left));
+  applyDiffDivider(right > left ? (x - left) / (right - left) : 0.5);
+});
+
+lbDiffBox.addEventListener('click', () => {
+  diffFrozen = !diffFrozen;
+  lbDiffBox.classList.toggle('frozen', diffFrozen);
+});
+
+// リサイズでボックスのサイズが変わったら、バッジの位置と境界線に応じた表示/非表示を計算し直す。
+// 境界線は画像基準の割合で保持しているので、固定中でも画像上の同じ位置のまま追従する
+window.addEventListener('resize', () => {
+  if (document.getElementById('lbDiffWrap').style.display === 'none') return;
+  positionDiffBadges();
+  applyDiffDivider(diffDividerFrac);
+});
+
+async function renderDiffMode(currentFile, diffInfo) {
+  const partnerFile = await resolveFile(diffInfo.partner);
+  const leftFile  = diffInfo.side === 'left'  ? currentFile : partnerFile;
+  const rightFile = diffInfo.side === 'right' ? currentFile : partnerFile;
+  const { url: leftUrl }  = await makeURL(leftFile);
+  const { url: rightUrl } = await makeURL(rightFile);
+  lbDiffLeft.src  = leftUrl;  lbDiffLeft.alt  = leftFile.name;
+  lbDiffRight.src = rightUrl; lbDiffRight.alt = rightFile.name;
+  lbDiffBadgeLeft.textContent  = extOf(leftFile.name).toUpperCase();
+  lbDiffBadgeRight.textContent = extOf(rightFile.name).toUpperCase();
+  document.getElementById('lbDiffWrap').style.display = 'flex';
+  lbFilename.textContent = `${leftFile.name} ↔ ${rightFile.name}`;
+  // 画像の実寸が分かってから（レターボックスの有無が確定してから）バッジ位置・境界線を合わせる。
+  // 初回表示時はこの時点でまだライトボックス自体が非表示（openLightboxがopenクラスを
+  // 付けるのはupdateLightbox完了後）でボックスのサイズが0になるため、rAFで表示反映後にずらす
+  try { await Promise.all([lbDiffLeft.decode(), lbDiffRight.decode()]); } catch (e) { /* 失敗しても位置合わせはスキップするだけ */ }
+  requestAnimationFrame(() => {
+    positionDiffBadges();
+    applyDiffDivider(0.5);
+  });
+}
+
+function resetDiffMode() {
+  document.getElementById('lbDiffWrap').style.display = 'none';
+  lbDiffLeft.src  = '';
+  lbDiffRight.src = '';
+  lbDiffBadgeLeft.textContent  = '';
+  lbDiffBadgeRight.textContent = '';
+  lbDiffBadgeLeft.style.clipPath  = '';
+  lbDiffBadgeRight.style.clipPath = '';
+  diffFrozen = false;
+  diffDividerFrac = 0.5;
+  lbDiffBox.classList.remove('frozen');
+}
 
 // ── 動画ループボタン ──────────────────────────────────────────────
 const lbLoopBtn = document.getElementById('lbLoopBtn');

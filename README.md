@@ -43,18 +43,15 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.4.1] - 2026-07-08
+### [3.5.0] - 2026-07-09
 
-#### Changed
+#### Added
 
-- Video thumbnail generation (gallery grid and the "Thumbnail"/"Thumbnails" conversion) now tries a few points through the video instead of only the 10%-mark, skipping ones that look like a near-solid-color frame (fade-in/out, intro card) when a more detailed frame is available
-- The "Thumbnail"/"Thumbnails" download now reuses the frame already captured for the gallery grid instead of re-decoding the video from scratch
-- Hovering the selected folder in the tree now shows a distinct color (`#8AB2FF` text on `#1B375E` background) instead of the same color as a non-selected row
-- The "Open Folder" button's hover background is now `#2D4EC1`, also applied while pressed (previously identical to its resting color, so hovering had no visible effect)
-
-#### Fixed
-
-- Switching from a folder scrolled partway down to another folder with enough files to scroll no longer starts the new gallery at the previous scroll position; it now always starts at the top (grid layout only scrolled back to top on a resize-triggered relayout, never on an actual folder switch)
+- Image diff mode: open a parent folder containing exactly two subfolders whose image files share the same filename (ignoring extension), and opening a matched file in the lightbox shows both versions overlaid with a divider that follows the mouse cursor — the alphabetically-first subfolder is shown on the left. Files without a match, or matched pairs that aren't both images, fall back to the normal single-image lightbox
+  - The divider stops at the image's actual edges instead of continuing into any letterboxed empty space
+  - Each side shows a small badge with its file extension, positioned at that image's own corner (top-left for the left side, top-right for the right side); each badge gets sliced away by the divider the same way its image does, rather than disappearing abruptly
+  - Click the comparison to lock the divider in place (it turns orange); click again to resume following the mouse. The locked position is remembered relative to the image itself, so resizing the window keeps it in place instead of drifting when the letterboxing ratio changes
+- "WebP (High compression)" and "JPEG (High compression)" convert options, using a much lower quality setting (0.3 vs. the existing options' 0.92) for a substantially smaller file size — useful for making format-conversion artifacts obvious when comparing with image diff mode
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -105,18 +102,15 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.4.1] - 2026-07-08
+### [3.5.0] - 2026-07-09
 
-#### 変更
+#### 追加
 
-- 動画のサムネイル生成（ギャラリー一覧・「Thumbnail」/「Thumbnails」変換の両方）を、再生時間10%地点だけでなく数地点を試すように変更。より内容の分かる地点があれば、ほぼ単色（フェードイン/アウト、イントロ画面など）のフレームを避けて選ぶ
-- 「Thumbnail」/「Thumbnails」のダウンロードは、ギャラリー表示用に生成済みのフレームを再利用するように変更（動画の再デコードなし）
-- ツリーで選択済みのフォルダにカーソルを重ねた時の色を、非選択行と同じ色ではなく専用の配色（背景`#1B375E`、文字`#8AB2FF`）に変更
-- 「Open Folder」ボタンのhover時の背景色を`#2D4EC1`に変更。押下時も同色を維持（これまでは通常時と同じ色でhoverしても見た目の変化がなかった）
-
-#### 修正
-
-- スクロールした状態のフォルダから、スクロールが発生するほど内容の多い別のフォルダへ移動した際、新しいギャラリーが前のフォルダのスクロール位置のまま表示されてしまう問題を修正。常に先頭から表示されるように（グリッドレイアウトでは、リサイズ時の再レイアウトでしか先頭に戻しておらず、フォルダ切り替え時には戻していなかった）
+- 画像Diffモードを追加。直下のサブフォルダがちょうど2つあり、その中の画像ファイルが拡張子違いで同じファイル名（ベースネーム）を持つ場合、ライトボックスでその2枚を重ねて表示し、マウスカーソルの位置に追従する境界線で比較できるように。左側にはフォルダ名がアルファベット順で先に来る方を表示。対になるファイルが無い場合や、ペアが画像同士でない場合は通常の単体ライトボックス表示にフォールバック
+  - 境界線は、レターボックスの余白部分ではなく画像の実際の端で止まるように
+  - 両サイドに拡張子を示す小さいバッジを表示。その画像自身の角（左側は左上、右側は右上）に位置を合わせ、画像本体と同じように境界線によって少しずつ断ち切られていく（唐突に消えたりはしない）
+  - クリックすると境界線をその位置で固定（オレンジ色に変化）、再度クリックでマウス追従を再開。固定位置は画像自体を基準に覚えておくため、ウィンドウのリサイズでレターボックスの比率が変わっても位置がズレない
+- 変換の選択肢に「WebP (High compression)」「JPEG (High compression)」を追加。既存の選択肢（quality 0.92）よりかなり低いquality 0.3を使い、ファイルサイズを大幅に削減。画像Diffモードで見比べた時に変換による劣化が分かりやすくなる
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
