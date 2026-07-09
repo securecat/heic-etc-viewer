@@ -625,7 +625,7 @@ input[type="range"]::-webkit-slider-thumb {
     </nav>
     <footer class="app-footer">
       <h2 class="sr-only">App info</h2>
-      <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.5.0</span></span>
+      <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.5.1</span></span>
       <button class="btn-icon" id="btnSettingsInfo" aria-label="Settings & Information" title="Settings & Information">⚙</button>
     </footer>
   </div>
@@ -2259,6 +2259,8 @@ async function updateLightbox() {
     videoWrap.style.display = 'none';
     pdfWrap.style.display   = 'none';
     diffWrap.style.display  = 'none';
+    // Diffモードでは、2つのファイルのどちらを変換するのか予想がつかないため変換UIごと隠す
+    document.querySelector('.lb-info .convert-group').style.display = '';
     const zoomBtn   = document.getElementById('lbZoomBtn');
     const loopBtn   = document.getElementById('lbLoopBtn');
     const checkerBtn= document.getElementById('lbChecker');
@@ -2298,6 +2300,7 @@ async function updateLightbox() {
       checkerBtn.style.display = ssActive ? 'none' : '';
       rotateBtn.style.display = 'none';
       if (isDiff) {
+        document.querySelector('.lb-info .convert-group').style.display = 'none';
         await renderDiffMode(file, diffInfo);
       } else {
         const { url } = await makeURL(file);

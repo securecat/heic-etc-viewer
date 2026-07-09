@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.5.1] - 2026-07-09
+
+### Fixed
+
+- The lightbox's "Convert to..." dropdown and Download button are now hidden while showing an image diff pair, since it's ambiguous which of the two files would be converted
+
 ## [3.5.0] - 2026-07-09
 
 ### Added
@@ -344,6 +350,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.5.1] - 2026-07-09
+
+### 修正
+
+- 画像Diffモードで比較表示中は、ライトボックスの「Convert to...」プルダウンとDownloadボタンを非表示にするように修正。2つのファイルのどちらを変換対象にするか判断できないため
 
 ## [3.5.0] - 2026-07-09
 

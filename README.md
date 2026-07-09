@@ -43,15 +43,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.5.0] - 2026-07-09
+### [3.5.1] - 2026-07-09
 
-#### Added
+#### Fixed
 
-- Image diff mode: open a parent folder containing exactly two subfolders whose image files share the same filename (ignoring extension), and opening a matched file in the lightbox shows both versions overlaid with a divider that follows the mouse cursor — the alphabetically-first subfolder is shown on the left. Files without a match, or matched pairs that aren't both images, fall back to the normal single-image lightbox
-  - The divider stops at the image's actual edges instead of continuing into any letterboxed empty space
-  - Each side shows a small badge with its file extension, positioned at that image's own corner (top-left for the left side, top-right for the right side); each badge gets sliced away by the divider the same way its image does, rather than disappearing abruptly
-  - Click the comparison to lock the divider in place (it turns orange); click again to resume following the mouse. The locked position is remembered relative to the image itself, so resizing the window keeps it in place instead of drifting when the letterboxing ratio changes
-- "WebP (High compression)" and "JPEG (High compression)" convert options, using a much lower quality setting (0.3 vs. the existing options' 0.92) for a substantially smaller file size — useful for making format-conversion artifacts obvious when comparing with image diff mode
+- The lightbox's "Convert to..." dropdown and Download button are now hidden while showing an image diff pair, since it's ambiguous which of the two files would be converted
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -102,15 +98,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.5.0] - 2026-07-09
+### [3.5.1] - 2026-07-09
 
-#### 追加
+#### 修正
 
-- 画像Diffモードを追加。直下のサブフォルダがちょうど2つあり、その中の画像ファイルが拡張子違いで同じファイル名（ベースネーム）を持つ場合、ライトボックスでその2枚を重ねて表示し、マウスカーソルの位置に追従する境界線で比較できるように。左側にはフォルダ名がアルファベット順で先に来る方を表示。対になるファイルが無い場合や、ペアが画像同士でない場合は通常の単体ライトボックス表示にフォールバック
-  - 境界線は、レターボックスの余白部分ではなく画像の実際の端で止まるように
-  - 両サイドに拡張子を示す小さいバッジを表示。その画像自身の角（左側は左上、右側は右上）に位置を合わせ、画像本体と同じように境界線によって少しずつ断ち切られていく（唐突に消えたりはしない）
-  - クリックすると境界線をその位置で固定（オレンジ色に変化）、再度クリックでマウス追従を再開。固定位置は画像自体を基準に覚えておくため、ウィンドウのリサイズでレターボックスの比率が変わっても位置がズレない
-- 変換の選択肢に「WebP (High compression)」「JPEG (High compression)」を追加。既存の選択肢（quality 0.92）よりかなり低いquality 0.3を使い、ファイルサイズを大幅に削減。画像Diffモードで見比べた時に変換による劣化が分かりやすくなる
+- 画像Diffモードで比較表示中は、ライトボックスの「Convert to...」プルダウンとDownloadボタンを非表示にするように修正。2つのファイルのどちらを変換対象にするか判断できないため
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
