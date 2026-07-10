@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.5.2] - 2026-07-09
+
+### Changed
+
+- The keyboard focus order now moves through header → folder tree → gallery → footer, instead of jumping to the footer before the gallery. The visual layout (tree and footer stacked on the left, gallery on the right) is unchanged; only the underlying HTML source order (and thus tab order) was corrected via CSS Grid
+
+### Fixed
+
+- Closing the lightbox (Esc, the ✕ button, or clicking the backdrop) now returns keyboard focus to the gallery item that was being viewed, instead of leaving focus nowhere
+
 ## [3.5.1] - 2026-07-09
 
 ### Fixed
@@ -350,6 +360,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.5.2] - 2026-07-09
+
+### 変更
+
+- キーボードフォーカスの移動順を、header→フォルダツリー→ギャラリー→footerに修正（従来はギャラリーより先にfooterに来てしまっていた）。見た目のレイアウト（左にツリー+footerが縦並び、右にギャラリー）は変えず、HTMLのソース順序（＝タブ移動順）をCSS Gridで修正
+
+### 修正
+
+- ライトボックスを閉じる（Esc・✕ボタン・背景クリックのいずれでも）と、それまで見ていたギャラリーのアイテムにキーボードフォーカスが戻るように修正（従来はフォーカスがどこにも残っていなかった）
 
 ## [3.5.1] - 2026-07-09
 

@@ -43,11 +43,15 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.5.1] - 2026-07-09
+### [3.5.2] - 2026-07-09
+
+#### Changed
+
+- The keyboard focus order now moves through header → folder tree → gallery → footer, instead of jumping to the footer before the gallery. The visual layout (tree and footer stacked on the left, gallery on the right) is unchanged; only the underlying HTML source order (and thus tab order) was corrected via CSS Grid
 
 #### Fixed
 
-- The lightbox's "Convert to..." dropdown and Download button are now hidden while showing an image diff pair, since it's ambiguous which of the two files would be converted
+- Closing the lightbox (Esc, the ✕ button, or clicking the backdrop) now returns keyboard focus to the gallery item that was being viewed, instead of leaving focus nowhere
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -98,11 +102,15 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.5.1] - 2026-07-09
+### [3.5.2] - 2026-07-09
+
+#### 変更
+
+- キーボードフォーカスの移動順を、header→フォルダツリー→ギャラリー→footerに修正（従来はギャラリーより先にfooterに来てしまっていた）。見た目のレイアウト（左にツリー+footerが縦並び、右にギャラリー）は変えず、HTMLのソース順序（＝タブ移動順）をCSS Gridで修正
 
 #### 修正
 
-- 画像Diffモードで比較表示中は、ライトボックスの「Convert to...」プルダウンとDownloadボタンを非表示にするように修正。2つのファイルのどちらを変換対象にするか判断できないため
+- ライトボックスを閉じる（Esc・✕ボタン・背景クリックのいずれでも）と、それまで見ていたギャラリーのアイテムにキーボードフォーカスが戻るように修正（従来はフォーカスがどこにも残っていなかった）
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

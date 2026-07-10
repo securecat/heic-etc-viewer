@@ -131,39 +131,40 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 50%; background: var(--accent); cursor: pointer;
 }
 
-/* ── body layout ── */
+/* ── body layout ──
+   DOM順はheader→nav→main→footer（アクセシビリティ上のフォーカス順のため）だが、
+   見た目は「左にnav+footerが縦並び、右にmain」にしたいので、CSS Gridで
+   DOM順と視覚的な配置を分離する */
 .app-body {
-  display: flex;
+  display: grid;
+  grid-template-columns: var(--tree-width) 1fr;
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "nav main"
+    "footer main";
   flex: 1;
   overflow: hidden;
 }
 
 /* ── tree panel ── */
-.tree-column {
-  width: var(--tree-width);
-  min-width: var(--tree-width);
+.tree-panel {
+  grid-area: nav;
+  background: var(--bg-tree);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  flex-shrink: 0;
-}
-.tree-panel {
-  background: var(--bg-tree);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  flex: 1;
   min-height: 0;
 }
 .app-footer {
+  grid-area: footer;
   background: var(--bg-tree);
+  border-right: 1px solid var(--border);
   border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  flex-shrink: 0;
 }
 .app-footer .app-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .tree-scroll {
@@ -227,7 +228,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* ── main area ── */
 .main-area {
-  flex: 1;
+  grid-area: main;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -617,18 +618,11 @@ input[type="range"]::-webkit-slider-thumb {
 </header>
 
 <div class="app-body">
-  <!-- ツリーパネル＋フッター -->
-  <div class="tree-column">
-    <nav class="tree-panel" id="treePanel" aria-label="Folder tree">
-      <h2 class="sr-only">Folder tree</h2>
-      <div class="tree-scroll" id="treeScroll" role="tree" aria-label="Folder tree" aria-busy="true"></div>
-    </nav>
-    <footer class="app-footer">
-      <h2 class="sr-only">App info</h2>
-      <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.5.1</span></span>
-      <button class="btn-icon" id="btnSettingsInfo" aria-label="Settings & Information" title="Settings & Information">⚙</button>
-    </footer>
-  </div>
+  <!-- ツリーパネル -->
+  <nav class="tree-panel" id="treePanel" aria-label="Folder tree">
+    <h2 class="sr-only">Folder tree</h2>
+    <div class="tree-scroll" id="treeScroll" role="tree" aria-label="Folder tree" aria-busy="true"></div>
+  </nav>
 
   <!-- メインエリア -->
   <main class="main-area" id="mainArea">
@@ -659,6 +653,13 @@ input[type="range"]::-webkit-slider-thumb {
       <div class="gallery" id="gallery" role="region" aria-label="Thumbnail gallery"></div>
     </div>
   </main>
+
+  <!-- フッター -->
+  <footer class="app-footer">
+    <h2 class="sr-only">App info</h2>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.5.2</span></span>
+    <button class="btn-icon" id="btnSettingsInfo" aria-label="Settings & Information" title="Settings & Information">⚙</button>
+  </footer>
 </div>
 
 <!-- 設定・情報ダイアログ -->
@@ -2331,6 +2332,9 @@ function closeLightbox() {
   btn.style.borderColor = '';
   btn.title = 'Toggle checker background';
   setBackgroundInert(false);
+  // 見ていたアイテムにキーボードフォーカスを戻す
+  const items = document.querySelectorAll('#gallery .thumb-item');
+  if (items[currentIdx]) items[currentIdx].focus();
 }
 
 document.getElementById('lbClose').addEventListener('click', closeLightbox);
