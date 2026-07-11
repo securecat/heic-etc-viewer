@@ -43,15 +43,25 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.5.2] - 2026-07-09
+### [3.6.0] - 2026-07-11
+
+#### Added
+
+- Full keyboard navigation in the folder tree, based on the WAI-ARIA APG treeview pattern: `↑` `↓` move between visible folders, `→` expands a closed folder, `←` collapses an open folder, `Home`/`End` jump to the first/last visible folder, and typing a character jumps to the next folder whose name starts with it
+- Pressing `Enter` or `Space` again on the already-selected folder, or `→` on it when there is nothing left to expand, moves keyboard focus into the gallery; pressing `←` anywhere in the gallery moves focus back to the selected folder in the tree
+- An `R` keyboard shortcut in the lightbox that rotates the video 90° counter-clockwise, same as the ↶ button (videos only)
+- A "Keyboard operation" section in the Settings & Information dialog describing the folder tree, gallery, and lightbox keyboard controls — previously the only keyboard reference was the hint line at the bottom of the lightbox, which is hidden from screen readers
 
 #### Changed
 
-- The keyboard focus order now moves through header → folder tree → gallery → footer, instead of jumping to the footer before the gallery. The visual layout (tree and footer stacked on the left, gallery on the right) is unchanged; only the underlying HTML source order (and thus tab order) was corrected via CSS Grid
+- The folder tree is now a single Tab stop (roving tabindex): `Tab` enters the tree on the selected folder and one more `Tab` leaves it into the gallery
+- Rebuilt the tree's markup as a semantic `<ul role="tree">` / `<li role="treeitem">` / `<ul role="group">` hierarchy with `aria-level`, `aria-setsize`, `aria-posinset`, `aria-expanded`, and `aria-selected`, so screen readers announce folder depth, position, and state correctly
+- The disclosure triangle (▶) is now a pointer-only control hidden from assistive technology; keyboard users expand and collapse with the arrow keys on the folder itself
+- The keyboard-hint line at the bottom of the lightbox now matches the file being shown (videos: `Z` / `R` / `L`, images: `Z` / `C`, PDFs: `C`) instead of always listing the same keys, and shows only `← →` and `Esc` during a slideshow
 
 #### Fixed
 
-- Closing the lightbox (Esc, the ✕ button, or clicking the backdrop) now returns keyboard focus to the gallery item that was being viewed, instead of leaving focus nowhere
+- The `L` (loop) shortcut no longer silently toggles the loop state while viewing images or PDFs, the `C` (checker background) shortcut no longer switches the background while viewing videos, and the `Z` (zoom) shortcut no longer triggers while zooming is unavailable (e.g. while a video is rotated) — each lightbox shortcut now works only when its corresponding button is visible
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -102,15 +112,25 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.5.2] - 2026-07-09
+### [3.6.0] - 2026-07-11
+
+#### 追加
+
+- フォルダツリーに、WAI-ARIA APG の treeview パターンをベースにしたキーボード操作を追加：`↑` `↓` で表示中のフォルダ間を移動、`→` で閉じたフォルダを展開、`←` で開いたフォルダを折りたたみ、`Home`/`End` で先頭・末尾へ移動、文字キーで頭文字が一致する次のフォルダへジャンプ
+- 選択済みのフォルダ上でもう一度 `Enter` または `Space` を押すか、選択済みのフォルダ上で展開するものがない状態で `→` を押すとギャラリーへキーボードフォーカスが移動。ギャラリー内の任意の位置で `←` を押すと、ツリーの選択中フォルダへフォーカスが戻る
+- ライトボックスに `R` キーのショートカットを追加。↶ボタンと同じく動画を左に90°回転する（動画のみ）
+- 「Settings & Information」ダイアログに「Keyboard operation」セクションを追加し、フォルダツリー・ギャラリー・ライトボックスのキーボード操作を記載（従来はライトボックス下端のヒント行しかキーボード操作の説明がなく、スクリーンリーダーからは読み取れなかった）
 
 #### 変更
 
-- キーボードフォーカスの移動順を、header→フォルダツリー→ギャラリー→footerに修正（従来はギャラリーより先にfooterに来てしまっていた）。見た目のレイアウト（左にツリー+footerが縦並び、右にギャラリー）は変えず、HTMLのソース順序（＝タブ移動順）をCSS Gridで修正
+- フォルダツリー全体を1つのタブストップに変更（roving tabindex）。`Tab` でツリーに入ると選択中のフォルダにフォーカスが乗り、もう一度 `Tab` でギャラリーへ抜ける
+- ツリーのマークアップを `<ul role="tree">` / `<li role="treeitem">` / `<ul role="group">` のセマンティックな階層構造に再構築し、`aria-level`・`aria-setsize`・`aria-posinset`・`aria-expanded`・`aria-selected` を付与。スクリーンリーダーがフォルダの階層・位置・状態を正しく読み上げられるように
+- 開閉用の三角記号（▶）はポインタ専用の操作に変更し、支援技術からは非表示に。キーボードではフォルダ自体への矢印キー操作で開閉する
+- ライトボックス下端の操作ヒント行を、表示中のファイル種別に合わせて切り替えるように変更（動画：`Z`/`R`/`L`、画像：`Z`/`C`、PDF：`C`。スライドショー中は `← →` と `Esc` のみ）
 
 #### 修正
 
-- ライトボックスを閉じる（Esc・✕ボタン・背景クリックのいずれでも）と、それまで見ていたギャラリーのアイテムにキーボードフォーカスが戻るように修正（従来はフォーカスがどこにも残っていなかった）
+- 画像・PDF表示中に `L`（ループ）ショートカットが見えないままループ状態を切り替えてしまう問題、動画表示中に `C`（市松背景）ショートカットが効いてしまう問題、ズームできない状態（動画の回転中など）でも `Z`（ズーム）ショートカットが反応してしまう問題を修正。ライトボックスの各ショートカットは、対応するボタンが表示されている時のみ動作するように
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

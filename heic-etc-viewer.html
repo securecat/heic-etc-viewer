@@ -172,12 +172,16 @@ input[type="range"]::-webkit-slider-thumb {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 4px 0;
+  margin: 0;
+  list-style: none;
 }
 .tree-scroll::-webkit-scrollbar { width: 4px; }
 .tree-scroll::-webkit-scrollbar-track { background: transparent; }
 .tree-scroll::-webkit-scrollbar-thumb { background: #003596; border-radius: 2px; }
 .tree-scroll::-webkit-scrollbar-thumb:hover { background: #1a4db0; }
 .tree-node { user-select: none; }
+.tree-node:focus { outline: none; }
+.tree-node:focus-visible > .tree-row { outline: 2px solid var(--accent); outline-offset: -2px; }
 .tree-row {
   display: flex;
   align-items: center;
@@ -194,7 +198,6 @@ input[type="range"]::-webkit-slider-thumb {
 .tree-row:hover { background: rgba(255,255,255,0.05); color: var(--text); }
 .tree-row.active { background: var(--accent-bg); color: #699EFF; }
 .tree-row.active:hover { background-color: #1B375E; color: #8AB2FF; }
-.tree-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .tree-toggle {
   width: 18px; height: 18px;
   display: flex; align-items: center; justify-content: center;
@@ -209,7 +212,7 @@ input[type="range"]::-webkit-slider-thumb {
 .tree-toggle.empty { opacity: 0; pointer-events: none; }
 .tree-icon { font-size: 14px; margin-right: 4px; flex-shrink: 0; }
 .tree-label { overflow: hidden; text-overflow: ellipsis; flex: 1; padding-right: 6px; }
-.tree-children { display: none; }
+.tree-children { display: none; margin: 0; padding: 0; list-style: none; }
 .tree-children.open { display: block; }
 
 /* ── drop overlay ── */
@@ -574,6 +577,16 @@ input[type="range"]::-webkit-slider-thumb {
 }
 #infoDialog h3:first-of-type { margin-top: 6px; }
 #infoDialog p { font-size: 16px; line-height: 1.7; color: var(--text); }
+#infoDialog p + p { margin-top: 8px; }
+#infoDialog kbd {
+  font-family: inherit;
+  font-size: 13px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid #7C7C7C;
+  border-radius: 4px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
 </style>
 </head>
 <body>
@@ -621,7 +634,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- ツリーパネル -->
   <nav class="tree-panel" id="treePanel" aria-label="Folder tree">
     <h2 class="sr-only">Folder tree</h2>
-    <div class="tree-scroll" id="treeScroll" role="tree" aria-label="Folder tree" aria-busy="true"></div>
+    <ul class="tree-scroll" id="treeScroll" role="tree" aria-label="Folder tree" aria-busy="true"></ul>
   </nav>
 
   <!-- メインエリア -->
@@ -657,7 +670,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.5.2</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.6.0</span></span>
     <button class="btn-icon" id="btnSettingsInfo" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -677,6 +690,10 @@ input[type="range"]::-webkit-slider-thumb {
   <p>Doesn't convert anything — bundles every file currently shown in the gallery (after any filter) into a single zip, unchanged. Available by selecting "All" as the convert subject.</p>
   <h3>Image diff mode</h3>
   <p>Open a parent folder containing exactly two subfolders whose image files share the same filename (ignoring extension) to compare them. Opening a matched file in the lightbox shows both versions overlaid with a divider that follows your mouse — the alphabetically-first subfolder is on the left. Files without a match in the other subfolder, or matched pairs that aren't both images, display normally.</p>
+  <h3>Keyboard operation</h3>
+  <p><strong>Folder tree</strong> — <kbd>Tab</kbd> enters the tree on the selected folder. <kbd>↑</kbd> <kbd>↓</kbd> move between visible folders. <kbd>→</kbd> expands a closed folder; on the selected folder with nothing left to expand, it moves focus into the gallery. <kbd>←</kbd> collapses an open folder. <kbd>Enter</kbd> / <kbd>Space</kbd> shows the folder's contents in the gallery; pressing it again moves focus into the gallery. <kbd>Home</kbd> / <kbd>End</kbd> jump to the first / last folder. Typing a character jumps to the next folder whose name starts with it.</p>
+  <p><strong>Gallery</strong> — <kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.</p>
+  <p><strong>Lightbox</strong> — <kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images and PDFs). <kbd>R</kbd> rotates the video 90° counter-clockwise (videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> closes the lightbox, or stops the slideshow.</p>
 </dialog>
 
 <!-- ズームキャンバス（lightbox上に固定） -->
@@ -739,7 +756,7 @@ input[type="range"]::-webkit-slider-thumb {
       <button class="btn" id="lbConvertDownload" aria-label="Download">📄Download</button>
       <span class="convert-error" id="lbConvertError" aria-live="polite"></span>
     </div>
-    <span aria-hidden="true">← → Navigate　Z: Zoom　C: Checker bg　L: Loop　Esc: Close / Stop slideshow</span>
+    <span id="lbKeyHint" aria-hidden="true">← → Navigate　Esc: Close / Stop slideshow</span>
   </div>
 </div>
 
@@ -1525,8 +1542,9 @@ function loadFlatFiles(files, name) {
 // ── ツリー描画 ────────────────────────────────────────────────────
 function renderTree() {
   treeScroll.innerHTML = '';
+  treeFocusNode = null;
   if (!rootNode) { treeScroll.setAttribute('aria-busy', 'true'); return; }
-  const el = buildTreeNodeEl(rootNode, 0, true);
+  const el = buildTreeNodeEl(rootNode, 0, 1, 1, true);
   treeScroll.appendChild(el);
   treeScroll.setAttribute('aria-busy', 'false');
 }
@@ -1535,24 +1553,27 @@ function updateTreeHeader(node) {
   // treeHeader削除済み・何もしない
 }
 
-let _treeNodeId = 0;
-function buildTreeNodeEl(node, depth, autoExpand = false) {
-  const wrap = document.createElement('div');
-  wrap.className = 'tree-node';
-  node.el = wrap;
+// APG treeview 準拠: li[role=treeitem] がフォーカス対象、子階層は ul[role=group] でネスト
+function buildTreeNodeEl(node, depth, posinset, setsize, autoExpand = false) {
+  const item = document.createElement('li');
+  item.className = 'tree-node';
+  item.setAttribute('role', 'treeitem');
+  item.setAttribute('aria-label', node.name);
+  item.setAttribute('aria-level', String(depth + 1));
+  item.setAttribute('aria-posinset', String(posinset));
+  item.setAttribute('aria-setsize', String(setsize));
+  item.setAttribute('aria-selected', 'false');
+  item.setAttribute('tabindex', '-1');
+  item._node = node;
+  node.el = item;
 
   const row = document.createElement('div');
   row.className = 'tree-row';
   row.style.paddingLeft = (8 + depth * 14) + 'px';
-  row.setAttribute('role', 'treeitem');
-  row.setAttribute('aria-label', node.name);
-  row.setAttribute('tabindex', '0');
 
   const toggle = document.createElement('span');
   toggle.className = 'tree-toggle';
-  toggle.setAttribute('role', 'button');
-  toggle.setAttribute('tabindex', '0');
-  toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('aria-hidden', 'true');
   toggle.textContent = '▶';
 
   const icon = document.createElement('span');
@@ -1562,122 +1583,195 @@ function buildTreeNodeEl(node, depth, autoExpand = false) {
 
   const label = document.createElement('span');
   label.className = 'tree-label';
-  label.id = 'tl-' + (++_treeNodeId);
   label.textContent = node.name;
   label.title = node.name;
-  toggle.setAttribute('aria-describedby', label.id);
 
   row.appendChild(toggle);
   row.appendChild(icon);
   row.appendChild(label);
-  wrap.appendChild(row);
+  item.appendChild(row);
 
-  const childrenEl = document.createElement('div');
+  const childrenEl = document.createElement('ul');
   childrenEl.className = 'tree-children';
-  wrap.appendChild(childrenEl);
+  childrenEl.setAttribute('role', 'group');
+  item.appendChild(childrenEl);
 
-  // 子なし or 未読み込み判定
+  // 子なし or 未読み込み判定（children === null は未読み込みなので子ありとして扱う）
   const hasChildren = node.children === null || (node.children && node.children.length > 0);
-  if (!hasChildren) {
+  if (hasChildren) {
+    item.setAttribute('aria-expanded', 'false');
+  } else {
     toggle.classList.add('empty');
-    toggle.setAttribute('tabindex', '-1');
-    toggle.setAttribute('aria-hidden', 'true');
   }
 
-  // クリック分離: トグル（▶）→ 展開・折りたたみのみ
+  // トグル（▶）はポインタ専用: 展開・折りたたみのみ（キーボードは矢印キーで操作）
   toggle.addEventListener('click', async e => {
     e.stopPropagation();
-    if (!node.loaded) await expandNode(node);
-    if (node.children && node.children.length > 0) {
-      const isOpen = childrenEl.classList.toggle('open');
-      toggle.classList.toggle('open', isOpen);
-      toggle.setAttribute('aria-expanded', String(isOpen));
-      icon.textContent = isOpen ? '📂' : '📁';
-      if (isOpen && childrenEl.children.length === 0) {
-        node.children.forEach(child => {
-          childrenEl.appendChild(buildTreeNodeEl(child, depth + 1));
-        });
-      }
-    }
-  });
-  toggle.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle.click(); }
+    await toggleNodeExpansion(node);
   });
 
-  // クリック分離: ラベル → 選択のみ（展開状態は変えない）
-  label.addEventListener('click', async e => {
-    e.stopPropagation();
+  // 行クリック → 選択（展開状態は変えない）
+  row.addEventListener('click', async () => {
     if (!node.loaded) await expandNode(node);
-    selectNode(node);
-  });
-
-  // キーボード操作: row全体でEnter/Space → 選択、ArrowRight → 展開
-  row.addEventListener('keydown', async e => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      if (!node.loaded) await expandNode(node);
-      selectNode(node);
-    }
-    if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      if (!node.loaded) await expandNode(node);
-      if (node.children && node.children.length > 0 && !childrenEl.classList.contains('open')) {
-        childrenEl.classList.add('open');
-        toggle.classList.add('open');
-        toggle.setAttribute('aria-expanded', 'true');
-        icon.textContent = '📂';
-        if (childrenEl.children.length === 0) {
-          node.children.forEach(child => {
-            childrenEl.appendChild(buildTreeNodeEl(child, depth + 1));
-          });
-        }
-      }
-    }
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      childrenEl.classList.remove('open');
-      toggle.classList.remove('open');
-      toggle.setAttribute('aria-expanded', 'false');
-      icon.textContent = '📁';
-    }
+    selectNode(node, { focus: true });
   });
 
   // 自動展開（ルートノード用）
   if (autoExpand && node.children && node.children.length > 0) {
-    childrenEl.classList.add('open');
-    toggle.classList.add('open');
-    toggle.setAttribute('aria-expanded', 'true');
-    icon.textContent = '📂';
-    node.children.forEach(child => {
-      childrenEl.appendChild(buildTreeNodeEl(child, depth + 1));
-    });
+    expandNodeUI(node);
   }
 
-  return wrap;
+  return item;
 }
+
+// ── 展開・折りたたみ（UI状態は li の aria-expanded が正）──────────
+function nodeChildrenEl(node) {
+  return node.el ? node.el.querySelector(':scope > .tree-children') : null;
+}
+
+function isNodeExpanded(node) {
+  return !!(node.el && node.el.getAttribute('aria-expanded') === 'true');
+}
+
+function renderNodeChildren(node) {
+  const childrenEl = nodeChildrenEl(node);
+  if (!childrenEl || childrenEl.children.length > 0 || !node.children) return;
+  const childDepth = parseInt(node.el.getAttribute('aria-level'), 10); // 子の depth = 親の level
+  node.children.forEach((child, i) => {
+    childrenEl.appendChild(buildTreeNodeEl(child, childDepth, i + 1, node.children.length));
+  });
+}
+
+function expandNodeUI(node) {
+  if (!node.el || !node.children || node.children.length === 0) return;
+  nodeChildrenEl(node).classList.add('open');
+  node.el.querySelector(':scope > .tree-row > .tree-toggle').classList.add('open');
+  node.el.querySelector(':scope > .tree-row > .tree-icon').textContent = '📂';
+  node.el.setAttribute('aria-expanded', 'true');
+  renderNodeChildren(node);
+}
+
+function collapseNodeUI(node) {
+  if (!node.el) return;
+  const childrenEl = nodeChildrenEl(node);
+  if (childrenEl) childrenEl.classList.remove('open');
+  node.el.querySelector(':scope > .tree-row > .tree-toggle').classList.remove('open');
+  node.el.querySelector(':scope > .tree-row > .tree-icon').textContent = '📁';
+  if (node.el.hasAttribute('aria-expanded')) node.el.setAttribute('aria-expanded', 'false');
+  // 折りたたんだサブツリー内に roving tabindex が残らないようにする
+  if (treeFocusNode && isDescendantNode(treeFocusNode, node)) {
+    setTreeFocus(node, { focus: treeScroll.contains(document.activeElement) });
+  }
+}
+
+async function toggleNodeExpansion(node) {
+  if (!node.loaded) await expandNode(node);
+  if (!node.children || node.children.length === 0) return;
+  if (isNodeExpanded(node)) collapseNodeUI(node);
+  else expandNodeUI(node);
+}
+
+// ── roving tabindex（ツリー全体で1タブストップ）───────────────────
+let treeFocusNode = null;
+
+function setTreeFocus(node, { focus = true } = {}) {
+  if (!node || !node.el) return;
+  if (treeFocusNode && treeFocusNode.el && treeFocusNode !== node) {
+    treeFocusNode.el.setAttribute('tabindex', '-1');
+  }
+  treeFocusNode = node;
+  node.el.setAttribute('tabindex', '0');
+  if (focus) node.el.focus({ preventScroll: true });
+}
+
+// li はサブツリー全体を内包していて、フォーカス時の自動スクロールでは行が画面外に
+// 残ることがあるため、フォーカスされたノードの行単位で明示的にスクロールする
+treeScroll.addEventListener('focusin', e => {
+  const li = e.target.closest('li[role="treeitem"]');
+  if (!li) return;
+  const row = li.querySelector(':scope > .tree-row');
+  if (row) row.scrollIntoView({ block: 'nearest' });
+});
+
+function isDescendantNode(node, ancestor) {
+  for (let p = node && node.parent; p; p = p.parent) {
+    if (p === ancestor) return true;
+  }
+  return false;
+}
+
+// 表示中（すべての祖先が展開済み）のノードを上から順に返す
+function getVisibleTreeNodes() {
+  const out = [];
+  (function walk(node) {
+    if (!node || !node.el) return;
+    out.push(node);
+    if (isNodeExpanded(node) && node.children) node.children.forEach(walk);
+  })(rootNode);
+  return out;
+}
+
+// ── ツリーのキーボード操作（APG treeview ベース。→/← は「奥へ/手前へ」に単純化）──
+treeScroll.addEventListener('keydown', async e => {
+  const li = e.target.closest('li[role="treeitem"]');
+  if (!li || !li._node) return;
+  const node = li._node;
+
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    const visible = getVisibleTreeNodes();
+    const next = visible[visible.indexOf(node) + (e.key === 'ArrowDown' ? 1 : -1)];
+    if (next) setTreeFocus(next); // 端ではループせず何もしない
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    if (!node.loaded) await expandNode(node);
+    if (node.children && node.children.length > 0 && !isNodeExpanded(node)) {
+      expandNodeUI(node); // 閉じたフォルダはまず開く
+    } else if (node === currentNode) {
+      focusGallery(); // 選択中フォルダで開くものがなければギャラリーへ（APGの「最初の子へ移動」は不採用）
+    }
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    if (isNodeExpanded(node)) collapseNodeUI(node); // 閉じているときは何もしない（APGの「親へ移動」は不採用）
+  } else if (e.key === 'Home') {
+    e.preventDefault();
+    if (rootNode) setTreeFocus(rootNode);
+  } else if (e.key === 'End') {
+    e.preventDefault();
+    const visible = getVisibleTreeNodes();
+    if (visible.length) setTreeFocus(visible[visible.length - 1]);
+  } else if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    if (node === currentNode) {
+      focusGallery(); // 選択済みノードで再度Enter/Space → ギャラリーへ
+      return;
+    }
+    if (!node.loaded) await expandNode(node);
+    selectNode(node);
+  } else if (e.key.length === 1 && e.key !== ' ' && !e.ctrlKey && !e.altKey && !e.metaKey) {
+    // type-ahead: 表示中ノードから頭文字一致で次を探す（末尾まで行ったら先頭に戻る）
+    const ch = e.key.toLowerCase();
+    const visible = getVisibleTreeNodes();
+    const idx = visible.indexOf(node);
+    for (let i = 1; i <= visible.length; i++) {
+      const cand = visible[(idx + i) % visible.length];
+      if (cand.name.toLowerCase().startsWith(ch)) { setTreeFocus(cand); break; }
+    }
+  }
+});
 
 function updateTreeNodeEl(node) {
   if (!node.el) return;
-  const toggle = node.el.querySelector('.tree-toggle');
-  const childrenEl = node.el.querySelector('.tree-children');
+  const toggle = node.el.querySelector(':scope > .tree-row > .tree-toggle');
   if (!node.children || node.children.length === 0) {
     toggle.classList.add('empty');
-    toggle.setAttribute('tabindex', '-1');
-    toggle.setAttribute('aria-hidden', 'true');
+    node.el.removeAttribute('aria-expanded');
   } else {
     toggle.classList.remove('empty');
-    toggle.setAttribute('tabindex', '0');
-    toggle.removeAttribute('aria-hidden');
-    // ルートノード（depth=0相当）は自動展開して子を描画
-    if (node === rootNode && childrenEl.children.length === 0) {
-      childrenEl.classList.add('open');
-      toggle.classList.add('open');
-      toggle.setAttribute('aria-expanded', 'true');
-      const icon = node.el.querySelector('.tree-icon');
-      if (icon) icon.textContent = '📂';
-      node.children.forEach(child => {
-        childrenEl.appendChild(buildTreeNodeEl(child, 1));
-      });
+    if (!node.el.hasAttribute('aria-expanded')) node.el.setAttribute('aria-expanded', 'false');
+    // ルートノードは読み込み後に自動展開して子を描画
+    if (node === rootNode && nodeChildrenEl(node).children.length === 0) {
+      expandNodeUI(node);
     }
   }
   // アクティブなノードなら表示更新
@@ -1697,15 +1791,36 @@ function setActiveRow(node) {
 }
 
 // ── ノード選択 → ギャラリー表示 ──────────────────────────────────
-async function selectNode(node) {
+async function selectNode(node, { focus = false } = {}) {
+  if (currentNode && currentNode.el) currentNode.el.setAttribute('aria-selected', 'false');
   currentNode = node;
+  if (node.el) node.el.setAttribute('aria-selected', 'true');
   setActiveRow(node);
+  setTreeFocus(node, { focus });
   updateTreeHeader(node);
   clearBulkConvertError();
   // entry ベースで未読み込みなら読む
   if (node.entry && !node.loaded) await expandNode(node);
   renderGallery();
 }
+
+// ── ツリー⇄ギャラリーのフォーカス連携 ─────────────────────────────
+// 選択済みノードで再度Enter → ギャラリーの先頭アイテムへ（0件時は案内テキストへ）
+function focusGallery() {
+  const first = gallery.querySelector('.thumb-item');
+  if (first) { first.focus(); return; }
+  const noImages = gallery.querySelector('.no-images');
+  if (noImages) { noImages.setAttribute('tabindex', '-1'); noImages.focus(); }
+}
+
+// ギャラリー内で←キー → ツリーの選択中フォルダへ戻る
+galleryWrap.addEventListener('keydown', e => {
+  if (e.key !== 'ArrowLeft') return;
+  if (currentNode && currentNode.el) {
+    e.preventDefault();
+    setTreeFocus(currentNode);
+  }
+});
 
 function getCurrentFiles() {
   if (!currentNode) return [];
@@ -2225,6 +2340,27 @@ async function openLightbox(idx) {
     lightbox.focus();
   }
 }
+// 下端の操作ヒントを、表示中のファイル種別とスライドショー状態に合わせて更新する
+// （ズームモードや回転中などの一時状態までは追従しない。無効キーは押しても反応しないだけ）
+function updateLbKeyHint() {
+  const hint = document.getElementById('lbKeyHint');
+  const entry = filteredFiles[currentIdx];
+  const name = entry ? (entry.name || '') : '';
+  if (ssActive) {
+    hint.textContent = '← → Navigate　Esc: Close / Stop slideshow';
+  } else if (isVideo(name)) {
+    hint.textContent = '← → Navigate　Z: Zoom　R: Rotate　L: Loop　Esc: Close / Stop slideshow';
+  } else if (isPdf(name)) {
+    hint.textContent = '← → Navigate　C: Checker bg　Esc: Close / Stop slideshow';
+  } else {
+    const diffInfo = getDiffPartner(entry);
+    const isDiff = diffInfo && isImage(diffInfo.partner.name || '');
+    hint.textContent = isDiff
+      ? '← → Navigate　C: Checker bg　Esc: Close / Stop slideshow'
+      : '← → Navigate　Z: Zoom　C: Checker bg　Esc: Close / Stop slideshow';
+  }
+}
+
 async function updateLightbox() {
   const entry = filteredFiles[currentIdx];
   const name = entry.name||'';
@@ -2266,6 +2402,7 @@ async function updateLightbox() {
     const loopBtn   = document.getElementById('lbLoopBtn');
     const checkerBtn= document.getElementById('lbChecker');
     const rotateBtn = document.getElementById('lbRotate');
+    updateLbKeyHint();
     if (isVideo(file.name)) {
       zoomBtn.style.display = ssActive ? 'none' : '';
       loopBtn.style.display = ssActive ? 'none' : '';
@@ -2389,8 +2526,18 @@ document.addEventListener('keydown', async e => {
   // ズーム選択モード中でも左右移動は可能。移動先は必ずズーム完全解除の状態で開く
   if (e.key === 'ArrowLeft')  { e.preventDefault(); exitZoomMode(); currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length; await updateLightbox(); }
   if (e.key === 'ArrowRight') { e.preventDefault(); exitZoomMode(); currentIdx=(currentIdx+1)%filteredFiles.length; await updateLightbox(); }
-  if (e.key === 'l' || e.key === 'L') { lbLoopBtn.click(); return; }
+  // L/C/R は対応するボタンが表示されている（＝そのファイル種別で意味がある）時のみ動作
+  if (e.key === 'l' || e.key === 'L') {
+    if (lbLoopBtn.style.display !== 'none') lbLoopBtn.click();
+    return;
+  }
+  if (e.key === 'r' || e.key === 'R') {
+    const btn = document.getElementById('lbRotate');
+    if (btn.style.display !== 'none') btn.click();
+    return;
+  }
   if (e.key === 'z' || e.key === 'Z') {
+    if (lbZoomBtn.style.display === 'none') return; // ズーム不可の状態（動画の回転中・スライドショー中・PDF等）では無効
     if (zoomed) {
       resetZoom();
       syncZoomCanvas();
@@ -2403,8 +2550,9 @@ document.addEventListener('keydown', async e => {
     }
   }
   if (e.key === 'c' || e.key === 'C') {
-    const isChecker = lightbox.classList.toggle('checker');
     const btn = document.getElementById('lbChecker');
+    if (btn.style.display === 'none') return;
+    const isChecker = lightbox.classList.toggle('checker');
     btn.classList.toggle('is-active', isChecker);
     const label = isChecker ? 'Switch to default background' : 'Switch to checker background';
     btn.title = label;
@@ -2928,6 +3076,7 @@ function startSlideshow() {
   if (!lightbox.classList.contains('open')) {
     openLightbox(currentIdx);
   }
+  updateLbKeyHint();
   scheduleNext();
 }
 
@@ -2947,6 +3096,7 @@ function stopSlideshow() {
   document.getElementById('lbRotate').style.display = (_curIsVideo && !zoomMode) ? '' : 'none';
   document.getElementById('lbLoopBtn').style.display = _curIsVideo ? '' : 'none';
   document.getElementById('lbVideo').loop = videoLoop;
+  updateLbKeyHint();
 }
 
 function scheduleNext() {
