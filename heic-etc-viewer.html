@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -103,7 +103,7 @@ body {
   padding: 4px 8px;
   font-size: 14px;
   outline: none;
-  width: 60px;
+  width: 120px;
   min-width: 0;
 }
 .filter-input::placeholder { color: #949494; }
@@ -481,6 +481,12 @@ input[type="range"]::-webkit-slider-thumb {
   padding: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
   font-size: 14px; color: #949494; text-align: center;
 }
+#lbKeyHint {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 18px;
+}
 /* ── 変換保存 (Convert to...) ── */
 .convert-group {
   display: flex; align-items: center; gap: 6px; flex-shrink: 0;
@@ -553,11 +559,17 @@ input[type="range"]::-webkit-slider-thumb {
   padding: 20px 24px;
   width: calc(100vw - 40px);
   max-width: 480px;
-  height: fit-content;
-  max-height: calc(100vh - 80px);
-  overflow-y: auto;
+  /* タブ切り替えで高さが変わって目線が飛ばないよう、内容量に関わらず固定高で天地中央に出す */
+  height: 60vh;
+  overflow: hidden;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
 }
+#infoDialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+#infoDialog a,
+#infoDialog a:visited { color: #699EFF; }
 #infoDialog::backdrop { background: var(--overlay); }
 .info-dialog-header {
   display: flex;
@@ -565,6 +577,7 @@ input[type="range"]::-webkit-slider-thumb {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 4px;
+  flex-shrink: 0;
 }
 .info-dialog-header h2 { font-size: 18px; font-weight: 600; }
 #infoDialog h3 {
@@ -587,22 +600,81 @@ input[type="range"]::-webkit-slider-thumb {
   padding: 1px 6px;
   white-space: nowrap;
 }
+.info-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin: 10px 0 4px;
+  flex-shrink: 0;
+}
+.info-tab {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 8px 14px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  min-width: 88px; /* 言語切り替えでラベル幅が変わってもタブ位置がずれないように */
+  text-align: center;
+}
+.info-tab:hover { color: var(--text); }
+.info-tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+.info-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.info-panel {
+  padding-top: 6px;
+  padding-right: 0.5rem; /* スクロールバーと本文がくっつかないように */
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto; /* スクロールはパネル内のみ。ヘッダーとタブは固定 */
+}
+.info-panel:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.lang-fieldset {
+  border: none;
+  padding: 0;
+  margin: 8px 0;
+}
+.lang-fieldset legend {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0;
+  margin-bottom: 8px;
+}
+.lang-fieldset label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  color: var(--text);
+  cursor: pointer;
+  margin-right: 20px;
+}
+.inline-code {
+  background: rgba(255,255,255,0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+}
 </style>
 </head>
 <body>
 
-<header class="toolbar" aria-label="Toolbar">
-  <h2 class="sr-only">Toolbar</h2>
-  <button class="btn primary" id="btnPick" aria-label="Open Folder">📁 Open Folder</button>
+<header class="toolbar" data-i18n-attr="aria-label:app.toolbar" aria-label="Toolbar">
+  <h2 class="sr-only" data-i18n="app.toolbar">Toolbar</h2>
+  <button class="btn primary" id="btnPick" data-i18n="toolbar.openFolderText" data-i18n-attr="aria-label:toolbar.openFolderLabel" aria-label="Open Folder">📁 Open Folder</button>
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
   <div class="toolbar-divider" aria-hidden="true"></div>
   <div class="convert-group">
-    <select id="bulkConvertSubject" aria-label="Convert subject">
-      <option value="image">Image</option>
-      <option value="video">Video</option>
-      <option value="all">All</option>
+    <select id="bulkConvertSubject" data-i18n-attr="aria-label:convert.subject" aria-label="Convert subject">
+      <option value="image" data-i18n="subject.image">Image</option>
+      <option value="video" data-i18n="subject.video">Video</option>
+      <option value="all" data-i18n="subject.all">All</option>
     </select>
-    <select id="bulkConvertFormat" aria-label="Convert to format">
+    <select id="bulkConvertFormat" data-i18n-attr="aria-label:convert.format" aria-label="Convert to format">
       <option value="">Convert to...</option>
       <option value="webp">WebP</option>
       <option value="webp-hc">WebP (High compression)</option>
@@ -612,88 +684,105 @@ input[type="range"]::-webkit-slider-thumb {
       <option value="pdf">PDF (individual files)</option>
       <option value="pdf-combined">PDF (combine into one)</option>
     </select>
-    <button class="btn" id="bulkConvertDownload" aria-label="Download">📁Download</button>
+    <button class="btn" id="bulkConvertDownload" data-i18n="convert.downloadTextHeader" data-i18n-attr="aria-label:convert.download" aria-label="Download">📁Download</button>
     <span class="convert-error" id="bulkConvertError" aria-live="polite"></span>
   </div>
   <div class="toolbar-sep" aria-hidden="true"></div>
   <span class="status" id="statusText" aria-live="polite"></span>
-  <input type="text" class="filter-input" id="filterInput" placeholder="Filter..." aria-label="Filter by filename">
-  <select class="sort-select" id="sortSelect" aria-label="Sort order">
-    <option value="name">Name ↑</option>
-    <option value="name-desc">Name ↓</option>
-    <option value="size">Size</option>
-    <option value="type">Type</option>
+  <input type="text" class="filter-input" id="filterInput" data-i18n-attr="placeholder:filter.ph,aria-label:filter.label" placeholder="Filter..." aria-label="Filter by filename">
+  <select class="sort-select" id="sortSelect" data-i18n-attr="aria-label:sort.label" aria-label="Sort order">
+    <option value="name" data-i18n="sort.nameAsc">Name ↑</option>
+    <option value="name-desc" data-i18n="sort.nameDesc">Name ↓</option>
+    <option value="type" data-i18n="sort.type">Type</option>
   </select>
-  <input type="range" id="sizeSlider" min="80" max="300" value="190" step="55" aria-label="Thumbnail size">
-  <button class="btn-icon" id="btnLayoutToggle" aria-label="Switch to tile view" title="Tile view" style="display:none">◰</button>
-  <button class="btn-icon" id="btnReload" aria-label="Reload (clear cache)" title="Reload" style="display:none">↺</button>
+  <input type="range" id="sizeSlider" min="80" max="300" value="190" step="55" data-i18n-attr="aria-label:slider.label" aria-label="Thumbnail size">
+  <button class="btn-icon" id="btnLayoutToggle" aria-label="Switch to tile view" title="Switch to tile view" style="display:none">◰</button>
+  <button class="btn-icon" id="btnReload" data-i18n-attr="aria-label:reload.label,title:reload.title" aria-label="Reload (clear cache)" title="Reload" style="display:none">↺</button>
   <button class="btn-icon" id="btnSlideshow" aria-label="Start slideshow" title="Slideshow" style="display:none">▷</button>
 </header>
 
 <div class="app-body">
   <!-- ツリーパネル -->
-  <nav class="tree-panel" id="treePanel" aria-label="Folder tree">
-    <h2 class="sr-only">Folder tree</h2>
-    <ul class="tree-scroll" id="treeScroll" role="tree" aria-label="Folder tree" aria-busy="true"></ul>
+  <nav class="tree-panel" id="treePanel" data-i18n-attr="aria-label:tree.label" aria-label="Folder tree">
+    <h2 class="sr-only" data-i18n="tree.label">Folder tree</h2>
+    <ul class="tree-scroll" id="treeScroll" role="tree" data-i18n-attr="aria-label:tree.label" aria-label="Folder tree" aria-busy="true"></ul>
   </nav>
 
   <!-- メインエリア -->
   <main class="main-area" id="mainArea">
-    <h2 class="sr-only">Gallery</h2>
+    <h2 class="sr-only" data-i18n="gallery.h2">Gallery</h2>
     <!-- 初期状態 -->
-    <div class="empty-state" id="emptyState" role="region" aria-label="Welcome screen">
+    <div class="empty-state" id="emptyState" role="region" data-i18n-attr="aria-label:empty.region" aria-label="Welcome screen">
       <div class="empty-icon" aria-hidden="true">📂</div>
-      <h2 id="emptyStateTitle">Drag a folder here, or use the Open Folder button above</h2>
-      <p class="privacy-note" id="privacyNote">No data is sent to any server — all file processing happens locally between your browser and your local storage.</p>
+      <h2 id="emptyStateTitle" data-i18n="empty.title">Drag &amp; drop a folder here, or use the Open Folder button above</h2>
+      <p class="privacy-note" id="privacyNote" data-i18n="empty.privacy">No data is sent to any server — all file processing happens locally between your browser and your local storage.</p>
       <div id="localServerGuide" style="display:none;flex-direction:column;align-items:center;gap:14px;width:100%">
-        <p>Run a local server to enable folder drag &amp; drop.</p>
-        <p style="margin-top:8px">In Command Prompt, navigate to the folder containing <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:14px">heic-etc-viewer.html</code> and run:</p>
+        <p data-i18n="guide.run">Run a local server to enable folder drag &amp; drop.</p>
+        <p style="margin-top:8px" data-i18n-html="guide.cmd">In Command Prompt, navigate to the folder containing <code class="inline-code">heic-etc-viewer.html</code> and run:</p>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;width:100%;max-width:340px;margin-left:auto;margin-right:auto">
           <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px">
-            <div style="font-size:14px;color:var(--text-muted);margin-bottom:4px">With Node.js</div>
+            <div style="font-size:14px;color:var(--text-muted);margin-bottom:4px" data-i18n="guide.node">With Node.js</div>
             <code style="font-size:14px;letter-spacing:0.02em">npx serve .</code>
           </div>
           <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px">
-            <div style="font-size:14px;color:var(--text-muted);margin-bottom:4px">With Python</div>
+            <div style="font-size:14px;color:var(--text-muted);margin-bottom:4px" data-i18n="guide.python">With Python</div>
             <code style="font-size:14px;letter-spacing:0.02em">python -m http.server 8080</code>
           </div>
         </div>
-        <p style="margin-top:4px">Then open <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:14px">http://localhost:3000/heic-etc-viewer.html</code> in your browser.</p>
+        <p style="margin-top:4px" data-i18n-html="guide.open">Then open <code class="inline-code">http://localhost:3000/heic-etc-viewer.html</code> in your browser.</p>
       </div>
     </div>
     <!-- ギャラリー -->
     <div class="gallery-wrap" id="galleryWrap" style="display:none">
-      <div class="gallery" id="gallery" role="region" aria-label="Thumbnail gallery"></div>
+      <div class="gallery" id="gallery" role="region" data-i18n-attr="aria-label:gallery.region" aria-label="Thumbnail gallery"></div>
     </div>
   </main>
 
   <!-- フッター -->
   <footer class="app-footer">
-    <h2 class="sr-only">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.6.0</span></span>
-    <button class="btn-icon" id="btnSettingsInfo" aria-label="Settings & Information" title="Settings & Information">⚙</button>
+    <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.7.0</span></span>
+    <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
 
 <!-- 設定・情報ダイアログ -->
 <dialog id="infoDialog" aria-labelledby="infoDialogTitle">
   <div class="info-dialog-header">
-    <h2 id="infoDialogTitle">Settings & Information</h2>
-    <button class="btn-icon" id="infoDialogClose" aria-label="Close" title="Close">✕</button>
+    <h2 id="infoDialogTitle" data-i18n="dialog.title">Settings & Information</h2>
+    <button class="btn-icon" id="infoDialogClose" data-i18n-attr="aria-label:dialog.close,title:dialog.close" aria-label="Close" title="Close">✕</button>
   </div>
-  <h3>Supported file formats (view)</h3>
-  <p>HEIC/HEIF, JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO</p>
-  <h3>Convertible file formats</h3>
-  <p>Images — HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size</p>
-  <p>Video — MP4, WebM, and MOV → Sound or Thumbnail. Sound extracts the audio track as-is (no re-encoding), so the resulting file's actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video).</p>
-  <h3>Export as a Zip</h3>
-  <p>Doesn't convert anything — bundles every file currently shown in the gallery (after any filter) into a single zip, unchanged. Available by selecting "All" as the convert subject.</p>
-  <h3>Image diff mode</h3>
-  <p>Open a parent folder containing exactly two subfolders whose image files share the same filename (ignoring extension) to compare them. Opening a matched file in the lightbox shows both versions overlaid with a divider that follows your mouse — the alphabetically-first subfolder is on the left. Files without a match in the other subfolder, or matched pairs that aren't both images, display normally.</p>
-  <h3>Keyboard operation</h3>
-  <p><strong>Folder tree</strong> — <kbd>Tab</kbd> enters the tree on the selected folder. <kbd>↑</kbd> <kbd>↓</kbd> move between visible folders. <kbd>→</kbd> expands a closed folder; on the selected folder with nothing left to expand, it moves focus into the gallery. <kbd>←</kbd> collapses an open folder. <kbd>Enter</kbd> / <kbd>Space</kbd> shows the folder's contents in the gallery; pressing it again moves focus into the gallery. <kbd>Home</kbd> / <kbd>End</kbd> jump to the first / last folder. Typing a character jumps to the next folder whose name starts with it.</p>
-  <p><strong>Gallery</strong> — <kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.</p>
-  <p><strong>Lightbox</strong> — <kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images and PDFs). <kbd>R</kbd> rotates the video 90° counter-clockwise (videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> closes the lightbox, or stops the slideshow.</p>
+  <div class="info-tabs" role="tablist" aria-labelledby="infoDialogTitle">
+    <button class="info-tab" id="tabSettings" role="tab" aria-selected="true" aria-controls="panelSettings" data-i18n="tab.settings">Settings</button>
+    <button class="info-tab" id="tabGuide" role="tab" aria-selected="false" tabindex="-1" aria-controls="panelGuide" data-i18n="tab.guide">Guide</button>
+    <button class="info-tab" id="tabAbout" role="tab" aria-selected="false" tabindex="-1" aria-controls="panelAbout" data-i18n="tab.about">About</button>
+  </div>
+  <div class="info-panel" id="panelSettings" role="tabpanel" aria-labelledby="tabSettings" tabindex="0">
+    <fieldset class="lang-fieldset">
+      <legend data-i18n="lang.legend">Language</legend>
+      <label><input type="radio" name="uiLang" value="en"> English</label>
+      <label><input type="radio" name="uiLang" value="ja"> 日本語</label>
+    </fieldset>
+  </div>
+  <div class="info-panel" id="panelGuide" role="tabpanel" aria-labelledby="tabGuide" tabindex="0" hidden>
+    <h3 data-i18n="g.formats.h">Supported file formats (view)</h3>
+    <p data-i18n="g.formats.p">HEIC/HEIF, JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO</p>
+    <h3 data-i18n="g.convert.h">Convertible file formats</h3>
+    <p data-i18n="g.convert.p1">Images — HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size</p>
+    <p data-i18n="g.convert.p2">Video — MP4, WebM, and MOV → Sound or Thumbnail. Sound extracts the audio track as-is (no re-encoding), so the resulting file's actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video).</p>
+    <h3 data-i18n="g.zip.h">Export as a Zip</h3>
+    <p data-i18n="g.zip.p">Doesn't convert anything — bundles every file currently shown in the gallery (after any filter) into a single zip, unchanged. Available by selecting "All" as the convert subject.</p>
+    <h3 data-i18n="g.diff.h">Image diff mode</h3>
+    <p data-i18n="g.diff.p">Open a parent folder containing exactly two subfolders whose image files share the same filename (ignoring extension) to compare them. Opening a matched file in the lightbox shows both versions overlaid with a divider that follows your mouse — the alphabetically-first subfolder is on the left. Files without a match in the other subfolder, or matched pairs that aren't both images, display normally.</p>
+    <h3 data-i18n="g.kbd.h">Keyboard operation</h3>
+    <p data-i18n-html="g.kbd.tree"><strong>Folder tree</strong> — <kbd>Tab</kbd> enters the tree on the selected folder. <kbd>↑</kbd> <kbd>↓</kbd> move between visible folders. <kbd>→</kbd> expands a closed folder; on the selected folder with nothing left to expand, it moves focus into the gallery. <kbd>←</kbd> collapses an open folder. <kbd>Enter</kbd> / <kbd>Space</kbd> shows the folder's contents in the gallery; pressing it again moves focus into the gallery. <kbd>Home</kbd> / <kbd>End</kbd> jump to the first / last folder. Typing a character jumps to the next folder whose name starts with it.</p>
+    <p data-i18n-html="g.kbd.gallery"><strong>Gallery</strong> — <kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.</p>
+    <p data-i18n-html="g.kbd.lb"><strong>Lightbox</strong> — <kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>R</kbd> rotates the video 90° counter-clockwise (videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.</p>
+  </div>
+  <div class="info-panel" id="panelAbout" role="tabpanel" aria-labelledby="tabAbout" tabindex="0" hidden>
+    <p>MIT License<br>&copy; 2026 securecat</p>
+    <p data-i18n-html="about.bug">Found a bug? Report it on <a href="https://github.com/securecat/heic-etc-viewer/issues" target="_blank" rel="noopener">GitHub Issues</a>.</p>
+  </div>
 </dialog>
 
 <!-- ズームキャンバス（lightbox上に固定） -->
@@ -702,31 +791,31 @@ input[type="range"]::-webkit-slider-thumb {
 <!-- ドロップオーバーレイ -->
 <div class="drop-overlay" id="dropOverlay" aria-hidden="true">
   <div aria-hidden="true">📂</div>
-  <div style="font-size:14px">Drop folder here</div>
+  <div style="font-size:14px" data-i18n="drop.here">Drop folder here</div>
 </div>
 
 <!-- ライトボックス -->
-<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Media viewer" tabindex="-1">
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" data-i18n-attr="aria-label:lb.label" aria-label="Lightbox" tabindex="-1">
   <div class="lb-header">
     <div class="lb-file-group">
       <span class="lb-filename" id="lbFilename"></span>
       <span class="lb-dim-text" id="lbDim"></span>
     </div>
     <span class="lb-counter" id="lbCounter"></span>
-    <button class="lb-close" id="lbZoomBtn" aria-label="Zoom mode" title="Zoom (drag to select)" style="font-size:14px">🔍</button>
-    <button class="lb-close" id="lbChecker" aria-label="Switch to checker background" title="Switch to checker background" style="font-size:14px;width:auto;padding:0 8px;letter-spacing:0.02em">▦</button>
-    <button class="lb-close" id="lbRotate" aria-label="Rotate the video 90° counter-clockwise." title="Rotate the video 90° counter-clockwise." style="display:none">&#x21B6;</button>
-    <button class="lb-close" id="lbLoopBtn" aria-label="Toggle loop" title="Loop video" style="font-size:14px">🔁</button>
+    <button class="lb-close" id="lbZoomBtn" data-i18n-attr="aria-label:lb.zoom,title:lb.zoom" aria-label="Zoom (drag to select)" title="Zoom (drag to select)" style="font-size:14px">🔍</button>
+    <button class="lb-close" id="lbChecker" data-i18n-attr="aria-label:lb.checkerOn,title:lb.checkerOn" aria-label="Switch to checker background" title="Switch to checker background" style="font-size:14px;width:auto;padding:0 8px;letter-spacing:0.02em">▦</button>
+    <button class="lb-close" id="lbRotate" data-i18n-attr="aria-label:lb.rotate,title:lb.rotate" aria-label="Rotate the video 90° counter-clockwise" title="Rotate the video 90° counter-clockwise" style="display:none">&#x21B6;</button>
+    <button class="lb-close" id="lbLoopBtn" data-i18n-attr="aria-label:lb.loopLabel,title:lb.loopTitle" aria-label="Toggle loop" title="Loop video" style="font-size:14px">🔁</button>
     <div class="lb-ss-controls" id="lbSsControls">
-      <input type="text" class="lb-ss-sec" id="lbSsSec" value="4" inputmode="numeric" aria-label="Slideshow interval (seconds)">
-      <span style="font-size:14px;color:#949494">sec</span>
-      <label class="lb-ss-label"><input type="checkbox" id="lbSsFullVideo" checked> play video to end</label>
+      <input type="text" class="lb-ss-sec" id="lbSsSec" value="4" inputmode="numeric" data-i18n-attr="aria-label:lb.ssSec" aria-label="Slideshow interval (seconds)">
+      <span style="font-size:14px;color:#949494" data-i18n="lb.sec">sec</span>
+      <label class="lb-ss-label"><input type="checkbox" id="lbSsFullVideo" checked> <span data-i18n="lb.playToEnd">play video to end</span></label>
     </div>
-    <button class="lb-close" id="lbClose" aria-label="Close" title="Close">✕</button>
+    <button class="lb-close" id="lbClose" data-i18n-attr="aria-label:dialog.close,title:dialog.close" aria-label="Close" title="Close">✕</button>
   </div>
   <div class="lb-img-wrap" id="lbImgWrap"><img id="lbImg" src="" alt="" width="1" height="1"></div>
   <div class="lb-diff-wrap" id="lbDiffWrap" style="display:none">
-    <div class="lb-diff-box" id="lbDiffBox" title="Click to lock/unlock the divider">
+    <div class="lb-diff-box" id="lbDiffBox" data-i18n-attr="title:lb.diffTitle" title="Click to lock/unlock the divider">
       <img id="lbDiffRight" src="" alt="" width="1" height="1">
       <img id="lbDiffLeft" src="" alt="" width="1" height="1">
       <div class="lb-diff-divider" id="lbDiffDivider" aria-hidden="true"></div>
@@ -738,13 +827,13 @@ input[type="range"]::-webkit-slider-thumb {
     <video id="lbVideo" controls><track kind="captions" src=""></video>
   </div>
   <div class="lb-video-wrap" id="lbPdfWrap" style="display:none">
-    <iframe id="lbPdfFrame" style="width:100%;height:100%;border:none;border-radius:4px;" title="PDF viewer" loading="lazy"></iframe>
+    <iframe id="lbPdfFrame" style="width:100%;height:100%;border:none;border-radius:4px;" data-i18n-attr="title:lb.pdfTitle" title="PDF viewer" loading="lazy"></iframe>
   </div>
-  <button class="lb-nav prev" id="lbPrev" aria-label="Previous">‹</button>
-  <button class="lb-nav next" id="lbNext" aria-label="Next">›</button>
+  <button class="lb-nav prev" id="lbPrev" data-i18n-attr="aria-label:lb.prev" aria-label="Previous">‹</button>
+  <button class="lb-nav next" id="lbNext" data-i18n-attr="aria-label:lb.next" aria-label="Next">›</button>
   <div class="lb-info">
     <div class="convert-group">
-      <select id="lbConvertFormat" aria-label="Convert to format">
+      <select id="lbConvertFormat" data-i18n-attr="aria-label:convert.format" aria-label="Convert to format">
         <option value="">Convert to...</option>
         <option value="webp">WebP</option>
         <option value="webp-hc">WebP (High compression)</option>
@@ -753,16 +842,304 @@ input[type="range"]::-webkit-slider-thumb {
         <option value="jpeg-hc">JPEG (High compression)</option>
         <option value="pdf">PDF</option>
       </select>
-      <button class="btn" id="lbConvertDownload" aria-label="Download">📄Download</button>
+      <button class="btn" id="lbConvertDownload" data-i18n="convert.downloadTextLb" data-i18n-attr="aria-label:convert.download" aria-label="Download">📄Download</button>
       <span class="convert-error" id="lbConvertError" aria-live="polite"></span>
     </div>
-    <span id="lbKeyHint" aria-hidden="true">← → Navigate　Esc: Close / Stop slideshow</span>
+    <span id="lbKeyHint" aria-hidden="true"></span>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/libheif-js@1.19.8/libheif-wasm/libheif-bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs" type="module" id="pdfScript"></script>
 <script>
+// ── i18n ──────────────────────────────────────────────────────────
+const I18N = {
+  en: {
+    'app.toolbar': 'Toolbar',
+    'toolbar.openFolderText': '📁 Open Folder',
+    'toolbar.openFolderLabel': 'Open Folder',
+    'convert.subject': 'Convert subject',
+    'subject.image': 'Image',
+    'subject.video': 'Video',
+    'subject.all': 'All',
+    'convert.format': 'Convert to format',
+    'convert.download': 'Download',
+    'convert.downloadTextHeader': '📁Download',
+    'convert.downloadTextLb': '📄Download',
+    'filter.ph': 'Filter...',
+    'filter.label': 'Filter by filename',
+    'sort.label': 'Sort order',
+    'sort.nameAsc': 'Name ↑',
+    'sort.nameDesc': 'Name ↓',
+    'sort.type': 'Type',
+    'slider.label': 'Thumbnail size',
+    'layout.toTile': 'Switch to tile view',
+    'layout.toDefault': 'Switch to default view',
+    'reload.label': 'Reload (clear cache)',
+    'reload.title': 'Reload',
+    'ss.start': 'Start slideshow',
+    'ss.stop': 'Stop slideshow',
+    'ss.title': 'Slideshow',
+    'fmt.placeholder': 'Convert to...',
+    'fmt.webp': 'WebP',
+    'fmt.webpHc': 'WebP (High compression)',
+    'fmt.png': 'PNG',
+    'fmt.jpeg': 'JPEG',
+    'fmt.jpegHc': 'JPEG (High compression)',
+    'fmt.pdf': 'PDF',
+    'fmt.pdfEach': 'PDF (individual files)',
+    'fmt.pdfCombined': 'PDF (combine into one)',
+    'fmt.sound': 'Sound',
+    'fmt.thumbnail': 'Thumbnail',
+    'fmt.thumbnails': 'Thumbnails',
+    'fmt.zip': 'Export as a Zip',
+    'tree.label': 'Folder tree',
+    'gallery.h2': 'Gallery',
+    'gallery.region': 'Thumbnail gallery',
+    'gallery.noFiles': 'No supported files in this folder (try a subfolder in the tree)',
+    'gallery.noMatch': 'No files matching "{q}"',
+    'status.files': '{n} files',
+    'status.filtered': '{x} / {y} files',
+    'thumb.open': '{name} - open',
+    'thumb.failed': 'Failed to load',
+    'thumb.unplayable': 'Unplayable',
+    'thumb.unplayableTitle': 'Cannot be played in this browser',
+    'empty.region': 'Welcome screen',
+    'empty.title': 'Drag & drop a folder here, or use the Open Folder button above',
+    'empty.titleLocal': 'Use the Open Folder button above',
+    'empty.privacy': 'No data is sent to any server — all file processing happens locally between your browser and your local storage.',
+    'guide.run': 'Run a local server to enable folder drag & drop.',
+    'guide.cmd': 'In Command Prompt, navigate to the folder containing <code class="inline-code">heic-etc-viewer.html</code> and run:',
+    'guide.node': 'With Node.js',
+    'guide.python': 'With Python',
+    'guide.open': 'Then open <code class="inline-code">http://localhost:3000/heic-etc-viewer.html</code> in your browser.',
+    'drop.here': 'Drop folder here',
+    'drop.rootName': 'Dropped files',
+    'footer.h2': 'App info',
+    'settings.label': 'Settings & Information',
+    'dialog.title': 'Settings & Information',
+    'dialog.close': 'Close',
+    'tab.settings': 'Settings',
+    'tab.guide': 'Guide',
+    'tab.about': 'About',
+    'lang.legend': 'Language',
+    'g.formats.h': 'Supported file formats (view)',
+    'g.formats.p': 'HEIC/HEIF, JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO',
+    'g.convert.h': 'Convertible file formats',
+    'g.convert.p1': 'Images — HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size',
+    'g.convert.p2': 'Video — MP4, WebM, and MOV → Sound or Thumbnail. Sound extracts the audio track as-is (no re-encoding), so the resulting file\'s actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video).',
+    'g.zip.h': 'Export as a Zip',
+    'g.zip.p': 'Doesn\'t convert anything — bundles every file currently shown in the gallery (after any filter) into a single zip, unchanged. Available by selecting "All" as the convert subject.',
+    'g.diff.h': 'Image diff mode',
+    'g.diff.p': 'Open a parent folder containing exactly two subfolders whose image files share the same filename (ignoring extension) to compare them. Opening a matched file in the lightbox shows both versions overlaid with a divider that follows your mouse — the alphabetically-first subfolder is on the left. Files without a match in the other subfolder, or matched pairs that aren\'t both images, display normally.',
+    'g.kbd.h': 'Keyboard operation',
+    'g.kbd.tree': '<strong>Folder tree</strong> — <kbd>Tab</kbd> enters the tree on the selected folder. <kbd>↑</kbd> <kbd>↓</kbd> move between visible folders. <kbd>→</kbd> expands a closed folder; on the selected folder with nothing left to expand, it moves focus into the gallery. <kbd>←</kbd> collapses an open folder. <kbd>Enter</kbd> / <kbd>Space</kbd> shows the folder\'s contents in the gallery; pressing it again moves focus into the gallery. <kbd>Home</kbd> / <kbd>End</kbd> jump to the first / last folder. Typing a character jumps to the next folder whose name starts with it.',
+    'g.kbd.gallery': '<strong>Gallery</strong> — <kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.',
+    'g.kbd.lb': '<strong>Lightbox</strong> — <kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>R</kbd> rotates the video 90° counter-clockwise (videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.',
+    'about.bug': 'Found a bug? Report it on <a href="https://github.com/securecat/heic-etc-viewer/issues" target="_blank" rel="noopener">GitHub Issues</a>.',
+    'lb.label': 'Lightbox',
+    'lb.zoom': 'Zoom (drag to select)',
+    'lb.zoomExit': 'Exit zoom mode',
+    'lb.zoomRelease': 'Release zoom',
+    'lb.checkerOn': 'Switch to checker background',
+    'lb.checkerOff': 'Switch to default background',
+    'lb.rotate': 'Rotate the video 90° counter-clockwise',
+    'lb.loopLabel': 'Toggle loop',
+    'lb.loopTitle': 'Loop video',
+    'lb.loopOn': 'Loop: ON',
+    'lb.loopOff': 'Loop: OFF',
+    'lb.ssSec': 'Slideshow interval (seconds)',
+    'lb.sec': 'sec',
+    'lb.playToEnd': 'play video to end',
+    'lb.prev': 'Previous',
+    'lb.next': 'Next',
+    'lb.pdfTitle': 'PDF viewer',
+    'lb.diffTitle': 'Click to lock/unlock the divider',
+    'lb.failed': 'Failed to display',
+    'hint.navigate': 'Navigate',
+    'hint.zoom': 'Zoom',
+    'hint.rotate': 'Rotate',
+    'hint.loop': 'Loop',
+    'hint.checker': 'Checker bg',
+    'hint.close': 'Close',
+    'hint.stopSs': 'Stop slideshow',
+    'hint.releaseZoom': 'Release&Exit zoom',
+    'err.selectFormat': 'Please select a file format',
+    'err.cannotConvert': 'This file cannot be converted',
+    'err.convFailed': 'Conversion failed',
+    'err.noExport': 'No files to export',
+    'err.noVideo': 'No video files',
+    'err.noAudio': 'No video files with an audio track',
+    'err.noThumbs': 'Could not generate thumbnails',
+    'err.noConvertible': 'No convertible files',
+    'err.needTwo': 'Need at least 2 files to combine into one PDF',
+  },
+  ja: {
+    'app.toolbar': 'ツールバー',
+    'toolbar.openFolderText': '📁フォルダを開く',
+    'toolbar.openFolderLabel': 'フォルダを開く',
+    'convert.subject': '変換対象',
+    'subject.image': '画像',
+    'subject.video': '動画',
+    'subject.all': 'すべて',
+    'convert.format': '変換先の形式',
+    'convert.download': 'ダウンロード',
+    'convert.downloadTextHeader': '📁ダウンロード',
+    'convert.downloadTextLb': '📄ダウンロード',
+    'filter.ph': '絞り込み...',
+    'filter.label': 'ファイル名を絞り込む',
+    'sort.label': 'ソート順',
+    'sort.nameAsc': '名前昇順',
+    'sort.nameDesc': '名前降順',
+    'sort.type': 'ファイル形式',
+    'slider.label': 'サムネイルサイズ',
+    'layout.toTile': 'タイル表示に切り替え',
+    'layout.toDefault': '通常表示に切り替え',
+    'reload.label': 'キャッシュをクリアしてリロード',
+    'reload.title': 'リロード',
+    'ss.start': 'スライドショーを開始',
+    'ss.stop': 'スライドショー終了',
+    'ss.title': 'スライドショー',
+    'fmt.placeholder': '変換先の形式',
+    'fmt.webp': 'WebP',
+    'fmt.webpHc': 'WebP(高圧縮)',
+    'fmt.png': 'PNG',
+    'fmt.jpeg': 'JPEG',
+    'fmt.jpegHc': 'JPEG(高圧縮)',
+    'fmt.pdf': 'PDF',
+    'fmt.pdfEach': 'PDF(画像ごとに)',
+    'fmt.pdfCombined': 'PDF(1つに結合)',
+    'fmt.sound': '音声',
+    'fmt.thumbnail': 'サムネイル',
+    'fmt.thumbnails': 'サムネイル',
+    'fmt.zip': 'ZIPでエクスポート',
+    'tree.label': 'フォルダツリー',
+    'gallery.h2': 'ギャラリーエリア',
+    'gallery.region': 'サムネイル一覧',
+    'gallery.noFiles': 'このフォルダには対応するファイルがありません(ツリー内のサブフォルダを確認してください)',
+    'gallery.noMatch': '「{q}」に一致するファイルはありません',
+    'status.files': '{n} 件',
+    'status.filtered': '{x} / {y} 件',
+    'thumb.open': '{name} を表示',
+    'thumb.failed': '読込失敗',
+    'thumb.unplayable': '再生できません',
+    'thumb.unplayableTitle': 'このブラウザでは再生できません',
+    'empty.region': 'ギャラリーエリアの初期表示',
+    'empty.title': 'ここにフォルダをドラッグ＆ドロップするか、上の「フォルダを開く」ボタンを使用してください。',
+    'empty.titleLocal': '上の「フォルダを開く」ボタンを使用してください。',
+    'empty.privacy': 'サーバーへデータが送信されることはありません。ファイルの処理はすべて、ブラウザとローカルストレージの間でローカルに行われます。',
+    'guide.run': 'ローカルサーバーを起動して、フォルダのドラッグ＆ドロップを有効にします。',
+    'guide.cmd': 'コマンドプロンプトで、<code class="inline-code">heic-etc-viewer.html</code> が含まれるフォルダに移動し、以下を実行してください。',
+    'guide.node': 'Node.jsの場合',
+    'guide.python': 'Pythonの場合',
+    'guide.open': 'ローカルサーバー起動後、ブラウザで <code class="inline-code">http://localhost:3000/heic-etc-viewer.html</code> を開いてください。',
+    'drop.here': 'ここにドロップ',
+    'drop.rootName': 'ドロップしたファイル',
+    'footer.h2': 'アプリ情報',
+    'settings.label': '設定と情報',
+    'dialog.title': '設定と情報',
+    'dialog.close': '閉じる',
+    'tab.settings': '設定',
+    'tab.guide': 'ガイド',
+    'tab.about': 'アバウト',
+    'lang.legend': '言語',
+    'g.formats.h': '対応ファイル形式(表示)',
+    'g.formats.p': 'HEIC/HEIF、JPEG、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、PDF、ICO',
+    'g.convert.h': '変換可能なファイル形式',
+    'g.convert.p1': '画像 — HEIC/HEIF、JPEG、PNG、WebP、BMP、TIFF、AVIF → WebP・PNG・JPEG・PDF(1ファイルずつでも、一括でも可)。「高圧縮」のWebP/JPEGは、品質設定を大きく下げることでファイルサイズを大幅に小さくします',
+    'g.convert.p2': '動画 — MP4、WebM、MOV → 音声またはサムネイル。「音声」は音声トラックを再エンコードせずそのまま抽出するため、出力ファイルの実際のコーデックは元動画に依存します(例: AAC、Opus)。音声トラックのない動画は、一括変換ではスキップされ、個別変換ではエラーになります。「サムネイル」は動画の序盤からJPEGのスナップショットを保存します(一括では動画ごとに1枚ずつダウンロード)。',
+    'g.zip.h': 'ZIPでエクスポート',
+    'g.zip.p': '変換は行いません。ギャラリーに表示中のすべてのファイル(絞り込み後)を、変換せずそのまま1つのZIPにまとめます。変換対象で「すべて」を選ぶと使用できます。',
+    'g.diff.h': '画像Diffモード',
+    'g.diff.p': '拡張子を除いたファイル名が一致する画像ファイルを持つ、ちょうど2つのサブフォルダを含む親フォルダを開くと比較できます。一致したファイルをライトボックスで開くと、マウスに追従する境界線で2つのバージョンが重ねて表示されます(アルファベット順で先のサブフォルダが左側)。もう一方のサブフォルダに一致がないファイルや、両方が画像ではないペアは、通常どおり表示されます。',
+    'g.kbd.h': 'キーボード操作',
+    'g.kbd.tree': '<strong>フォルダツリー</strong> — <kbd>Tab</kbd> で選択中のフォルダにフォーカスします。<kbd>↑</kbd> <kbd>↓</kbd> で表示中のフォルダ間を移動。<kbd>→</kbd> は閉じたフォルダを展開し、選択中のフォルダで展開するものがない場合はギャラリーへフォーカスを移します。<kbd>←</kbd> は開いたフォルダを折りたたみます。<kbd>Enter</kbd> / <kbd>Space</kbd> でフォルダの中身をギャラリーに表示し、もう一度押すとギャラリーへフォーカスが移ります。<kbd>Home</kbd> / <kbd>End</kbd> で先頭・末尾のフォルダへ。文字キーで、名前がその文字で始まる次のフォルダへジャンプします。',
+    'g.kbd.gallery': '<strong>ギャラリー</strong> — <kbd>Tab</kbd> でアイテム間を移動。<kbd>Enter</kbd> / <kbd>Space</kbd> でアイテムをライトボックスで開きます。<kbd>←</kbd> でツリーの選択中フォルダへフォーカスが戻ります。',
+    'g.kbd.lb': '<strong>ライトボックス</strong> — <kbd>←</kbd> <kbd>→</kbd> でファイル間を移動。<kbd>Z</kbd> でズームモードの切り替え(画像・動画)。<kbd>C</kbd> で市松模様背景の切り替え(画像)。<kbd>R</kbd> で動画を反時計回りに90度回転(動画)。<kbd>L</kbd> でループ再生の切り替え(動画)。<kbd>Esc</kbd> でズームの解除・終了、ライトボックスを閉じる、またはスライドショーの停止。',
+    'about.bug': 'バグを見つけたら、<a href="https://github.com/securecat/heic-etc-viewer/issues" target="_blank" rel="noopener">GitHub Issues</a> へ報告してください。',
+    'lb.label': 'ライトボックス',
+    'lb.zoom': 'ズーム(ドラッグして範囲選択)',
+    'lb.zoomExit': 'ズームモード終了',
+    'lb.zoomRelease': 'ズーム解除',
+    'lb.checkerOn': '背景を市松模様にする',
+    'lb.checkerOff': '背景を通常に戻す',
+    'lb.rotate': '動画を反時計回りに90度回転',
+    'lb.loopLabel': 'ループの切り替え',
+    'lb.loopTitle': '動画をループ再生',
+    'lb.loopOn': 'ループ有効',
+    'lb.loopOff': 'ループ無効',
+    'lb.ssSec': 'スライドショーの間隔(秒)',
+    'lb.sec': '秒',
+    'lb.playToEnd': '動画を最後まで再生',
+    'lb.prev': '前へ',
+    'lb.next': '次へ',
+    'lb.pdfTitle': 'PDFビューアー',
+    'lb.diffTitle': 'クリックで境界線をロック/ロック解除',
+    'lb.failed': '表示失敗',
+    'hint.navigate': '前後移動',
+    'hint.zoom': 'ズーム',
+    'hint.rotate': '回転',
+    'hint.loop': 'ループ再生',
+    'hint.checker': '市松模様背景',
+    'hint.close': '閉じる',
+    'hint.stopSs': 'スライドショー終了',
+    'hint.releaseZoom': 'ズーム解除・終了',
+    'err.selectFormat': 'ファイル形式を選択してください',
+    'err.cannotConvert': 'このファイルは変換できません',
+    'err.convFailed': '変換に失敗しました',
+    'err.noExport': 'エクスポートするファイルがありません',
+    'err.noVideo': '動画ファイルがありません',
+    'err.noAudio': '音声トラックを含む動画ファイルがありません',
+    'err.noThumbs': 'サムネイルを生成できませんでした',
+    'err.noConvertible': '変換可能なファイルがありません',
+    'err.needTwo': '1つのPDFにまとめるには、少なくとも2つのファイルが必要です',
+  },
+};
+const LANG_STORAGE_KEY = 'hev-lang';
+let lang = localStorage.getItem(LANG_STORAGE_KEY)
+  || ((navigator.language || '').toLowerCase().startsWith('ja') ? 'ja' : 'en');
+if (!I18N[lang]) lang = 'en';
+
+function t(key) {
+  return (I18N[lang] && I18N[lang][key]) ?? I18N.en[key] ?? key;
+}
+// テンプレート版: t('status.files') の "{n}" などを params で置換する
+function tf(key, params) {
+  return t(key).replace(/\{(\w+)\}/g, (_, k) => (params[k] ?? ''));
+}
+
+// 静的DOMと状態依存ラベルへ現在の言語を適用する（言語切り替え時・初期化時に呼ぶ）
+function applyI18n() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-attr]').forEach(el => {
+    el.dataset.i18nAttr.split(',').forEach(pair => {
+      const [attr, key] = pair.split(':');
+      el.setAttribute(attr, t(key));
+    });
+  });
+  // 言語ラジオの選択状態を同期
+  const radio = document.querySelector(`input[name="uiLang"][value="${lang}"]`);
+  if (radio) radio.checked = true;
+  // 変換プルダウンを現在の選択値を保ったまま作り直し、幅も測り直す
+  rebuildConvertSelect('bulkConvertFormat', CONVERT_FORMAT_LISTS[document.getElementById('bulkConvertSubject').value]);
+  rebuildConvertSelect('lbConvertFormat', LB_CONVERT_FORMAT_LISTS[lbCurrentSubject]);
+  fixFormatSelectWidth('bulkConvertFormat', CONVERT_FORMAT_LISTS);
+  fixFormatSelectWidth('lbConvertFormat', LB_CONVERT_FORMAT_LISTS);
+  // 状態依存のボタンラベル
+  updateSlideshowButtonLabels();
+  updateLayoutToggleLabels();
+  // ギャラリー・ステータス表示を現在の言語で再描画
+  if (rootNode) renderGallery({ preserveScroll: true });
+}
+
+function setLanguage(next) {
+  lang = I18N[next] ? next : 'en';
+  localStorage.setItem(LANG_STORAGE_KEY, lang);
+  applyI18n();
+}
+
 // ── libheif ───────────────────────────────────────────────────────
 let heifLib = null;
 (async () => {
@@ -1263,29 +1640,63 @@ const dropOverlay= document.getElementById('dropOverlay');
 
 // ── 設定・情報ダイアログ ──────────────────────────────────────────
 const infoDialog = document.getElementById('infoDialog');
-document.getElementById('btnSettingsInfo').addEventListener('click', () => infoDialog.showModal());
+document.getElementById('btnSettingsInfo').addEventListener('click', () => {
+  selectInfoTab(infoTabs[0]); // 開くたびに必ず「設定」タブから
+  infoDialog.showModal();
+});
 document.getElementById('infoDialogClose').addEventListener('click', () => infoDialog.close());
 
+// ── ダイアログのタブ（APG Tabs パターン、選択はフォーカス追従）──────
+const infoTabs = ['tabSettings', 'tabGuide', 'tabAbout'].map(id => document.getElementById(id));
+
+function selectInfoTab(tab) {
+  infoTabs.forEach(other => {
+    const selected = other === tab;
+    other.setAttribute('aria-selected', String(selected));
+    other.setAttribute('tabindex', selected ? '0' : '-1');
+    const panel = document.getElementById(other.getAttribute('aria-controls'));
+    panel.hidden = !selected;
+    if (selected) panel.scrollTop = 0; // 切り替えたタブは常に先頭から表示
+  });
+}
+
+infoTabs.forEach((tab, i) => {
+  tab.addEventListener('click', () => selectInfoTab(tab));
+  tab.addEventListener('keydown', e => {
+    let next = null;
+    if (e.key === 'ArrowRight') next = infoTabs[(i + 1) % infoTabs.length];
+    if (e.key === 'ArrowLeft')  next = infoTabs[(i - 1 + infoTabs.length) % infoTabs.length];
+    if (e.key === 'Home') next = infoTabs[0];
+    if (e.key === 'End')  next = infoTabs[infoTabs.length - 1];
+    if (next) { e.preventDefault(); selectInfoTab(next); next.focus(); }
+  });
+});
+
+// ── 言語設定 ─────────────────────────────────────────────────────
+document.querySelectorAll('input[name="uiLang"]').forEach(radio => {
+  radio.addEventListener('change', () => { if (radio.checked) setLanguage(radio.value); });
+});
+
 // ── 変換対象（Image/Video/All）切り替え ────────────────────────────
-// header（フォルダ一括）用
+// header（フォルダ一括）用。ラベルは辞書キーで持ち、描画時に t() で解決する
 const IMAGE_CONVERT_FORMAT_LIST = [
-  { value: '', label: 'Convert to...' },
-  { value: 'webp', label: 'WebP' },
-  { value: 'webp-hc', label: 'WebP (High compression)' },
-  { value: 'png', label: 'PNG' },
-  { value: 'jpeg', label: 'JPEG' },
-  { value: 'jpeg-hc', label: 'JPEG (High compression)' },
-  { value: 'pdf', label: 'PDF (individual files)' },
-  { value: 'pdf-combined', label: 'PDF (combine into one)' },
+  { value: '', labelKey: 'fmt.placeholder' },
+  { value: 'webp', labelKey: 'fmt.webp' },
+  { value: 'webp-hc', labelKey: 'fmt.webpHc' },
+  { value: 'png', labelKey: 'fmt.png' },
+  { value: 'jpeg', labelKey: 'fmt.jpeg' },
+  { value: 'jpeg-hc', labelKey: 'fmt.jpegHc' },
+  { value: 'pdf', labelKey: 'fmt.pdfEach' },
+  { value: 'pdf-combined', labelKey: 'fmt.pdfCombined' },
 ];
 const VIDEO_CONVERT_FORMAT_LIST = [
-  { value: '', label: 'Convert to...' },
-  { value: 'sound', label: 'Sound' },
-  { value: 'thumbnail', label: 'Thumbnails' },
+  { value: '', labelKey: 'fmt.placeholder' },
+  { value: 'sound', labelKey: 'fmt.sound' },
+  { value: 'thumbnail', labelKey: 'fmt.thumbnails' },
 ];
 // 「All」は変換を行わないため、プレースホルダーなしでこの1択のみとする
 const ALL_CONVERT_FORMAT_LIST = [
-  { value: 'zip', label: 'Export as a Zip' },
+  { value: 'zip', labelKey: 'fmt.zip' },
 ];
 const CONVERT_FORMAT_LISTS = {
   image: IMAGE_CONVERT_FORMAT_LIST,
@@ -1294,25 +1705,33 @@ const CONVERT_FORMAT_LISTS = {
 };
 // ライトボックス（個別ファイル）用：Allは1ファイルには意味がないので無し
 const LB_IMAGE_CONVERT_FORMAT_LIST = [
-  { value: '', label: 'Convert to...' },
-  { value: 'webp', label: 'WebP' },
-  { value: 'webp-hc', label: 'WebP (High compression)' },
-  { value: 'png', label: 'PNG' },
-  { value: 'jpeg', label: 'JPEG' },
-  { value: 'jpeg-hc', label: 'JPEG (High compression)' },
-  { value: 'pdf', label: 'PDF' },
+  { value: '', labelKey: 'fmt.placeholder' },
+  { value: 'webp', labelKey: 'fmt.webp' },
+  { value: 'webp-hc', labelKey: 'fmt.webpHc' },
+  { value: 'png', labelKey: 'fmt.png' },
+  { value: 'jpeg', labelKey: 'fmt.jpeg' },
+  { value: 'jpeg-hc', labelKey: 'fmt.jpegHc' },
+  { value: 'pdf', labelKey: 'fmt.pdf' },
 ];
 const LB_VIDEO_CONVERT_FORMAT_LIST = [
-  { value: '', label: 'Convert to...' },
-  { value: 'sound', label: 'Sound' },
-  { value: 'thumbnail', label: 'Thumbnail' },
+  { value: '', labelKey: 'fmt.placeholder' },
+  { value: 'sound', labelKey: 'fmt.sound' },
+  { value: 'thumbnail', labelKey: 'fmt.thumbnail' },
 ];
 const LB_CONVERT_FORMAT_LISTS = {
   image: LB_IMAGE_CONVERT_FORMAT_LIST,
   video: LB_VIDEO_CONVERT_FORMAT_LIST,
 };
 function formatOptionsHTML(list) {
-  return list.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+  return list.map(o => `<option value="${o.value}">${t(o.labelKey)}</option>`).join('');
+}
+// 言語切り替え時などに、選択値を保ったままプルダウンの中身を作り直す
+function rebuildConvertSelect(id, list) {
+  const sel = document.getElementById(id);
+  const v = sel.value;
+  sel.innerHTML = formatOptionsHTML(list);
+  sel.value = v;
+  if (sel.selectedIndex === -1) sel.selectedIndex = 0;
 }
 // 「Convert to...」の横幅を、候補となる全リストの中で最長のものに合わせて固定する
 // （中身が切り替わるたびに幅がガタつかないように）
@@ -1341,7 +1760,10 @@ fixFormatSelectWidth('lbConvertFormat', LB_CONVERT_FORMAT_LISTS);
 // ── file:// 判定 ─────────────────────────────────────────────────
 const isFileProtocol = window.location.protocol === 'file:';
 if (isFileProtocol) {
-  document.getElementById('emptyStateTitle').textContent = 'Use the Open Folder button above';
+  // 辞書キー自体を差し替えておくと、言語切り替え時(applyI18n)もこの文言が維持される
+  const est = document.getElementById('emptyStateTitle');
+  est.dataset.i18n = 'empty.titleLocal';
+  est.textContent = t('empty.titleLocal');
   document.getElementById('privacyNote').style.display = 'none';
   document.getElementById('localServerGuide').style.display = 'flex';
 }
@@ -1384,7 +1806,7 @@ document.body.addEventListener('drop', async e => {
     // 複数 or ファイル混在: 疑似ルートとして扱う（ツリー非対応）
     // ファイルだけ並べる
     const files = await Promise.all(entries.filter(e => e.isFile && ALL_EXTS.includes(extOf(e.name))).map(e => getEntryFile(e)));
-    loadFlatFiles(files, 'Dropped files');
+    loadFlatFiles(files, t('drop.rootName'));
     return;
   }
   await loadDirectoryEntry(dirEntry);
@@ -1865,10 +2287,8 @@ function getSorted(files) {
   const v = sortSelect.value;
   return [...files].sort((a, b) => {
     const na = a.name||'', nb = b.name||'';
-    const sa = a.size||0,  sb = b.size||0;
     if (v==='name')      return na.localeCompare(nb,'ja');
     if (v==='name-desc') return nb.localeCompare(na,'ja');
-    if (v==='size')      return sb-sa;
     if (v==='type')      return extOf(na).localeCompare(extOf(nb));
     return 0;
   });
@@ -1937,7 +2357,7 @@ function renderTileGallery(generation) {
       item.style.flexBasis = Math.round(rowHeight * ratio) + 'px';
       item.setAttribute('role', 'button');
       item.setAttribute('tabindex', '0');
-      item.setAttribute('aria-label', name + ' - open');
+      item.setAttribute('aria-label', tf('thumb.open', { name }));
 
       const loading = document.createElement('div');
       loading.className = 'thumb-loading';
@@ -2001,8 +2421,8 @@ function renderGallery({ preserveScroll = false } = {}) {
   gallery.innerHTML = '';
 
   statusText.textContent = q
-    ? `${filteredFiles.length} / ${raw.length} files`
-    : `${raw.length} files`;
+    ? tf('status.filtered', { x: filteredFiles.length, y: raw.length })
+    : tf('status.files', { n: raw.length });
 
   // サムネが表示される状態ならスライドショー・レイアウト切替ボタンも表示
   const hasSsTargets = filteredFiles.some(f => isImage(f.name) || isVideo(f.name));
@@ -2020,8 +2440,8 @@ function renderGallery({ preserveScroll = false } = {}) {
     const div = document.createElement('div');
     div.className = 'no-images';
     div.textContent = raw.length === 0
-      ? 'No supported files in this folder (try a subfolder in the tree)'
-      : `No files matching "${q}"`;
+      ? t('gallery.noFiles')
+      : tf('gallery.noMatch', { q });
     gallery.appendChild(div);
     return;
   }
@@ -2177,7 +2597,7 @@ async function loadThumb(entry, item, loading, generation) {
     item.insertBefore(img, item.firstChild);
   } catch(e) {
     if (generation === galleryGeneration) {
-      loading.innerHTML = '<span class="thumb-loading-text">Failed to load</span>';
+      loading.innerHTML = `<span class="thumb-loading-text">${t('thumb.failed')}</span>`;
       loading.style.color = '#f87';
     }
     console.warn('thumb failed:', entry.name, e);
@@ -2256,7 +2676,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dis
     item.insertBefore(img, item.firstChild);
   } catch(e) {
     if (generation !== galleryGeneration) return;
-    loading.innerHTML = '<span class="thumb-loading-text">Failed to load</span>';
+    loading.innerHTML = `<span class="thumb-loading-text">${t('thumb.failed')}</span>`;
     loading.style.color = '#f87';
     console.warn('pdf thumb failed:', file.name, e);
   }
@@ -2312,11 +2732,11 @@ async function loadVideoThumb(file, item, loading, key, generation) {
   } catch (e) {
     if (generation !== galleryGeneration) return;
     if (loading.parentNode === item) {
-      loading.innerHTML = '<span class="thumb-loading-text">Unplayable</span>';
+      loading.innerHTML = `<span class="thumb-loading-text">${t('thumb.unplayable')}</span>`;
       loading.style.color = '#f87';
       loading.style.fontSize = '11px';
     }
-    if (badge) { badge.textContent = extOf(file.name).toUpperCase(); badge.className = 'ext-badge unplayable-badge'; badge.title = 'Cannot be played in this browser'; }
+    if (badge) { badge.textContent = extOf(file.name).toUpperCase(); badge.className = 'ext-badge unplayable-badge'; badge.title = t('thumb.unplayableTitle'); }
   }
 }
 
@@ -2342,23 +2762,33 @@ async function openLightbox(idx) {
 }
 // 下端の操作ヒントを、表示中のファイル種別とスライドショー状態に合わせて更新する
 // （ズームモードや回転中などの一時状態までは追従しない。無効キーは押しても反応しないだけ）
+// セグメントごとに span で分け、間隔は CSS の gap で取る（全角空白はフォント依存のため不使用）
 function updateLbKeyHint() {
   const hint = document.getElementById('lbKeyHint');
   const entry = filteredFiles[currentIdx];
   const name = entry ? (entry.name || '') : '';
+  const escCloseZoom = `Esc: ${t('hint.close')} / ${t('hint.releaseZoom')}`;
+  const segs = [`← → ${t('hint.navigate')}`];
   if (ssActive) {
-    hint.textContent = '← → Navigate　Esc: Close / Stop slideshow';
+    segs.push(`Esc: ${t('hint.stopSs')}`);
   } else if (isVideo(name)) {
-    hint.textContent = '← → Navigate　Z: Zoom　R: Rotate　L: Loop　Esc: Close / Stop slideshow';
+    segs.push(`Z: ${t('hint.zoom')}`, `R: ${t('hint.rotate')}`, `L: ${t('hint.loop')}`, escCloseZoom);
   } else if (isPdf(name)) {
-    hint.textContent = '← → Navigate　C: Checker bg　Esc: Close / Stop slideshow';
+    segs.push(`Esc: ${t('hint.close')}`); // PDFはズーム・市松切替とも不可
   } else {
     const diffInfo = getDiffPartner(entry);
     const isDiff = diffInfo && isImage(diffInfo.partner.name || '');
-    hint.textContent = isDiff
-      ? '← → Navigate　C: Checker bg　Esc: Close / Stop slideshow'
-      : '← → Navigate　Z: Zoom　C: Checker bg　Esc: Close / Stop slideshow';
+    if (isDiff) {
+      segs.push(`C: ${t('hint.checker')}`, `Esc: ${t('hint.close')}`); // Diff表示はズーム不可
+    } else {
+      segs.push(`Z: ${t('hint.zoom')}`, `C: ${t('hint.checker')}`, escCloseZoom);
+    }
   }
+  hint.replaceChildren(...segs.map(s => {
+    const span = document.createElement('span');
+    span.textContent = s;
+    return span;
+  }));
 }
 
 async function updateLightbox() {
@@ -2407,7 +2837,7 @@ async function updateLightbox() {
       zoomBtn.style.display = ssActive ? 'none' : '';
       loopBtn.style.display = ssActive ? 'none' : '';
       loopBtn.classList.toggle('is-active', videoLoop);
-      loopBtn.title = videoLoop ? 'Loop: ON' : 'Loop: OFF';
+      loopBtn.title = t(videoLoop ? 'lb.loopOn' : 'lb.loopOff');
       checkerBtn.style.display = 'none';
       rotateBtn.style.display = (ssActive || zoomMode) ? 'none' : '';
       lbVideo.loop = ssActive ? false : videoLoop;
@@ -2423,7 +2853,7 @@ async function updateLightbox() {
     } else if (isPdf(file.name)) {
       zoomBtn.style.display = 'none';
       loopBtn.style.display = 'none';
-      checkerBtn.style.display = ssActive ? 'none' : '';
+      checkerBtn.style.display = 'none'; // PDFはiframe表示のため市松背景は意味を持たない
       rotateBtn.style.display = 'none';
       exitZoomMode();
       const url = URL.createObjectURL(file);
@@ -2450,7 +2880,7 @@ async function updateLightbox() {
   } catch(e) {
     imgWrap.style.display   = 'flex';
     videoWrap.style.display = 'none';
-    lbImg.alt = 'Failed to display';
+    lbImg.alt = t('lb.failed');
   }
   setupZoomForCurrentMedia();
   if (ssActive) scheduleNext();
@@ -2467,7 +2897,9 @@ function closeLightbox() {
   const btn = document.getElementById('lbChecker');
   btn.style.background = '';
   btn.style.borderColor = '';
-  btn.title = 'Toggle checker background';
+  btn.classList.remove('is-active');
+  btn.title = t('lb.checkerOn');
+  btn.setAttribute('aria-label', t('lb.checkerOn'));
   setBackgroundInert(false);
   // 見ていたアイテムにキーボードフォーカスを戻す
   const items = document.querySelectorAll('#gallery .thumb-item');
@@ -2486,7 +2918,7 @@ document.getElementById('lbChecker').addEventListener('click', () => {
   const isChecker = lightbox.classList.toggle('checker');
   const btn = document.getElementById('lbChecker');
   btn.classList.toggle('is-active', isChecker);
-  const label = isChecker ? 'Switch to default background' : 'Switch to checker background';
+  const label = t(isChecker ? 'lb.checkerOff' : 'lb.checkerOn');
   btn.title = label;
   btn.setAttribute('aria-label', label);
 });
@@ -2515,7 +2947,7 @@ document.addEventListener('keydown', async e => {
       // ズーム中ならズーム解除
       resetZoom();
       if (zoomMode) { syncZoomCanvas(); zoomCanvas.classList.add('active'); }
-      lbZoomBtn.title = 'Exit zoom mode';
+      setZoomBtnLabel('lb.zoomExit');
     } else if (zoomMode) {
       exitZoomMode();
     } else {
@@ -2542,7 +2974,7 @@ document.addEventListener('keydown', async e => {
       resetZoom();
       syncZoomCanvas();
       zoomCanvas.classList.add('active');
-      lbZoomBtn.title = 'Exit zoom mode';
+      setZoomBtnLabel('lb.zoomExit');
     } else if (zoomMode) {
       exitZoomMode();
     } else {
@@ -2554,7 +2986,7 @@ document.addEventListener('keydown', async e => {
     if (btn.style.display === 'none') return;
     const isChecker = lightbox.classList.toggle('checker');
     btn.classList.toggle('is-active', isChecker);
-    const label = isChecker ? 'Switch to default background' : 'Switch to checker background';
+    const label = t(isChecker ? 'lb.checkerOff' : 'lb.checkerOn');
     btn.title = label;
     btn.setAttribute('aria-label', label);
   }
@@ -2573,6 +3005,13 @@ let currentZoom  = null;    // { originX, originY, clipW, clipH }
 
 const lbZoomBtn  = document.getElementById('lbZoomBtn');
 
+// ズームボタンは状態でラベルが変わるので、title と aria-label を常にセットで更新する
+function setZoomBtnLabel(key) {
+  const label = t(key);
+  lbZoomBtn.title = label;
+  lbZoomBtn.setAttribute('aria-label', label);
+}
+
 function getCurrentMediaEl() {
   const imgWrap = document.getElementById('lbImgWrap');
   if (imgWrap.style.display !== 'none') return document.getElementById('lbImg');
@@ -2584,7 +3023,7 @@ function getCurrentMediaEl() {
 function enterZoomMode() {
   zoomMode = true;
   lbZoomBtn.classList.add('is-active');
-  lbZoomBtn.title = 'Exit zoom mode';
+  setZoomBtnLabel('lb.zoomExit');
   syncZoomCanvas();
   zoomCanvas.classList.add('active');
   // ズームと回転は併用しない
@@ -2594,7 +3033,7 @@ function enterZoomMode() {
 function exitZoomMode() {
   zoomMode = false;
   lbZoomBtn.classList.remove('is-active');
-  lbZoomBtn.title = 'Zoom (drag to select)';
+  setZoomBtnLabel('lb.zoom');
   resetZoom();
   zoomCanvas.classList.remove('active');
   const videoWrap = document.getElementById('lbVideoWrap');
@@ -2725,7 +3164,7 @@ zoomCanvas.addEventListener('mouseup', (e) => {
 
   zoomed = true;
   zoomCanvas.classList.remove('active');
-  lbZoomBtn.title = 'Release zoom';
+  setZoomBtnLabel('lb.zoomRelease');
 });
 
 // ズームcanvas描画ループ（動画専用）
@@ -2853,7 +3292,7 @@ function resetZoom() {
     media.style.top  = '';
   }
   currentZoom = null;
-  if (zoomMode) lbZoomBtn.title = 'Exit zoom mode';
+  if (zoomMode) setZoomBtnLabel('lb.zoomExit');
 }
 
 function setupZoomForCurrentMedia() {
@@ -3002,7 +3441,7 @@ lbLoopBtn.addEventListener('click', () => {
   const lbVideo = document.getElementById('lbVideo');
   lbVideo.loop = videoLoop;
   lbLoopBtn.classList.toggle('is-active', videoLoop);
-  lbLoopBtn.title = videoLoop ? 'Loop: ON' : 'Loop: OFF';
+  lbLoopBtn.title = t(videoLoop ? 'lb.loopOn' : 'lb.loopOff');
 });
 
 // Lキーでもループトグル
@@ -3057,10 +3496,17 @@ function getSsFiles() {
   return filteredFiles.filter(f => isImage(f.name) || isVideo(f.name));
 }
 
+// スライドショーボタンの title / aria-label を状態と言語に合わせて更新する
+function updateSlideshowButtonLabels() {
+  const btn = document.getElementById('btnSlideshow');
+  btn.title = t(ssActive ? 'ss.stop' : 'ss.title');
+  btn.setAttribute('aria-label', t(ssActive ? 'ss.stop' : 'ss.start'));
+}
+
 function startSlideshow() {
   ssActive = true;
   btnSlideshow.classList.add('is-active');
-  btnSlideshow.title = 'Stop slideshow';
+  updateSlideshowButtonLabels();
   btnSlideshow.textContent = '⏹';
   lbSsControls.classList.add('visible');
   // ズーム・市松・回転・ループボタンを非表示、動画ループを強制解除
@@ -3085,7 +3531,7 @@ function stopSlideshow() {
   clearTimeout(ssTimer);
   ssTimer = null;
   btnSlideshow.classList.remove('is-active');
-  btnSlideshow.title = 'Slideshow';
+  updateSlideshowButtonLabels();
   btnSlideshow.textContent = '▷';
   lbSsControls.classList.remove('visible');
   // ループ・回転ボタンは現在のファイルが動画の時のみ、市松ボタンは動画以外の時のみ再表示
@@ -3168,18 +3614,18 @@ sizeSlider.addEventListener('input', () => {
 filterInput.addEventListener('input', renderGallery);
 sortSelect.addEventListener('change', renderGallery);
 
+// レイアウト切替ボタンの title / aria-label を状態と言語に合わせて更新する
+function updateLayoutToggleLabels() {
+  const btn = document.getElementById('btnLayoutToggle');
+  const label = t(layoutMode === 'tile' ? 'layout.toDefault' : 'layout.toTile');
+  btn.title = label;
+  btn.setAttribute('aria-label', label);
+}
+
 document.getElementById('btnLayoutToggle').addEventListener('click', () => {
   layoutMode = layoutMode === 'grid' ? 'tile' : 'grid';
-  const btn = document.getElementById('btnLayoutToggle');
-  if (layoutMode === 'tile') {
-    btn.title = 'Switch to default view';
-    btn.setAttribute('aria-label', 'Switch to default view');
-    btn.classList.add('is-active');
-  } else {
-    btn.title = 'Switch to tile view';
-    btn.setAttribute('aria-label', 'Switch to tile view');
-    btn.classList.remove('is-active');
-  }
+  updateLayoutToggleLabels();
+  document.getElementById('btnLayoutToggle').classList.toggle('is-active', layoutMode === 'tile');
   renderGallery();
 });
 
@@ -3195,14 +3641,14 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
   const fmt = document.getElementById('lbConvertFormat').value;
   const errEl = document.getElementById('lbConvertError');
   if (!fmt) {
-    errEl.textContent = 'Please select a file format';
+    errEl.textContent = t('err.selectFormat');
     return;
   }
   const entry = filteredFiles[currentIdx];
 
   if (fmt === 'sound') {
     if (!entry || !isVideo(entry.name)) {
-      errEl.textContent = 'This file cannot be converted';
+      errEl.textContent = t('err.cannotConvert');
       return;
     }
     errEl.textContent = '';
@@ -3218,7 +3664,7 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
 
   if (fmt === 'thumbnail') {
     if (!entry || !isVideo(entry.name)) {
-      errEl.textContent = 'This file cannot be converted';
+      errEl.textContent = t('err.cannotConvert');
       return;
     }
     errEl.textContent = '';
@@ -3227,13 +3673,13 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
       const blob = await getVideoThumbnailBlob(file);
       triggerDownload(blob, `${baseName(entry.name)}.jpg`);
     } catch (e) {
-      errEl.textContent = 'Conversion failed';
+      errEl.textContent = t('err.convFailed');
     }
     return;
   }
 
   if (!entry || !isConvertible(entry.name)) {
-    errEl.textContent = 'This file cannot be converted';
+    errEl.textContent = t('err.cannotConvert');
     return;
   }
   errEl.textContent = '';
@@ -3244,7 +3690,7 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
     const blob = await convertToBlob(file, fmt, cropZoom);
     triggerDownload(blob, `${baseName(entry.name)}.${convertExt(fmt)}`);
   } catch (e) {
-    errEl.textContent = 'Conversion failed';
+    errEl.textContent = t('err.convFailed');
   }
 });
 
@@ -3270,7 +3716,7 @@ async function convertAndDownloadCombinedPdf(entries) {
     await new Promise(r => setTimeout(r, 30)); // UIをブロックしないよう小休止
   }
   if (!doc) {
-    errEl.textContent = 'Conversion failed';
+    errEl.textContent = t('err.convFailed');
     return;
   }
   const folderName = (currentNode && currentNode.name) || 'converted';
@@ -3281,14 +3727,14 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
   const fmt = document.getElementById('bulkConvertFormat').value;
   const errEl = document.getElementById('bulkConvertError');
   if (!fmt) {
-    errEl.textContent = 'Please select a file format';
+    errEl.textContent = t('err.selectFormat');
     return;
   }
 
   // 「All」: 変換せず、今表示中の全ファイル（フィルタ適用後）をそのままzipにまとめる
   if (fmt === 'zip') {
     if (!filteredFiles.length) {
-      errEl.textContent = 'No files to export';
+      errEl.textContent = t('err.noExport');
       return;
     }
     errEl.textContent = '';
@@ -3309,7 +3755,7 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
   if (fmt === 'sound') {
     const videoEntries = filteredFiles.filter(f => isVideo(f.name));
     if (!videoEntries.length) {
-      errEl.textContent = 'No video files';
+      errEl.textContent = t('err.noVideo');
       return;
     }
     errEl.textContent = '';
@@ -3323,7 +3769,7 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
       await new Promise(r => setTimeout(r, 30)); // UIをブロックしないよう小休止
     }
     if (!results.length) {
-      errEl.textContent = 'No video files with an audio track';
+      errEl.textContent = t('err.noAudio');
       return;
     }
     if (results.length === 1) {
@@ -3339,7 +3785,7 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
   if (fmt === 'thumbnail') {
     const videoEntries = filteredFiles.filter(f => isVideo(f.name));
     if (!videoEntries.length) {
-      errEl.textContent = 'No video files';
+      errEl.textContent = t('err.noVideo');
       return;
     }
     errEl.textContent = '';
@@ -3353,7 +3799,7 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
       await new Promise(r => setTimeout(r, 30)); // UIをブロックしないよう小休止
     }
     if (!results.length) {
-      errEl.textContent = 'Could not generate thumbnails';
+      errEl.textContent = t('err.noThumbs');
       return;
     }
     if (results.length === 1) {
@@ -3367,13 +3813,13 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
 
   const convertibleEntries = filteredFiles.filter(f => isConvertible(f.name));
   if (!convertibleEntries.length) {
-    errEl.textContent = 'No convertible files';
+    errEl.textContent = t('err.noConvertible');
     return;
   }
 
   if (fmt === 'pdf-combined') {
     if (convertibleEntries.length < 2) {
-      errEl.textContent = 'Need at least 2 files to combine into one PDF';
+      errEl.textContent = t('err.needTwo');
       return;
     }
     errEl.textContent = '';
@@ -3408,6 +3854,9 @@ function clearBulkConvertError() {
   document.getElementById('bulkConvertError').textContent = '';
 }
 document.getElementById('btnReload').addEventListener('click', clearBulkConvertError);
+
+// ── 初期化: 保存済み（またはブラウザ言語から判定した）言語をUI全体に適用 ──
+applyI18n();
 </script>
 </body>
 </html>

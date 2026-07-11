@@ -43,38 +43,39 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.6.0] - 2026-07-11
+### [3.7.0] - 2026-07-12
 
 #### Added
 
-- Full keyboard navigation in the folder tree, based on the WAI-ARIA APG treeview pattern: `↑` `↓` move between visible folders, `→` expands a closed folder, `←` collapses an open folder, `Home`/`End` jump to the first/last visible folder, and typing a character jumps to the next folder whose name starts with it
-- Pressing `Enter` or `Space` again on the already-selected folder, or `→` on it when there is nothing left to expand, moves keyboard focus into the gallery; pressing `←` anywhere in the gallery moves focus back to the selected folder in the tree
-- An `R` keyboard shortcut in the lightbox that rotates the video 90° counter-clockwise, same as the ↶ button (videos only)
-- A "Keyboard operation" section in the Settings & Information dialog describing the folder tree, gallery, and lightbox keyboard controls — previously the only keyboard reference was the hint line at the bottom of the lightbox, which is hidden from screen readers
+- UI language switching between English and Japanese: a "Language" setting in the Settings & Information dialog, remembered in localStorage. The first visit follows the browser language, and `<html lang>` now tracks the selected language
+- The Settings & Information dialog is now organized into three tabs — Settings (language), Guide (the previous dialog content), and About (license, copyright, and a link to GitHub Issues) — following the WAI-ARIA APG Tabs pattern. It always opens on the Settings tab, with a fixed height so switching tabs doesn't shift the layout
 
 #### Changed
 
-- The folder tree is now a single Tab stop (roving tabindex): `Tab` enters the tree on the selected folder and one more `Tab` leaves it into the gallery
-- Rebuilt the tree's markup as a semantic `<ul role="tree">` / `<li role="treeitem">` / `<ul role="group">` hierarchy with `aria-level`, `aria-setsize`, `aria-posinset`, `aria-expanded`, and `aria-selected`, so screen readers announce folder depth, position, and state correctly
-- The disclosure triangle (▶) is now a pointer-only control hidden from assistive technology; keyboard users expand and collapse with the arrow keys on the folder itself
-- The keyboard-hint line at the bottom of the lightbox now matches the file being shown (videos: `Z` / `R` / `L`, images: `Z` / `C`, PDFs: `C`) instead of always listing the same keys, and shows only `← →` and `Esc` during a slideshow
+- The lightbox `Esc` hint now reflects what `Esc` actually does: "Close / Release&Exit zoom" normally, "Stop slideshow" during a slideshow, and just "Close" for PDFs and image-diff view
+- The hint line's spacing no longer relies on full-width space characters (now laid out with CSS), the empty state says "Drag & drop a folder here", the lightbox's accessible name is now "Lightbox", and the filename filter input is wider
+
+#### Removed
+
+- The "Size" sort option: file sizes are unavailable for drag & dropped folders (the sort silently did nothing there), and sorting by size had little practical use
+- The checker-background toggle (button and `C` shortcut) while viewing PDFs, where it had no visible effect
 
 #### Fixed
 
-- The `L` (loop) shortcut no longer silently toggles the loop state while viewing images or PDFs, the `C` (checker background) shortcut no longer switches the background while viewing videos, and the `Z` (zoom) shortcut no longer triggers while zooming is unavailable (e.g. while a video is rotated) — each lightbox shortcut now works only when its corresponding button is visible
+- The slideshow button's `aria-label` now toggles along with its `title` when a slideshow starts and stops; the zoom button's `aria-label` now follows its three states instead of staying "Zoom mode"
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
 ---
 
-# HEIC etc Viewer（HEICなどビューワー）
+# HEIC etc Viewer（HEICなどビューアー）
 
 HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル画像・動画ビューアー＆コンバーター。iPhoneから書き出した写真の閲覧・変換に最適化されています。
 
 ## 概要
 
 「HEIC etc Viewer」は、ブラウザ上で完全に動作する単一のHTMLファイルです。データがサーバーに送信されることはなく、すべてのファイル処理はブラウザとローカルストレージの間で完結します。そのため、Web上でホストする場合でもローカルで実行する場合でも、同様に利用可能です。
-対応形式は、HEIC/HEIF、JPEG、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、PDF、ICOです。フォルダの移動は、ツリーパネルで行えます。主な機能として、サムネイルのキャッシュ、ドラッグ操作でズーム範囲を選択できるライトボックスビューア、透過画像用の市松模様の背景表示、動画のループ再生、スライドショーモードなどを備えています。静止画（HEIC/HEIF、JPEG、PNG、WebP、BMP、TIFF、AVIF）はWebP・PNG・JPEG・PDFに変換して保存することもでき、1ファイルずつでも、まとめてzipでも保存できます。
+対応形式は、HEIC/HEIF、JPEG、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、PDF、ICOです。フォルダの移動は、ツリーパネルで行えます。主な機能として、サムネイルのキャッシュ、ドラッグ操作でズーム範囲を選択できるライトボックスビューアー、透過画像用の市松模様の背景表示、動画のループ再生、スライドショーモードなどを備えています。静止画（HEIC/HEIF、JPEG、PNG、WebP、BMP、TIFF、AVIF）はWebP・PNG・JPEG・PDFに変換して保存することもでき、1ファイルずつでも、まとめてzipでも保存できます。
 
 ### 技術スタック
 
@@ -112,25 +113,26 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.6.0] - 2026-07-11
+### [3.7.0] - 2026-07-12
 
 #### 追加
 
-- フォルダツリーに、WAI-ARIA APG の treeview パターンをベースにしたキーボード操作を追加：`↑` `↓` で表示中のフォルダ間を移動、`→` で閉じたフォルダを展開、`←` で開いたフォルダを折りたたみ、`Home`/`End` で先頭・末尾へ移動、文字キーで頭文字が一致する次のフォルダへジャンプ
-- 選択済みのフォルダ上でもう一度 `Enter` または `Space` を押すか、選択済みのフォルダ上で展開するものがない状態で `→` を押すとギャラリーへキーボードフォーカスが移動。ギャラリー内の任意の位置で `←` を押すと、ツリーの選択中フォルダへフォーカスが戻る
-- ライトボックスに `R` キーのショートカットを追加。↶ボタンと同じく動画を左に90°回転する（動画のみ）
-- 「Settings & Information」ダイアログに「Keyboard operation」セクションを追加し、フォルダツリー・ギャラリー・ライトボックスのキーボード操作を記載（従来はライトボックス下端のヒント行しかキーボード操作の説明がなく、スクリーンリーダーからは読み取れなかった）
+- UI表示言語の英語・日本語切り替え：「設定と情報」ダイアログに「言語」設定を追加し、選択は localStorage に保存。初回はブラウザの言語設定に従い、`<html lang>` も選択言語に連動
+- 「設定と情報」ダイアログを3タブ構成に変更 — 設定(言語)・ガイド(従来のダイアログ内容)・アバウト(ライセンス・著作権表記・GitHub Issues へのリンク)。WAI-ARIA APG の Tabs パターンに準拠。開くたびに必ず設定タブから始まり、高さは固定(タブを切り替えてもダイアログの大きさが変わらない)
 
 #### 変更
 
-- フォルダツリー全体を1つのタブストップに変更（roving tabindex）。`Tab` でツリーに入ると選択中のフォルダにフォーカスが乗り、もう一度 `Tab` でギャラリーへ抜ける
-- ツリーのマークアップを `<ul role="tree">` / `<li role="treeitem">` / `<ul role="group">` のセマンティックな階層構造に再構築し、`aria-level`・`aria-setsize`・`aria-posinset`・`aria-expanded`・`aria-selected` を付与。スクリーンリーダーがフォルダの階層・位置・状態を正しく読み上げられるように
-- 開閉用の三角記号（▶）はポインタ専用の操作に変更し、支援技術からは非表示に。キーボードではフォルダ自体への矢印キー操作で開閉する
-- ライトボックス下端の操作ヒント行を、表示中のファイル種別に合わせて切り替えるように変更（動画：`Z`/`R`/`L`、画像：`Z`/`C`、PDF：`C`。スライドショー中は `← →` と `Esc` のみ）
+- ライトボックスの `Esc` ヒントを実際の動作に合わせて変更：通常時は「閉じる / ズーム解除・終了」、スライドショー中は「スライドショー終了」、PDF・画像Diff表示時は「閉じる」のみ
+- ヒント行の間隔に全角空白を使うのをやめCSSでレイアウトするように変更。初期画面の文言を「フォルダをドラッグ＆ドロップ」に変更、ライトボックスのアクセシブルネームを「Lightbox」に変更、ファイル名絞り込み欄の横幅を拡大
+
+#### 削除
+
+- ソートの「Size」オプションを削除：ドラッグ＆ドロップで開いたフォルダではファイルサイズが取得できず実質機能していなかった上、サイズ順のニーズが薄いため
+- PDF表示中の市松模様背景切り替え(ボタン・`C` ショートカット)を削除。iframe表示のため効果がなかった
 
 #### 修正
 
-- 画像・PDF表示中に `L`（ループ）ショートカットが見えないままループ状態を切り替えてしまう問題、動画表示中に `C`（市松背景）ショートカットが効いてしまう問題、ズームできない状態（動画の回転中など）でも `Z`（ズーム）ショートカットが反応してしまう問題を修正。ライトボックスの各ショートカットは、対応するボタンが表示されている時のみ動作するように
+- スライドショーボタンの `aria-label` が、スライドショーの開始・停止時に `title` と一緒に切り替わるように修正。ズームボタンの `aria-label` も3つの状態に追従するように修正(「Zoom mode」のまま固定されていた)
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.7.0] - 2026-07-12
+
+### Added
+
+- UI language switching between English and Japanese: a "Language" setting in the Settings & Information dialog, remembered in localStorage. The first visit follows the browser language, and `<html lang>` now tracks the selected language (it was previously stuck at `ja` while the UI was English)
+- The Settings & Information dialog is now organized into three tabs — Settings (language), Guide (the previous dialog content), and About (license, copyright, and a link to GitHub Issues) — following the WAI-ARIA APG Tabs pattern. It always opens on the Settings tab, and keeps a fixed height (60% of the viewport, centered) so switching tabs doesn't shift the layout
+
+### Changed
+
+- The lightbox `Esc` hint now reflects what `Esc` actually does: "Close / Release&Exit zoom" normally, "Stop slideshow" during a slideshow, and just "Close" for PDFs and image-diff view
+- The hint line's spacing no longer relies on full-width space characters (now laid out with CSS), so it renders consistently regardless of font
+- The empty state now says "Drag & drop a folder here" instead of "Drag a folder here"
+- The lightbox dialog's accessible name changed from "Media viewer" to "Lightbox"
+- The filename filter input is wider, to fit the longer Japanese placeholder
+
+### Removed
+
+- The "Size" sort option: file sizes are unavailable for drag & dropped folders (the sort silently did nothing there), and sorting by size had little practical use
+- The checker-background toggle (button and `C` shortcut) while viewing PDFs, where it had no visible effect
+
+### Fixed
+
+- The slideshow button's `aria-label` now toggles along with its `title` when a slideshow starts and stops (it was stuck at "Start slideshow")
+- The zoom button's `aria-label` now follows its three states (zoom / exit zoom mode / release zoom) instead of staying "Zoom mode"
+
 ## [3.6.0] - 2026-07-11
 
 ### Added
@@ -380,6 +405,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.7.0] - 2026-07-12
+
+### 追加
+
+- UI表示言語の英語・日本語切り替え：「設定と情報」ダイアログに「言語」設定を追加し、選択は localStorage に保存。初回はブラウザの言語設定に従い、`<html lang>` も選択言語に連動するように（従来はUIが英語なのに `ja` に固定されていた）
+- 「設定と情報」ダイアログを3タブ構成に変更 — 設定(言語)・ガイド(従来のダイアログ内容)・アバウト(ライセンス・著作権表記・GitHub Issues へのリンク)。WAI-ARIA APG の Tabs パターンに準拠。開くたびに必ず設定タブから始まり、高さはビューポートの60%固定・天地中央表示(タブを切り替えてもダイアログの大きさや位置が変わらない)
+
+### 変更
+
+- ライトボックスの `Esc` ヒントを実際の動作に合わせて変更：通常時は「閉じる / ズーム解除・終了」、スライドショー中は「スライドショー終了」、PDF・画像Diff表示時は「閉じる」のみ
+- ヒント行の間隔に全角空白を使うのをやめ、CSSでレイアウトするように変更(フォントに依存せず一貫した表示になる)
+- 初期画面の文言を「フォルダをドラッグ」から「フォルダをドラッグ＆ドロップ」に変更
+- ライトボックスのアクセシブルネームを「Media viewer」から「Lightbox」に変更
+- ファイル名絞り込み欄の横幅を拡大(日本語プレースホルダーが収まるように)
+
+### 削除
+
+- ソートの「Size」オプションを削除：ドラッグ＆ドロップで開いたフォルダではファイルサイズが取得できず実質機能していなかった上、サイズ順のニーズが薄いため
+- PDF表示中の市松模様背景切り替え(ボタン・`C` ショートカット)を削除。iframe表示のため効果がなかった
+
+### 修正
+
+- スライドショーボタンの `aria-label` が、スライドショーの開始・停止時に `title` と一緒に切り替わるように修正(「Start slideshow」のまま固定されていた)
+- ズームボタンの `aria-label` が3つの状態(ズーム / ズームモード終了 / ズーム解除)に追従するように修正(「Zoom mode」のまま固定されていた)
 
 ## [3.6.0] - 2026-07-11
 
