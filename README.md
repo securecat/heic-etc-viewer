@@ -43,26 +43,15 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.7.0] - 2026-07-12
-
-#### Added
-
-- UI language switching between English and Japanese: a "Language" setting in the Settings & Information dialog, remembered in localStorage. The first visit follows the browser language, and `<html lang>` now tracks the selected language
-- The Settings & Information dialog is now organized into three tabs — Settings (language), Guide (the previous dialog content), and About (license, copyright, and a link to GitHub Issues) — following the WAI-ARIA APG Tabs pattern. It always opens on the Settings tab, with a fixed height so switching tabs doesn't shift the layout
+### [3.7.1] - 2026-07-12
 
 #### Changed
 
-- The lightbox `Esc` hint now reflects what `Esc` actually does: "Close / Release&Exit zoom" normally, "Stop slideshow" during a slideshow, and just "Close" for PDFs and image-diff view
-- The hint line's spacing no longer relies on full-width space characters (now laid out with CSS), the empty state says "Drag & drop a folder here", the lightbox's accessible name is now "Lightbox", and the filename filter input is wider
-
-#### Removed
-
-- The "Size" sort option: file sizes are unavailable for drag & dropped folders (the sort silently did nothing there), and sorting by size had little practical use
-- The checker-background toggle (button and `C` shortcut) while viewing PDFs, where it had no visible effect
+- The drag & drop overlay's background is now much more opaque (dark at 80% opacity, instead of a nearly transparent accent tint), and its "Drop folder here" message and folder icon are much larger (32px / 64px, up from 14px / 18px), so the prompt is clearly readable over any gallery content
 
 #### Fixed
 
-- The slideshow button's `aria-label` now toggles along with its `title` when a slideshow starts and stops; the zoom button's `aria-label` now follows its three states instead of staying "Zoom mode"
+- Added a visually hidden `h1` ("HEIC etc Viewer") at the top of the page; the document previously had `h2` section headings but no `h1`
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -113,26 +102,15 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.7.0] - 2026-07-12
-
-#### 追加
-
-- UI表示言語の英語・日本語切り替え：「設定と情報」ダイアログに「言語」設定を追加し、選択は localStorage に保存。初回はブラウザの言語設定に従い、`<html lang>` も選択言語に連動
-- 「設定と情報」ダイアログを3タブ構成に変更 — 設定(言語)・ガイド(従来のダイアログ内容)・アバウト(ライセンス・著作権表記・GitHub Issues へのリンク)。WAI-ARIA APG の Tabs パターンに準拠。開くたびに必ず設定タブから始まり、高さは固定(タブを切り替えてもダイアログの大きさが変わらない)
+### [3.7.1] - 2026-07-12
 
 #### 変更
 
-- ライトボックスの `Esc` ヒントを実際の動作に合わせて変更：通常時は「閉じる / ズーム解除・終了」、スライドショー中は「スライドショー終了」、PDF・画像Diff表示時は「閉じる」のみ
-- ヒント行の間隔に全角空白を使うのをやめCSSでレイアウトするように変更。初期画面の文言を「フォルダをドラッグ＆ドロップ」に変更、ライトボックスのアクセシブルネームを「Lightbox」に変更、ファイル名絞り込み欄の横幅を拡大
-
-#### 削除
-
-- ソートの「Size」オプションを削除：ドラッグ＆ドロップで開いたフォルダではファイルサイズが取得できず実質機能していなかった上、サイズ順のニーズが薄いため
-- PDF表示中の市松模様背景切り替え(ボタン・`C` ショートカット)を削除。iframe表示のため効果がなかった
+- ドラッグ＆ドロップ時のオーバーレイ背景の不透明度を大幅に引き上げ(ほぼ透明なアクセント色 → 暗色の80%)、「ここにドロップ」の文言とフォルダアイコンも大幅に拡大(14px/18px → 32px/64px)。背後のギャラリー内容に関わらずはっきり読めるように
 
 #### 修正
 
-- スライドショーボタンの `aria-label` が、スライドショーの開始・停止時に `title` と一緒に切り替わるように修正。ズームボタンの `aria-label` も3つの状態に追従するように修正(「Zoom mode」のまま固定されていた)
+- ページ先頭に視覚的に非表示の `h1`(HEIC etc Viewer)を追加。従来はセクション見出しの `h2` だけで `h1` が存在しなかった
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

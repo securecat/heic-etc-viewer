@@ -219,14 +219,15 @@ input[type="range"]::-webkit-slider-thumb {
 .drop-overlay {
   display: none;
   position: fixed; inset: 0;
-  background: rgba(107,140,255,0.08);
+  background: rgba(22,22,22,0.8); /* --bg(#161616) の80%。背後が透けすぎて文言が読めなくならないように */
   border: 3px dashed var(--accent);
   z-index: 200;
   pointer-events: none;
   align-items: center; justify-content: center;
-  flex-direction: column; gap: 12px;
-  font-size: 18px; color: var(--accent);
+  flex-direction: column; gap: 16px;
+  font-size: 32px; color: var(--accent);
 }
+.drop-overlay .drop-icon { font-size: 64px; }
 .drop-overlay.active { display: flex; }
 
 /* ── main area ── */
@@ -663,6 +664,8 @@ input[type="range"]::-webkit-slider-thumb {
 </head>
 <body>
 
+<h1 class="sr-only">HEIC etc Viewer</h1>
+
 <header class="toolbar" data-i18n-attr="aria-label:app.toolbar" aria-label="Toolbar">
   <h2 class="sr-only" data-i18n="app.toolbar">Toolbar</h2>
   <button class="btn primary" id="btnPick" data-i18n="toolbar.openFolderText" data-i18n-attr="aria-label:toolbar.openFolderLabel" aria-label="Open Folder">📁 Open Folder</button>
@@ -741,7 +744,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.7.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.7.1</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -790,8 +793,8 @@ input[type="range"]::-webkit-slider-thumb {
 
 <!-- ドロップオーバーレイ -->
 <div class="drop-overlay" id="dropOverlay" aria-hidden="true">
-  <div aria-hidden="true">📂</div>
-  <div style="font-size:14px" data-i18n="drop.here">Drop folder here</div>
+  <div class="drop-icon" aria-hidden="true">📂</div>
+  <div data-i18n="drop.here">Drop folder here</div>
 </div>
 
 <!-- ライトボックス -->

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.7.1] - 2026-07-12
+
+### Changed
+
+- The drag & drop overlay's background is now much more opaque (dark at 80% opacity, instead of a nearly transparent accent tint), and its "Drop folder here" message and folder icon are much larger (32px / 64px, up from 14px / 18px), so the prompt is clearly readable over any gallery content
+
+### Fixed
+
+- Added a visually hidden `h1` ("HEIC etc Viewer") at the top of the page; the document previously had `h2` section headings but no `h1`
+
 ## [3.7.0] - 2026-07-12
 
 ### Added
@@ -405,6 +415,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.7.1] - 2026-07-12
+
+### 変更
+
+- ドラッグ＆ドロップ時のオーバーレイ背景の不透明度を大幅に引き上げ(ほぼ透明なアクセント色 → 暗色の80%)、「ここにドロップ」の文言とフォルダアイコンも大幅に拡大(14px/18px → 32px/64px)。背後のギャラリー内容に関わらずはっきり読めるように
+
+### 修正
+
+- ページ先頭に視覚的に非表示の `h1`(HEIC etc Viewer)を追加。従来はセクション見出しの `h2` だけで `h1` が存在しなかった
 
 ## [3.7.0] - 2026-07-12
 
