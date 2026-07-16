@@ -43,7 +43,7 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.8.0] - 2026-07-12
+### [3.8.0] - 2026-07-16
 
 #### Added
 
@@ -103,7 +103,7 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.8.0] - 2026-07-12
+### [3.8.0] - 2026-07-16
 
 #### 追加
 
