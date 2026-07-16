@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.8.0] - 2026-07-12
+
+### Added
+
+- The lightbox rotate button (↶) and `R` shortcut now also work for still images, not just videos: each press rotates 90° counter-clockwise, and returning to upright clears the rotation. Rotation is unavailable in zoom mode (and hides the zoom button while rotated, as with videos), resets when navigating to another file or closing the lightbox, and doesn't apply to PDFs or image-diff view. The still-image hint line now lists `R: Rotate` after `Z: Zoom`
+
+### Fixed
+
+- Stopping a slideshow while an image-diff pair is shown no longer brings back the zoom button, which is unavailable in diff view
+- Rotated media could be distorted in tall windows where the `max-width: 100%` cap overrode the computed size; the cap is now lifted while rotated
+
 ## [3.7.1] - 2026-07-12
 
 ### Changed
@@ -415,6 +426,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.8.0] - 2026-07-12
+
+### 追加
+
+- ライトボックスの回転ボタン(↶)と `R` ショートカットが、動画だけでなく静止画にも対応。1回押すごとに反時計回りに90度回転し、正体に戻ると回転状態が解除される。ズームモード中は回転不可(回転中はズームボタンが隠れるのも動画と同様)、前後移動やクローズで回転はリセットされ、PDF・画像Diff表示は対象外。静止画のヒント行の `Z: ズーム` の次に `R: 回転` を追加
+
+### 修正
+
+- 画像Diffペアの表示中にスライドショーを停止すると、(Diff表示では使えない)ズームボタンが再表示されてしまう問題を修正
+- 縦長ウィンドウでは、回転中のメディアが CSS の `max-width: 100%` 制限で歪む可能性があった問題を修正(回転中は制限を解除)
 
 ## [3.7.1] - 2026-07-12
 

@@ -43,15 +43,16 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.7.1] - 2026-07-12
+### [3.8.0] - 2026-07-12
 
-#### Changed
+#### Added
 
-- The drag & drop overlay's background is now much more opaque (dark at 80% opacity, instead of a nearly transparent accent tint), and its "Drop folder here" message and folder icon are much larger (32px / 64px, up from 14px / 18px), so the prompt is clearly readable over any gallery content
+- The lightbox rotate button (↶) and `R` shortcut now also work for still images, not just videos: each press rotates 90° counter-clockwise, and returning to upright clears the rotation. Rotation is unavailable in zoom mode, resets when navigating to another file or closing the lightbox, and doesn't apply to PDFs or image-diff view. The still-image hint line now lists `R: Rotate`
 
 #### Fixed
 
-- Added a visually hidden `h1` ("HEIC etc Viewer") at the top of the page; the document previously had `h2` section headings but no `h1`
+- Stopping a slideshow while an image-diff pair is shown no longer brings back the zoom button, which is unavailable in diff view
+- Rotated media could be distorted in tall windows where the `max-width: 100%` cap overrode the computed size; the cap is now lifted while rotated
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -102,15 +103,16 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.7.1] - 2026-07-12
+### [3.8.0] - 2026-07-12
 
-#### 変更
+#### 追加
 
-- ドラッグ＆ドロップ時のオーバーレイ背景の不透明度を大幅に引き上げ(ほぼ透明なアクセント色 → 暗色の80%)、「ここにドロップ」の文言とフォルダアイコンも大幅に拡大(14px/18px → 32px/64px)。背後のギャラリー内容に関わらずはっきり読めるように
+- ライトボックスの回転ボタン(↶)と `R` ショートカットが、動画だけでなく静止画にも対応。1回押すごとに反時計回りに90度回転し、正体に戻ると回転状態が解除される。ズームモード中は回転不可、前後移動やクローズで回転はリセットされ、PDF・画像Diff表示は対象外。静止画のヒント行に `R: 回転` を追加
 
 #### 修正
 
-- ページ先頭に視覚的に非表示の `h1`(HEIC etc Viewer)を追加。従来はセクション見出しの `h2` だけで `h1` が存在しなかった
+- 画像Diffペアの表示中にスライドショーを停止すると、(Diff表示では使えない)ズームボタンが再表示されてしまう問題を修正
+- 縦長ウィンドウでは、回転中のメディアが CSS の `max-width: 100%` 制限で歪む可能性があった問題を修正(回転中は制限を解除)
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

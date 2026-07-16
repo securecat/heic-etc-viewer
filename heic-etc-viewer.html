@@ -744,7 +744,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.7.1</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.8.0</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -780,7 +780,7 @@ input[type="range"]::-webkit-slider-thumb {
     <h3 data-i18n="g.kbd.h">Keyboard operation</h3>
     <p data-i18n-html="g.kbd.tree"><strong>Folder tree</strong> — <kbd>Tab</kbd> enters the tree on the selected folder. <kbd>↑</kbd> <kbd>↓</kbd> move between visible folders. <kbd>→</kbd> expands a closed folder; on the selected folder with nothing left to expand, it moves focus into the gallery. <kbd>←</kbd> collapses an open folder. <kbd>Enter</kbd> / <kbd>Space</kbd> shows the folder's contents in the gallery; pressing it again moves focus into the gallery. <kbd>Home</kbd> / <kbd>End</kbd> jump to the first / last folder. Typing a character jumps to the next folder whose name starts with it.</p>
     <p data-i18n-html="g.kbd.gallery"><strong>Gallery</strong> — <kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.</p>
-    <p data-i18n-html="g.kbd.lb"><strong>Lightbox</strong> — <kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>R</kbd> rotates the video 90° counter-clockwise (videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.</p>
+    <p data-i18n-html="g.kbd.lb"><strong>Lightbox</strong> — <kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>R</kbd> rotates 90° counter-clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.</p>
   </div>
   <div class="info-panel" id="panelAbout" role="tabpanel" aria-labelledby="tabAbout" tabindex="0" hidden>
     <p>MIT License<br>&copy; 2026 securecat</p>
@@ -806,8 +806,8 @@ input[type="range"]::-webkit-slider-thumb {
     </div>
     <span class="lb-counter" id="lbCounter"></span>
     <button class="lb-close" id="lbZoomBtn" data-i18n-attr="aria-label:lb.zoom,title:lb.zoom" aria-label="Zoom (drag to select)" title="Zoom (drag to select)" style="font-size:14px">🔍</button>
+    <button class="lb-close" id="lbRotate" data-i18n-attr="aria-label:lb.rotate,title:lb.rotate" aria-label="Rotate 90° counter-clockwise" title="Rotate 90° counter-clockwise" style="display:none">&#x21B6;</button>
     <button class="lb-close" id="lbChecker" data-i18n-attr="aria-label:lb.checkerOn,title:lb.checkerOn" aria-label="Switch to checker background" title="Switch to checker background" style="font-size:14px;width:auto;padding:0 8px;letter-spacing:0.02em">▦</button>
-    <button class="lb-close" id="lbRotate" data-i18n-attr="aria-label:lb.rotate,title:lb.rotate" aria-label="Rotate the video 90° counter-clockwise" title="Rotate the video 90° counter-clockwise" style="display:none">&#x21B6;</button>
     <button class="lb-close" id="lbLoopBtn" data-i18n-attr="aria-label:lb.loopLabel,title:lb.loopTitle" aria-label="Toggle loop" title="Loop video" style="font-size:14px">🔁</button>
     <div class="lb-ss-controls" id="lbSsControls">
       <input type="text" class="lb-ss-sec" id="lbSsSec" value="4" inputmode="numeric" data-i18n-attr="aria-label:lb.ssSec" aria-label="Slideshow interval (seconds)">
@@ -938,7 +938,7 @@ const I18N = {
     'g.kbd.h': 'Keyboard operation',
     'g.kbd.tree': '<strong>Folder tree</strong> — <kbd>Tab</kbd> enters the tree on the selected folder. <kbd>↑</kbd> <kbd>↓</kbd> move between visible folders. <kbd>→</kbd> expands a closed folder; on the selected folder with nothing left to expand, it moves focus into the gallery. <kbd>←</kbd> collapses an open folder. <kbd>Enter</kbd> / <kbd>Space</kbd> shows the folder\'s contents in the gallery; pressing it again moves focus into the gallery. <kbd>Home</kbd> / <kbd>End</kbd> jump to the first / last folder. Typing a character jumps to the next folder whose name starts with it.',
     'g.kbd.gallery': '<strong>Gallery</strong> — <kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.',
-    'g.kbd.lb': '<strong>Lightbox</strong> — <kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>R</kbd> rotates the video 90° counter-clockwise (videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.',
+    'g.kbd.lb': '<strong>Lightbox</strong> — <kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>R</kbd> rotates 90° counter-clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.',
     'about.bug': 'Found a bug? Report it on <a href="https://github.com/securecat/heic-etc-viewer/issues" target="_blank" rel="noopener">GitHub Issues</a>.',
     'lb.label': 'Lightbox',
     'lb.zoom': 'Zoom (drag to select)',
@@ -946,7 +946,7 @@ const I18N = {
     'lb.zoomRelease': 'Release zoom',
     'lb.checkerOn': 'Switch to checker background',
     'lb.checkerOff': 'Switch to default background',
-    'lb.rotate': 'Rotate the video 90° counter-clockwise',
+    'lb.rotate': 'Rotate 90° counter-clockwise',
     'lb.loopLabel': 'Toggle loop',
     'lb.loopTitle': 'Loop video',
     'lb.loopOn': 'Loop: ON',
@@ -1058,7 +1058,7 @@ const I18N = {
     'g.kbd.h': 'キーボード操作',
     'g.kbd.tree': '<strong>フォルダツリー</strong> — <kbd>Tab</kbd> で選択中のフォルダにフォーカスします。<kbd>↑</kbd> <kbd>↓</kbd> で表示中のフォルダ間を移動。<kbd>→</kbd> は閉じたフォルダを展開し、選択中のフォルダで展開するものがない場合はギャラリーへフォーカスを移します。<kbd>←</kbd> は開いたフォルダを折りたたみます。<kbd>Enter</kbd> / <kbd>Space</kbd> でフォルダの中身をギャラリーに表示し、もう一度押すとギャラリーへフォーカスが移ります。<kbd>Home</kbd> / <kbd>End</kbd> で先頭・末尾のフォルダへ。文字キーで、名前がその文字で始まる次のフォルダへジャンプします。',
     'g.kbd.gallery': '<strong>ギャラリー</strong> — <kbd>Tab</kbd> でアイテム間を移動。<kbd>Enter</kbd> / <kbd>Space</kbd> でアイテムをライトボックスで開きます。<kbd>←</kbd> でツリーの選択中フォルダへフォーカスが戻ります。',
-    'g.kbd.lb': '<strong>ライトボックス</strong> — <kbd>←</kbd> <kbd>→</kbd> でファイル間を移動。<kbd>Z</kbd> でズームモードの切り替え(画像・動画)。<kbd>C</kbd> で市松模様背景の切り替え(画像)。<kbd>R</kbd> で動画を反時計回りに90度回転(動画)。<kbd>L</kbd> でループ再生の切り替え(動画)。<kbd>Esc</kbd> でズームの解除・終了、ライトボックスを閉じる、またはスライドショーの停止。',
+    'g.kbd.lb': '<strong>ライトボックス</strong> — <kbd>←</kbd> <kbd>→</kbd> でファイル間を移動。<kbd>Z</kbd> でズームモードの切り替え(画像・動画)。<kbd>C</kbd> で市松模様背景の切り替え(画像)。<kbd>R</kbd> で反時計回りに90度回転(画像・動画)。<kbd>L</kbd> でループ再生の切り替え(動画)。<kbd>Esc</kbd> でズームの解除・終了、ライトボックスを閉じる、またはスライドショーの停止。',
     'about.bug': 'バグを見つけたら、<a href="https://github.com/securecat/heic-etc-viewer/issues" target="_blank" rel="noopener">GitHub Issues</a> へ報告してください。',
     'lb.label': 'ライトボックス',
     'lb.zoom': 'ズーム(ドラッグして範囲選択)',
@@ -1066,7 +1066,7 @@ const I18N = {
     'lb.zoomRelease': 'ズーム解除',
     'lb.checkerOn': '背景を市松模様にする',
     'lb.checkerOff': '背景を通常に戻す',
-    'lb.rotate': '動画を反時計回りに90度回転',
+    'lb.rotate': '反時計回りに90度回転',
     'lb.loopLabel': 'ループの切り替え',
     'lb.loopTitle': '動画をループ再生',
     'lb.loopOn': 'ループ有効',
@@ -2782,9 +2782,9 @@ function updateLbKeyHint() {
     const diffInfo = getDiffPartner(entry);
     const isDiff = diffInfo && isImage(diffInfo.partner.name || '');
     if (isDiff) {
-      segs.push(`C: ${t('hint.checker')}`, `Esc: ${t('hint.close')}`); // Diff表示はズーム不可
+      segs.push(`C: ${t('hint.checker')}`, `Esc: ${t('hint.close')}`); // Diff表示はズーム・回転とも不可
     } else {
-      segs.push(`Z: ${t('hint.zoom')}`, `C: ${t('hint.checker')}`, escCloseZoom);
+      segs.push(`Z: ${t('hint.zoom')}`, `R: ${t('hint.rotate')}`, `C: ${t('hint.checker')}`, escCloseZoom);
     }
   }
   hint.replaceChildren(...segs.map(s => {
@@ -2815,10 +2815,11 @@ async function updateLightbox() {
   const lbVideo   = document.getElementById('lbVideo');
   const lbImg     = document.getElementById('lbImg');
 
-  // 前のメディアをクリア
+  // 前のメディアをクリア（回転状態も含めて、次のファイルは常に正体から始める）
   lbImg.src = ''; lbVideo.pause(); lbVideo.src = '';
   resetZoom();
   resetDiffMode();
+  resetMediaRotation();
 
   try {
     const file = await resolveFile(entry);
@@ -2844,15 +2845,13 @@ async function updateLightbox() {
       checkerBtn.style.display = 'none';
       rotateBtn.style.display = (ssActive || zoomMode) ? 'none' : '';
       lbVideo.loop = ssActive ? false : videoLoop;
-      videoRotation = 0;
-      applyVideoRotation();
       const url = URL.createObjectURL(file);
       objectURLs.push(url);
       videoWrap.style.display = 'flex';
       lbVideo.src = url;
       lbVideo.load();
       lbVideo.play().catch(() => {});
-      lbVideo.onloadedmetadata = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbVideo.videoWidth ? `${lbVideo.videoWidth} × ${lbVideo.videoHeight}` : ''; applyVideoRotation(); };
+      lbVideo.onloadedmetadata = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbVideo.videoWidth ? `${lbVideo.videoWidth} × ${lbVideo.videoHeight}` : ''; applyMediaRotation(); };
     } else if (isPdf(file.name)) {
       zoomBtn.style.display = 'none';
       loopBtn.style.display = 'none';
@@ -2869,7 +2868,7 @@ async function updateLightbox() {
       zoomBtn.style.display = (ssActive || isDiff) ? 'none' : '';
       loopBtn.style.display = 'none';
       checkerBtn.style.display = ssActive ? 'none' : '';
-      rotateBtn.style.display = 'none';
+      rotateBtn.style.display = (ssActive || zoomMode || isDiff) ? 'none' : '';
       if (isDiff) {
         document.querySelector('.lb-info .convert-group').style.display = 'none';
         await renderDiffMode(file, diffInfo);
@@ -2877,7 +2876,8 @@ async function updateLightbox() {
         const { url } = await makeURL(file);
         imgWrap.style.display = 'flex';
         lbImg.src = url; lbImg.alt = name;
-        lbImg.onload = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbImg.naturalWidth ? `${lbImg.naturalWidth} × ${lbImg.naturalHeight}` : ''; };
+        // 読み込み完了前に回転された場合に備え、実寸確定後にもフィットを取り直す
+        lbImg.onload = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbImg.naturalWidth ? `${lbImg.naturalWidth} × ${lbImg.naturalHeight}` : ''; applyMediaRotation(); };
       }
     }
   } catch(e) {
@@ -2892,6 +2892,7 @@ function closeLightbox() {
   if (ssActive) stopSlideshow();
   exitZoomMode();
   resetDiffMode();
+  resetMediaRotation();
   const lbVideo = document.getElementById('lbVideo');
   lbVideo.pause(); lbVideo.src = '';
   document.getElementById('lbImg').src = '';
@@ -3039,8 +3040,8 @@ function exitZoomMode() {
   setZoomBtnLabel('lb.zoom');
   resetZoom();
   zoomCanvas.classList.remove('active');
-  const videoWrap = document.getElementById('lbVideoWrap');
-  if (videoWrap.style.display !== 'none' && !ssActive) {
+  // 静止画・動画の表示中なら回転ボタンを戻す（PDF・Diff表示時は getCurrentMediaEl が null）
+  if (getCurrentMediaEl() && !ssActive) {
     document.getElementById('lbRotate').style.display = '';
   }
 }
@@ -3450,39 +3451,61 @@ lbLoopBtn.addEventListener('click', () => {
 // Lキーでもループトグル
 // (keydownハンドラ内に追加済み)
 
-// ── 動画回転ボタン ──────────────────────────────────────────────
+// ── メディア回転ボタン（静止画・動画共通）────────────────────────
 const lbRotateBtn = document.getElementById('lbRotate');
-let videoRotation = 0; // 0/90/180/270、左回りに加算
+let mediaRotation = 0; // 0/90/180/270、左回りに加算
 
-function applyVideoRotation() {
-  const lbVideo = document.getElementById('lbVideo');
-  const wrap = document.getElementById('lbVideoWrap');
-  const deg = ((videoRotation % 360) + 360) % 360;
-  lbVideo.style.transform = deg ? `rotate(${deg}deg)` : '';
+function applyMediaRotation() {
+  const media = getCurrentMediaEl(); // 表示中の lbImg または lbVideo（PDF・Diff表示時は null）
+  if (!media) return;
+  const wrap = media.parentElement;
+  const deg = ((mediaRotation % 360) + 360) % 360;
+  media.style.transform = deg ? `rotate(${deg}deg)` : '';
   // ズームと回転は併用しないため、回転中はズームボタンも隠す（enterZoomMode側で回転ボタンを隠すのと対）
   lbZoomBtn.style.display = (ssActive || deg !== 0) ? 'none' : '';
+  const mediaW = media.videoWidth || media.naturalWidth || 0;
+  const mediaH = media.videoHeight || media.naturalHeight || 0;
   const swapped = deg === 90 || deg === 270;
-  if (swapped && lbVideo.videoWidth && lbVideo.videoHeight) {
+  if (swapped && mediaW && mediaH) {
     const cs = getComputedStyle(wrap);
     const availW = wrap.clientWidth  - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     const availH = wrap.clientHeight - parseFloat(cs.paddingTop)  - parseFloat(cs.paddingBottom);
-    const scale = Math.min(availW / lbVideo.videoHeight, availH / lbVideo.videoWidth);
-    lbVideo.style.width  = (lbVideo.videoWidth  * scale) + 'px';
-    lbVideo.style.height = (lbVideo.videoHeight * scale) + 'px';
+    const scale = Math.min(availW / mediaH, availH / mediaW);
+    media.style.width  = (mediaW * scale) + 'px';
+    media.style.height = (mediaH * scale) + 'px';
+    // 縦長ウィンドウで CSS の max-width:100% が明示サイズを潰して縦横比が崩れないようにする
+    media.style.maxWidth  = 'none';
+    media.style.maxHeight = 'none';
   } else {
-    lbVideo.style.width  = '';
-    lbVideo.style.height = '';
+    media.style.width  = '';
+    media.style.height = '';
+    media.style.maxWidth  = '';
+    media.style.maxHeight = '';
   }
 }
 
+// ファイル切り替え・クローズ時のリセット。非表示側の要素に前回の回転スタイルが
+// 残らないよう、両方のメディア要素を直接クリアする
+function resetMediaRotation() {
+  mediaRotation = 0;
+  ['lbImg', 'lbVideo'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.transform = '';
+    el.style.width = '';
+    el.style.height = '';
+    el.style.maxWidth = '';
+    el.style.maxHeight = '';
+  });
+}
+
 lbRotateBtn.addEventListener('click', () => {
-  videoRotation = (videoRotation - 90 + 360) % 360;
-  applyVideoRotation();
+  mediaRotation = (mediaRotation - 90 + 360) % 360;
+  applyMediaRotation();
 });
 
 window.addEventListener('resize', () => {
-  if (videoRotation && document.getElementById('lbVideoWrap').style.display !== 'none') {
-    applyVideoRotation();
+  if (mediaRotation && getCurrentMediaEl()) {
+    applyMediaRotation();
   }
 });
 
@@ -3537,12 +3560,15 @@ function stopSlideshow() {
   updateSlideshowButtonLabels();
   btnSlideshow.textContent = '▷';
   lbSsControls.classList.remove('visible');
-  // ループ・回転ボタンは現在のファイルが動画の時のみ、市松ボタンは動画以外の時のみ再表示
+  // ループボタンは現在のファイルが動画の時のみ、市松ボタンは動画以外の時のみ、
+  // 回転ボタンは静止画・動画（Diff除く）の時のみ再表示
   const _curEntry = filteredFiles[currentIdx];
   const _curIsVideo = _curEntry && isVideo(_curEntry.name);
-  document.getElementById('lbZoomBtn').style.display = (_curIsVideo && videoRotation) ? 'none' : '';
+  const _diffInfo = _curEntry ? getDiffPartner(_curEntry) : null;
+  const _curIsDiff = !!(_diffInfo && isImage(_diffInfo.partner.name || ''));
+  document.getElementById('lbZoomBtn').style.display = (mediaRotation || _curIsDiff) ? 'none' : '';
   document.getElementById('lbChecker').style.display = _curIsVideo ? 'none' : '';
-  document.getElementById('lbRotate').style.display = (_curIsVideo && !zoomMode) ? '' : 'none';
+  document.getElementById('lbRotate').style.display = (!_curIsDiff && !zoomMode) ? '' : 'none';
   document.getElementById('lbLoopBtn').style.display = _curIsVideo ? '' : 'none';
   document.getElementById('lbVideo').loop = videoLoop;
   updateLbKeyHint();
