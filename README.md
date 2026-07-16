@@ -43,23 +43,16 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.9.0] - 2026-07-16
-
-#### Added
-
-- Alt text generation using Chrome's built-in on-device AI (Gemini Nano, Chrome 148+) — nothing is sent to any server. Works with JPEG, PNG, WebP, GIF, SVG, and AVIF; the output language follows the UI language
-  - Bulk: "All" convert subject now offers "Export alt text (AI)", generating alt text for every eligible image and downloading a JSON file mapping each filename to its alt text
-  - Per-file: the lightbox "Convert to..." menu offers "Alt text" — the result appears in the lightbox with a Copy button
-  - On unsupported environments, running the feature explains the requirements (Chrome 148+, 22+ GB free disk space, more than 4 GB of VRAM, 16+ GB of RAM)
+### [3.9.1] - 2026-07-17
 
 #### Changed
 
-- Error and completion messages in the header and lightbox now sit on an opaque backing so they stay readable over other content, and the lightbox "Convert to..." menu resets when the lightbox is closed
+- Video thumbnails now prefer a frame from the very beginning of the video (≈0.1s), so the gallery roughly matches what file explorers show. If the opening frame isn't a good representative (nearly solid, badly under/over-exposed, or a flat title card), it falls back to the 10% mark and then to deeper points
 
 #### Fixed
 
-- The Download / Generate / Copy buttons had a transparent background and a semi-transparent border, so their contrast depended on whatever was behind them; they now use opaque colors
-- The lightbox's "This video has no audio track" and one "Conversion failed" error message were hardcoded in English and never translated
+- Some videos produced an all-black thumbnail even though they have visible content: capture now waits for the sought frame to actually be presented (`requestVideoFrameCallback`) instead of reading immediately on `seeked`
+- Restored the 1-second cap on the 10%-mark seek position from the 3.4.0 spec, which had been unintentionally dropped in 3.4.1
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -110,23 +103,16 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.9.0] - 2026-07-16
-
-#### 追加
-
-- Chrome内蔵のオンデバイスAI(Gemini Nano、Chrome 148以降)による代替テキスト生成機能を追加。サーバーには何も送信されない。対象はJPEG・PNG・WebP・GIF・SVG・AVIFで、生成言語はUIの表示言語に連動
-  - 一括: 変換対象「すべて」の「代替テキストをエクスポート(AI)」で、対象画像すべての代替テキストを生成し、ファイル名と対にしたJSONをダウンロード
-  - 個別: ライトボックスの「Convert to...」に「代替テキスト」を追加。結果はライトボックス内に表示され、コピーボタンでコピーできる
-  - 非対応環境では実行時に必要要件(Chrome 148以降・空きストレージ22GB以上・VRAM 4GB超・RAM 16GB以上)を案内
+### [3.9.1] - 2026-07-17
 
 #### 変更
 
-- ヘッダー部・ライトボックスのエラー/完了メッセージに不透過の座布団を敷いて他の要素に重なっても読めるように変更。ライトボックスの「Convert to...」メニューは閉じたら選択を忘れるように変更
+- 動画サムネイルは動画の先頭付近(約0.1秒)のフレームを最優先で使うように変更。ギャラリーの見た目がエクスプローラー等のファイル一覧と概ね揃うように。先頭フレームが代表フレームとして不適切な場合(ほぼ単色・露出不足/白飛び・ベタ塗りのタイトルカード等)は、10%地点→さらに奥の位置へフォールバックする
 
 #### 修正
 
-- ダウンロード/生成/コピーボタンの背景が透明・ボーダーが半透過で、下地次第でコントラスト比を確保できなかった問題を修正(不透過の配色に変更)
-- ライトボックスの「This video has no audio track」と一部の「Conversion failed」エラーメッセージが英語のまま埋め込まれていて翻訳されなかった問題を修正
+- 内容のある動画なのにサムネイルが真っ黒になることがある問題を修正：`seeked` 直後・フレームの実提示前にキャプチャしていたのが原因。`requestVideoFrameCallback` でフレーム提示を待つように
+- v3.4.0 仕様の「10%地点・上限1秒」のキャップが v3.4.1 で意図せず失われていたのを復元
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

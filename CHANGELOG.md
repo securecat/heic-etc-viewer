@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.9.1] - 2026-07-17
+
+### Changed
+
+- Video thumbnails now prefer a frame from the very beginning of the video (≈0.1s), so the gallery roughly matches what file explorers show. If the opening frame isn't a good representative — nearly solid color, badly under/over-exposed, or a flat title card — it falls back to the 10% mark and then to deeper points. The check now combines luminance variance, mean luminance, and local contrast (thresholds calibrated against real problem samples), since noisy near-black frames and gradient title cards could previously pass as "has content"
+
+### Fixed
+
+- Some videos produced an all-black thumbnail even though they have visible content: the frame was captured immediately on `seeked`, before the sought frame was actually presented (noticeable on cold seeks into large files). Capture now waits for frame presentation via `requestVideoFrameCallback`
+- Restored the 1-second cap on the 10%-mark seek position from the 3.4.0 spec, which had been unintentionally dropped in 3.4.1's multi-candidate rework
+
 ## [3.9.0] - 2026-07-16
 
 ### Added
@@ -447,6 +458,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.9.1] - 2026-07-17
+
+### 変更
+
+- 動画サムネイルは動画の先頭付近(約0.1秒)のフレームを最優先で使うように変更。ギャラリーの見た目がエクスプローラー等のファイル一覧と概ね揃うように。先頭フレームが代表フレームとして不適切な場合(ほぼ単色・露出不足/白飛び・ベタ塗りのタイトルカード等)は、10%地点→さらに奥の位置へフォールバックする。判定は輝度の分散・平均輝度・局所コントラストの3条件に強化(しきい値は実際の問題サンプルの実測値で較正。ノイズ入りのほぼ真っ黒なフレームや、グラデーション付きベタカードが「内容あり」と誤判定されるのを防ぐ)
+
+### 修正
+
+- 内容のある動画なのにサムネイルが真っ黒になることがある問題を修正：`seeked` 発火直後・フレームの実提示前にキャプチャしていたのが原因(大きいファイルへのコールドシークで顕著)。`requestVideoFrameCallback` でフレーム提示を待ってからキャプチャするように
+- v3.4.0 仕様の「10%地点・上限1秒」のキャップが、v3.4.1 の複数候補化の際に意図せず失われていたのを復元
 
 ## [3.9.0] - 2026-07-16
 

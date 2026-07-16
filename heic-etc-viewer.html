@@ -792,7 +792,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.9.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.9.1</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -1569,38 +1569,87 @@ function captureVideoFrameBlob(file) {
       });
     }
 
-    // 候補フレームの「単色っぽさ」を安価に判定するための縮小キャンバス
+    // seeked発火とフレームの実提示にはズレがあり、直後にdrawImageすると
+    // 内容があるのに真っ黒を読んでしまう動画がある（大きいファイルへのコールドシークで顕著）。
+    // フレームが実際に提示されるまで待つ（提示済みで発火しない場合に備えタイムアウト付き）
+    function waitForFrame() {
+      return new Promise(res => {
+        let done = false;
+        const finish = () => { if (!done) { done = true; res(); } };
+        if (typeof video.requestVideoFrameCallback === 'function') {
+          video.requestVideoFrameCallback(finish);
+          setTimeout(finish, 250);
+        } else {
+          setTimeout(finish, 50);
+        }
+      });
+    }
+
+    // 候補フレームの「単色っぽさ・極端な明暗・のっぺり感」を安価に判定するための縮小キャンバス
     const probe = document.createElement('canvas');
     probe.width = 16; probe.height = 16;
     const probeCtx = probe.getContext('2d', { willReadFrequently: true });
-    function luminanceVariance() {
+    function probeFrame() {
       probeCtx.drawImage(video, 0, 0, 16, 16);
       const { data } = probeCtx.getImageData(0, 0, 16, 16);
+      const lums = new Float32Array(256);
       let sum = 0, sumSq = 0;
-      const n = data.length / 4;
-      for (let i = 0; i < data.length; i += 4) {
-        const lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
+      for (let i = 0; i < 256; i++) {
+        const o = i * 4;
+        const lum = (data[o] + data[o + 1] + data[o + 2]) / 3;
+        lums[i] = lum;
         sum += lum;
         sumSq += lum * lum;
       }
-      const mean = sum / n;
-      return sumSq / n - mean * mean;
+      const mean = sum / 256;
+      const variance = sumSq / 256 - mean * mean;
+      // 局所コントラスト: 右隣・下隣との輝度差の平均。ベタ塗りカードは緩やかな
+      // グラデーションで「分散」は出てしまうが、隣接差はほぼゼロなので実写と区別できる
+      let diffSum = 0, diffN = 0;
+      for (let y = 0; y < 16; y++) {
+        for (let x = 0; x < 16; x++) {
+          const i = y * 16 + x;
+          if (x < 15) { diffSum += Math.abs(lums[i] - lums[i + 1]); diffN++; }
+          if (y < 15) { diffSum += Math.abs(lums[i] - lums[i + 16]); diffN++; }
+        }
+      }
+      return { mean, variance, localContrast: diffSum / diffN };
     }
 
     video.addEventListener('loadedmetadata', async () => {
       try {
         const duration = video.duration || 0;
-        const CANDIDATE_FRACTIONS = [0.1, 0.25, 0.4, 0.55, 0.7];
-        const BLANK_VARIANCE_THRESHOLD = 15; // 経験的なしきい値。これ未満はほぼ単色とみなす
-        let bestTime = 0, bestVariance = -1;
-        for (const frac of CANDIDATE_FRACTIONS) {
-          const t = duration ? Math.min(Math.max(duration - 0.05, 0), duration * frac) : 0;
+        // 候補は「先頭付近(0.1s)」を最優先し、エクスプローラー等のファイル一覧と概ね揃える。
+        // 先頭がフェードイン等で単色の場合に備えて「10%地点・上限1秒」（v3.4.0の元仕様）、
+        // それも単色なら奥の割合位置へとフォールバックしていく
+        const clamp = t => Math.min(Math.max(t, 0), Math.max(duration - 0.05, 0));
+        const candidateTimes = duration
+          ? [...new Set([0.1, Math.min(duration * 0.1, 1.0), duration * 0.25, duration * 0.4, duration * 0.55, duration * 0.7].map(clamp))]
+          : [0];
+        // 合格条件は3つ（しきい値は実サンプル4パターンの16x16実測値から較正）:
+        // - 分散: 単色でない（ただしノイズ・テクスチャだけでも出てしまう）
+        // - 平均輝度: 露出不足・白飛びフレームを弾く（暗い実写イントロは30前後だった）
+        // - 局所コントラスト: ベタ塗りカードを弾く（カードは1〜2、暗い実写でも4前後）
+        const BLANK_VARIANCE_THRESHOLD = 15;
+        const MEAN_MIN = 40, MEAN_MAX = 215;
+        const LOCAL_CONTRAST_MIN = 5;
+        let bestTime = 0, bestScore = -1;
+        for (const t of candidateTimes) {
           await seekTo(t);
-          const v = luminanceVariance();
-          if (v > bestVariance) { bestVariance = v; bestTime = video.currentTime; }
-          if (v >= BLANK_VARIANCE_THRESHOLD) break; // 十分に内容のあるフレームが見つかった
+          await waitForFrame();
+          const { mean, variance, localContrast } = probeFrame();
+          // 全候補が不合格だった場合に備えたスコア。暗すぎ/明るすぎ・のっぺりを減点して
+          // 「カードよりは暗い実写」が選ばれるようにする
+          const brightnessFactor = Math.min(1, Math.min(mean, 255 - mean) / 64);
+          const flatnessFactor = Math.min(1, localContrast / LOCAL_CONTRAST_MIN);
+          const score = variance * brightnessFactor * flatnessFactor;
+          if (score > bestScore) { bestScore = score; bestTime = video.currentTime; }
+          if (variance >= BLANK_VARIANCE_THRESHOLD && mean >= MEAN_MIN && mean <= MEAN_MAX && localContrast >= LOCAL_CONTRAST_MIN) break; // 合格
         }
-        await seekTo(bestTime);
+        if (video.currentTime !== bestTime) {
+          await seekTo(bestTime);
+          await waitForFrame();
+        }
         const canvas = document.createElement('canvas');
         canvas.width  = video.videoWidth  || 320;
         canvas.height = video.videoHeight || 320;
