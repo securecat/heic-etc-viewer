@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.11.0] - 2026-07-17
+
+### Changed
+
+- The lightbox format menu is now a custom menu (WAI-ARIA APG Menu Button pattern) instead of a native `<select>`: previewable lossy formats (WebP/JPEG, normal and High compression) are marked with ▸, and hovering (or pressing →) opens a submenu with "Preview". Choosing "Preview" runs the preview immediately and the closed menu reads e.g. "WebP (High compression) Preview"; choosing the format itself selects it without previewing
+- As a result, the separate Preview button is gone: which formats are previewable is visible before selecting, and the Download button no longer shifts position when a lossy format is chosen
+- Keyboard support follows the APG menu pattern: ↑ ↓ move (wrapping), → opens the submenu, ← returns to the parent item, Home / End jump, Enter / Space activates, Esc closes the menu (arrow keys and Esc no longer leak through to lightbox navigation while the menu is open). Navigating to another file drops the "Preview" state back to the plain format selection
+- Removed the tooltip (`title`) from the image-diff / preview comparison box, avoiding a browser rendering glitch where the tooltip could stay stuck on screen while the divider follows the mouse
+
 ## [3.10.0] - 2026-07-17
 
 ### Added
@@ -475,6 +484,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.11.0] - 2026-07-17
+
+### 変更
+
+- ライトボックスの形式メニューを、標準の `<select>` から WAI-ARIA APG の Menu Button パターンによるカスタムメニューに変更：プレビュー可能な非可逆形式(WebP/JPEG、通常・高圧縮)には「▸」が付き、ホバー(または→キー)でサブメニュー「プレビュー」が開く。「プレビュー」を選ぶと即プレビューが実行され、閉じたメニューには「WebP(高圧縮) プレビュー」のように表示される。形式そのものを押せばプレビューせずに選択のみ
+- これに伴い、独立したプレビューボタンは廃止：どの形式がプレビュー可能かが選ぶ前から分かり、非可逆形式を選んでもダウンロードボタンの位置が動かなくなった
+- キーボード操作はAPGのメニューパターンに準拠：↑↓で移動(ループあり)、→でサブメニューを開く、←で親項目へ戻る、Home/Endで先頭・末尾、Enter/Spaceで決定、Escでメニューを閉じる(メニュー操作中の矢印キー・Escはライトボックスのファイル移動・クローズに漏れない)。前後のファイルへ移動すると「プレビュー」選択状態は形式選択に戻る
+- 画像Diff・プレビューの比較ボックスからツールチップ(`title`)を撤廃：境界線がマウスに追従する間ツールチップが表示されっぱなしになる、ブラウザの描画不具合を回避するため
 
 ## [3.10.0] - 2026-07-17
 

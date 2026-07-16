@@ -552,10 +552,69 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .convert-group .btn:hover,
 .lb-alt-result .btn:hover { background: #47638A; }
-/* プレビューのトグルON状態 */
-.convert-group .btn[aria-pressed="true"] {
-  background: var(--accent-hover);
-  border-color: #699EFF;
+/* ── ライトボックスの形式メニュー（プレビューサブメニュー付きカスタムメニュー）── */
+.lb-fmt-menu { position: relative; }
+.lb-fmt-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid #fff;
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 3px 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.lb-fmt-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+#lbFmtBtnLabel { flex: 1; text-align: left; white-space: nowrap; }
+.lb-fmt-list {
+  position: absolute;
+  bottom: 100%; /* 画面下端の操作バーなので上へ開く。ネイティブselect同様ボタンに密着させる */
+  left: 0;
+  min-width: 100%;
+  width: max-content;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--bg-card);
+  border: 1px solid #fff; /* 起点ボタンのボーダーと同じ色。コントラストを下げない */
+  border-radius: var(--radius);
+  z-index: 5;
+}
+.lb-fmt-list li { position: relative; }
+.lb-fmt-list [role="menuitem"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 16px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+}
+/* ハイライトは hover と キーボードフォーカスのみ。:focus にすると、開いた瞬間に
+   先頭項目へ移すプログラムフォーカスまで光ってしまう */
+.lb-fmt-list [role="menuitem"]:hover,
+.lb-fmt-list [role="menuitem"]:focus-visible { background: var(--accent-hover); color: #fff; outline: none; }
+.lb-fmt-sub {
+  position: absolute;
+  left: calc(100% + 5px); /* 基準はli。パネルのpadding4px+border1pxの外＝パネル右端にぴったり隣接 */
+  top: -5px;  /* パネルのpadding+border分ずらして、親項目と行位置を揃える */
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--bg-card);
+  border: 1px solid #fff;
+  border-radius: var(--radius);
+  width: max-content;
+  z-index: 6;
 }
 .convert-group .convert-error {
   font-size: 14px; color: #FF8A8A; white-space: nowrap;
@@ -804,7 +863,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.10.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.11.0</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -832,7 +891,7 @@ input[type="range"]::-webkit-slider-thumb {
     <p data-i18n="g.formats.p">HEIC/HEIF, JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO</p>
     <h3 data-i18n="g.convert.h">Convertible file formats</h3>
     <h4 data-i18n="g.convert.imgH">Images</h4>
-    <p data-i18n="g.convert.imgP">HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. For the lossy formats (WebP/JPEG), the lightbox offers a Preview that overlays the original and the converted result with a divider, showing both file sizes, before you download.</p>
+    <p data-i18n="g.convert.imgP">HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. Lossy formats (WebP/JPEG) are marked with ▸ in the lightbox format menu: choose "Preview" from the submenu to overlay the original and the converted result with a divider, showing both file sizes, before you download.</p>
     <h4 data-i18n="g.convert.videoH">Video</h4>
     <p data-i18n="g.convert.videoP">MP4, WebM, and MOV → Sound or Thumbnail. Sound extracts the audio track as-is (no re-encoding), so the resulting file's actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video).</p>
     <h4 data-i18n="g.convert.pdfH">PDF</h4>
@@ -887,7 +946,8 @@ input[type="range"]::-webkit-slider-thumb {
   </div>
   <div class="lb-img-wrap" id="lbImgWrap"><img id="lbImg" src="" alt="" width="1" height="1"></div>
   <div class="lb-diff-wrap" id="lbDiffWrap" style="display:none">
-    <div class="lb-diff-box" id="lbDiffBox" data-i18n-attr="title:lb.diffTitle" title="Click to lock/unlock the divider">
+    <!-- title(ツールチップ)は付けない: 境界線追従中に表示されっぱなしになるブラウザ描画不具合があるため -->
+    <div class="lb-diff-box" id="lbDiffBox">
       <img id="lbDiffRight" src="" alt="" width="1" height="1">
       <img id="lbDiffLeft" src="" alt="" width="1" height="1">
       <div class="lb-diff-divider" id="lbDiffDivider" aria-hidden="true"></div>
@@ -910,16 +970,15 @@ input[type="range"]::-webkit-slider-thumb {
       <span class="lb-alt-copied" id="lbAltCopied"></span>
     </div>
     <div class="convert-group">
-      <select id="lbConvertFormat" data-i18n-attr="aria-label:convert.format" aria-label="Convert to format">
-        <option value="">Convert to...</option>
-        <option value="webp">WebP</option>
-        <option value="webp-hc">WebP (High compression)</option>
-        <option value="png">PNG</option>
-        <option value="jpeg">JPEG</option>
-        <option value="jpeg-hc">JPEG (High compression)</option>
-        <option value="pdf">PDF</option>
-      </select>
-      <button class="btn" id="lbPreviewBtn" data-i18n="preview.btn" data-i18n-attr="aria-label:preview.btn" aria-label="Preview" aria-pressed="false" style="display:none">Preview</button>
+      <!-- 形式メニュー: プレビュー可能な形式に▶サブメニューを出すため、selectではなくAPG Menu Buttonパターンで実装 -->
+      <div class="lb-fmt-menu" id="lbFmtMenu">
+        <button type="button" class="lb-fmt-btn" id="lbFmtBtn" aria-haspopup="true" aria-expanded="false">
+          <span class="sr-only" data-i18n="convert.format">Convert to format</span>
+          <span id="lbFmtBtnLabel">Convert to...</span>
+          <span class="lb-fmt-caret" aria-hidden="true">▾</span>
+        </button>
+        <ul class="lb-fmt-list" id="lbFmtList" role="menu" aria-busy="true" hidden></ul>
+      </div>
       <button class="btn" id="lbConvertDownload" data-i18n="convert.downloadTextLb" data-i18n-attr="aria-label:convert.download" aria-label="Download">📄Download</button>
       <span class="convert-error" id="lbConvertError" aria-live="polite"></span>
     </div>
@@ -1006,7 +1065,7 @@ const I18N = {
     'g.formats.p': 'HEIC/HEIF, JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO',
     'g.convert.h': 'Convertible file formats',
     'g.convert.imgH': 'Images',
-    'g.convert.imgP': 'HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. For the lossy formats (WebP/JPEG), the lightbox offers a Preview that overlays the original and the converted result with a divider, showing both file sizes, before you download.',
+    'g.convert.imgP': 'HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. Lossy formats (WebP/JPEG) are marked with ▸ in the lightbox format menu: choose "Preview" from the submenu to overlay the original and the converted result with a divider, showing both file sizes, before you download.',
     'g.convert.videoH': 'Video',
     'g.convert.videoP': 'MP4, WebM, and MOV → Sound or Thumbnail. Sound extracts the audio track as-is (no re-encoding), so the resulting file\'s actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video).',
     'g.convert.pdfH': 'PDF',
@@ -1040,7 +1099,6 @@ const I18N = {
     'lb.prev': 'Previous',
     'lb.next': 'Next',
     'lb.pdfTitle': 'PDF viewer',
-    'lb.diffTitle': 'Click to lock/unlock the divider',
     'lb.failed': 'Failed to display',
     'hint.navigate': 'Navigate',
     'hint.zoom': 'Zoom',
@@ -1152,7 +1210,7 @@ const I18N = {
     'g.formats.p': 'HEIC/HEIF、JPEG、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、PDF、ICO',
     'g.convert.h': '変換可能なファイル形式',
     'g.convert.imgH': '画像',
-    'g.convert.imgP': 'HEIC/HEIF、JPEG、PNG、WebP、BMP、TIFF、AVIF → WebP・PNG・JPEG・PDF(1ファイルずつでも、一括でも可)。「高圧縮」のWebP/JPEGは、品質設定を大きく下げることでファイルサイズを大幅に小さくします。非可逆形式(WebP/JPEG)では、ライトボックスの「プレビュー」で、ダウンロード前に元画像と変換後を境界線付きで重ねて比較できます(それぞれのファイルサイズも表示)。',
+    'g.convert.imgP': 'HEIC/HEIF、JPEG、PNG、WebP、BMP、TIFF、AVIF → WebP・PNG・JPEG・PDF(1ファイルずつでも、一括でも可)。「高圧縮」のWebP/JPEGは、品質設定を大きく下げることでファイルサイズを大幅に小さくします。非可逆形式(WebP/JPEG)にはライトボックスの形式メニューで「▸」が付いていて、サブメニューの「プレビュー」を選ぶと、ダウンロード前に元画像と変換後を境界線付きで重ねて比較できます(それぞれのファイルサイズも表示)。',
     'g.convert.videoH': '動画',
     'g.convert.videoP': 'MP4、WebM、MOV → 音声またはサムネイル。「音声」は音声トラックを再エンコードせずそのまま抽出するため、出力ファイルの実際のコーデックは元動画に依存します(例: AAC、Opus)。音声トラックのない動画は、一括変換ではスキップされ、個別変換ではエラーになります。「サムネイル」は動画の序盤からJPEGのスナップショットを保存します(一括では動画ごとに1枚ずつダウンロード)。',
     'g.convert.pdfH': 'PDF',
@@ -1186,7 +1244,6 @@ const I18N = {
     'lb.prev': '前へ',
     'lb.next': '次へ',
     'lb.pdfTitle': 'PDFビューアー',
-    'lb.diffTitle': 'クリックで境界線をロック/ロック解除',
     'lb.failed': '表示失敗',
     'hint.navigate': '前後移動',
     'hint.zoom': 'ズーム',
@@ -1252,11 +1309,11 @@ function applyI18n() {
   // 言語ラジオの選択状態を同期
   const radio = document.querySelector(`input[name="uiLang"][value="${lang}"]`);
   if (radio) radio.checked = true;
-  // 変換プルダウンを現在の選択値を保ったまま作り直し、幅も測り直す
+  // 変換プルダウン・メニューを現在の選択値を保ったまま作り直し、幅も測り直す
   rebuildConvertSelect('bulkConvertFormat', CONVERT_FORMAT_LISTS[document.getElementById('bulkConvertSubject').value]);
-  rebuildConvertSelect('lbConvertFormat', LB_CONVERT_FORMAT_LISTS[lbCurrentSubject]);
   fixFormatSelectWidth('bulkConvertFormat', CONVERT_FORMAT_LISTS);
-  fixFormatSelectWidth('lbConvertFormat', LB_CONVERT_FORMAT_LISTS);
+  rebuildLbFmtMenu();
+  fixLbFmtButtonWidth();
   // 状態依存のボタンラベル
   updateSlideshowButtonLabels();
   updateLayoutToggleLabels();
@@ -1946,9 +2003,8 @@ document.getElementById('bulkConvertFormat').addEventListener('change', () => {
   document.getElementById('bulkConvertError').textContent = '';
 });
 fixFormatSelectWidth('bulkConvertFormat', CONVERT_FORMAT_LISTS);
-// ライトボックス（個別ファイル）: 1ファイルにつき対象はImage/Videoのどちらか一方に確定するため、
-// プルダウンは設けず、表示中のファイル種別に応じて中身を自動で切り替える（updateLightbox内）
-fixFormatSelectWidth('lbConvertFormat', LB_CONVERT_FORMAT_LISTS);
+// ライトボックス側の形式メニューはカスタムメニュー（lb-fmt-menu）。
+// 中身の構築と幅合わせは applyI18n() → rebuildLbFmtMenu() / fixLbFmtButtonWidth() で行う
 
 // ── file:// 判定 ─────────────────────────────────────────────────
 const isFileProtocol = window.location.protocol === 'file:';
@@ -2996,7 +3052,12 @@ async function updateLightbox() {
   const lbNewSubject = isVideo(name) ? 'video' : isPdf(name) ? 'pdf' : 'image';
   if (lbCurrentSubject !== lbNewSubject) {
     lbCurrentSubject = lbNewSubject;
-    document.getElementById('lbConvertFormat').innerHTML = formatOptionsHTML(LB_CONVERT_FORMAT_LISTS[lbNewSubject]);
+    rebuildLbFmtMenu();
+  }
+  if (lbFmtPreview) {
+    // 「プレビュー」選択状態は前後移動で持ち越さず、形式選択に戻す
+    lbFmtPreview = false;
+    updateLbFmtButtonLabel();
   }
   updateLbConvertButton();
   hideLbAltResult(); // 前のファイルの生成結果を持ち越さない
@@ -3089,7 +3150,10 @@ function closeLightbox() {
   hideLbAltResult();
   exitConvertPreview();
   // コンバートメニューは閉じたら忘れて、次回はプレースホルダーから始める
-  document.getElementById('lbConvertFormat').selectedIndex = 0;
+  closeLbFmtMenu(false);
+  lbFmtValue = '';
+  lbFmtPreview = false;
+  updateLbFmtButtonLabel();
   document.getElementById('lbConvertError').textContent = '';
   updateLbConvertButton();
   const lbVideo = document.getElementById('lbVideo');
@@ -4002,27 +4066,25 @@ function exitConvertPreview() {
   if (!convertPreview) return;
   URL.revokeObjectURL(convertPreview.url);
   convertPreview = null;
-  document.getElementById('lbPreviewBtn').setAttribute('aria-pressed', 'false');
 }
 
-document.getElementById('lbPreviewBtn').addEventListener('click', async () => {
+let previewBusy = false; // 生成中の多重実行防止
+
+// 現在のファイル×選択形式でプレビューを実行する。成功したら true
+async function runConvertPreview() {
   const errEl = document.getElementById('lbConvertError');
-  if (convertPreview) {
-    // トグルOFF: 通常表示へ戻す
-    exitConvertPreview();
-    await updateLightbox();
-    return;
-  }
-  const fmt = document.getElementById('lbConvertFormat').value;
+  const fmt = lbFmtValue;
   const entry = filteredFiles[currentIdx];
-  if (!PREVIEWABLE_FORMATS.includes(fmt)) return;
+  if (!PREVIEWABLE_FORMATS.includes(fmt) || previewBusy) return false;
   if (!entry || !isConvertible(entry.name)) {
     errEl.textContent = t('err.cannotConvert');
-    return;
+    return false;
   }
+  previewBusy = true;
   errEl.textContent = t('preview.generating');
   try {
     exitZoomMode(); // ズーム・回転とプレビューは併用しない（Diff表示と同じ扱い）
+    exitConvertPreview();
     const file = await resolveFile(entry);
     const blob = await convertToBlob(file, fmt);
     convertPreview = { entryName: entry.name, fmt, blob, url: URL.createObjectURL(blob) };
@@ -4038,35 +4100,267 @@ document.getElementById('lbPreviewBtn').addEventListener('click', async () => {
     );
     document.getElementById('lbZoomBtn').style.display = 'none';
     document.getElementById('lbRotate').style.display = 'none';
-    document.getElementById('lbPreviewBtn').setAttribute('aria-pressed', 'true');
     errEl.textContent = '';
+    return true;
   } catch (e) {
     exitConvertPreview();
     errEl.textContent = t('err.convFailed');
+    return false;
+  } finally {
+    previewBusy = false;
   }
-});
-
-// 「Alt text」選択中はDownloadボタンの表記を生成系に、非可逆形式選択中はプレビューボタンを表示する
-function updateLbConvertButton() {
-  const btn = document.getElementById('lbConvertDownload');
-  const fmt = document.getElementById('lbConvertFormat').value;
-  const isAlt = fmt === 'alt';
-  btn.textContent = t(isAlt ? 'alt.generateText' : 'convert.downloadTextLb');
-  btn.setAttribute('aria-label', t(isAlt ? 'alt.generateLabel' : 'convert.download'));
-  document.getElementById('lbPreviewBtn').style.display = PREVIEWABLE_FORMATS.includes(fmt) ? '' : 'none';
 }
-document.getElementById('lbConvertFormat').addEventListener('change', async () => {
+
+// ── ライトボックスの形式メニュー（APG Menu Button パターン＋プレビューサブメニュー）──
+// selectでは「どの形式がプレビュー可能か」を事前に示せず、プレビューボタンの出現で
+// レイアウトも動いてしまうため、▶サブメニュー付きのカスタムメニューにしている
+const lbFmtBtn = document.getElementById('lbFmtBtn');
+const lbFmtList = document.getElementById('lbFmtList');
+let lbFmtValue = '';       // 選択中の形式（'' はプレースホルダー）
+let lbFmtPreview = false;  // 「プレビュー」バリアントが選択されているか
+
+function lbFmtLabelFor(value) {
+  const item = LB_CONVERT_FORMAT_LISTS[lbCurrentSubject].find(o => o.value === value);
+  return t(item ? item.labelKey : 'fmt.placeholder');
+}
+
+function updateLbFmtButtonLabel() {
+  document.getElementById('lbFmtBtnLabel').textContent =
+    lbFmtLabelFor(lbFmtValue) + (lbFmtPreview ? ' ' + t('preview.btn') : '');
+}
+
+// 現在の subject と言語でメニュー項目を作り直す
+function rebuildLbFmtMenu() {
+  const list = LB_CONVERT_FORMAT_LISTS[lbCurrentSubject];
+  if (!list.some(o => o.value === lbFmtValue)) { lbFmtValue = ''; lbFmtPreview = false; }
+  lbFmtList.innerHTML = '';
+  list.forEach(o => {
+    if (o.value === '') return; // プレースホルダーはボタン側のラベルとして使う
+    const li = document.createElement('li');
+    li.setAttribute('role', 'none');
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.setAttribute('role', 'menuitem');
+    item.setAttribute('tabindex', '-1');
+    item.dataset.value = o.value;
+    item.textContent = t(o.labelKey);
+    li.appendChild(item);
+    if (PREVIEWABLE_FORMATS.includes(o.value)) {
+      item.setAttribute('aria-haspopup', 'true');
+      item.setAttribute('aria-expanded', 'false');
+      const arrow = document.createElement('span');
+      arrow.setAttribute('aria-hidden', 'true');
+      arrow.textContent = '▸';
+      item.appendChild(arrow);
+      const sub = document.createElement('ul');
+      sub.className = 'lb-fmt-sub';
+      sub.setAttribute('role', 'menu');
+      sub.hidden = true;
+      const subLi = document.createElement('li');
+      subLi.setAttribute('role', 'none');
+      const subItem = document.createElement('button');
+      subItem.type = 'button';
+      subItem.setAttribute('role', 'menuitem');
+      subItem.setAttribute('tabindex', '-1');
+      subItem.dataset.value = o.value;
+      subItem.dataset.preview = 'true';
+      subItem.textContent = t('preview.btn');
+      subLi.appendChild(subItem);
+      sub.appendChild(subLi);
+      li.appendChild(sub);
+    }
+    lbFmtList.appendChild(li);
+  });
+  lbFmtList.setAttribute('aria-busy', 'false');
+  updateLbFmtButtonLabel();
+}
+
+// ボタンの幅を「候補になりうる最長ラベル」に合わせて固定する（選択で幅がガタつかないように）
+function fixLbFmtButtonWidth() {
+  const labelEl = document.getElementById('lbFmtBtnLabel');
+  const probe = document.createElement('span');
+  probe.style.cssText = 'position:absolute;visibility:hidden;left:-9999px;white-space:nowrap;';
+  probe.style.font = getComputedStyle(labelEl).font;
+  document.body.appendChild(probe);
+  let max = 0;
+  Object.values(LB_CONVERT_FORMAT_LISTS).flat().forEach(o => {
+    let label = t(o.labelKey);
+    if (PREVIEWABLE_FORMATS.includes(o.value)) label += ' ' + t('preview.btn');
+    probe.textContent = label;
+    max = Math.max(max, probe.getBoundingClientRect().width);
+  });
+  probe.remove();
+  labelEl.style.minWidth = Math.ceil(max) + 'px';
+}
+
+function lbFmtTopItems() {
+  return [...lbFmtList.querySelectorAll(':scope > li > [role="menuitem"]')];
+}
+
+function closeLbFmtSub() {
+  lbFmtList.querySelectorAll('.lb-fmt-sub').forEach(s => { s.hidden = true; });
+  lbFmtList.querySelectorAll('[aria-haspopup][aria-expanded="true"]').forEach(b => b.setAttribute('aria-expanded', 'false'));
+}
+
+function openLbFmtSub(item, focusFirst) {
+  closeLbFmtSub();
+  const sub = item.parentElement.querySelector(':scope > .lb-fmt-sub');
+  if (!sub) return;
+  sub.hidden = false;
+  item.setAttribute('aria-expanded', 'true');
+  if (focusFirst) {
+    const first = sub.querySelector('[role="menuitem"]');
+    if (first) first.focus();
+  }
+}
+
+// focusItems=false はポインタ起動用: フォーカスをボタンに留めることで、直前の
+// キーボード操作で残った focus-visible 状態が項目に引き継がれてハイライトされるのを防ぐ
+function openLbFmtMenu(focusLast = false, focusItems = true) {
+  lbFmtList.hidden = false;
+  lbFmtBtn.setAttribute('aria-expanded', 'true');
+  if (!focusItems) return;
+  const items = lbFmtTopItems();
+  const target = focusLast ? items[items.length - 1] : items[0];
+  if (target) target.focus();
+}
+
+function closeLbFmtMenu(refocus = true) {
+  if (lbFmtList.hidden) return;
+  closeLbFmtSub();
+  lbFmtList.hidden = true;
+  lbFmtBtn.setAttribute('aria-expanded', 'false');
+  if (refocus) lbFmtBtn.focus(); // ボタンへ戻すと、更新後のラベル（選択結果）が読み上げられる
+}
+
+// 項目選択の集約点。プレビュー選択なら即実行する
+async function selectLbFmt(value, preview) {
+  closeLbFmtMenu();
+  lbFmtValue = value;
+  lbFmtPreview = preview;
+  updateLbFmtButtonLabel();
   updateLbConvertButton();
   // 前の操作のエラーメッセージを引きずらない（どの操作のエラーか判別できなくなるため）
   document.getElementById('lbConvertError').textContent = '';
-  if (convertPreview) {
+  if (preview) {
+    const ok = await runConvertPreview();
+    if (!ok) {
+      lbFmtPreview = false;
+      updateLbFmtButtonLabel();
+    }
+  } else if (convertPreview) {
     exitConvertPreview();
     await updateLightbox();
   }
+}
+
+lbFmtBtn.addEventListener('click', e => {
+  if (lbFmtList.hidden) {
+    // e.detail===0 はキーボード起動(Enter/Space)。その時だけ先頭項目へフォーカスを移す
+    openLbFmtMenu(false, e.detail === 0);
+  } else {
+    closeLbFmtMenu();
+  }
+});
+lbFmtBtn.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    e.stopPropagation();
+    if (lbFmtList.hidden) {
+      openLbFmtMenu(e.key === 'ArrowUp');
+    } else {
+      // ポインタで開いてフォーカスがボタンに残っている状態から、キーボード操作で項目へ入る
+      const items = lbFmtTopItems();
+      const target = e.key === 'ArrowUp' ? items[items.length - 1] : items[0];
+      if (target) target.focus();
+    }
+  } else if (e.key === 'Escape' && !lbFmtList.hidden) {
+    // フォーカスがボタンに残ったまま閉じる（ライトボックスのクローズには渡さない）
+    e.preventDefault();
+    e.stopPropagation();
+    closeLbFmtMenu();
+  }
 });
 
+lbFmtList.addEventListener('click', e => {
+  const item = e.target.closest('[role="menuitem"]');
+  if (!item) return;
+  selectLbFmt(item.dataset.value, item.dataset.preview === 'true');
+});
+
+// ホバーでサブメニューを開閉（サブメニューは親liの子なので、移動中に閉じない）
+lbFmtList.addEventListener('pointerover', e => {
+  const item = e.target.closest('[role="menuitem"]');
+  if (!item || item.closest('.lb-fmt-sub')) return;
+  if (item.getAttribute('aria-haspopup') === 'true') openLbFmtSub(item, false);
+  else closeLbFmtSub();
+});
+
+lbFmtList.addEventListener('keydown', e => {
+  const item = e.target.closest('[role="menuitem"]');
+  if (!item) return;
+  // メニュー操作中の矢印・Escをライトボックスのグローバルキーハンドラ(ファイル移動・クローズ)に渡さない
+  e.stopPropagation();
+  const inSub = !!item.closest('.lb-fmt-sub');
+  const items = inSub
+    ? [...item.closest('.lb-fmt-sub').querySelectorAll('[role="menuitem"]')]
+    : lbFmtTopItems();
+  const idx = items.indexOf(item);
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    items[(idx + 1) % items.length].focus();
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    items[(idx - 1 + items.length) % items.length].focus();
+  } else if (e.key === 'Home') {
+    e.preventDefault();
+    items[0].focus();
+  } else if (e.key === 'End') {
+    e.preventDefault();
+    items[items.length - 1].focus();
+  } else if (e.key === 'ArrowRight') {
+    if (!inSub && item.getAttribute('aria-haspopup') === 'true') {
+      e.preventDefault();
+      openLbFmtSub(item, true);
+    }
+  } else if (e.key === 'ArrowLeft') {
+    if (inSub) {
+      e.preventDefault();
+      const parentItem = item.closest('.lb-fmt-list > li').querySelector(':scope > [role="menuitem"]');
+      closeLbFmtSub();
+      if (parentItem) parentItem.focus();
+    }
+  } else if (e.key === 'Escape') {
+    e.preventDefault();
+    closeLbFmtMenu();
+  } else if (e.key === 'Tab') {
+    closeLbFmtMenu(false);
+  }
+});
+
+// メニューの外をポインタ操作したり、フォーカスが外へ出たら閉じる
+document.addEventListener('pointerdown', e => {
+  if (!lbFmtList.hidden && !document.getElementById('lbFmtMenu').contains(e.target)) {
+    closeLbFmtMenu(false);
+  }
+});
+document.getElementById('lbFmtMenu').addEventListener('focusout', e => {
+  // ボタンに残ったフォーカスがTab等で外へ出た場合も含めて閉じる
+  if (lbFmtList.hidden) return;
+  const next = e.relatedTarget;
+  if (!next || !document.getElementById('lbFmtMenu').contains(next)) closeLbFmtMenu(false);
+});
+
+// 「Alt text」選択中はDownloadボタンの表記を生成系に切り替える
+function updateLbConvertButton() {
+  const btn = document.getElementById('lbConvertDownload');
+  const isAlt = lbFmtValue === 'alt';
+  btn.textContent = t(isAlt ? 'alt.generateText' : 'convert.downloadTextLb');
+  btn.setAttribute('aria-label', t(isAlt ? 'alt.generateLabel' : 'convert.download'));
+}
+
 document.getElementById('lbConvertDownload').addEventListener('click', async () => {
-  const fmt = document.getElementById('lbConvertFormat').value;
+  const fmt = lbFmtValue;
   const errEl = document.getElementById('lbConvertError');
   if (!fmt) {
     errEl.textContent = t('err.selectFormat');

@@ -43,22 +43,14 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.10.0] - 2026-07-17
-
-#### Added
-
-- Conversion preview in the lightbox: when a lossy format (WebP / JPEG, normal or High compression) is selected, a Preview button appears next to Download. It converts in memory and overlays the original and the result using the image-diff comparison view, with badges showing the format and file size of each side. Press Preview again, change the format, or navigate away to return to the normal view
-- Downloading while a preview of the same file and format is shown reuses the already-encoded result instead of converting again
-- PDFs opened in the lightbox now offer "PDF (individual pages)", splitting the file into one PDF per page and downloading them as a zip
+### [3.11.0] - 2026-07-17
 
 #### Changed
 
-- Convert error messages are now cleared when the format dropdown is operated again
-- Settings & Information dialog legibility: full-color accent-bar headings, bold selected tab, 16px headings/tabs, proper subheadings throughout the Guide, and a wider dialog (max 600px)
-
-#### Fixed
-
-- Converting (and previewing) a `.heic` file whose actual content is another format, such as HEIC(JPEG), always failed; the converter now uses the same real-type detection as the viewer
+- The lightbox format menu is now a custom menu (WAI-ARIA APG Menu Button pattern): previewable lossy formats (WebP/JPEG) are marked with ▸, and their submenu offers "Preview", which runs the conversion preview immediately — the closed menu then reads e.g. "WebP (High compression) Preview"
+- The separate Preview button is gone: which formats are previewable is visible before selecting, and the Download button no longer shifts position
+- Keyboard support follows the APG menu pattern (↑ ↓ move, → opens the submenu, ← returns, Enter / Space activates, Esc closes); navigating to another file drops the "Preview" state back to the plain format selection
+- Removed the tooltip from the image-diff / preview comparison box to avoid a browser glitch where it could stay stuck on screen
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -109,22 +101,14 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.10.0] - 2026-07-17
-
-#### 追加
-
-- ライトボックスに変換プレビューを追加：非可逆形式(WebP / JPEG、通常・高圧縮)を選ぶとダウンロードボタンの隣に「プレビュー」ボタンが表示される。押すとメモリ内で変換し、画像Diffモードの比較表示で元画像と変換後を重ねて確認できる。バッジには両側の形式名とファイルサイズを表示。もう一度プレビューを押す・形式を変える・前後移動すると通常表示に戻る
-- プレビュー表示中に同じファイル・同じ形式でダウンロードした場合は、エンコード済みの結果を再利用する(二重に変換しない)
-- ライトボックスでPDFを表示中は、変換メニューに「PDF(ページごと)」が表示されるように。1ページずつのPDFに分割してzipでダウンロードできる
+### [3.11.0] - 2026-07-17
 
 #### 変更
 
-- 変換エラーメッセージを、形式プルダウンの再操作で消すように変更
-- 「設定と情報」ダイアログの可読性を改善(見出しをテキスト色＋アクセントバーに、選択中タブを太字に、見出し・タブを16pxに、ガイド全体を小見出し構造に、最大幅を600pxに拡大)
-
-#### 修正
-
-- 拡張子が `.heic` で実体が別形式のファイル(HEIC(JPEG)等)の変換・プレビューが必ず失敗していた問題を修正(変換側も表示側と同じ実体判定を使うように)
+- ライトボックスの形式メニューを、WAI-ARIA APG の Menu Button パターンによるカスタムメニューに変更：プレビュー可能な非可逆形式(WebP/JPEG)には「▸」が付き、サブメニューの「プレビュー」を選ぶと即プレビューが実行される。閉じたメニューには「WebP(高圧縮) プレビュー」のように表示される
+- これに伴い独立したプレビューボタンは廃止：どの形式がプレビュー可能かが選ぶ前から分かり、ダウンロードボタンの位置も動かなくなった
+- キーボード操作はAPGのメニューパターンに準拠(↑↓で移動、→でサブメニュー、←で戻る、Enter/Spaceで決定、Escで閉じる)。前後のファイルへ移動すると「プレビュー」選択状態は形式選択に戻る
+- 画像Diff・プレビューの比較ボックスからツールチップを撤廃(表示されっぱなしになるブラウザ描画不具合の回避)
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
