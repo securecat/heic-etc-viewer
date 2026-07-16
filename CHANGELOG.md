@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.10.0] - 2026-07-17
+
+### Added
+
+- Conversion preview in the lightbox: when a lossy format (WebP, WebP High compression, JPEG, JPEG High compression) is selected, a Preview button appears next to Download. It converts in memory and overlays the original and the result using the image-diff comparison view (divider follows the mouse, click to lock), with badges showing the format and file size of each side (e.g. "Original 1.8 MB" vs "WebP (High compression) 240 KB"). Press Preview again, change the format, or navigate away to return to the normal view
+- Downloading while a preview of the same file and format is shown reuses the already-encoded result instead of converting again
+- PDFs opened in the lightbox now offer "PDF (individual pages)" in the convert menu, splitting the file into one PDF per page and downloading them as a zip (a one-page PDF downloads as a single file). Pages are extracted as-is via pdf-lib, without re-rendering
+
+### Changed
+
+- Convert error messages in the header and lightbox are now cleared when the format (or subject) dropdown is operated again, so a stale error can't be mistaken for the result of the latest action
+- Settings & Information dialog legibility: section headings (and the Language legend) are now full-color with an accent bar on the left instead of muted gray, tab labels are always full-color with the selected tab shown in bold, headings and tabs use a 16px font size (the minimum for Japanese text), the Guide's convert and keyboard sections now use proper subheadings (Images / Video / PDF and Folder tree / Gallery / Lightbox) instead of run-in paragraph labels, and the dialog is wider (max 600px instead of 480px) to suit the longer Guide content
+
+### Fixed
+
+- Converting (and previewing) a file with a `.heic` extension whose actual content is another format, such as HEIC(JPEG), always failed: the converter chose the decoder by file extension, while the viewer already detected the real type. Both now use the same real-type detection
+
 ## [3.9.1] - 2026-07-17
 
 ### Changed
@@ -458,6 +475,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.10.0] - 2026-07-17
+
+### 追加
+
+- ライトボックスに変換プレビューを追加：非可逆形式(WebP・WebP高圧縮・JPEG・JPEG高圧縮)を選ぶとダウンロードボタンの隣に「プレビュー」ボタンが表示される。押すとメモリ内で変換し、画像Diffモードの比較表示(マウス追従の境界線・クリックでロック)で元画像と変換後を重ねて確認できる。バッジには両側の形式名とファイルサイズを表示(例:「元画像 1.8 MB」⇄「WebP(高圧縮) 240 KB」)。もう一度プレビューを押す・形式を変える・前後移動すると通常表示に戻る
+- プレビュー表示中に同じファイル・同じ形式でダウンロードした場合は、エンコード済みの結果を再利用する(二重に変換しない)
+- ライトボックスでPDFを表示中は、変換メニューに「PDF(ページごと)」が表示されるように。1ページずつのPDFに分割してzipでダウンロードできる(1ページのPDFはそのまま1ファイルで保存)。ページは pdf-lib でそのまま取り出すため再レンダリングによる劣化はない
+
+### 変更
+
+- ヘッダー・ライトボックスの変換エラーメッセージを、形式(または変換対象)プルダウンの再操作で消すように変更。古いエラーが最新の操作の結果と紛らわしく残り続けないように
+- 「設定と情報」ダイアログの可読性を改善：セクション見出し(と「言語」のlegend)を薄いグレーからテキスト色＋左のアクセントバー付きに変更し、タブのラベルは常にテキスト色・選択中のタブは太字で表示するように。見出しとタブのフォントサイズを16px(日本語の最小サイズ)に修正。ガイドの変換・キーボード操作セクションは「画像 — …」のような段落内ラベルをやめて小見出し(h4)構造に変更(画像/動画/PDF、フォルダツリー/ギャラリー/ライトボックス)。ガイドの長文に合わせてダイアログの最大幅を480pxから600pxに拡大
+
+### 修正
+
+- 拡張子が `.heic` で実体が別形式のファイル(HEIC(JPEG)等)の変換・プレビューが必ず失敗していた問題を修正：表示側は実体判定していたのに、変換側は拡張子でデコーダーを選んでいた。両者とも同じ実体判定を使うように
 
 ## [3.9.1] - 2026-07-17
 

@@ -552,6 +552,11 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .convert-group .btn:hover,
 .lb-alt-result .btn:hover { background: #47638A; }
+/* プレビューのトグルON状態 */
+.convert-group .btn[aria-pressed="true"] {
+  background: var(--accent-hover);
+  border-color: #699EFF;
+}
 .convert-group .convert-error {
   font-size: 14px; color: #FF8A8A; white-space: nowrap;
 }
@@ -607,7 +612,7 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: var(--radius-lg);
   padding: 20px 24px;
   width: calc(100vw - 40px);
-  max-width: 480px;
+  max-width: 600px;
   /* タブ切り替えで高さが変わって目線が飛ばないよう、内容量に関わらず固定高で天地中央に出す */
   height: 60vh;
   overflow: hidden;
@@ -630,12 +635,18 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .info-dialog-header h2 { font-size: 18px; font-weight: 600; }
 #infoDialog h3 {
-  font-size: 14px;
+  font-size: 16px; /* 日本語の最小フォントサイズは16px */
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text);
+  border-left: 4px solid var(--accent);
+  padding-left: 8px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   margin: 18px 0 6px;
+}
+#infoDialog h4 {
+  font-size: 16px;
+  margin: 12px 0 4px; /* グローバルリセットでマージン0のため最小限を指定 */
 }
 #infoDialog h3:first-of-type { margin-top: 6px; }
 #infoDialog p { font-size: 16px; line-height: 1.7; color: var(--text); }
@@ -659,17 +670,17 @@ input[type="range"]::-webkit-slider-thumb {
 .info-tab {
   background: none;
   border: none;
-  color: var(--text-muted);
-  font-size: 14px;
+  color: var(--text);
+  font-size: 16px;
   padding: 8px 14px;
   cursor: pointer;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
-  min-width: 88px; /* 言語切り替えでラベル幅が変わってもタブ位置がずれないように */
+  min-width: 88px; /* 言語切り替えやbold化でラベル幅が変わってもタブ位置がずれないように */
   text-align: center;
 }
-.info-tab:hover { color: var(--text); }
-.info-tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+.info-tab:hover { border-bottom-color: var(--text); }
+.info-tab[aria-selected="true"] { font-weight: bold; border-bottom-color: var(--accent); }
 .info-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .info-panel {
   padding-top: 6px;
@@ -685,12 +696,13 @@ input[type="range"]::-webkit-slider-thumb {
   margin: 8px 0;
 }
 .lang-fieldset legend {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text);
+  border-left: 4px solid var(--accent);
+  padding: 0 0 0 8px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  padding: 0;
   margin-bottom: 8px;
 }
 .lang-fieldset label {
@@ -792,7 +804,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.9.1</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.10.0</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -819,8 +831,12 @@ input[type="range"]::-webkit-slider-thumb {
     <h3 data-i18n="g.formats.h">Supported file formats (view)</h3>
     <p data-i18n="g.formats.p">HEIC/HEIF, JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO</p>
     <h3 data-i18n="g.convert.h">Convertible file formats</h3>
-    <p data-i18n="g.convert.p1">Images — HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size</p>
-    <p data-i18n="g.convert.p2">Video — MP4, WebM, and MOV → Sound or Thumbnail. Sound extracts the audio track as-is (no re-encoding), so the resulting file's actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video).</p>
+    <h4 data-i18n="g.convert.imgH">Images</h4>
+    <p data-i18n="g.convert.imgP">HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. For the lossy formats (WebP/JPEG), the lightbox offers a Preview that overlays the original and the converted result with a divider, showing both file sizes, before you download.</p>
+    <h4 data-i18n="g.convert.videoH">Video</h4>
+    <p data-i18n="g.convert.videoP">MP4, WebM, and MOV → Sound or Thumbnail. Sound extracts the audio track as-is (no re-encoding), so the resulting file's actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video).</p>
+    <h4 data-i18n="g.convert.pdfH">PDF</h4>
+    <p data-i18n="g.convert.pdfP">A PDF opened in the lightbox can be split into one PDF per page ("PDF (individual pages)"), downloaded as a zip (or as a single file for one-page PDFs). Pages are extracted as-is, without re-rendering.</p>
     <h3 data-i18n="g.zip.h">Export as a Zip</h3>
     <p data-i18n="g.zip.p">Doesn't convert anything — bundles every file currently shown in the gallery (after any filter) into a single zip, unchanged. Available by selecting "All" as the convert subject.</p>
     <h3 data-i18n="g.diff.h">Image diff mode</h3>
@@ -828,9 +844,12 @@ input[type="range"]::-webkit-slider-thumb {
     <h3 data-i18n="g.alt.h">Alt text generation (AI)</h3>
     <p data-i18n="g.alt.p">Generates alt text for images with Chrome's built-in on-device AI (Gemini Nano) — nothing is sent to any server. Works with JPEG, PNG, WebP, GIF, SVG, and AVIF (formats usable in &lt;img&gt;), and the output language follows the UI language. Select "All" as the convert subject and choose "Export alt text (AI)" to download a JSON file pairing each filename with its alt text, or use "Alt text" in the lightbox to generate and copy text for one image. Requires Chrome 148 or later, at least 22 GB of free disk space, more than 4 GB of VRAM, and 16 GB of RAM; the first run downloads the model. Animated GIFs are described from their first frame.</p>
     <h3 data-i18n="g.kbd.h">Keyboard operation</h3>
-    <p data-i18n-html="g.kbd.tree"><strong>Folder tree</strong> — <kbd>Tab</kbd> enters the tree on the selected folder. <kbd>↑</kbd> <kbd>↓</kbd> move between visible folders. <kbd>→</kbd> expands a closed folder; on the selected folder with nothing left to expand, it moves focus into the gallery. <kbd>←</kbd> collapses an open folder. <kbd>Enter</kbd> / <kbd>Space</kbd> shows the folder's contents in the gallery; pressing it again moves focus into the gallery. <kbd>Home</kbd> / <kbd>End</kbd> jump to the first / last folder. Typing a character jumps to the next folder whose name starts with it.</p>
-    <p data-i18n-html="g.kbd.gallery"><strong>Gallery</strong> — <kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.</p>
-    <p data-i18n-html="g.kbd.lb"><strong>Lightbox</strong> — <kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>R</kbd> rotates 90° counter-clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.</p>
+    <h4 data-i18n="g.kbd.treeH">Folder tree</h4>
+    <p data-i18n-html="g.kbd.treeP"><kbd>Tab</kbd> enters the tree on the selected folder. <kbd>↑</kbd> <kbd>↓</kbd> move between visible folders. <kbd>→</kbd> expands a closed folder; on the selected folder with nothing left to expand, it moves focus into the gallery. <kbd>←</kbd> collapses an open folder. <kbd>Enter</kbd> / <kbd>Space</kbd> shows the folder's contents in the gallery; pressing it again moves focus into the gallery. <kbd>Home</kbd> / <kbd>End</kbd> jump to the first / last folder. Typing a character jumps to the next folder whose name starts with it.</p>
+    <h4 data-i18n="g.kbd.galleryH">Gallery</h4>
+    <p data-i18n-html="g.kbd.galleryP"><kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.</p>
+    <h4 data-i18n="g.kbd.lbH">Lightbox</h4>
+    <p data-i18n-html="g.kbd.lbP"><kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>R</kbd> rotates 90° counter-clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.</p>
   </div>
   <div class="info-panel" id="panelAbout" role="tabpanel" aria-labelledby="tabAbout" tabindex="0" hidden>
     <p>MIT License<br>&copy; 2026 securecat</p>
@@ -900,6 +919,7 @@ input[type="range"]::-webkit-slider-thumb {
         <option value="jpeg-hc">JPEG (High compression)</option>
         <option value="pdf">PDF</option>
       </select>
+      <button class="btn" id="lbPreviewBtn" data-i18n="preview.btn" data-i18n-attr="aria-label:preview.btn" aria-label="Preview" aria-pressed="false" style="display:none">Preview</button>
       <button class="btn" id="lbConvertDownload" data-i18n="convert.downloadTextLb" data-i18n-attr="aria-label:convert.download" aria-label="Download">📄Download</button>
       <span class="convert-error" id="lbConvertError" aria-live="polite"></span>
     </div>
@@ -947,6 +967,7 @@ const I18N = {
     'fmt.pdf': 'PDF',
     'fmt.pdfEach': 'PDF (individual files)',
     'fmt.pdfCombined': 'PDF (combine into one)',
+    'fmt.pdfSplit': 'PDF (individual pages)',
     'fmt.sound': 'Sound',
     'fmt.thumbnail': 'Thumbnail',
     'fmt.thumbnails': 'Thumbnails',
@@ -984,16 +1005,23 @@ const I18N = {
     'g.formats.h': 'Supported file formats (view)',
     'g.formats.p': 'HEIC/HEIF, JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO',
     'g.convert.h': 'Convertible file formats',
-    'g.convert.p1': 'Images — HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size',
-    'g.convert.p2': 'Video — MP4, WebM, and MOV → Sound or Thumbnail. Sound extracts the audio track as-is (no re-encoding), so the resulting file\'s actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video).',
+    'g.convert.imgH': 'Images',
+    'g.convert.imgP': 'HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. For the lossy formats (WebP/JPEG), the lightbox offers a Preview that overlays the original and the converted result with a divider, showing both file sizes, before you download.',
+    'g.convert.videoH': 'Video',
+    'g.convert.videoP': 'MP4, WebM, and MOV → Sound or Thumbnail. Sound extracts the audio track as-is (no re-encoding), so the resulting file\'s actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video).',
+    'g.convert.pdfH': 'PDF',
+    'g.convert.pdfP': 'A PDF opened in the lightbox can be split into one PDF per page ("PDF (individual pages)"), downloaded as a zip (or as a single file for one-page PDFs). Pages are extracted as-is, without re-rendering.',
     'g.zip.h': 'Export as a Zip',
     'g.zip.p': 'Doesn\'t convert anything — bundles every file currently shown in the gallery (after any filter) into a single zip, unchanged. Available by selecting "All" as the convert subject.',
     'g.diff.h': 'Image diff mode',
     'g.diff.p': 'Open a parent folder containing exactly two subfolders whose image files share the same filename (ignoring extension) to compare them. Opening a matched file in the lightbox shows both versions overlaid with a divider that follows your mouse — the alphabetically-first subfolder is on the left. Files without a match in the other subfolder, or matched pairs that aren\'t both images, display normally.',
     'g.kbd.h': 'Keyboard operation',
-    'g.kbd.tree': '<strong>Folder tree</strong> — <kbd>Tab</kbd> enters the tree on the selected folder. <kbd>↑</kbd> <kbd>↓</kbd> move between visible folders. <kbd>→</kbd> expands a closed folder; on the selected folder with nothing left to expand, it moves focus into the gallery. <kbd>←</kbd> collapses an open folder. <kbd>Enter</kbd> / <kbd>Space</kbd> shows the folder\'s contents in the gallery; pressing it again moves focus into the gallery. <kbd>Home</kbd> / <kbd>End</kbd> jump to the first / last folder. Typing a character jumps to the next folder whose name starts with it.',
-    'g.kbd.gallery': '<strong>Gallery</strong> — <kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.',
-    'g.kbd.lb': '<strong>Lightbox</strong> — <kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>R</kbd> rotates 90° counter-clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.',
+    'g.kbd.treeH': 'Folder tree',
+    'g.kbd.treeP': '<kbd>Tab</kbd> enters the tree on the selected folder. <kbd>↑</kbd> <kbd>↓</kbd> move between visible folders. <kbd>→</kbd> expands a closed folder; on the selected folder with nothing left to expand, it moves focus into the gallery. <kbd>←</kbd> collapses an open folder. <kbd>Enter</kbd> / <kbd>Space</kbd> shows the folder\'s contents in the gallery; pressing it again moves focus into the gallery. <kbd>Home</kbd> / <kbd>End</kbd> jump to the first / last folder. Typing a character jumps to the next folder whose name starts with it.',
+    'g.kbd.galleryH': 'Gallery',
+    'g.kbd.galleryP': '<kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.',
+    'g.kbd.lbH': 'Lightbox',
+    'g.kbd.lbP': '<kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>R</kbd> rotates 90° counter-clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.',
     'about.bug': 'Found a bug? Report it on <a href="https://github.com/securecat/heic-etc-viewer/issues" target="_blank" rel="noopener">GitHub Issues</a>.',
     'lb.label': 'Lightbox',
     'lb.zoom': 'Zoom (drag to select)',
@@ -1044,6 +1072,9 @@ const I18N = {
     'alt.doneSkipped': 'Done — {n} file(s) skipped',
     'alt.copy': 'Copy',
     'alt.copied': 'Copied!',
+    'preview.btn': 'Preview',
+    'preview.original': 'Original',
+    'preview.generating': 'Generating preview...',
     'g.alt.h': 'Alt text generation (AI)',
     'g.alt.p': 'Generates alt text for images with Chrome\'s built-in on-device AI (Gemini Nano) — nothing is sent to any server. Works with JPEG, PNG, WebP, GIF, SVG, and AVIF (formats usable in <img>), and the output language follows the UI language. Select "All" as the convert subject and choose "Export alt text (AI)" to download a JSON file pairing each filename with its alt text, or use "Alt text" in the lightbox to generate and copy text for one image. Requires Chrome 148 or later, at least 22 GB of free disk space, more than 4 GB of VRAM, and 16 GB of RAM; the first run downloads the model. Animated GIFs are described from their first frame.',
   },
@@ -1082,6 +1113,7 @@ const I18N = {
     'fmt.pdf': 'PDF',
     'fmt.pdfEach': 'PDF(画像ごとに)',
     'fmt.pdfCombined': 'PDF(1つに結合)',
+    'fmt.pdfSplit': 'PDF(ページごと)',
     'fmt.sound': '音声',
     'fmt.thumbnail': 'サムネイル',
     'fmt.thumbnails': 'サムネイル',
@@ -1119,16 +1151,23 @@ const I18N = {
     'g.formats.h': '対応ファイル形式(表示)',
     'g.formats.p': 'HEIC/HEIF、JPEG、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、PDF、ICO',
     'g.convert.h': '変換可能なファイル形式',
-    'g.convert.p1': '画像 — HEIC/HEIF、JPEG、PNG、WebP、BMP、TIFF、AVIF → WebP・PNG・JPEG・PDF(1ファイルずつでも、一括でも可)。「高圧縮」のWebP/JPEGは、品質設定を大きく下げることでファイルサイズを大幅に小さくします',
-    'g.convert.p2': '動画 — MP4、WebM、MOV → 音声またはサムネイル。「音声」は音声トラックを再エンコードせずそのまま抽出するため、出力ファイルの実際のコーデックは元動画に依存します(例: AAC、Opus)。音声トラックのない動画は、一括変換ではスキップされ、個別変換ではエラーになります。「サムネイル」は動画の序盤からJPEGのスナップショットを保存します(一括では動画ごとに1枚ずつダウンロード)。',
+    'g.convert.imgH': '画像',
+    'g.convert.imgP': 'HEIC/HEIF、JPEG、PNG、WebP、BMP、TIFF、AVIF → WebP・PNG・JPEG・PDF(1ファイルずつでも、一括でも可)。「高圧縮」のWebP/JPEGは、品質設定を大きく下げることでファイルサイズを大幅に小さくします。非可逆形式(WebP/JPEG)では、ライトボックスの「プレビュー」で、ダウンロード前に元画像と変換後を境界線付きで重ねて比較できます(それぞれのファイルサイズも表示)。',
+    'g.convert.videoH': '動画',
+    'g.convert.videoP': 'MP4、WebM、MOV → 音声またはサムネイル。「音声」は音声トラックを再エンコードせずそのまま抽出するため、出力ファイルの実際のコーデックは元動画に依存します(例: AAC、Opus)。音声トラックのない動画は、一括変換ではスキップされ、個別変換ではエラーになります。「サムネイル」は動画の序盤からJPEGのスナップショットを保存します(一括では動画ごとに1枚ずつダウンロード)。',
+    'g.convert.pdfH': 'PDF',
+    'g.convert.pdfP': 'ライトボックスで表示中のPDFは「PDF(ページごと)」で1ページずつのPDFに分割し、zipでダウンロードできます(1ページのPDFはそのまま1ファイルで保存)。ページは再レンダリングせず、そのまま取り出します。',
     'g.zip.h': 'ZIPでエクスポート',
     'g.zip.p': '変換は行いません。ギャラリーに表示中のすべてのファイル(絞り込み後)を、変換せずそのまま1つのZIPにまとめます。変換対象で「すべて」を選ぶと使用できます。',
     'g.diff.h': '画像Diffモード',
     'g.diff.p': '拡張子を除いたファイル名が一致する画像ファイルを持つ、ちょうど2つのサブフォルダを含む親フォルダを開くと比較できます。一致したファイルをライトボックスで開くと、マウスに追従する境界線で2つのバージョンが重ねて表示されます(アルファベット順で先のサブフォルダが左側)。もう一方のサブフォルダに一致がないファイルや、両方が画像ではないペアは、通常どおり表示されます。',
     'g.kbd.h': 'キーボード操作',
-    'g.kbd.tree': '<strong>フォルダツリー</strong> — <kbd>Tab</kbd> で選択中のフォルダにフォーカスします。<kbd>↑</kbd> <kbd>↓</kbd> で表示中のフォルダ間を移動。<kbd>→</kbd> は閉じたフォルダを展開し、選択中のフォルダで展開するものがない場合はギャラリーへフォーカスを移します。<kbd>←</kbd> は開いたフォルダを折りたたみます。<kbd>Enter</kbd> / <kbd>Space</kbd> でフォルダの中身をギャラリーに表示し、もう一度押すとギャラリーへフォーカスが移ります。<kbd>Home</kbd> / <kbd>End</kbd> で先頭・末尾のフォルダへ。文字キーで、名前がその文字で始まる次のフォルダへジャンプします。',
-    'g.kbd.gallery': '<strong>ギャラリー</strong> — <kbd>Tab</kbd> でアイテム間を移動。<kbd>Enter</kbd> / <kbd>Space</kbd> でアイテムをライトボックスで開きます。<kbd>←</kbd> でツリーの選択中フォルダへフォーカスが戻ります。',
-    'g.kbd.lb': '<strong>ライトボックス</strong> — <kbd>←</kbd> <kbd>→</kbd> でファイル間を移動。<kbd>Z</kbd> でズームモードの切り替え(画像・動画)。<kbd>C</kbd> で市松模様背景の切り替え(画像)。<kbd>R</kbd> で反時計回りに90度回転(画像・動画)。<kbd>L</kbd> でループ再生の切り替え(動画)。<kbd>Esc</kbd> でズームの解除・終了、ライトボックスを閉じる、またはスライドショーの停止。',
+    'g.kbd.treeH': 'フォルダツリー',
+    'g.kbd.treeP': '<kbd>Tab</kbd> で選択中のフォルダにフォーカスします。<kbd>↑</kbd> <kbd>↓</kbd> で表示中のフォルダ間を移動。<kbd>→</kbd> は閉じたフォルダを展開し、選択中のフォルダで展開するものがない場合はギャラリーへフォーカスを移します。<kbd>←</kbd> は開いたフォルダを折りたたみます。<kbd>Enter</kbd> / <kbd>Space</kbd> でフォルダの中身をギャラリーに表示し、もう一度押すとギャラリーへフォーカスが移ります。<kbd>Home</kbd> / <kbd>End</kbd> で先頭・末尾のフォルダへ。文字キーで、名前がその文字で始まる次のフォルダへジャンプします。',
+    'g.kbd.galleryH': 'ギャラリー',
+    'g.kbd.galleryP': '<kbd>Tab</kbd> でアイテム間を移動。<kbd>Enter</kbd> / <kbd>Space</kbd> でアイテムをライトボックスで開きます。<kbd>←</kbd> でツリーの選択中フォルダへフォーカスが戻ります。',
+    'g.kbd.lbH': 'ライトボックス',
+    'g.kbd.lbP': '<kbd>←</kbd> <kbd>→</kbd> でファイル間を移動。<kbd>Z</kbd> でズームモードの切り替え(画像・動画)。<kbd>C</kbd> で市松模様背景の切り替え(画像)。<kbd>R</kbd> で反時計回りに90度回転(画像・動画)。<kbd>L</kbd> でループ再生の切り替え(動画)。<kbd>Esc</kbd> でズームの解除・終了、ライトボックスを閉じる、またはスライドショーの停止。',
     'about.bug': 'バグを見つけたら、<a href="https://github.com/securecat/heic-etc-viewer/issues" target="_blank" rel="noopener">GitHub Issues</a> へ報告してください。',
     'lb.label': 'ライトボックス',
     'lb.zoom': 'ズーム(ドラッグして範囲選択)',
@@ -1179,6 +1218,9 @@ const I18N = {
     'alt.doneSkipped': '完了 — {n}件はスキップしました',
     'alt.copy': 'コピー',
     'alt.copied': 'コピーしました',
+    'preview.btn': 'プレビュー',
+    'preview.original': '元画像',
+    'preview.generating': 'プレビューを生成中...',
     'g.alt.h': '代替テキスト生成(AI)',
     'g.alt.p': 'Chrome内蔵のオンデバイスAI(Gemini Nano)で画像の代替テキストを生成します。サーバーには何も送信されません。対象はJPEG・PNG・WebP・GIF・SVG・AVIF(<img>で使える形式)で、生成される言語はUIの表示言語に連動します。変換対象「すべて」の「代替テキストをエクスポート(AI)」で、ファイル名と代替テキストを対にしたJSONをダウンロードできます。ライトボックスの「代替テキスト」では1枚ずつ生成してコピーできます。Chrome 148以降・空きストレージ22GB以上・VRAM 4GB超・RAM 16GB以上が必要で、初回はAIモデルのダウンロードが行われます。アニメーションGIFは先頭フレームの内容から生成されます。',
   },
@@ -1437,8 +1479,9 @@ function isConvertible(name) { return CONVERTIBLE_EXTS.includes(extOf(name)); }
 function baseName(name) { return (name||'').replace(/\.[^.]+$/, ''); }
 
 // 変換元ファイルを実寸のcanvasにデコードする（HEICはlibheifで直接デコード、他はブラウザネイティブ）
+// 拡張子はHEICでも実体が別形式のファイル（HEIC(JPEG)等）があるため、実体で判定する
 async function decodeToCanvas(file) {
-  if (isHeic(file.name)) {
+  if (isHeic(file.name) && (await detectRealType(file)) === 'heic') {
     if (!heifLib) throw new Error('libheif not ready');
     const data = new Uint8ClampedArray(await file.arrayBuffer());
     const decoder = new heifLib.HeifDecoder();
@@ -1858,9 +1901,15 @@ const LB_VIDEO_CONVERT_FORMAT_LIST = [
   { value: 'sound', labelKey: 'fmt.sound' },
   { value: 'thumbnail', labelKey: 'fmt.thumbnail' },
 ];
+// PDF表示中はページ分割のみ（他の形式へは変換できないため）
+const LB_PDF_CONVERT_FORMAT_LIST = [
+  { value: '', labelKey: 'fmt.placeholder' },
+  { value: 'pdf-split', labelKey: 'fmt.pdfSplit' },
+];
 const LB_CONVERT_FORMAT_LISTS = {
   image: LB_IMAGE_CONVERT_FORMAT_LIST,
   video: LB_VIDEO_CONVERT_FORMAT_LIST,
+  pdf: LB_PDF_CONVERT_FORMAT_LIST,
 };
 function formatOptionsHTML(list) {
   return list.map(o => `<option value="${o.value}">${t(o.labelKey)}</option>`).join('');
@@ -1890,6 +1939,10 @@ function fixFormatSelectWidth(formatSelectId, lists) {
 // header（フォルダ一括）: 変換対象プルダウンと連動させる
 document.getElementById('bulkConvertSubject').addEventListener('change', e => {
   document.getElementById('bulkConvertFormat').innerHTML = formatOptionsHTML(CONVERT_FORMAT_LISTS[e.target.value]);
+  document.getElementById('bulkConvertError').textContent = '';
+});
+// 形式の選び直しでも前のエラーメッセージを消す（どの操作のエラーか判別できなくなるため）
+document.getElementById('bulkConvertFormat').addEventListener('change', () => {
   document.getElementById('bulkConvertError').textContent = '';
 });
 fixFormatSelectWidth('bulkConvertFormat', CONVERT_FORMAT_LISTS);
@@ -2939,8 +2992,8 @@ async function updateLightbox() {
   const lbDimEl = document.getElementById('lbDim'); if(lbDimEl) lbDimEl.textContent = '';
   document.getElementById('lbConvertError').textContent = '';
 
-  // 表示中のファイル種別（画像/動画）に合わせて「Convert to...」の中身を自動で切り替える
-  const lbNewSubject = isVideo(name) ? 'video' : 'image';
+  // 表示中のファイル種別（画像/動画/PDF）に合わせて「Convert to...」の中身を自動で切り替える
+  const lbNewSubject = isVideo(name) ? 'video' : isPdf(name) ? 'pdf' : 'image';
   if (lbCurrentSubject !== lbNewSubject) {
     lbCurrentSubject = lbNewSubject;
     document.getElementById('lbConvertFormat').innerHTML = formatOptionsHTML(LB_CONVERT_FORMAT_LISTS[lbNewSubject]);
@@ -2959,6 +3012,7 @@ async function updateLightbox() {
   resetZoom();
   resetDiffMode();
   resetMediaRotation();
+  exitConvertPreview();
 
   try {
     const file = await resolveFile(entry);
@@ -3033,6 +3087,7 @@ function closeLightbox() {
   resetDiffMode();
   resetMediaRotation();
   hideLbAltResult();
+  exitConvertPreview();
   // コンバートメニューは閉じたら忘れて、次回はプレースホルダーから始める
   document.getElementById('lbConvertFormat').selectedIndex = 0;
   document.getElementById('lbConvertError').textContent = '';
@@ -3545,18 +3600,13 @@ window.addEventListener('resize', () => {
   applyDiffDivider(diffDividerFrac);
 });
 
-async function renderDiffMode(currentFile, diffInfo) {
-  const partnerFile = await resolveFile(diffInfo.partner);
-  const leftFile  = diffInfo.side === 'left'  ? currentFile : partnerFile;
-  const rightFile = diffInfo.side === 'right' ? currentFile : partnerFile;
-  const { url: leftUrl }  = await makeURL(leftFile);
-  const { url: rightUrl } = await makeURL(rightFile);
-  lbDiffLeft.src  = leftUrl;  lbDiffLeft.alt  = leftFile.name;
-  lbDiffRight.src = rightUrl; lbDiffRight.alt = rightFile.name;
-  lbDiffBadgeLeft.textContent  = extOf(leftFile.name).toUpperCase();
-  lbDiffBadgeRight.textContent = extOf(rightFile.name).toUpperCase();
+// 2画像を境界線付きで重ねて表示する共通部（画像Diffモードと変換プレビューで共用）
+async function showCompareView(leftUrl, rightUrl, leftAlt, rightAlt, leftBadge, rightBadge) {
+  lbDiffLeft.src  = leftUrl;  lbDiffLeft.alt  = leftAlt;
+  lbDiffRight.src = rightUrl; lbDiffRight.alt = rightAlt;
+  lbDiffBadgeLeft.textContent  = leftBadge;
+  lbDiffBadgeRight.textContent = rightBadge;
   document.getElementById('lbDiffWrap').style.display = 'flex';
-  lbFilename.textContent = `${leftFile.name} ↔ ${rightFile.name}`;
   // 画像の実寸が分かってから（レターボックスの有無が確定してから）バッジ位置・境界線を合わせる。
   // 初回表示時はこの時点でまだライトボックス自体が非表示（openLightboxがopenクラスを
   // 付けるのはupdateLightbox完了後）でボックスのサイズが0になるため、rAFで表示反映後にずらす
@@ -3565,6 +3615,20 @@ async function renderDiffMode(currentFile, diffInfo) {
     positionDiffBadges();
     applyDiffDivider(0.5);
   });
+}
+
+async function renderDiffMode(currentFile, diffInfo) {
+  const partnerFile = await resolveFile(diffInfo.partner);
+  const leftFile  = diffInfo.side === 'left'  ? currentFile : partnerFile;
+  const rightFile = diffInfo.side === 'right' ? currentFile : partnerFile;
+  const { url: leftUrl }  = await makeURL(leftFile);
+  const { url: rightUrl } = await makeURL(rightFile);
+  lbFilename.textContent = `${leftFile.name} ↔ ${rightFile.name}`;
+  await showCompareView(
+    leftUrl, rightUrl,
+    leftFile.name, rightFile.name,
+    extOf(leftFile.name).toUpperCase(), extOf(rightFile.name).toUpperCase()
+  );
 }
 
 function resetDiffMode() {
@@ -3923,14 +3987,83 @@ document.getElementById('lbAltCopy').addEventListener('click', async () => {
   } catch (e) { /* クリップボード拒否時は何もしない */ }
 });
 
-// 「Alt text」選択中はDownloadボタンの表記を生成系に切り替える
+// ── 変換プレビュー（元画像⇄変換後をDiff表示で比較。非可逆形式のみ）──
+const PREVIEWABLE_FORMATS = ['webp', 'webp-hc', 'jpeg', 'jpeg-hc'];
+let convertPreview = null; // { entryName, fmt, blob, url } プレビュー中のみ非null
+
+function formatBytes(bytes) {
+  if (bytes >= 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+  if (bytes >= 1024) return Math.round(bytes / 1024) + ' KB';
+  return bytes + ' B';
+}
+
+// プレビュー状態の破棄のみ行う（表示の復帰は呼び出し側で updateLightbox する）
+function exitConvertPreview() {
+  if (!convertPreview) return;
+  URL.revokeObjectURL(convertPreview.url);
+  convertPreview = null;
+  document.getElementById('lbPreviewBtn').setAttribute('aria-pressed', 'false');
+}
+
+document.getElementById('lbPreviewBtn').addEventListener('click', async () => {
+  const errEl = document.getElementById('lbConvertError');
+  if (convertPreview) {
+    // トグルOFF: 通常表示へ戻す
+    exitConvertPreview();
+    await updateLightbox();
+    return;
+  }
+  const fmt = document.getElementById('lbConvertFormat').value;
+  const entry = filteredFiles[currentIdx];
+  if (!PREVIEWABLE_FORMATS.includes(fmt)) return;
+  if (!entry || !isConvertible(entry.name)) {
+    errEl.textContent = t('err.cannotConvert');
+    return;
+  }
+  errEl.textContent = t('preview.generating');
+  try {
+    exitZoomMode(); // ズーム・回転とプレビューは併用しない（Diff表示と同じ扱い）
+    const file = await resolveFile(entry);
+    const blob = await convertToBlob(file, fmt);
+    convertPreview = { entryName: entry.name, fmt, blob, url: URL.createObjectURL(blob) };
+    const fmtLabel = t(LB_IMAGE_CONVERT_FORMAT_LIST.find(o => o.value === fmt).labelKey);
+    // 左=元画像（表示中の lbImg.src を流用。HEIC等もデコード済みURLになっている）、右=変換後
+    const leftUrl = document.getElementById('lbImg').src;
+    document.getElementById('lbImgWrap').style.display = 'none';
+    await showCompareView(
+      leftUrl, convertPreview.url,
+      entry.name, `${entry.name} (${fmtLabel})`,
+      `${t('preview.original')} ${formatBytes(file.size)}`,
+      `${fmtLabel} ${formatBytes(blob.size)}`
+    );
+    document.getElementById('lbZoomBtn').style.display = 'none';
+    document.getElementById('lbRotate').style.display = 'none';
+    document.getElementById('lbPreviewBtn').setAttribute('aria-pressed', 'true');
+    errEl.textContent = '';
+  } catch (e) {
+    exitConvertPreview();
+    errEl.textContent = t('err.convFailed');
+  }
+});
+
+// 「Alt text」選択中はDownloadボタンの表記を生成系に、非可逆形式選択中はプレビューボタンを表示する
 function updateLbConvertButton() {
   const btn = document.getElementById('lbConvertDownload');
-  const isAlt = document.getElementById('lbConvertFormat').value === 'alt';
+  const fmt = document.getElementById('lbConvertFormat').value;
+  const isAlt = fmt === 'alt';
   btn.textContent = t(isAlt ? 'alt.generateText' : 'convert.downloadTextLb');
   btn.setAttribute('aria-label', t(isAlt ? 'alt.generateLabel' : 'convert.download'));
+  document.getElementById('lbPreviewBtn').style.display = PREVIEWABLE_FORMATS.includes(fmt) ? '' : 'none';
 }
-document.getElementById('lbConvertFormat').addEventListener('change', updateLbConvertButton);
+document.getElementById('lbConvertFormat').addEventListener('change', async () => {
+  updateLbConvertButton();
+  // 前の操作のエラーメッセージを引きずらない（どの操作のエラーか判別できなくなるため）
+  document.getElementById('lbConvertError').textContent = '';
+  if (convertPreview) {
+    exitConvertPreview();
+    await updateLightbox();
+  }
+});
 
 document.getElementById('lbConvertDownload').addEventListener('click', async () => {
   const fmt = document.getElementById('lbConvertFormat').value;
@@ -3996,12 +4129,53 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
     return;
   }
 
+  // 「PDF(ページごと)」: PDFを1ページずつのPDFに分割し、複数ページならzipでダウンロード
+  if (fmt === 'pdf-split') {
+    if (!entry || !isPdf(entry.name)) {
+      errEl.textContent = t('err.cannotConvert');
+      return;
+    }
+    errEl.textContent = '';
+    try {
+      const file = await resolveFile(entry);
+      const { PDFDocument } = await import('https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/+esm');
+      const src = await PDFDocument.load(await file.arrayBuffer());
+      const pageCount = src.getPageCount();
+      const pad = String(pageCount).length;
+      const results = [];
+      for (let i = 0; i < pageCount; i++) {
+        const doc = await PDFDocument.create();
+        const [page] = await doc.copyPages(src, [i]);
+        doc.addPage(page);
+        const bytes = await doc.save();
+        results.push({
+          name: `${baseName(entry.name)}-p${String(i + 1).padStart(pad, '0')}.pdf`,
+          blob: new Blob([bytes], { type: 'application/pdf' }),
+        });
+      }
+      if (results.length === 1) {
+        // 1ページのPDFは分割の意味がないので、そのまま1ファイルで保存
+        triggerDownload(results[0].blob, results[0].name);
+        return;
+      }
+      await downloadAsZip(results, `${baseName(entry.name)}.zip`);
+    } catch (e) {
+      errEl.textContent = t('err.convFailed');
+    }
+    return;
+  }
+
   if (!entry || !isConvertible(entry.name)) {
     errEl.textContent = t('err.cannotConvert');
     return;
   }
   errEl.textContent = '';
   try {
+    // プレビューで同条件のエンコード済みBlobがあればそれを保存（二重エンコードしない）
+    if (convertPreview && convertPreview.entryName === entry.name && convertPreview.fmt === fmt && !zoomed) {
+      triggerDownload(convertPreview.blob, `${baseName(entry.name)}.${convertExt(fmt)}`);
+      return;
+    }
     const file = await resolveFile(entry);
     // ズーム中はズーム選択範囲だけを実寸で切り出して保存する
     const cropZoom = zoomed ? currentZoom : null;
