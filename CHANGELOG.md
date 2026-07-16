@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.12.0] - 2026-07-17
+
+### Added
+
+- Actual-size (1:1) toggle button 👁 in the lightbox header, between the checker-background button and the close button, with the keyboard shortcut 1. It shows the image at its natural size — for small images that would blur when enlarged, or for checking the real dimensions of icons such as ICO files — and pressing it again returns to the default fit view. An image that doesn't fit in the lightbox can be scrolled to see every part at 1:1 (the initial position is the center of the image); the scroll area is keyboard-focusable, so it can also be scrolled with the arrow keys
+- The actual-size state persists while navigating between files with ← → and resets when the lightbox is closed. It is mutually exclusive with zoom mode, rotation, and slideshows: starting any of those turns actual-size off, and turning actual-size on resets rotation
+
+### Changed
+
+- Still images now open "as large as possible" by default: images smaller than the lightbox are scaled up to fill the available space (matching how the preview / diff comparison view already behaved), while larger images are scaled down to fit as before
+- The key hints at the bottom of the lightbox are now right-aligned, keeping them clear of the convert controls on the left
+
 ## [3.11.0] - 2026-07-17
 
 ### Changed
@@ -484,6 +496,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.12.0] - 2026-07-17
+
+### 追加
+
+- ライトボックスのヘッダー(市松模様ボタンと閉じるボタンの間)に原寸表示(等倍)ボタン「👁」を追加(ショートカット: 1)。押すと画像を原寸で表示し、もう一度押すとデフォルトの全体表示に戻る。拡大するとぼやける小さな画像・イラストや、ICOファイルなど実寸そのものを確認したい用途向け。ライトボックスに収まらない画像はスクロールして原寸のまま全体を確認できる(初期位置は画像の中央)。スクロール領域はキーボードでもフォーカスでき、矢印キーでスクロール可能
+- 原寸表示のON状態は←→でのファイル移動でも維持され、ライトボックスを閉じるとリセットされる。ズームモード・回転・スライドショーとは相互排他で、いずれかを開始すると原寸表示は解除される(原寸表示をONにすると回転はリセットされる)
+
+### 変更
+
+- 静止画のデフォルト表示を「できるだけ大きく」に変更：ライトボックスより小さい画像も余白いっぱいまで拡大して表示する(プレビュー・Diff比較表示と同じ考え方)。大きい画像は従来通り収まるように縮小
+- ライトボックス下端のキー操作ヒントを右寄せに変更し、左側の変換UIと重なりにくくした
 
 ## [3.11.0] - 2026-07-17
 

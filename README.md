@@ -43,14 +43,17 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.11.0] - 2026-07-17
+### [3.12.0] - 2026-07-17
+
+#### Added
+
+- Actual-size (1:1) toggle button 👁 in the lightbox header (keyboard shortcut: 1). It shows the image at its natural size — for small images that would blur when enlarged, or for checking the real dimensions of icons such as ICO files — and pressing it again returns to the fit view. An image that doesn't fit in the lightbox can be scrolled to see every part at 1:1
+- The actual-size state persists while navigating between files and resets when the lightbox is closed; zoom mode, rotation, and slideshows turn it off
 
 #### Changed
 
-- The lightbox format menu is now a custom menu (WAI-ARIA APG Menu Button pattern): previewable lossy formats (WebP/JPEG) are marked with ▸, and their submenu offers "Preview", which runs the conversion preview immediately — the closed menu then reads e.g. "WebP (High compression) Preview"
-- The separate Preview button is gone: which formats are previewable is visible before selecting, and the Download button no longer shifts position
-- Keyboard support follows the APG menu pattern (↑ ↓ move, → opens the submenu, ← returns, Enter / Space activates, Esc closes); navigating to another file drops the "Preview" state back to the plain format selection
-- Removed the tooltip from the image-diff / preview comparison box to avoid a browser glitch where it could stay stuck on screen
+- Still images now open "as large as possible" by default: images smaller than the lightbox are scaled up to fill the available space, while larger images are scaled down to fit as before
+- The key hints at the bottom of the lightbox are now right-aligned, keeping them clear of the convert controls on the left
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -101,14 +104,17 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.11.0] - 2026-07-17
+### [3.12.0] - 2026-07-17
+
+#### 追加
+
+- ライトボックスのヘッダーに原寸表示(等倍)ボタン「👁」を追加(ショートカット: 1)。押すと画像を原寸で表示し、もう一度押すと全体表示に戻る。拡大するとぼやける小さな画像や、ICOファイルなど実寸そのものを確認したい用途向け。ライトボックスに収まらない画像はスクロールして原寸のまま全体を確認できる
+- 原寸表示のON状態はファイル移動でも維持され、ライトボックスを閉じるとリセットされる。ズームモード・回転・スライドショーの開始で解除される
 
 #### 変更
 
-- ライトボックスの形式メニューを、WAI-ARIA APG の Menu Button パターンによるカスタムメニューに変更：プレビュー可能な非可逆形式(WebP/JPEG)には「▸」が付き、サブメニューの「プレビュー」を選ぶと即プレビューが実行される。閉じたメニューには「WebP(高圧縮) プレビュー」のように表示される
-- これに伴い独立したプレビューボタンは廃止：どの形式がプレビュー可能かが選ぶ前から分かり、ダウンロードボタンの位置も動かなくなった
-- キーボード操作はAPGのメニューパターンに準拠(↑↓で移動、→でサブメニュー、←で戻る、Enter/Spaceで決定、Escで閉じる)。前後のファイルへ移動すると「プレビュー」選択状態は形式選択に戻る
-- 画像Diff・プレビューの比較ボックスからツールチップを撤廃(表示されっぱなしになるブラウザ描画不具合の回避)
+- 静止画のデフォルト表示を「できるだけ大きく」に変更：ライトボックスより小さい画像も余白いっぱいまで拡大して表示する。大きい画像は従来通り収まるように縮小
+- ライトボックス下端のキー操作ヒントを右寄せに変更し、左側の変換UIと重なりにくくした
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

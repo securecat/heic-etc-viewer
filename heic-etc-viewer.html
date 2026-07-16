@@ -434,11 +434,18 @@ input[type="range"]::-webkit-slider-thumb {
 .lb-close.is-active { border-color: #699EFF; }
 .lb-img-wrap {
   width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
   padding: 50px 56px;
 }
-.lb-img-wrap img { width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
-#lbImg:fullscreen { width: 100vw; height: 100vh; max-width: none; max-height: none; object-fit: contain; background: #000; border-radius: 0; }
+/* 中央寄せは justify/align の center ではなく auto マージンで行う。
+   原寸表示ではみ出したとき、center 配置だと画像の左上側にスクロールで届かなくなるため */
+.lb-img-wrap img { margin: auto; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
+/* 原寸表示中: ライトボックスに収まらない画像はラッパー内をスクロールして全体を見られる。
+   キーボードでもスクロールできるよう、原寸表示中はJSがtabindex=0を付与する */
+.lightbox.actual-size .lb-img-wrap { overflow: auto; }
+.lb-img-wrap:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+/* JSがfit・原寸の明示サイズをinlineで指定するため、フルスクリーン時は!importantで取り消す */
+#lbImg:fullscreen { width: 100vw !important; height: 100vh !important; max-width: none !important; max-height: none !important; margin: 0 !important; object-fit: contain; background: #000; border-radius: 0; }
 #lbImg::backdrop { background: #000; }
 /* ── 画像Diffモード（左右比較スライダー）── */
 .lb-diff-wrap { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 50px 56px; }
@@ -480,13 +487,13 @@ input[type="range"]::-webkit-slider-thumb {
 .lb-info {
   position: fixed; bottom: 0; left: 0; right: 0;
   min-height: 32px;
-  padding: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
-  font-size: 14px; color: #949494; text-align: center;
+  padding: 8px 14px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  font-size: 14px; color: #949494; text-align: right;
 }
 #lbKeyHint {
   display: inline-flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 4px 18px;
 }
 /* 生成結果はバーの上に浮かせて絶対配置する。.lb-info 内に置くと高さが変わり、
@@ -863,7 +870,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.11.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.12.0</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -908,7 +915,7 @@ input[type="range"]::-webkit-slider-thumb {
     <h4 data-i18n="g.kbd.galleryH">Gallery</h4>
     <p data-i18n-html="g.kbd.galleryP"><kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.</p>
     <h4 data-i18n="g.kbd.lbH">Lightbox</h4>
-    <p data-i18n-html="g.kbd.lbP"><kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>R</kbd> rotates 90° counter-clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.</p>
+    <p data-i18n-html="g.kbd.lbP"><kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>1</kbd> toggles actual-size display (images). <kbd>R</kbd> rotates 90° counter-clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.</p>
   </div>
   <div class="info-panel" id="panelAbout" role="tabpanel" aria-labelledby="tabAbout" tabindex="0" hidden>
     <p>MIT License<br>&copy; 2026 securecat</p>
@@ -936,6 +943,7 @@ input[type="range"]::-webkit-slider-thumb {
     <button class="lb-close" id="lbZoomBtn" data-i18n-attr="aria-label:lb.zoom,title:lb.zoom" aria-label="Zoom (drag to select)" title="Zoom (drag to select)" style="font-size:14px">🔍</button>
     <button class="lb-close" id="lbRotate" data-i18n-attr="aria-label:lb.rotate,title:lb.rotate" aria-label="Rotate 90° counter-clockwise" title="Rotate 90° counter-clockwise" style="display:none">&#x21B6;</button>
     <button class="lb-close" id="lbChecker" data-i18n-attr="aria-label:lb.checkerOn,title:lb.checkerOn" aria-label="Switch to checker background" title="Switch to checker background" style="font-size:14px;width:auto;padding:0 8px;letter-spacing:0.02em">▦</button>
+    <button class="lb-close" id="lbActualBtn" data-i18n-attr="aria-label:lb.actualOn,title:lb.actualOn" aria-label="Show at actual size" title="Show at actual size" style="font-size:14px">👁</button>
     <button class="lb-close" id="lbLoopBtn" data-i18n-attr="aria-label:lb.loopLabel,title:lb.loopTitle" aria-label="Toggle loop" title="Loop video" style="font-size:14px">🔁</button>
     <div class="lb-ss-controls" id="lbSsControls">
       <input type="text" class="lb-ss-sec" id="lbSsSec" value="4" inputmode="numeric" data-i18n-attr="aria-label:lb.ssSec" aria-label="Slideshow interval (seconds)">
@@ -1080,7 +1088,7 @@ const I18N = {
     'g.kbd.galleryH': 'Gallery',
     'g.kbd.galleryP': '<kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.',
     'g.kbd.lbH': 'Lightbox',
-    'g.kbd.lbP': '<kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>R</kbd> rotates 90° counter-clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.',
+    'g.kbd.lbP': '<kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>1</kbd> toggles actual-size display (images). <kbd>R</kbd> rotates 90° counter-clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.',
     'about.bug': 'Found a bug? Report it on <a href="https://github.com/securecat/heic-etc-viewer/issues" target="_blank" rel="noopener">GitHub Issues</a>.',
     'lb.label': 'Lightbox',
     'lb.zoom': 'Zoom (drag to select)',
@@ -1088,6 +1096,9 @@ const I18N = {
     'lb.zoomRelease': 'Release zoom',
     'lb.checkerOn': 'Switch to checker background',
     'lb.checkerOff': 'Switch to default background',
+    'lb.actualOn': 'Show at actual size',
+    'lb.actualOff': 'Back to fit view',
+    'lb.actualRegion': 'Actual-size image (scrollable)',
     'lb.rotate': 'Rotate 90° counter-clockwise',
     'lb.loopLabel': 'Toggle loop',
     'lb.loopTitle': 'Loop video',
@@ -1105,6 +1116,7 @@ const I18N = {
     'hint.rotate': 'Rotate',
     'hint.loop': 'Loop',
     'hint.checker': 'Checker bg',
+    'hint.actual': 'Actual size',
     'hint.close': 'Close',
     'hint.stopSs': 'Stop slideshow',
     'hint.releaseZoom': 'Release&Exit zoom',
@@ -1225,7 +1237,7 @@ const I18N = {
     'g.kbd.galleryH': 'ギャラリー',
     'g.kbd.galleryP': '<kbd>Tab</kbd> でアイテム間を移動。<kbd>Enter</kbd> / <kbd>Space</kbd> でアイテムをライトボックスで開きます。<kbd>←</kbd> でツリーの選択中フォルダへフォーカスが戻ります。',
     'g.kbd.lbH': 'ライトボックス',
-    'g.kbd.lbP': '<kbd>←</kbd> <kbd>→</kbd> でファイル間を移動。<kbd>Z</kbd> でズームモードの切り替え(画像・動画)。<kbd>C</kbd> で市松模様背景の切り替え(画像)。<kbd>R</kbd> で反時計回りに90度回転(画像・動画)。<kbd>L</kbd> でループ再生の切り替え(動画)。<kbd>Esc</kbd> でズームの解除・終了、ライトボックスを閉じる、またはスライドショーの停止。',
+    'g.kbd.lbP': '<kbd>←</kbd> <kbd>→</kbd> でファイル間を移動。<kbd>Z</kbd> でズームモードの切り替え(画像・動画)。<kbd>C</kbd> で市松模様背景の切り替え(画像)。<kbd>1</kbd> で原寸表示の切り替え(画像)。<kbd>R</kbd> で反時計回りに90度回転(画像・動画)。<kbd>L</kbd> でループ再生の切り替え(動画)。<kbd>Esc</kbd> でズームの解除・終了、ライトボックスを閉じる、またはスライドショーの停止。',
     'about.bug': 'バグを見つけたら、<a href="https://github.com/securecat/heic-etc-viewer/issues" target="_blank" rel="noopener">GitHub Issues</a> へ報告してください。',
     'lb.label': 'ライトボックス',
     'lb.zoom': 'ズーム(ドラッグして範囲選択)',
@@ -1233,6 +1245,9 @@ const I18N = {
     'lb.zoomRelease': 'ズーム解除',
     'lb.checkerOn': '背景を市松模様にする',
     'lb.checkerOff': '背景を通常に戻す',
+    'lb.actualOn': '原寸で表示する',
+    'lb.actualOff': '全体表示に戻す',
+    'lb.actualRegion': '原寸表示の画像(スクロール可能)',
     'lb.rotate': '反時計回りに90度回転',
     'lb.loopLabel': 'ループの切り替え',
     'lb.loopTitle': '動画をループ再生',
@@ -1250,6 +1265,7 @@ const I18N = {
     'hint.rotate': '回転',
     'hint.loop': 'ループ再生',
     'hint.checker': '市松模様背景',
+    'hint.actual': '原寸表示',
     'hint.close': '閉じる',
     'hint.stopSs': 'スライドショー終了',
     'hint.releaseZoom': 'ズーム解除・終了',
@@ -3030,7 +3046,7 @@ function updateLbKeyHint() {
     if (isDiff) {
       segs.push(`C: ${t('hint.checker')}`, `Esc: ${t('hint.close')}`); // Diff表示はズーム・回転とも不可
     } else {
-      segs.push(`Z: ${t('hint.zoom')}`, `R: ${t('hint.rotate')}`, `C: ${t('hint.checker')}`, escCloseZoom);
+      segs.push(`Z: ${t('hint.zoom')}`, `R: ${t('hint.rotate')}`, `C: ${t('hint.checker')}`, `1: ${t('hint.actual')}`, escCloseZoom);
     }
   }
   hint.replaceChildren(...segs.map(s => {
@@ -3090,6 +3106,7 @@ async function updateLightbox() {
     const loopBtn   = document.getElementById('lbLoopBtn');
     const checkerBtn= document.getElementById('lbChecker');
     const rotateBtn = document.getElementById('lbRotate');
+    const actualBtn = document.getElementById('lbActualBtn');
     updateLbKeyHint();
     if (isVideo(file.name)) {
       zoomBtn.style.display = ssActive ? 'none' : '';
@@ -3097,6 +3114,7 @@ async function updateLightbox() {
       loopBtn.classList.toggle('is-active', videoLoop);
       loopBtn.title = t(videoLoop ? 'lb.loopOn' : 'lb.loopOff');
       checkerBtn.style.display = 'none';
+      actualBtn.style.display = 'none';
       rotateBtn.style.display = (ssActive || zoomMode) ? 'none' : '';
       lbVideo.loop = ssActive ? false : videoLoop;
       const url = URL.createObjectURL(file);
@@ -3105,11 +3123,12 @@ async function updateLightbox() {
       lbVideo.src = url;
       lbVideo.load();
       lbVideo.play().catch(() => {});
-      lbVideo.onloadedmetadata = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbVideo.videoWidth ? `${lbVideo.videoWidth} × ${lbVideo.videoHeight}` : ''; applyMediaRotation(); };
+      lbVideo.onloadedmetadata = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbVideo.videoWidth ? `${lbVideo.videoWidth} × ${lbVideo.videoHeight}` : ''; applyMediaLayout(); };
     } else if (isPdf(file.name)) {
       zoomBtn.style.display = 'none';
       loopBtn.style.display = 'none';
       checkerBtn.style.display = 'none'; // PDFはiframe表示のため市松背景は意味を持たない
+      actualBtn.style.display = 'none';
       rotateBtn.style.display = 'none';
       exitZoomMode();
       const url = URL.createObjectURL(file);
@@ -3122,6 +3141,8 @@ async function updateLightbox() {
       zoomBtn.style.display = (ssActive || isDiff) ? 'none' : '';
       loopBtn.style.display = 'none';
       checkerBtn.style.display = ssActive ? 'none' : '';
+      // 原寸表示はDiff表示（fit前提の比較UI）・スライドショー・ズームモード中は不可
+      actualBtn.style.display = (ssActive || zoomMode || isDiff) ? 'none' : '';
       rotateBtn.style.display = (ssActive || zoomMode || isDiff) ? 'none' : '';
       if (isDiff) {
         document.querySelector('.lb-info .convert-group').style.display = 'none';
@@ -3130,8 +3151,8 @@ async function updateLightbox() {
         const { url } = await makeURL(file);
         imgWrap.style.display = 'flex';
         lbImg.src = url; lbImg.alt = name;
-        // 読み込み完了前に回転された場合に備え、実寸確定後にもフィットを取り直す
-        lbImg.onload = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbImg.naturalWidth ? `${lbImg.naturalWidth} × ${lbImg.naturalHeight}` : ''; applyMediaRotation(); };
+        // 実寸確定後にfit/原寸のサイズを取り直す。原寸表示を維持したまま移動してきた場合は中央から見せる
+        lbImg.onload = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbImg.naturalWidth ? `${lbImg.naturalWidth} × ${lbImg.naturalHeight}` : ''; applyMediaLayout(); if (lbActualSize) centerLbScroll(); };
       }
     }
   } catch(e) {
@@ -3161,6 +3182,7 @@ function closeLightbox() {
   document.getElementById('lbImg').src = '';
   document.getElementById('lbPdfFrame').src = '';
   lightbox.classList.remove('open', 'checker');
+  setActualSize(false); // 原寸表示は市松模様と同様、閉じたらリセット
   const btn = document.getElementById('lbChecker');
   btn.style.background = '';
   btn.style.borderColor = '';
@@ -3222,6 +3244,8 @@ document.addEventListener('keydown', async e => {
     }
     return;
   }
+  // 原寸表示のスクロール領域にフォーカスがある間、矢印キーはファイル移動ではなくスクロールに使う
+  if (e.target.id === 'lbImgWrap' && e.key.startsWith('Arrow')) return;
   // ズーム選択モード中でも左右移動は可能。移動先は必ずズーム完全解除の状態で開く
   if (e.key === 'ArrowLeft')  { e.preventDefault(); exitZoomMode(); currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length; await updateLightbox(); }
   if (e.key === 'ArrowRight') { e.preventDefault(); exitZoomMode(); currentIdx=(currentIdx+1)%filteredFiles.length; await updateLightbox(); }
@@ -3257,6 +3281,10 @@ document.addEventListener('keydown', async e => {
     btn.title = label;
     btn.setAttribute('aria-label', label);
   }
+  if (e.key === '1') {
+    const btn = document.getElementById('lbActualBtn');
+    if (btn.style.display !== 'none') btn.click();
+  }
 });
 
 
@@ -3288,13 +3316,16 @@ function getCurrentMediaEl() {
 }
 
 function enterZoomMode() {
+  // ズームと原寸表示は併用しない（ズーム開始で原寸を解除してfitに戻す）
+  if (lbActualSize) setActualSize(false);
   zoomMode = true;
   lbZoomBtn.classList.add('is-active');
   setZoomBtnLabel('lb.zoomExit');
   syncZoomCanvas();
   zoomCanvas.classList.add('active');
-  // ズームと回転は併用しない
+  // ズームと回転・原寸表示は併用しないため、モード中は両ボタンを隠す
   document.getElementById('lbRotate').style.display = 'none';
+  document.getElementById('lbActualBtn').style.display = 'none';
 }
 
 function exitZoomMode() {
@@ -3304,8 +3335,11 @@ function exitZoomMode() {
   resetZoom();
   zoomCanvas.classList.remove('active');
   // 静止画・動画の表示中なら回転ボタンを戻す（PDF・Diff表示時は getCurrentMediaEl が null）
-  if (getCurrentMediaEl() && !ssActive) {
+  const media = getCurrentMediaEl();
+  if (media && !ssActive) {
     document.getElementById('lbRotate').style.display = '';
+    // 原寸表示ボタンは静止画のみ
+    if (media.id === 'lbImg') document.getElementById('lbActualBtn').style.display = '';
   }
 }
 
@@ -3727,7 +3761,11 @@ lbLoopBtn.addEventListener('click', () => {
 const lbRotateBtn = document.getElementById('lbRotate');
 let mediaRotation = 0; // 0/90/180/270、左回りに加算
 
-function applyMediaRotation() {
+// 表示中メディアの回転とサイズ（fit・原寸）をまとめて適用する
+// - 静止画のデフォルトは「できるだけ大きく」(fit): 余白いっぱいまで拡大・縮小する
+// - 原寸表示中は実寸固定（回転とは相互リセットなので deg は常に 0）
+// - 動画は従来通り: 正体は CSS の max-width/height フィット（拡大なし）、90/270度回転時のみ明示サイズ
+function applyMediaLayout() {
   const media = getCurrentMediaEl(); // 表示中の lbImg または lbVideo（PDF・Diff表示時は null）
   if (!media) return;
   const wrap = media.parentElement;
@@ -3737,22 +3775,40 @@ function applyMediaRotation() {
   lbZoomBtn.style.display = (ssActive || deg !== 0) ? 'none' : '';
   const mediaW = media.videoWidth || media.naturalWidth || 0;
   const mediaH = media.videoHeight || media.naturalHeight || 0;
+  const isImg = media.id === 'lbImg';
   const swapped = deg === 90 || deg === 270;
-  if (swapped && mediaW && mediaH) {
+  if (isImg && lbActualSize && mediaW && mediaH) {
+    media.style.width  = mediaW + 'px';
+    media.style.height = mediaH + 'px';
+    media.style.maxWidth  = 'none';
+    media.style.maxHeight = 'none';
+    media.style.margin = '';
+  } else if ((isImg || swapped) && mediaW && mediaH) {
     const cs = getComputedStyle(wrap);
     const availW = wrap.clientWidth  - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     const availH = wrap.clientHeight - parseFloat(cs.paddingTop)  - parseFloat(cs.paddingBottom);
-    const scale = Math.min(availW / mediaH, availH / mediaW);
+    // 90/270度回転中は縦横の当たり判定が入れ替わる（明示サイズ自体は回転前の向きで指定する）
+    const scale = swapped
+      ? Math.min(availW / mediaH, availH / mediaW)
+      : Math.min(availW / mediaW, availH / mediaH);
     media.style.width  = (mediaW * scale) + 'px';
     media.style.height = (mediaH * scale) + 'px';
     // 縦長ウィンドウで CSS の max-width:100% が明示サイズを潰して縦横比が崩れないようにする
     media.style.maxWidth  = 'none';
     media.style.maxHeight = 'none';
+    if (isImg && swapped) {
+      // 寝かせた時のレイアウトボックスは回転前の縦横のままなので、余白からはみ出す軸が出うる。
+      // autoマージンははみ出すと0になり天地(左右)中央からずれるため、中央位置を明示する(負値もあり)
+      media.style.margin = `${(availH - mediaH * scale) / 2}px ${(availW - mediaW * scale) / 2}px`;
+    } else {
+      media.style.margin = '';
+    }
   } else {
     media.style.width  = '';
     media.style.height = '';
     media.style.maxWidth  = '';
     media.style.maxHeight = '';
+    media.style.margin = '';
   }
 }
 
@@ -3767,18 +3823,60 @@ function resetMediaRotation() {
     el.style.height = '';
     el.style.maxWidth = '';
     el.style.maxHeight = '';
+    el.style.margin = '';
   });
 }
 
 lbRotateBtn.addEventListener('click', () => {
+  if (lbActualSize) setActualSize(false); // 回転と原寸表示は相互リセット
   mediaRotation = (mediaRotation - 90 + 360) % 360;
-  applyMediaRotation();
+  applyMediaLayout();
 });
 
+// 静止画のfitサイズはJSで明示指定しているため、リサイズのたびに取り直す
+// （原寸表示中・正体の動画では実質no-op）
 window.addEventListener('resize', () => {
-  if (mediaRotation && getCurrentMediaEl()) {
-    applyMediaRotation();
+  if (getCurrentMediaEl()) applyMediaLayout();
+});
+
+// ── 原寸表示 ────────────────────────────────────────────────────
+const lbActualBtn = document.getElementById('lbActualBtn');
+let lbActualSize = false; // ←→の移動では維持し、閉じる・スライドショー・ズーム開始でリセット
+
+// 原寸表示のON/OFF。市松模様ボタンと同様に is-active とラベルを同期する
+function setActualSize(on) {
+  lbActualSize = on;
+  lightbox.classList.toggle('actual-size', on);
+  lbActualBtn.classList.toggle('is-active', on);
+  const label = t(on ? 'lb.actualOff' : 'lb.actualOn');
+  lbActualBtn.title = label;
+  lbActualBtn.setAttribute('aria-label', label);
+  // 原寸表示中はスクロール領域をキーボード操作可能にする（WCAG 2.1.1）
+  const wrap = document.getElementById('lbImgWrap');
+  if (on) {
+    wrap.setAttribute('tabindex', '0');
+    wrap.setAttribute('role', 'region');
+    wrap.setAttribute('aria-label', t('lb.actualRegion'));
+  } else {
+    wrap.removeAttribute('tabindex');
+    wrap.removeAttribute('role');
+    wrap.removeAttribute('aria-label');
   }
+  applyMediaLayout();
+}
+
+// 原寸表示ではみ出したとき、初期スクロール位置は画像の中央にする
+function centerLbScroll() {
+  const wrap = document.getElementById('lbImgWrap');
+  wrap.scrollLeft = (wrap.scrollWidth - wrap.clientWidth) / 2;
+  wrap.scrollTop  = (wrap.scrollHeight - wrap.clientHeight) / 2;
+}
+
+lbActualBtn.addEventListener('click', () => {
+  const on = !lbActualSize;
+  if (on && mediaRotation) resetMediaRotation(); // 回転と原寸表示は相互リセット
+  setActualSize(on);
+  if (on) centerLbScroll();
 });
 
 // ── スライドショー ────────────────────────────────────────────────
@@ -3807,9 +3905,11 @@ function startSlideshow() {
   updateSlideshowButtonLabels();
   btnSlideshow.textContent = '⏹';
   lbSsControls.classList.add('visible');
-  // ズーム・市松・回転・ループボタンを非表示、動画ループを強制解除
+  // ズーム・市松・原寸・回転・ループボタンを非表示、原寸表示と動画ループを強制解除
+  setActualSize(false);
   document.getElementById('lbZoomBtn').style.display = 'none';
   document.getElementById('lbChecker').style.display = 'none';
+  document.getElementById('lbActualBtn').style.display = 'none';
   document.getElementById('lbRotate').style.display = 'none';
   document.getElementById('lbLoopBtn').style.display = 'none';
   document.getElementById('lbVideo').loop = false;
@@ -3833,13 +3933,15 @@ function stopSlideshow() {
   btnSlideshow.textContent = '▷';
   lbSsControls.classList.remove('visible');
   // ループボタンは現在のファイルが動画の時のみ、市松ボタンは動画以外の時のみ、
-  // 回転ボタンは静止画・動画（Diff除く）の時のみ再表示
+  // 回転ボタンは静止画・動画（Diff除く）の時のみ、原寸ボタンは静止画（Diff除く）の時のみ再表示
   const _curEntry = filteredFiles[currentIdx];
   const _curIsVideo = _curEntry && isVideo(_curEntry.name);
+  const _curIsPdf = _curEntry && isPdf(_curEntry.name);
   const _diffInfo = _curEntry ? getDiffPartner(_curEntry) : null;
   const _curIsDiff = !!(_diffInfo && isImage(_diffInfo.partner.name || ''));
   document.getElementById('lbZoomBtn').style.display = (mediaRotation || _curIsDiff) ? 'none' : '';
   document.getElementById('lbChecker').style.display = _curIsVideo ? 'none' : '';
+  document.getElementById('lbActualBtn').style.display = (!_curIsVideo && !_curIsPdf && !_curIsDiff && !zoomMode) ? '' : 'none';
   document.getElementById('lbRotate').style.display = (!_curIsDiff && !zoomMode) ? '' : 'none';
   document.getElementById('lbLoopBtn').style.display = _curIsVideo ? '' : 'none';
   document.getElementById('lbVideo').loop = videoLoop;
@@ -4100,6 +4202,7 @@ async function runConvertPreview() {
     );
     document.getElementById('lbZoomBtn').style.display = 'none';
     document.getElementById('lbRotate').style.display = 'none';
+    document.getElementById('lbActualBtn').style.display = 'none';
     errEl.textContent = '';
     return true;
   } catch (e) {
