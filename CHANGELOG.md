@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.9.0] - 2026-07-16
+
+### Added
+
+- Alt text generation using Chrome's built-in on-device AI (Gemini Nano, Chrome 148+) — nothing is sent to any server, in keeping with HEIC etc Viewer's local-only principle. Works with JPEG, PNG, WebP, GIF, SVG, and AVIF (formats usable in `<img>`); the output language follows the UI language, animated GIFs are described from their first frame, and SVGs are rasterized before being shown to the model
+  - Bulk: selecting "All" as the convert subject now offers "Export alt text (AI)", which generates alt text for every eligible image in the gallery (with an n / m progress display) and downloads a JSON file mapping each filename to its alt text, in the current gallery order; files that fail are skipped and counted
+  - Per-file: the lightbox "Convert to..." menu now offers "Alt text" for images — the Download button becomes ✨Generate while it's selected, and the result appears in the lightbox with a Copy button instead of being saved to a file
+  - On unsupported environments the options remain visible, and running them explains the requirements (Chrome 148+, 22+ GB free disk space, more than 4 GB of VRAM, 16+ GB of RAM); the first run shows the model download progress
+  - A "Alt text generation (AI)" section was added to the dialog's Guide tab
+- Since "All" now has two entries, its format dropdown starts with a "Convert to..." placeholder like the other subjects
+
+### Changed
+
+- Error and completion messages in the header and at the bottom of the lightbox (including the new "Copied!" message) now sit on an opaque backing, so they stay readable even when they appear over other text or the image
+- The lightbox "Convert to..." menu now resets to its placeholder when the lightbox is closed, instead of remembering the last choice into the next session (it still persists while navigating between files)
+
+### Fixed
+
+- The Download button in the header and the lightbox's Download / Generate / Copy buttons had a transparent background and a semi-transparent border, so their contrast depended on whatever happened to be behind them; they now use opaque colors
+- The lightbox's "This video has no audio track" and one "Conversion failed" error message were hardcoded in English and never translated
+
 ## [3.8.0] - 2026-07-16
 
 ### Added
@@ -426,6 +447,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.9.0] - 2026-07-16
+
+### 追加
+
+- Chrome内蔵のオンデバイスAI(Gemini Nano、Chrome 148以降)による代替テキスト生成機能を追加。サーバーには何も送信されず、HEIC etc Viewer のローカル完結ポリシーのまま利用できる。対象はJPEG・PNG・WebP・GIF・SVG・AVIF(`<img>` で使える形式)で、生成言語はUIの表示言語に連動。アニメーションGIFは先頭フレームから生成し、SVGはラスタライズしてモデルに渡す
+  - 一括: 変換対象「すべて」に「代替テキストをエクスポート(AI)」を追加。ギャラリー内の対象画像すべての代替テキストを生成し(n / m の進捗表示つき)、ファイル名と代替テキストを対にしたJSONを表示順どおりにダウンロードする。生成に失敗したファイルはスキップして件数を報告
+  - 個別: ライトボックスの「Convert to...」に「代替テキスト」を追加。選択中はダウンロードボタンが「✨生成」に変わり、結果はファイル保存ではなくライトボックス内に表示され、コピーボタンでクリップボードへコピーできる
+  - 非対応環境でも選択肢は表示し、実行時に必要要件(Chrome 148以降・空きストレージ22GB以上・VRAM 4GB超・RAM 16GB以上)を案内。初回実行時はAIモデルのダウンロード進捗を表示
+  - ダイアログのガイドタブに「代替テキスト生成(AI)」セクションを追加
+- 「すべて」の選択肢が2つになったため、形式プルダウンが他の変換対象と同様「Convert to...」プレースホルダーから始まるように変更
+
+### 変更
+
+- ヘッダー部・ライトボックス下端のエラー/完了メッセージ(新設の「コピーしました」を含む)に不透過の座布団を敷き、他のテキストや画像の上に表示されても読めるように変更
+- ライトボックスの「Convert to...」メニューは、ライトボックスを閉じたら選択を忘れてプレースホルダーに戻るように変更(ファイル間の前後移動では引き続き維持される)
+
+### 修正
+
+- ヘッダーのダウンロードボタンおよびライトボックスのダウンロード/生成/コピーボタンの背景が透明・ボーダーが半透過で、下地次第でコントラスト比を確保できなかった問題を修正(不透過の配色に変更)
+- ライトボックスの「This video has no audio track」と一部の「Conversion failed」エラーメッセージが英語のまま埋め込まれていて翻訳されなかった問題を修正
 
 ## [3.8.0] - 2026-07-16
 

@@ -43,16 +43,23 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.8.0] - 2026-07-16
+### [3.9.0] - 2026-07-16
 
 #### Added
 
-- The lightbox rotate button (↶) and `R` shortcut now also work for still images, not just videos: each press rotates 90° counter-clockwise, and returning to upright clears the rotation. Rotation is unavailable in zoom mode, resets when navigating to another file or closing the lightbox, and doesn't apply to PDFs or image-diff view. The still-image hint line now lists `R: Rotate`
+- Alt text generation using Chrome's built-in on-device AI (Gemini Nano, Chrome 148+) — nothing is sent to any server. Works with JPEG, PNG, WebP, GIF, SVG, and AVIF; the output language follows the UI language
+  - Bulk: "All" convert subject now offers "Export alt text (AI)", generating alt text for every eligible image and downloading a JSON file mapping each filename to its alt text
+  - Per-file: the lightbox "Convert to..." menu offers "Alt text" — the result appears in the lightbox with a Copy button
+  - On unsupported environments, running the feature explains the requirements (Chrome 148+, 22+ GB free disk space, more than 4 GB of VRAM, 16+ GB of RAM)
+
+#### Changed
+
+- Error and completion messages in the header and lightbox now sit on an opaque backing so they stay readable over other content, and the lightbox "Convert to..." menu resets when the lightbox is closed
 
 #### Fixed
 
-- Stopping a slideshow while an image-diff pair is shown no longer brings back the zoom button, which is unavailable in diff view
-- Rotated media could be distorted in tall windows where the `max-width: 100%` cap overrode the computed size; the cap is now lifted while rotated
+- The Download / Generate / Copy buttons had a transparent background and a semi-transparent border, so their contrast depended on whatever was behind them; they now use opaque colors
+- The lightbox's "This video has no audio track" and one "Conversion failed" error message were hardcoded in English and never translated
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -103,16 +110,23 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.8.0] - 2026-07-16
+### [3.9.0] - 2026-07-16
 
 #### 追加
 
-- ライトボックスの回転ボタン(↶)と `R` ショートカットが、動画だけでなく静止画にも対応。1回押すごとに反時計回りに90度回転し、正体に戻ると回転状態が解除される。ズームモード中は回転不可、前後移動やクローズで回転はリセットされ、PDF・画像Diff表示は対象外。静止画のヒント行に `R: 回転` を追加
+- Chrome内蔵のオンデバイスAI(Gemini Nano、Chrome 148以降)による代替テキスト生成機能を追加。サーバーには何も送信されない。対象はJPEG・PNG・WebP・GIF・SVG・AVIFで、生成言語はUIの表示言語に連動
+  - 一括: 変換対象「すべて」の「代替テキストをエクスポート(AI)」で、対象画像すべての代替テキストを生成し、ファイル名と対にしたJSONをダウンロード
+  - 個別: ライトボックスの「Convert to...」に「代替テキスト」を追加。結果はライトボックス内に表示され、コピーボタンでコピーできる
+  - 非対応環境では実行時に必要要件(Chrome 148以降・空きストレージ22GB以上・VRAM 4GB超・RAM 16GB以上)を案内
+
+#### 変更
+
+- ヘッダー部・ライトボックスのエラー/完了メッセージに不透過の座布団を敷いて他の要素に重なっても読めるように変更。ライトボックスの「Convert to...」メニューは閉じたら選択を忘れるように変更
 
 #### 修正
 
-- 画像Diffペアの表示中にスライドショーを停止すると、(Diff表示では使えない)ズームボタンが再表示されてしまう問題を修正
-- 縦長ウィンドウでは、回転中のメディアが CSS の `max-width: 100%` 制限で歪む可能性があった問題を修正(回転中は制限を解除)
+- ダウンロード/生成/コピーボタンの背景が透明・ボーダーが半透過で、下地次第でコントラスト比を確保できなかった問題を修正(不透過の配色に変更)
+- ライトボックスの「This video has no audio track」と一部の「Conversion failed」エラーメッセージが英語のまま埋め込まれていて翻訳されなかった問題を修正
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

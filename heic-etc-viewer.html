@@ -60,8 +60,9 @@ body {
 }
 .app-title { font-size: 14px; font-weight: 400; white-space: nowrap; }
 .btn {
-  background: transparent;
-  border: 1px solid var(--border-hover);
+  /* 背景・ボーダーとも不透過にする（透過だと下地次第でコントラスト比を確保できないため） */
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   color: var(--text);
   border-radius: var(--radius);
   padding: 5px 10px;
@@ -74,7 +75,7 @@ body {
   flex-shrink: 0;
   transition: background 0.15s;
 }
-.btn:hover { background: rgba(255,255,255,0.06); }
+.btn:hover { background: #2F2F2F; }
 .btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .btn.primary { background: #4D6EE1; border-color: transparent; color: #fff; }
 .btn.primary:hover, .btn.primary:active { background: var(--accent-hover); }
@@ -488,6 +489,42 @@ input[type="range"]::-webkit-slider-thumb {
   justify-content: center;
   gap: 4px 18px;
 }
+/* 生成結果はバーの上に浮かせて絶対配置する。.lb-info 内に置くと高さが変わり、
+   top:50% 配置の .convert-group が持ち上がって重なってしまうため。
+   テキストパネルとボタンはそれぞれ自身が不透過なので、コンテナは配置のみ担当 */
+.lb-alt-result {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  max-width: min(720px, calc(100vw - 32px));
+}
+.lb-alt-result[hidden] { display: none; }
+.lb-alt-text {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: left;
+  user-select: text;
+  background: var(--bg-card);
+  border: 1px solid #7C7C7C;
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+/* 「コピーしました」はコピーボタンの位置に影響を与えないよう、パネルの右外に絶対配置 */
+.lb-alt-copied {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #FF8A8A; /* convert-error のメッセージカラーと統一 */
+  white-space: nowrap;
+}
 /* ── 変換保存 (Convert to...) ── */
 .convert-group {
   display: flex; align-items: center; gap: 6px; flex-shrink: 0;
@@ -506,15 +543,26 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .convert-group select:focus-visible { border-color: #fff; outline: 2px solid #fff; outline-offset: 2px; }
 /* v3.0.0の目玉機能であることが分かるよう目立たせる */
-.convert-group .btn {
+.convert-group .btn,
+.lb-alt-result .btn {
   background: #001C43;
   border-color: #4D6EE1;
   color: #DDDDDD;
   padding: 3px 10px; /* font-sizeを14pxにした分、高さが変わらないよう調整 */
 }
-.convert-group .btn:hover { background: #47638A; }
+.convert-group .btn:hover,
+.lb-alt-result .btn:hover { background: #47638A; }
 .convert-group .convert-error {
   font-size: 14px; color: #FF8A8A; white-space: nowrap;
+}
+/* エラー・完了メッセージには不透過の座布団を敷く。ヘッダー部・下端部では
+   下に他のテキストが重なって読みにくくなることがあり、「コピーしました」は
+   画像の上に出ることがあるため（:not(:empty) で空の時は箱を出さない） */
+.convert-group .convert-error:not(:empty),
+.lb-alt-copied:not(:empty) {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 3px 8px;
 }
 
 /* ── slideshow / loop ── */
@@ -744,7 +792,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.8.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.9.0</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -777,6 +825,8 @@ input[type="range"]::-webkit-slider-thumb {
     <p data-i18n="g.zip.p">Doesn't convert anything — bundles every file currently shown in the gallery (after any filter) into a single zip, unchanged. Available by selecting "All" as the convert subject.</p>
     <h3 data-i18n="g.diff.h">Image diff mode</h3>
     <p data-i18n="g.diff.p">Open a parent folder containing exactly two subfolders whose image files share the same filename (ignoring extension) to compare them. Opening a matched file in the lightbox shows both versions overlaid with a divider that follows your mouse — the alphabetically-first subfolder is on the left. Files without a match in the other subfolder, or matched pairs that aren't both images, display normally.</p>
+    <h3 data-i18n="g.alt.h">Alt text generation (AI)</h3>
+    <p data-i18n="g.alt.p">Generates alt text for images with Chrome's built-in on-device AI (Gemini Nano) — nothing is sent to any server. Works with JPEG, PNG, WebP, GIF, SVG, and AVIF (formats usable in &lt;img&gt;), and the output language follows the UI language. Select "All" as the convert subject and choose "Export alt text (AI)" to download a JSON file pairing each filename with its alt text, or use "Alt text" in the lightbox to generate and copy text for one image. Requires Chrome 148 or later, at least 22 GB of free disk space, more than 4 GB of VRAM, and 16 GB of RAM; the first run downloads the model. Animated GIFs are described from their first frame.</p>
     <h3 data-i18n="g.kbd.h">Keyboard operation</h3>
     <p data-i18n-html="g.kbd.tree"><strong>Folder tree</strong> — <kbd>Tab</kbd> enters the tree on the selected folder. <kbd>↑</kbd> <kbd>↓</kbd> move between visible folders. <kbd>→</kbd> expands a closed folder; on the selected folder with nothing left to expand, it moves focus into the gallery. <kbd>←</kbd> collapses an open folder. <kbd>Enter</kbd> / <kbd>Space</kbd> shows the folder's contents in the gallery; pressing it again moves focus into the gallery. <kbd>Home</kbd> / <kbd>End</kbd> jump to the first / last folder. Typing a character jumps to the next folder whose name starts with it.</p>
     <p data-i18n-html="g.kbd.gallery"><strong>Gallery</strong> — <kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.</p>
@@ -835,6 +885,11 @@ input[type="range"]::-webkit-slider-thumb {
   <button class="lb-nav prev" id="lbPrev" data-i18n-attr="aria-label:lb.prev" aria-label="Previous">‹</button>
   <button class="lb-nav next" id="lbNext" data-i18n-attr="aria-label:lb.next" aria-label="Next">›</button>
   <div class="lb-info">
+    <div class="lb-alt-result" id="lbAltResult" aria-live="polite" hidden>
+      <span class="lb-alt-text" id="lbAltText"></span>
+      <button class="btn" id="lbAltCopy" data-i18n="alt.copy" data-i18n-attr="aria-label:alt.copy" aria-label="Copy">Copy</button>
+      <span class="lb-alt-copied" id="lbAltCopied"></span>
+    </div>
     <div class="convert-group">
       <select id="lbConvertFormat" data-i18n-attr="aria-label:convert.format" aria-label="Convert to format">
         <option value="">Convert to...</option>
@@ -973,9 +1028,24 @@ const I18N = {
     'err.noExport': 'No files to export',
     'err.noVideo': 'No video files',
     'err.noAudio': 'No video files with an audio track',
+    'err.noAudioTrack': 'This video has no audio track',
     'err.noThumbs': 'Could not generate thumbnails',
     'err.noConvertible': 'No convertible files',
     'err.needTwo': 'Need at least 2 files to combine into one PDF',
+    'fmt.altJson': 'Export alt text (AI)',
+    'fmt.alt': 'Alt text',
+    'alt.generateText': '✨Generate',
+    'alt.generateLabel': 'Generate alt text',
+    'alt.generating': 'Generating alt text...',
+    'alt.progress': 'Generating alt text... {n} / {m}',
+    'alt.downloading': 'Downloading AI model... {p}%',
+    'alt.unavailable': 'On-device AI is not available in this environment — requires Chrome 148 or later, 22+ GB of free disk space, more than 4 GB of VRAM, and 16+ GB of RAM',
+    'alt.failed': 'Could not generate alt text',
+    'alt.doneSkipped': 'Done — {n} file(s) skipped',
+    'alt.copy': 'Copy',
+    'alt.copied': 'Copied!',
+    'g.alt.h': 'Alt text generation (AI)',
+    'g.alt.p': 'Generates alt text for images with Chrome\'s built-in on-device AI (Gemini Nano) — nothing is sent to any server. Works with JPEG, PNG, WebP, GIF, SVG, and AVIF (formats usable in <img>), and the output language follows the UI language. Select "All" as the convert subject and choose "Export alt text (AI)" to download a JSON file pairing each filename with its alt text, or use "Alt text" in the lightbox to generate and copy text for one image. Requires Chrome 148 or later, at least 22 GB of free disk space, more than 4 GB of VRAM, and 16 GB of RAM; the first run downloads the model. Animated GIFs are described from their first frame.',
   },
   ja: {
     'app.toolbar': 'ツールバー',
@@ -1093,9 +1163,24 @@ const I18N = {
     'err.noExport': 'エクスポートするファイルがありません',
     'err.noVideo': '動画ファイルがありません',
     'err.noAudio': '音声トラックを含む動画ファイルがありません',
+    'err.noAudioTrack': 'この動画には音声トラックがありません',
     'err.noThumbs': 'サムネイルを生成できませんでした',
     'err.noConvertible': '変換可能なファイルがありません',
     'err.needTwo': '1つのPDFにまとめるには、少なくとも2つのファイルが必要です',
+    'fmt.altJson': '代替テキストをエクスポート(AI)',
+    'fmt.alt': '代替テキスト',
+    'alt.generateText': '✨生成',
+    'alt.generateLabel': '代替テキストを生成',
+    'alt.generating': '代替テキストを生成中...',
+    'alt.progress': '代替テキストを生成中... {n} / {m}',
+    'alt.downloading': 'AIモデルをダウンロード中... {p}%',
+    'alt.unavailable': 'この環境ではオンデバイスAIを利用できません(Chrome 148以降・空きストレージ22GB以上・VRAM 4GB超・RAM 16GB以上が必要です)',
+    'alt.failed': '代替テキストを生成できませんでした',
+    'alt.doneSkipped': '完了 — {n}件はスキップしました',
+    'alt.copy': 'コピー',
+    'alt.copied': 'コピーしました',
+    'g.alt.h': '代替テキスト生成(AI)',
+    'g.alt.p': 'Chrome内蔵のオンデバイスAI(Gemini Nano)で画像の代替テキストを生成します。サーバーには何も送信されません。対象はJPEG・PNG・WebP・GIF・SVG・AVIF(<img>で使える形式)で、生成される言語はUIの表示言語に連動します。変換対象「すべて」の「代替テキストをエクスポート(AI)」で、ファイル名と代替テキストを対にしたJSONをダウンロードできます。ライトボックスの「代替テキスト」では1枚ずつ生成してコピーできます。Chrome 148以降・空きストレージ22GB以上・VRAM 4GB超・RAM 16GB以上が必要で、初回はAIモデルのダウンロードが行われます。アニメーションGIFは先頭フレームの内容から生成されます。',
   },
 };
 const LANG_STORAGE_KEY = 'hev-lang';
@@ -1133,6 +1218,7 @@ function applyI18n() {
   // 状態依存のボタンラベル
   updateSlideshowButtonLabels();
   updateLayoutToggleLabels();
+  updateLbConvertButton();
   // ギャラリー・ステータス表示を現在の言語で再描画
   if (rootNode) renderGallery({ preserveScroll: true });
 }
@@ -1697,9 +1783,10 @@ const VIDEO_CONVERT_FORMAT_LIST = [
   { value: 'sound', labelKey: 'fmt.sound' },
   { value: 'thumbnail', labelKey: 'fmt.thumbnails' },
 ];
-// 「All」は変換を行わないため、プレースホルダーなしでこの1択のみとする
 const ALL_CONVERT_FORMAT_LIST = [
+  { value: '', labelKey: 'fmt.placeholder' },
   { value: 'zip', labelKey: 'fmt.zip' },
+  { value: 'alt-json', labelKey: 'fmt.altJson' },
 ];
 const CONVERT_FORMAT_LISTS = {
   image: IMAGE_CONVERT_FORMAT_LIST,
@@ -1715,6 +1802,7 @@ const LB_IMAGE_CONVERT_FORMAT_LIST = [
   { value: 'jpeg', labelKey: 'fmt.jpeg' },
   { value: 'jpeg-hc', labelKey: 'fmt.jpegHc' },
   { value: 'pdf', labelKey: 'fmt.pdf' },
+  { value: 'alt', labelKey: 'fmt.alt' },
 ];
 const LB_VIDEO_CONVERT_FORMAT_LIST = [
   { value: '', labelKey: 'fmt.placeholder' },
@@ -2808,6 +2896,8 @@ async function updateLightbox() {
     lbCurrentSubject = lbNewSubject;
     document.getElementById('lbConvertFormat').innerHTML = formatOptionsHTML(LB_CONVERT_FORMAT_LISTS[lbNewSubject]);
   }
+  updateLbConvertButton();
+  hideLbAltResult(); // 前のファイルの生成結果を持ち越さない
 
   const imgWrap   = document.getElementById('lbImgWrap');
   const videoWrap = document.getElementById('lbVideoWrap');
@@ -2893,6 +2983,11 @@ function closeLightbox() {
   exitZoomMode();
   resetDiffMode();
   resetMediaRotation();
+  hideLbAltResult();
+  // コンバートメニューは閉じたら忘れて、次回はプレースホルダーから始める
+  document.getElementById('lbConvertFormat').selectedIndex = 0;
+  document.getElementById('lbConvertError').textContent = '';
+  updateLbConvertButton();
   const lbVideo = document.getElementById('lbVideo');
   lbVideo.pause(); lbVideo.src = '';
   document.getElementById('lbImg').src = '';
@@ -3666,6 +3761,128 @@ window.addEventListener('resize', () => {
 });
 
 // ── 変換保存: 個別ファイル（ライトボックス） ─────────────────────────
+// ── AI 代替テキスト生成（Prompt API / Gemini Nano、オンデバイス）──
+// <img> で使える形式のみ対象（HEIC・TIFF 等は対象外）
+const ALT_TARGET_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'avif'];
+function isAltTarget(name) { return ALT_TARGET_EXTS.includes(extOf(name)); }
+
+let altBaseSession = null; // システムプロンプト設定済みのベースセッション（画像ごとに clone して使う）
+let altBusy = false;       // 生成処理の多重実行防止
+
+// Prompt API が使えるか確認してベースセッションを用意する。
+// 使えない環境では errEl に必要スペック入りの案内を出して null を返す
+async function ensureAltSession(errEl) {
+  try {
+    if (!('LanguageModel' in self)) throw new Error('unsupported');
+    const availability = await LanguageModel.availability({ expectedInputs: [{ type: 'image' }] });
+    if (availability === 'unavailable') throw new Error('unavailable');
+    if (altBaseSession) return altBaseSession;
+    altBaseSession = await LanguageModel.create({
+      expectedInputs: [{ type: 'image' }],
+      initialPrompts: [{
+        role: 'system',
+        content: 'You write alt text for images, suitable for the HTML alt attribute. Objectively describe the essential content in one concise sentence. Do not start with phrases like "Image of" or "Photo of". Output only the alt text.',
+      }],
+      monitor(m) {
+        // 初回はモデル本体のダウンロードが走るので進捗を表示する
+        m.addEventListener('downloadprogress', e => {
+          errEl.textContent = tf('alt.downloading', { p: Math.round((e.loaded || 0) * 100) });
+        });
+      },
+    });
+    errEl.textContent = '';
+    return altBaseSession;
+  } catch (e) {
+    altBaseSession = null;
+    errEl.textContent = t('alt.unavailable');
+    return null;
+  }
+}
+
+// 画像ファイルをモデルに渡せる ImageBitmap にする
+// （SVGは createImageBitmap 非対応のため <img> 経由でラスタライズ。GIFは先頭フレーム）
+async function decodeForAlt(file) {
+  let bitmap;
+  if (extOf(file.name) === 'svg') {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image();
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+      const w = img.naturalWidth || 512, h = img.naturalHeight || 512;
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      bitmap = await createImageBitmap(canvas);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  } else {
+    bitmap = await createImageBitmap(file);
+  }
+  // 巨大な写真をそのまま渡さないよう長辺を抑える（速度・メモリ対策）
+  const MAX_DIM = 1536;
+  if (bitmap.width > MAX_DIM || bitmap.height > MAX_DIM) {
+    const scale = MAX_DIM / Math.max(bitmap.width, bitmap.height);
+    const scaled = await createImageBitmap(bitmap, {
+      resizeWidth: Math.round(bitmap.width * scale),
+      resizeHeight: Math.round(bitmap.height * scale),
+      resizeQuality: 'high',
+    });
+    bitmap.close();
+    return scaled;
+  }
+  return bitmap;
+}
+
+// 1枚の画像の代替テキストを生成する（セッションは都度 clone して会話履歴の蓄積を避ける）
+async function generateAltText(file) {
+  const bitmap = await decodeForAlt(file);
+  const session = await altBaseSession.clone();
+  try {
+    const langInstruction = lang === 'ja' ? 'Respond in Japanese.' : 'Respond in English.';
+    const result = await session.prompt([{
+      role: 'user',
+      content: [
+        { type: 'image', value: bitmap },
+        { type: 'text', value: `Write alt text for this image. ${langInstruction}` },
+      ],
+    }]);
+    return result.trim().replace(/^["「]|["」]$/g, '').trim();
+  } finally {
+    session.destroy();
+    bitmap.close();
+  }
+}
+
+// ライトボックス内の生成結果表示（表示＋コピー。ファイル保存はしない）
+function showLbAltResult(text) {
+  document.getElementById('lbAltText').textContent = text;
+  document.getElementById('lbAltResult').hidden = false;
+}
+function hideLbAltResult() {
+  document.getElementById('lbAltResult').hidden = true;
+  document.getElementById('lbAltText').textContent = '';
+  document.getElementById('lbAltCopied').textContent = '';
+}
+document.getElementById('lbAltCopy').addEventListener('click', async () => {
+  const msg = document.getElementById('lbAltCopied');
+  try {
+    await navigator.clipboard.writeText(document.getElementById('lbAltText').textContent);
+    // ボタンのラベルは変えず、隣のメッセージ領域に表示する（連続コピーでも再通知されるよう一旦クリア）
+    msg.textContent = '';
+    setTimeout(() => { msg.textContent = t('alt.copied'); }, 30);
+  } catch (e) { /* クリップボード拒否時は何もしない */ }
+});
+
+// 「Alt text」選択中はDownloadボタンの表記を生成系に切り替える
+function updateLbConvertButton() {
+  const btn = document.getElementById('lbConvertDownload');
+  const isAlt = document.getElementById('lbConvertFormat').value === 'alt';
+  btn.textContent = t(isAlt ? 'alt.generateText' : 'convert.downloadTextLb');
+  btn.setAttribute('aria-label', t(isAlt ? 'alt.generateLabel' : 'convert.download'));
+}
+document.getElementById('lbConvertFormat').addEventListener('change', updateLbConvertButton);
+
 document.getElementById('lbConvertDownload').addEventListener('click', async () => {
   const fmt = document.getElementById('lbConvertFormat').value;
   const errEl = document.getElementById('lbConvertError');
@@ -3674,6 +3891,29 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
     return;
   }
   const entry = filteredFiles[currentIdx];
+
+  if (fmt === 'alt') {
+    if (!entry || !isAltTarget(entry.name)) {
+      errEl.textContent = t('err.cannotConvert');
+      return;
+    }
+    if (altBusy) return;
+    altBusy = true;
+    hideLbAltResult();
+    try {
+      if (!(await ensureAltSession(errEl))) return;
+      errEl.textContent = t('alt.generating');
+      const file = await resolveFile(entry);
+      const text = await generateAltText(file);
+      errEl.textContent = '';
+      showLbAltResult(text);
+    } catch (e) {
+      errEl.textContent = t('alt.failed');
+    } finally {
+      altBusy = false;
+    }
+    return;
+  }
 
   if (fmt === 'sound') {
     if (!entry || !isVideo(entry.name)) {
@@ -3686,7 +3926,7 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
       const blob = await extractSoundBlob(file);
       triggerDownload(blob, `${baseName(entry.name)}.m4a`);
     } catch (e) {
-      errEl.textContent = e.code === 'no-audio-track' ? 'This video has no audio track' : 'Conversion failed';
+      errEl.textContent = e.code === 'no-audio-track' ? t('err.noAudioTrack') : t('err.convFailed');
     }
     return;
   }
@@ -3777,6 +4017,43 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
     }
     const exportName = (currentNode && currentNode.name) || 'export';
     await downloadAsZip(entries, `${exportName}.zip`);
+    return;
+  }
+
+  // 「Export alt text (AI)」: 対象画像の代替テキストをオンデバイスAIで一括生成してJSONで保存
+  if (fmt === 'alt-json') {
+    const targets = filteredFiles.filter(f => isAltTarget(f.name));
+    if (!targets.length) {
+      errEl.textContent = t('err.noConvertible');
+      return;
+    }
+    if (altBusy) return;
+    altBusy = true;
+    try {
+      if (!(await ensureAltSession(errEl))) return;
+      const out = {}; // ギャラリーの表示順どおりに ファイル名 → 代替テキスト を格納
+      let skipped = 0;
+      for (let i = 0; i < targets.length; i++) {
+        errEl.textContent = tf('alt.progress', { n: i + 1, m: targets.length });
+        try {
+          const file = await resolveFile(targets[i]);
+          out[targets[i].name] = await generateAltText(file);
+        } catch (e) {
+          skipped++; // 生成できなかったものはスキップして続行
+        }
+        await new Promise(r => setTimeout(r, 30)); // UIをブロックしないよう小休止
+      }
+      if (Object.keys(out).length === 0) {
+        errEl.textContent = t('alt.failed');
+        return;
+      }
+      errEl.textContent = skipped ? tf('alt.doneSkipped', { n: skipped }) : '';
+      const folderName = (currentNode && currentNode.name) || 'alt';
+      const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+      triggerDownload(blob, `${folderName}-alt.json`);
+    } finally {
+      altBusy = false;
+    }
     return;
   }
 
