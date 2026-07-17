@@ -1,3 +1,8 @@
+## リポジトリ構成
+
+- `heic-etc-viewer.html` — viewer本体（単一HTMLアプリ）
+- `chrome-extension/` — 連携Chrome拡張「HeV Sender」。viewer本体とは**別バージョン**で管理する
+
 ## バージョン管理
 
 - 更新のたびに semver に従ってバージョンを上げること
@@ -37,6 +42,13 @@
 - 内容
 ```
 - 古いバージョンの記載は不要（CHANGELOG.md へのリンクで補完済み）
+
+## Chrome拡張「HeV Sender」のバージョン管理
+
+- バージョン記載箇所：`chrome-extension/manifest.json` の `version`
+- 変更内容は `chrome-extension/CHANGELOG.md`（全履歴）と `chrome-extension/README.md`（最新バージョンのみ、`### v1.2.0 — YYYY-MM-DD` 形式）に記載すること
+- いずれも英語セクション → `---` → 日本語セクションの構成（本体と同様）
+- viewer本体とのプロトコル（postMessage の `hev-ready` / `hev-files` / `hev-received`）や対応拡張子リスト（`KNOWN_EXTS`）を変える場合は、両側の整合を必ず確認すること
 
 ## Markuplint
 

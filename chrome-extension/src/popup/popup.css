@@ -1,0 +1,26 @@
+body {
+  width: 300px;
+  padding: 14px 16px 16px;
+}
+
+/* popup.html の見出しは本文と同サイズでよい（A11Y.md） */
+h1 {
+  font-size: 16px;
+  margin: 0 0 4px;
+}
+
+#btnSend {
+  width: 100%;
+  padding: 8px 14px;
+  margin-bottom: 10px;
+}
+
+.status { margin: 0 0 6px; }
+
+.error-detail {
+  color: var(--text-sub);
+  font-size: 16px;
+  word-break: break-all;
+  margin: 0 0 10px;
+}
+.error-detail:empty { display: none; }

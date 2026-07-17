@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HeV Sender</title>
+<link rel="stylesheet" href="../common.css">
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<h1>HeV Sender</h1>
+<hr>
+<button id="btnSend" class="primary" data-i18n="popupSend">Send</button>
+<p class="status" id="popupStatus" role="status"></p>
+<p class="error-detail" id="popupErrorDetail"></p>
+<label class="check"><input type="checkbox" id="skipSmallImages"> <span data-i18n="popupSkipSmallImg">Exclude small images</span></label>
+<label class="check"><input type="checkbox" id="skipSmallVideos"> <span data-i18n="popupSkipSmallVid">Exclude small videos</span></label>
+<hr>
+<a href="../options/options.html" target="_blank" rel="noopener" data-i18n="popupOptions">Options</a>
+<script src="../common.js" defer></script>
+<script src="popup.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="optTitle">HeV Sender Settings</title>
+<link rel="stylesheet" href="../common.css">
+<link rel="stylesheet" href="options.css">
+</head>
+<body>
+<main>
+  <h1 data-i18n="optTitle">HeV Sender Settings</h1>
+
+  <section class="setting">
+    <h2><label for="targetUrl" data-i18n="optUrlLabel">Destination URL</label></h2>
+    <p class="desc" id="urlDesc" data-i18n="optUrlDesc">Set this only if you want to override the default destination.</p>
+    <input type="url" id="targetUrl" size="50" placeholder="https://securecat.github.io/heic-etc-viewer/">
+  </section>
+
+  <fieldset class="setting">
+    <legend data-i18n="optTargetsLegend">What to send</legend>
+    <label class="check"><input type="checkbox" id="sendImages"> <span data-i18n="optTargetImages">Images</span></label>
+    <label class="check"><input type="checkbox" id="sendVideos"> <span data-i18n="optTargetVideos">Videos</span></label>
+    <label class="check"><input type="checkbox" id="sendPdf"> <span data-i18n="optTargetPdf">PDF</span></label>
+  </fieldset>
+
+  <fieldset class="setting">
+    <legend data-i18n="optSmallImgLegend">Small image size</legend>
+    <p class="desc" data-i18n="optSmallImgDesc">Images with a width or height at or below these values count as small.</p>
+    <div class="num-row">
+      <label for="smallImgW" data-i18n="optWidth">Width (px)</label>
+      <input type="number" id="smallImgW" min="0" max="10000" step="1">
+    </div>
+    <div class="num-row">
+      <label for="smallImgH" data-i18n="optHeight">Height (px)</label>
+      <input type="number" id="smallImgH" min="0" max="10000" step="1">
+    </div>
+  </fieldset>
+
+  <fieldset class="setting">
+    <legend data-i18n="optSmallVidLegend">Small video size</legend>
+    <p class="desc" data-i18n="optSmallVidDesc">Videos with a file size at or below this value count as small.</p>
+    <div class="num-row">
+      <label for="smallVidKB" data-i18n="optVidSize">Size (KB)</label>
+      <input type="number" id="smallVidKB" min="0" max="1048576" step="1">
+    </div>
+  </fieldset>
+
+  <p class="save-row">
+    <button id="btnSave" class="primary" data-i18n="optSave">Save</button>
+    <span class="status" id="saveStatus" role="status"></span>
+  </p>
+
+  <hr>
+  <p data-i18n-html="optBug">Found a bug? Report it on <a href="https://github.com/securecat/heic-etc-viewer/issues" target="_blank" rel="noopener">GitHub Issues</a>.</p>
+</main>
+<script src="../common.js" defer></script>
+<script src="options.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+body {
+  padding: 24px;
+}
+
+main {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 24px;
+  margin: 0 0 16px;
+}
+
+.setting {
+  border: none;
+  padding: 0;
+  margin: 0 0 24px;
+}
+
+.setting h2,
+.setting legend {
+  font-size: 18px;
+  font-weight: 600;
+  border-left: 4px solid var(--accent);
+  padding-left: 8px;
+  margin: 0 0 6px;
+}
+
+.setting h2 label { cursor: pointer; }
+
+.desc {
+  color: var(--text-sub);
+  margin: 0 0 8px;
+}
+
+#targetUrl {
+  width: 100%;
+  max-width: 480px;
+}
+
+.num-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+.num-row label {
+  min-width: 7em;
+}
+
+.num-row input {
+  width: 7em;
+}
+
+.save-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 12px;
+}
+
+/* 「保存しました。」は正常系の通知なので成功色で表示する */
+#saveStatus { color: var(--success); }
+
+#btnSave { padding: 8px 24px; }

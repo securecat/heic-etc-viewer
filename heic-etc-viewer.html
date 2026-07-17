@@ -881,7 +881,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.14.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.15.0</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -1120,6 +1120,7 @@ const I18N = {
     'lb.actualOn': 'Show at actual size',
     'lb.actualOff': 'Back to fit view',
     'lb.actualRegion': 'Actual-size view (scrollable)',
+    'recv.rootName': 'Received files',
     'lb.rotate': 'Rotate 90° counter-clockwise',
     'lb.loopLabel': 'Toggle loop',
     'lb.loopTitle': 'Loop video',
@@ -1273,6 +1274,7 @@ const I18N = {
     'lb.actualOn': '原寸で表示する',
     'lb.actualOff': '全体表示に戻す',
     'lb.actualRegion': '原寸表示(スクロール可能)',
+    'recv.rootName': '受信ファイル',
     'lb.rotate': '反時計回りに90度回転',
     'lb.loopLabel': 'ループの切り替え',
     'lb.loopTitle': '動画をループ再生',
@@ -3173,7 +3175,16 @@ async function updateLightbox() {
       lbVideo.src = url;
       lbVideo.load();
       lbVideo.play().catch(() => {});
-      lbVideo.onloadedmetadata = () => { const d = document.getElementById('lbDim'); if(d) d.textContent = lbVideo.videoWidth ? `${lbVideo.videoWidth} × ${lbVideo.videoHeight}` : ''; applyMediaLayout(); if (lbActualSize) centerLbScroll(); };
+      lbVideo.onloadedmetadata = () => {
+        const d = document.getElementById('lbDim');
+        if(d) d.textContent = lbVideo.videoWidth ? `${lbVideo.videoWidth} × ${lbVideo.videoHeight}` : '';
+        applyMediaLayout();
+        if (lbActualSize) centerLbScroll();
+        // メタデータ到着後の明示サイズ適用に、Chromiumのネイティブコントロールの
+        // レイアウトが追従しないことがあるため、一度作り直させる（次フレームでON）
+        lbVideo.controls = false;
+        requestAnimationFrame(() => { lbVideo.controls = true; });
+      };
     } else if (isPdf(file.name)) {
       zoomBtn.style.display = 'none';
       loopBtn.style.display = 'none';
@@ -4837,6 +4848,30 @@ document.getElementById('btnReload').addEventListener('click', clearBulkConvertE
 
 // ── 初期化: 保存済み（またはブラウザ言語から判定した）言語をUI全体に適用 ──
 applyI18n();
+
+// ── HeV Sender（Chrome拡張）からの受信 ─────────────────────────────
+// 拡張の送出ページが本アプリを window.open で開き、postMessage で File の配列を渡してくる。
+// なりすまし対策として、メッセージは自分を開いた window（opener）からのみ受け付ける
+window.addEventListener('message', e => {
+  if (!window.opener || e.source !== window.opener) return;
+  const d = e.data;
+  if (!d || d.type !== 'hev-files' || !Array.isArray(d.files)) return;
+  const files = d.files.filter(f => f instanceof File && ALL_EXTS.includes(extOf(f.name)));
+  if (files.length) {
+    revokeAll();
+    clearThumbCache();
+    // リロードボタンは entry ベースの再読込専用のため、受信表示では隠す
+    document.getElementById('btnReload').style.display = 'none';
+    const rootName = (typeof d.sourceName === 'string' && d.sourceName.trim()) || t('recv.rootName');
+    loadFlatFiles(files, rootName);
+  }
+  // 受け入れた件数を返す（0件でも返し、送出側が結果を表示できるようにする）
+  try { e.source.postMessage({ type: 'hev-received', count: files.length }, '*'); } catch (err) {}
+});
+// 送出側がファイルを送ってよいタイミングを知れるよう、opener がいれば準備完了を通知する
+if (window.opener) {
+  try { window.opener.postMessage({ type: 'hev-ready' }, '*'); } catch (e) {}
+}
 </script>
 </body>
 </html>

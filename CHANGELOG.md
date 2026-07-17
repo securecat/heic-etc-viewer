@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.15.0] - 2026-07-18
+
+### Added
+
+- The viewer can now receive files from the new companion Chrome extension [HeV Sender](chrome-extension/README.md) (v1.0.0): the extension collects images, videos, and PDFs from the page you are viewing and opens them in the viewer. Reception uses postMessage, accepts messages only from the window that opened the viewer, and shows the received files as a folder named after the source site
+
 ## [3.14.0] - 2026-07-18
 
 ### Added
@@ -515,6 +521,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.15.0] - 2026-07-18
+
+### 追加
+
+- 新しい連携Chrome拡張 [HeV Sender](chrome-extension/README.md)（v1.0.0）からのファイル受信に対応：拡張が表示中のページから収集した画像・動画・PDFを、viewerで開けるように。受信は postMessage 方式で、viewerを開いたウィンドウからのメッセージのみを受け付け、受信ファイルは送出元サイト名のフォルダとして表示される
 
 ## [3.14.0] - 2026-07-18
 

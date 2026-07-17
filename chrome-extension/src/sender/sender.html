@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HeV Sender</title>
+<link rel="stylesheet" href="../common.css">
+<link rel="stylesheet" href="sender.css">
+</head>
+<body>
+<main>
+  <h1>HeV Sender</h1>
+  <p class="status" id="senderStatus" role="status"></p>
+  <p id="skipInfo" hidden></p>
+  <div id="failBlock" hidden>
+    <p id="failLabel" data-i18n="sndFailListLabel">Files that could not be fetched:</p>
+    <!-- 失敗URLの <ul> はJSがここに生成する（空のulはMarkuplintに反するため静的には置かない） -->
+  </div>
+  <p class="actions">
+    <button id="btnOpenViewer" class="primary" data-i18n="sndOpenBtn" hidden>Open the viewer</button>
+    <button id="btnCloseTab" data-i18n="sndClose" hidden>Close this tab</button>
+  </p>
+</main>
+<script src="../common.js" defer></script>
+<script src="sender.js" defer></script>
+</body>
+</html>
