@@ -876,7 +876,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.13.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.13.1</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -921,7 +921,7 @@ input[type="range"]::-webkit-slider-thumb {
     <h4 data-i18n="g.kbd.galleryH">Gallery</h4>
     <p data-i18n-html="g.kbd.galleryP"><kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.</p>
     <h4 data-i18n="g.kbd.lbH">Lightbox</h4>
-    <p data-i18n-html="g.kbd.lbP"><kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>1</kbd> toggles actual-size display (images and videos). <kbd>R</kbd> rotates 90° counter-clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.</p>
+    <p data-i18n-html="g.kbd.lbP"><kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images and videos). <kbd>1</kbd> toggles actual-size display (images and videos). <kbd>R</kbd> rotates 90° counter-clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.</p>
   </div>
   <div class="info-panel" id="panelAbout" role="tabpanel" aria-labelledby="tabAbout" tabindex="0" hidden>
     <p>MIT License<br>&copy; 2026 securecat</p>
@@ -1094,7 +1094,7 @@ const I18N = {
     'g.kbd.galleryH': 'Gallery',
     'g.kbd.galleryP': '<kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.',
     'g.kbd.lbH': 'Lightbox',
-    'g.kbd.lbP': '<kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images). <kbd>1</kbd> toggles actual-size display (images and videos). <kbd>R</kbd> rotates 90° counter-clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.',
+    'g.kbd.lbP': '<kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images and videos). <kbd>1</kbd> toggles actual-size display (images and videos). <kbd>R</kbd> rotates 90° counter-clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow.',
     'about.bug': 'Found a bug? Report it on <a href="https://github.com/securecat/heic-etc-viewer/issues" target="_blank" rel="noopener">GitHub Issues</a>.',
     'lb.label': 'Lightbox',
     'lb.zoom': 'Zoom (drag to select)',
@@ -1243,7 +1243,7 @@ const I18N = {
     'g.kbd.galleryH': 'ギャラリー',
     'g.kbd.galleryP': '<kbd>Tab</kbd> でアイテム間を移動。<kbd>Enter</kbd> / <kbd>Space</kbd> でアイテムをライトボックスで開きます。<kbd>←</kbd> でツリーの選択中フォルダへフォーカスが戻ります。',
     'g.kbd.lbH': 'ライトボックス',
-    'g.kbd.lbP': '<kbd>←</kbd> <kbd>→</kbd> でファイル間を移動。<kbd>Z</kbd> でズームモードの切り替え(画像・動画)。<kbd>C</kbd> で市松模様背景の切り替え(画像)。<kbd>1</kbd> で原寸表示の切り替え(画像・動画)。<kbd>R</kbd> で反時計回りに90度回転(画像・動画)。<kbd>L</kbd> でループ再生の切り替え(動画)。<kbd>Esc</kbd> でズームの解除・終了、ライトボックスを閉じる、またはスライドショーの停止。',
+    'g.kbd.lbP': '<kbd>←</kbd> <kbd>→</kbd> でファイル間を移動。<kbd>Z</kbd> でズームモードの切り替え(画像・動画)。<kbd>C</kbd> で市松模様背景の切り替え(画像・動画)。<kbd>1</kbd> で原寸表示の切り替え(画像・動画)。<kbd>R</kbd> で反時計回りに90度回転(画像・動画)。<kbd>L</kbd> でループ再生の切り替え(動画)。<kbd>Esc</kbd> でズームの解除・終了、ライトボックスを閉じる、またはスライドショーの停止。',
     'about.bug': 'バグを見つけたら、<a href="https://github.com/securecat/heic-etc-viewer/issues" target="_blank" rel="noopener">GitHub Issues</a> へ報告してください。',
     'lb.label': 'ライトボックス',
     'lb.zoom': 'ズーム(ドラッグして範囲選択)',
@@ -3043,7 +3043,7 @@ function updateLbKeyHint() {
   if (ssActive) {
     segs.push(`Esc: ${t('hint.stopSs')}`);
   } else if (isVideo(name)) {
-    segs.push(`Z: ${t('hint.zoom')}`, `R: ${t('hint.rotate')}`, `1: ${t('hint.actual')}`, `L: ${t('hint.loop')}`, escCloseZoom);
+    segs.push(`Z: ${t('hint.zoom')}`, `R: ${t('hint.rotate')}`, `C: ${t('hint.checker')}`, `1: ${t('hint.actual')}`, `L: ${t('hint.loop')}`, escCloseZoom);
   } else if (isPdf(name)) {
     segs.push(`Esc: ${t('hint.close')}`); // PDFはズーム・市松切替とも不可
   } else {
@@ -3119,7 +3119,8 @@ async function updateLightbox() {
       loopBtn.style.display = ssActive ? 'none' : '';
       loopBtn.classList.toggle('is-active', videoLoop);
       loopBtn.title = t(videoLoop ? 'lb.loopOn' : 'lb.loopOff');
-      checkerBtn.style.display = 'none';
+      // 市松模様は動画でも有効: 暗い演出などで画角の範囲が分かりにくい動画のチェックに役立つ
+      checkerBtn.style.display = ssActive ? 'none' : '';
       actualBtn.style.display = (ssActive || zoomMode) ? 'none' : '';
       rotateBtn.style.display = (ssActive || zoomMode) ? 'none' : '';
       lbVideo.loop = ssActive ? false : videoLoop;
@@ -3940,15 +3941,15 @@ function stopSlideshow() {
   updateSlideshowButtonLabels();
   btnSlideshow.textContent = '▷';
   lbSsControls.classList.remove('visible');
-  // ループボタンは現在のファイルが動画の時のみ、市松ボタンは動画以外の時のみ、
-  // 回転ボタンは静止画・動画（Diff除く）の時のみ、原寸ボタンは静止画（Diff除く）の時のみ再表示
+  // ループボタンは現在のファイルが動画の時のみ、市松ボタンはPDF以外の時のみ、
+  // 回転ボタンは静止画・動画（Diff除く）の時のみ、原寸ボタンは静止画・動画（Diff除く）の時のみ再表示
   const _curEntry = filteredFiles[currentIdx];
   const _curIsVideo = _curEntry && isVideo(_curEntry.name);
   const _curIsPdf = _curEntry && isPdf(_curEntry.name);
   const _diffInfo = _curEntry ? getDiffPartner(_curEntry) : null;
   const _curIsDiff = !!(_diffInfo && isImage(_diffInfo.partner.name || ''));
   document.getElementById('lbZoomBtn').style.display = (mediaRotation || _curIsDiff) ? 'none' : '';
-  document.getElementById('lbChecker').style.display = _curIsVideo ? 'none' : '';
+  document.getElementById('lbChecker').style.display = _curIsPdf ? 'none' : '';
   document.getElementById('lbActualBtn').style.display = (!_curIsPdf && !_curIsDiff && !zoomMode) ? '' : 'none';
   document.getElementById('lbRotate').style.display = (!_curIsDiff && !zoomMode) ? '' : 'none';
   document.getElementById('lbLoopBtn').style.display = _curIsVideo ? '' : 'none';

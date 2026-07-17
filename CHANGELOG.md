@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.13.1] - 2026-07-18
+
+### Fixed
+
+- Turning the checker background on for a still image and then navigating to a video left it stuck on with no way to turn it off: the checker button had been removed from the video header in the past as meaningless for videos, while the on/off state persists across navigation. That removal is now reverted and the button is shown for videos again (between the rotate and actual-size buttons, with the C shortcut back in the hints) — the checker background is genuinely useful for videos too, making the frame boundary obvious in dark or moody footage
+
 ## [3.13.0] - 2026-07-18
 
 ### Changed
@@ -503,6 +509,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.13.1] - 2026-07-18
+
+### 修正
+
+- 静止画で市松模様をOnにしたまま動画へ移動すると、市松模様がOnのまま残るのにOffにできなかった問題を修正：過去に「動画では意味がない」としてヘッダーから市松模様ボタンを外していたことが原因(On/Off状態は前後移動で維持されるため)。この判断を撤回し、動画でもボタンを表示するように(回転と原寸表示の間、ヒントのCショートカットも復活)。全体的に暗めの演出の動画などでは画角の範囲が背景と見分けにくく、市松模様背景が動画のチェック作業に役立つ
 
 ## [3.13.0] - 2026-07-18
 

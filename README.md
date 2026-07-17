@@ -43,12 +43,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.13.0] - 2026-07-18
+### [3.13.1] - 2026-07-18
 
-#### Changed
+#### Fixed
 
-- Videos now behave like still images in the lightbox: they open "as large as possible" by default (small videos are scaled up to fill the available space), and the actual-size button 👁 (keyboard shortcut: 1) now works for videos too, including scrolling when the video doesn't fit
-- The interactions also match still images: mutually exclusive with zoom mode, rotation, and slideshows; the actual-size state persists while navigating between files and resets when the lightbox is closed
+- Turning the checker background on for a still image and then navigating to a video left it stuck on with no way to turn it off. The checker button, once removed from the video header as meaningless, is now back for videos — it is genuinely useful for making the frame boundary obvious in dark or moody footage
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -99,12 +98,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.13.0] - 2026-07-18
+### [3.13.1] - 2026-07-18
 
-#### 変更
+#### 修正
 
-- ライトボックスの動画の挙動を静止画と統一：デフォルトで「できるだけ大きく」表示し(小さい動画も余白いっぱいまで拡大)、原寸表示ボタン「👁」(ショートカット: 1)が動画でも使えるように。収まらない動画はスクロールして原寸のまま全体を確認できる
-- 各機能との組み合わせも静止画と同じ：ズームモード・回転・スライドショーとは相互排他で、原寸表示のON状態はファイル移動で維持され、ライトボックスを閉じるとリセットされる
+- 静止画で市松模様をOnにしたまま動画へ移動すると、Onのまま残るのにOffにできなかった問題を修正。過去に「動画では意味がない」として外していた市松模様ボタンを動画でも表示するように（暗めの演出の動画などで画角の範囲確認に役立つため）
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
