@@ -7,6 +7,7 @@ const SETTING_DEFAULTS = {
   sendImages: true,
   sendVideos: true,
   sendPdf: false,
+  sendBgImages: false,  // CSS背景画像（::before/::after含む）。ノイズが増えがちなのでデフォルトOFF
   smallImgW: 10,        // px。幅または高さがこの値以下なら「小さい画像」
   smallImgH: 10,
   smallVidKB: 2,        // KB。容量がこの値以下なら「小さい動画」

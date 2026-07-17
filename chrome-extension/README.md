@@ -8,7 +8,7 @@ Click **Send** in the popup, and the extension collects the images, videos, and 
 
 - **Exclude small images** (on by default): skips tracking pixels, spacers, and other tiny images. The threshold (default: width 10px / height 10px, either side at or below counts as small) can be changed in the options
 - **Exclude small videos**: skips videos at or below a file-size threshold (default: 2KB)
-- The options page also lets you choose what to send (images / videos / PDF) and override the destination URL, e.g. for a locally hosted viewer
+- The options page also lets you choose what to send (images / CSS background images / videos / PDF) and override the destination URL, e.g. for a locally hosted viewer. CSS background images (off by default) are collected from `background-image` values, including `::before` / `::after` pseudo-elements
 - Videos delivered as streaming (`blob:`) sources cannot be fetched and are skipped with a note
 
 The extension's UI follows your browser language: Japanese browsers get Japanese, everything else gets English.
@@ -32,11 +32,11 @@ The extension requests access to all sites so it can download the media files th
 
 ## Changelog
 
-### v1.0.0 — 2026-07-18
+### v1.1.0 — 2026-07-18
 
 #### Added
 
-- Initial release
+- New "CSS background images" choice (off by default) under "What to send": collects images referenced by CSS `background-image`, including `::before` / `::after` pseudo-elements
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -52,7 +52,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full history.
 
 - **小さい画像を含めない**（デフォルトON）：トラッキングピクセルやスペーサーなどの極小画像を除外します。閾値（デフォルト：幅10px／高さ10px、どちらか一方でも以下なら「小さい」と判定）はオプションで変更できます
 - **小さい動画を含めない**：ファイル容量が閾値（デフォルト：2KB）以下の動画を除外します
-- オプションページでは、送出対象（画像／動画／PDF）の選択と、送出先URLの上書き（ローカルで動かしているviewerに送りたい場合など）ができます
+- オプションページでは、送出対象（画像／CSS背景画像／動画／PDF）の選択と、送出先URLの上書き（ローカルで動かしているviewerに送りたい場合など）ができます。CSS背景画像（デフォルトOFF）は`background-image`の参照先を`::before`／`::after`擬似要素も含めて収集します
 - ストリーミング配信（`blob:`）の動画は取得できないため、その旨を表示してスキップします
 
 拡張のUIはブラウザの言語設定に従います。日本語のブラウザでは日本語、それ以外では英語で表示されます。
@@ -76,10 +76,10 @@ See [CHANGELOG.md](CHANGELOG.md) for full history.
 
 ## 更新履歴
 
-### v1.0.0 — 2026-07-18
+### v1.1.0 — 2026-07-18
 
 #### 追加
 
-- 初回リリース
+- オプションの送出対象に「CSS背景画像」を追加（デフォルトOFF）：CSSの`background-image`で参照される画像を、`::before`／`::after`擬似要素も含めて収集
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。

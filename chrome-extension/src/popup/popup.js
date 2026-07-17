@@ -35,6 +35,23 @@ function collectMedia(opts) {
         push(abs(u), 'video');
       });
     }
+    if (opts.sendBgImages) {
+      // collect CSS background images, including ::before/::after pseudo-elements.
+      // computed background-image values are already absolutized and quoted with url("...")
+      const re = /url\((['"]?)(.*?)\1\)/g;
+      const grab = style => {
+        const bg = style.backgroundImage;
+        if (!bg || bg === 'none') return;
+        let m;
+        re.lastIndex = 0;
+        while ((m = re.exec(bg))) push(abs(m[2]), 'image');
+      };
+      document.querySelectorAll('*').forEach(el => {
+        grab(getComputedStyle(el));
+        grab(getComputedStyle(el, '::before'));
+        grab(getComputedStyle(el, '::after'));
+      });
+    }
     if (opts.sendPdf) {
       const isPdfUrl = u => { try { return new URL(u).pathname.toLowerCase().endsWith('.pdf'); } catch (e) { return false; } };
       document.querySelectorAll('a[href]').forEach(a => {
@@ -98,6 +115,7 @@ async function onSend() {
           sendImages: s.sendImages,
           sendVideos: s.sendVideos,
           sendPdf: s.sendPdf,
+          sendBgImages: s.sendBgImages,
           skipSmallImages: s.skipSmallImages,
           smallImgW: s.smallImgW,
           smallImgH: s.smallImgH,

@@ -17,6 +17,7 @@
   "optTargetImages": { "message": "Images" },
   "optTargetVideos": { "message": "Videos" },
   "optTargetPdf": { "message": "PDF" },
+  "optTargetBgImages": { "message": "CSS background images" },
   "optSmallImgLegend": { "message": "Small image size" },
   "optSmallImgDesc": { "message": "Images with a width or height at or below these values count as small." },
   "optWidth": { "message": "Width (px)" },

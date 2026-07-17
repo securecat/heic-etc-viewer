@@ -3,6 +3,7 @@ const els = {
   sendImages: document.getElementById('sendImages'),
   sendVideos: document.getElementById('sendVideos'),
   sendPdf: document.getElementById('sendPdf'),
+  sendBgImages: document.getElementById('sendBgImages'),
   smallImgW: document.getElementById('smallImgW'),
   smallImgH: document.getElementById('smallImgH'),
   smallVidKB: document.getElementById('smallVidKB'),
@@ -21,6 +22,7 @@ function collectValues() {
     sendImages: els.sendImages.checked,
     sendVideos: els.sendVideos.checked,
     sendPdf: els.sendPdf.checked,
+    sendBgImages: els.sendBgImages.checked,
     smallImgW: clampInt(els.smallImgW.value, SETTING_DEFAULTS.smallImgW),
     smallImgH: clampInt(els.smallImgH.value, SETTING_DEFAULTS.smallImgH),
     smallVidKB: clampInt(els.smallVidKB.value, SETTING_DEFAULTS.smallVidKB),
@@ -50,6 +52,7 @@ async function init() {
   els.sendImages.checked = s.sendImages;
   els.sendVideos.checked = s.sendVideos;
   els.sendPdf.checked = s.sendPdf;
+  els.sendBgImages.checked = s.sendBgImages;
   els.smallImgW.value = s.smallImgW;
   els.smallImgH.value = s.smallImgH;
   els.smallVidKB.value = s.smallVidKB;
