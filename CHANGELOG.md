@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.13.0] - 2026-07-18
+
+### Changed
+
+- Videos now behave like still images in the lightbox: they open "as large as possible" by default (small videos are scaled up to fill the available space), and the actual-size button 👁 (keyboard shortcut: 1) now works for videos too. A video that doesn't fit in the lightbox can be scrolled to see every part at 1:1, with the same keyboard-focusable scroll area as images
+- The interactions also match still images: mutually exclusive with zoom mode, rotation, and slideshows; the actual-size state persists while navigating between files with ← → (including across images and videos) and resets when the lightbox is closed
+
 ## [3.12.0] - 2026-07-17
 
 ### Added
@@ -496,6 +503,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.13.0] - 2026-07-18
+
+### 変更
+
+- ライトボックスの動画の挙動を静止画と統一：デフォルトで「できるだけ大きく」表示し(小さい動画も余白いっぱいまで拡大)、原寸表示ボタン「👁」(ショートカット: 1)が動画でも使えるように。ライトボックスに収まらない動画はスクロールして原寸のまま全体を確認でき、スクロール領域のキーボードフォーカスも静止画と同様
+- 各機能との組み合わせも静止画と同じ：ズームモード・回転・スライドショーとは相互排他で、原寸表示のON状態は←→でのファイル移動(画像⇄動画をまたいでも)で維持され、ライトボックスを閉じるとリセットされる
 
 ## [3.12.0] - 2026-07-17
 

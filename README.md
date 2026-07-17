@@ -43,17 +43,12 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.12.0] - 2026-07-17
-
-#### Added
-
-- Actual-size (1:1) toggle button 👁 in the lightbox header (keyboard shortcut: 1). It shows the image at its natural size — for small images that would blur when enlarged, or for checking the real dimensions of icons such as ICO files — and pressing it again returns to the fit view. An image that doesn't fit in the lightbox can be scrolled to see every part at 1:1
-- The actual-size state persists while navigating between files and resets when the lightbox is closed; zoom mode, rotation, and slideshows turn it off
+### [3.13.0] - 2026-07-18
 
 #### Changed
 
-- Still images now open "as large as possible" by default: images smaller than the lightbox are scaled up to fill the available space, while larger images are scaled down to fit as before
-- The key hints at the bottom of the lightbox are now right-aligned, keeping them clear of the convert controls on the left
+- Videos now behave like still images in the lightbox: they open "as large as possible" by default (small videos are scaled up to fill the available space), and the actual-size button 👁 (keyboard shortcut: 1) now works for videos too, including scrolling when the video doesn't fit
+- The interactions also match still images: mutually exclusive with zoom mode, rotation, and slideshows; the actual-size state persists while navigating between files and resets when the lightbox is closed
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -104,17 +99,12 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.12.0] - 2026-07-17
-
-#### 追加
-
-- ライトボックスのヘッダーに原寸表示(等倍)ボタン「👁」を追加(ショートカット: 1)。押すと画像を原寸で表示し、もう一度押すと全体表示に戻る。拡大するとぼやける小さな画像や、ICOファイルなど実寸そのものを確認したい用途向け。ライトボックスに収まらない画像はスクロールして原寸のまま全体を確認できる
-- 原寸表示のON状態はファイル移動でも維持され、ライトボックスを閉じるとリセットされる。ズームモード・回転・スライドショーの開始で解除される
+### [3.13.0] - 2026-07-18
 
 #### 変更
 
-- 静止画のデフォルト表示を「できるだけ大きく」に変更：ライトボックスより小さい画像も余白いっぱいまで拡大して表示する。大きい画像は従来通り収まるように縮小
-- ライトボックス下端のキー操作ヒントを右寄せに変更し、左側の変換UIと重なりにくくした
+- ライトボックスの動画の挙動を静止画と統一：デフォルトで「できるだけ大きく」表示し(小さい動画も余白いっぱいまで拡大)、原寸表示ボタン「👁」(ショートカット: 1)が動画でも使えるように。収まらない動画はスクロールして原寸のまま全体を確認できる
+- 各機能との組み合わせも静止画と同じ：ズームモード・回転・スライドショーとは相互排他で、原寸表示のON状態はファイル移動で維持され、ライトボックスを閉じるとリセットされる
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
