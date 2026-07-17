@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.14.0] - 2026-07-18
+
+### Added
+
+- A "Keyboard shortcuts" section in the Settings tab: the lightbox single-key shortcuts (Z, R, C, 1, L) can now be disabled (they are enabled by default). Single-key handlers are convenient for mouse-centric use, but they can capture keys that screen readers and other assistive technologies rely on, so this provides a way to turn them off (WCAG 2.1.4). Arrow keys and Esc always work, the key hints at the bottom of the lightbox follow the setting, and the choice is remembered across sessions
+
 ## [3.13.1] - 2026-07-18
 
 ### Fixed
@@ -509,6 +515,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.14.0] - 2026-07-18
+
+### 追加
+
+- 設定タブに「キーボードショートカット」セクションを追加：ライトボックスの1文字キーショートカット(Z・R・C・1・L)を無効化できるように(デフォルトは有効)。1文字キーの捕捉はマウス中心の利用では便利な一方、スクリーンリーダーなど支援技術のキー操作を奪ってしまうため、オフにする手段を用意した(WCAG 2.1.4)。矢印キーとEscは常に有効で、ライトボックス下端のキーヒントも設定に追従し、選択はセッションをまたいで保存される
 
 ## [3.13.1] - 2026-07-18
 

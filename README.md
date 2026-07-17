@@ -75,11 +75,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.13.1] - 2026-07-18
+### [3.14.0] - 2026-07-18
 
-#### Fixed
+#### Added
 
-- Turning the checker background on for a still image and then navigating to a video left it stuck on with no way to turn it off. The checker button, once removed from the video header as meaningless, is now back for videos — it is genuinely useful for making the frame boundary obvious in dark or moody footage
+- A "Keyboard shortcuts" section in the Settings tab: the lightbox single-key shortcuts (Z, R, C, 1, L) can now be disabled, since single-key handlers can capture keys that screen readers and other assistive technologies rely on (WCAG 2.1.4). Enabled by default; arrow keys and Esc always work, and the key hints follow the setting
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -162,11 +162,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.13.1] - 2026-07-18
+### [3.14.0] - 2026-07-18
 
-#### 修正
+#### 追加
 
-- 静止画で市松模様をOnにしたまま動画へ移動すると、Onのまま残るのにOffにできなかった問題を修正。過去に「動画では意味がない」として外していた市松模様ボタンを動画でも表示するように（暗めの演出の動画などで画角の範囲確認に役立つため）
+- 設定タブに「キーボードショートカット」セクションを追加：ライトボックスの1文字キーショートカット(Z・R・C・1・L)を無効化できるように。1文字キーの捕捉はスクリーンリーダーなど支援技術のキー操作を奪ってしまうため(WCAG 2.1.4)。デフォルトは有効で、矢印キーとEscは常に有効、キーヒントも設定に追従する
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
