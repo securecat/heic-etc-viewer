@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.16.0] - 2026-07-18
+
+### Added
+
+- The output language of AI-generated alt text can now be set independently of the UI language: a new "Alt text language" select in the Settings tab offers Japanese, English, Chinese, Korean, French, German, and Spanish. While no language is selected (the "Select language" placeholder), the output follows the browser language — Japanese for Japanese browsers, English otherwise. Previously the output language always followed the app's UI language setting
+
+### Changed
+
+- The "Language" section in the Settings tab is renamed "UI language" to distinguish it from the new alt text language setting
+
 ## [3.15.0] - 2026-07-18
 
 ### Added
@@ -521,6 +531,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.16.0] - 2026-07-18
+
+### 追加
+
+- AI代替テキストの生成言語を、UIの言語とは独立して設定できるように：設定タブに「代替テキストの言語」セレクトを新設(日本語・英語・中国語・韓国語・フランス語・ドイツ語・スペイン語)。未選択(プレースホルダー「言語を選択」)の間はブラウザの言語設定に連動し、日本語なら日本語・それ以外は英語で生成される。従来は生成言語がアプリのUI言語設定に連動していた
+
+### 変更
+
+- 設定タブの「言語」セクション名を、新設の代替テキスト言語設定と区別するため「UIの言語」に変更
 
 ## [3.15.0] - 2026-07-18
 

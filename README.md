@@ -79,11 +79,15 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.15.0] - 2026-07-18
+### [3.16.0] - 2026-07-18
 
 #### Added
 
-- The viewer can now receive files from the new companion Chrome extension [HeV Sender](chrome-extension/README.md) (v1.0.0), which collects images, videos, and PDFs from the page you are viewing and opens them in the viewer
+- The output language of AI-generated alt text can now be set independently of the UI language: a new "Alt text language" select in the Settings tab offers Japanese, English, Chinese, Korean, French, German, and Spanish (while unset, it follows the browser language: Japanese or English)
+
+#### Changed
+
+- The "Language" section in the Settings tab is renamed "UI language"
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -170,11 +174,15 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.15.0] - 2026-07-18
+### [3.16.0] - 2026-07-18
 
 #### 追加
 
-- 新しい連携Chrome拡張 [HeV Sender](chrome-extension/README.md)（v1.0.0）からのファイル受信に対応。拡張が表示中のページから収集した画像・動画・PDFを、viewerで開けるように
+- AI代替テキストの生成言語を、UIの言語とは独立して設定できるように：設定タブに「代替テキストの言語」セレクトを新設（日本語・英語・中国語・韓国語・フランス語・ドイツ語・スペイン語。未選択の間はブラウザの言語設定に応じて日本語または英語）
+
+#### 変更
+
+- 設定タブの「言語」セクション名を「UIの言語」に変更
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

@@ -791,6 +791,7 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--text);
   margin: 0 0 8px;
 }
+.settings-select { font-size: 16px; }
 .inline-code {
   background: rgba(255,255,255,0.08);
   padding: 2px 6px;
@@ -881,7 +882,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.15.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.16.0</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -899,9 +900,23 @@ input[type="range"]::-webkit-slider-thumb {
   </div>
   <div class="info-panel" id="panelSettings" role="tabpanel" aria-labelledby="tabSettings" tabindex="0">
     <fieldset class="settings-fieldset">
-      <legend data-i18n="lang.legend">Language</legend>
+      <legend data-i18n="lang.legend">UI language</legend>
       <label><input type="radio" name="uiLang" value="en"> English</label>
       <label><input type="radio" name="uiLang" value="ja"> 日本語</label>
+    </fieldset>
+    <fieldset class="settings-fieldset">
+      <legend data-i18n="altLang.legend">Alt text language</legend>
+      <p class="settings-note" data-i18n="altLang.desc">By default, alt text is generated in Japanese for browsers whose language is set to Japanese, and in English otherwise. Set this only if you want to explicitly choose another language.</p>
+      <select id="altLangSelect" class="sort-select settings-select" data-i18n-attr="aria-label:altLang.legend" aria-label="Alt text language">
+        <option value="" data-i18n="altLang.placeholder">Select language</option>
+        <option value="ja" data-i18n="altLang.ja">Japanese</option>
+        <option value="en" data-i18n="altLang.en">English</option>
+        <option value="zh" data-i18n="altLang.zh">Chinese</option>
+        <option value="ko" data-i18n="altLang.ko">Korean</option>
+        <option value="fr" data-i18n="altLang.fr">French</option>
+        <option value="de" data-i18n="altLang.de">German</option>
+        <option value="es" data-i18n="altLang.es">Spanish</option>
+      </select>
     </fieldset>
     <fieldset class="settings-fieldset">
       <legend data-i18n="sc.legend">Keyboard shortcuts</legend>
@@ -925,7 +940,7 @@ input[type="range"]::-webkit-slider-thumb {
     <h3 data-i18n="g.diff.h">Image diff mode</h3>
     <p data-i18n="g.diff.p">Open a parent folder containing exactly two subfolders whose image files share the same filename (ignoring extension) to compare them. Opening a matched file in the lightbox shows both versions overlaid with a divider that follows your mouse — the alphabetically-first subfolder is on the left. Files without a match in the other subfolder, or matched pairs that aren't both images, display normally.</p>
     <h3 data-i18n="g.alt.h">Alt text generation (AI)</h3>
-    <p data-i18n="g.alt.p">Generates alt text for images with Chrome's built-in on-device AI (Gemini Nano) — nothing is sent to any server. Works with JPEG, PNG, WebP, GIF, SVG, and AVIF (formats usable in &lt;img&gt;), and the output language follows the UI language. Select "All" as the convert subject and choose "Export alt text (AI)" to download a JSON file pairing each filename with its alt text, or use "Alt text" in the lightbox to generate and copy text for one image. Requires Chrome 148 or later, at least 22 GB of free disk space, more than 4 GB of VRAM, and 16 GB of RAM; the first run downloads the model. Animated GIFs are described from their first frame.</p>
+    <p data-i18n="g.alt.p">Generates alt text for images with Chrome's built-in on-device AI (Gemini Nano) — nothing is sent to any server. Works with JPEG, PNG, WebP, GIF, SVG, and AVIF (formats usable in &lt;img&gt;), and the output language can be chosen with "Alt text language" in the Settings tab (when unset, it follows the browser language: Japanese or English). Select "All" as the convert subject and choose "Export alt text (AI)" to download a JSON file pairing each filename with its alt text, or use "Alt text" in the lightbox to generate and copy text for one image. Requires Chrome 148 or later, at least 22 GB of free disk space, more than 4 GB of VRAM, and 16 GB of RAM; the first run downloads the model. Animated GIFs are described from their first frame.</p>
     <h3 data-i18n="g.kbd.h">Keyboard operation</h3>
     <h4 data-i18n="g.kbd.treeH">Folder tree</h4>
     <p data-i18n-html="g.kbd.treeP"><kbd>Tab</kbd> enters the tree on the selected folder. <kbd>↑</kbd> <kbd>↓</kbd> move between visible folders. <kbd>→</kbd> expands a closed folder; on the selected folder with nothing left to expand, it moves focus into the gallery. <kbd>←</kbd> collapses an open folder. <kbd>Enter</kbd> / <kbd>Space</kbd> shows the folder's contents in the gallery; pressing it again moves focus into the gallery. <kbd>Home</kbd> / <kbd>End</kbd> jump to the first / last folder. Typing a character jumps to the next folder whose name starts with it.</p>
@@ -1085,7 +1100,17 @@ const I18N = {
     'tab.settings': 'Settings',
     'tab.guide': 'Guide',
     'tab.about': 'About',
-    'lang.legend': 'Language',
+    'lang.legend': 'UI language',
+    'altLang.legend': 'Alt text language',
+    'altLang.desc': 'By default, alt text is generated in Japanese for browsers whose language is set to Japanese, and in English otherwise. Set this only if you want to explicitly choose another language.',
+    'altLang.placeholder': 'Select language',
+    'altLang.ja': 'Japanese',
+    'altLang.en': 'English',
+    'altLang.zh': 'Chinese',
+    'altLang.ko': 'Korean',
+    'altLang.fr': 'French',
+    'altLang.de': 'German',
+    'altLang.es': 'Spanish',
     'sc.legend': 'Keyboard shortcuts',
     'sc.desc': 'Single-key shortcuts in the lightbox (Z, R, C, 1, L). Disable them if they conflict with key commands of a screen reader or other assistive technology. Arrow keys and Esc always work.',
     'sc.on': 'Enabled',
@@ -1168,7 +1193,7 @@ const I18N = {
     'preview.original': 'Original',
     'preview.generating': 'Generating preview...',
     'g.alt.h': 'Alt text generation (AI)',
-    'g.alt.p': 'Generates alt text for images with Chrome\'s built-in on-device AI (Gemini Nano) — nothing is sent to any server. Works with JPEG, PNG, WebP, GIF, SVG, and AVIF (formats usable in <img>), and the output language follows the UI language. Select "All" as the convert subject and choose "Export alt text (AI)" to download a JSON file pairing each filename with its alt text, or use "Alt text" in the lightbox to generate and copy text for one image. Requires Chrome 148 or later, at least 22 GB of free disk space, more than 4 GB of VRAM, and 16 GB of RAM; the first run downloads the model. Animated GIFs are described from their first frame.',
+    'g.alt.p': 'Generates alt text for images with Chrome\'s built-in on-device AI (Gemini Nano) — nothing is sent to any server. Works with JPEG, PNG, WebP, GIF, SVG, and AVIF (formats usable in <img>), and the output language can be chosen with "Alt text language" in the Settings tab (when unset, it follows the browser language: Japanese or English). Select "All" as the convert subject and choose "Export alt text (AI)" to download a JSON file pairing each filename with its alt text, or use "Alt text" in the lightbox to generate and copy text for one image. Requires Chrome 148 or later, at least 22 GB of free disk space, more than 4 GB of VRAM, and 16 GB of RAM; the first run downloads the model. Animated GIFs are described from their first frame.',
   },
   ja: {
     'app.toolbar': 'ツールバー',
@@ -1239,7 +1264,17 @@ const I18N = {
     'tab.settings': '設定',
     'tab.guide': 'ガイド',
     'tab.about': 'アバウト',
-    'lang.legend': '言語',
+    'lang.legend': 'UIの言語',
+    'altLang.legend': '代替テキストの言語',
+    'altLang.desc': 'デフォルトの挙動では、言語設定が日本語のブラウザなら日本語、それ以外は英語で代替テキストを生成します。他の言語を明示的に選択したい場合に設定してください。',
+    'altLang.placeholder': '言語を選択',
+    'altLang.ja': '日本語',
+    'altLang.en': '英語',
+    'altLang.zh': '中国語',
+    'altLang.ko': '韓国語',
+    'altLang.fr': 'フランス語',
+    'altLang.de': 'ドイツ語',
+    'altLang.es': 'スペイン語',
     'sc.legend': 'キーボードショートカット',
     'sc.desc': 'ライトボックスの1文字キーのショートカット(Z・R・C・1・L)です。スクリーンリーダーなど支援技術のキー操作と競合する場合は無効にしてください。矢印キーとEscは常に有効です。',
     'sc.on': '有効',
@@ -1322,7 +1357,7 @@ const I18N = {
     'preview.original': '元画像',
     'preview.generating': 'プレビューを生成中...',
     'g.alt.h': '代替テキスト生成(AI)',
-    'g.alt.p': 'Chrome内蔵のオンデバイスAI(Gemini Nano)で画像の代替テキストを生成します。サーバーには何も送信されません。対象はJPEG・PNG・WebP・GIF・SVG・AVIF(<img>で使える形式)で、生成される言語はUIの表示言語に連動します。変換対象「すべて」の「代替テキストをエクスポート(AI)」で、ファイル名と代替テキストを対にしたJSONをダウンロードできます。ライトボックスの「代替テキスト」では1枚ずつ生成してコピーできます。Chrome 148以降・空きストレージ22GB以上・VRAM 4GB超・RAM 16GB以上が必要で、初回はAIモデルのダウンロードが行われます。アニメーションGIFは先頭フレームの内容から生成されます。',
+    'g.alt.p': 'Chrome内蔵のオンデバイスAI(Gemini Nano)で画像の代替テキストを生成します。サーバーには何も送信されません。対象はJPEG・PNG・WebP・GIF・SVG・AVIF(<img>で使える形式)で、生成される言語は設定タブの「代替テキストの言語」で選べます(未選択の場合は、ブラウザの言語設定に応じて日本語または英語になります)。変換対象「すべて」の「代替テキストをエクスポート(AI)」で、ファイル名と代替テキストを対にしたJSONをダウンロードできます。ライトボックスの「代替テキスト」では1枚ずつ生成してコピーできます。Chrome 148以降・空きストレージ22GB以上・VRAM 4GB超・RAM 16GB以上が必要で、初回はAIモデルのダウンロードが行われます。アニメーションGIFは先頭フレームの内容から生成されます。',
   },
 };
 const LANG_STORAGE_KEY = 'hev-lang';
@@ -1957,6 +1992,36 @@ infoTabs.forEach((tab, i) => {
 document.querySelectorAll('input[name="uiLang"]').forEach(radio => {
   radio.addEventListener('change', () => { if (radio.checked) setLanguage(radio.value); });
 });
+
+// ── 代替テキストの言語設定 ────────────────────────────────────────
+// AI代替テキストの生成言語。UIの言語とは独立して選べる。
+// 未選択（プレースホルダー）の間はブラウザの言語設定に連動：日本語なら日本語、それ以外は英語
+const ALT_LANG_STORAGE_KEY = 'hev-alt-lang';
+const ALT_LANG_INSTRUCTION = {
+  ja: 'Respond in Japanese.',
+  en: 'Respond in English.',
+  zh: 'Respond in Chinese.',
+  ko: 'Respond in Korean.',
+  fr: 'Respond in French.',
+  de: 'Respond in German.',
+  es: 'Respond in Spanish.',
+};
+let altLang = localStorage.getItem(ALT_LANG_STORAGE_KEY) || '';
+if (altLang && !ALT_LANG_INSTRUCTION[altLang]) altLang = '';
+function effectiveAltLang() {
+  if (ALT_LANG_INSTRUCTION[altLang]) return altLang;
+  return (navigator.language || '').toLowerCase().startsWith('ja') ? 'ja' : 'en';
+}
+{
+  const sel = document.getElementById('altLangSelect');
+  sel.value = altLang;
+  sel.addEventListener('change', () => {
+    altLang = ALT_LANG_INSTRUCTION[sel.value] ? sel.value : '';
+    // プレースホルダーに戻したら保存も消して「ブラウザ言語連動」へ戻す
+    if (altLang) localStorage.setItem(ALT_LANG_STORAGE_KEY, altLang);
+    else localStorage.removeItem(ALT_LANG_STORAGE_KEY);
+  });
+}
 
 // ── キーボードショートカット設定 ──────────────────────────────────
 // ライトボックスの1文字キー(Z/R/C/1/L)はスクリーンリーダー等のキー操作を奪いうるため、
@@ -4183,7 +4248,7 @@ async function generateAltText(file) {
   const bitmap = await decodeForAlt(file);
   const session = await altBaseSession.clone();
   try {
-    const langInstruction = lang === 'ja' ? 'Respond in Japanese.' : 'Respond in English.';
+    const langInstruction = ALT_LANG_INSTRUCTION[effectiveAltLang()];
     const result = await session.prompt([{
       role: 'user',
       content: [
