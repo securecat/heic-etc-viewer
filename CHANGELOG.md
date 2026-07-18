@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.17.0] - 2026-07-18
+
+### Added
+
+- A "(Cancel)" button next to the progress indicator while bulk alt text export is running: generating alt text for a large number of images can take a long time, and cancelling now stops the run after the image currently being processed and downloads a JSON containing everything generated up to that point. If nothing has been generated yet, no file is downloaded
+
 ## [3.16.0] - 2026-07-18
 
 ### Added
@@ -531,6 +537,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.17.0] - 2026-07-18
+
+### 追加
+
+- 一括の代替テキストエクスポート実行中、進捗表示の隣に「(中止)」ボタンを表示するように：大量の画像では生成に長時間かかるため、中止すると処理中の画像の完了を待って停止し、その時点までに生成した分のJSONがダウンロードされる。1件も生成されていない場合はダウンロードなしで終了する
 
 ## [3.16.0] - 2026-07-18
 

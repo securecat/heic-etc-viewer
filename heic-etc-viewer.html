@@ -641,6 +641,22 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: var(--radius);
   padding: 3px 8px;
 }
+/* 一括代替テキスト生成の中止。進捗表示の隣に置くリンク風のインラインボタン
+   （色は .convert-error と揃えて、進捗表示との一体感を出す） */
+.alt-cancel {
+  font: inherit;
+  font-size: 14px;
+  background: var(--bg-card);
+  color: #FF8A8A;
+  border: none;
+  border-radius: var(--radius);
+  padding: 3px 8px;
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.alt-cancel:hover { text-decoration-thickness: 2px; }
+.alt-cancel:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
 /* ── slideshow / loop ── */
 .lb-ss-controls {
@@ -827,6 +843,7 @@ input[type="range"]::-webkit-slider-thumb {
     </select>
     <button class="btn" id="bulkConvertDownload" data-i18n="convert.downloadTextHeader" data-i18n-attr="aria-label:convert.download" aria-label="Download">📁Download</button>
     <span class="convert-error" id="bulkConvertError" aria-live="polite"></span>
+    <button class="alt-cancel" id="altCancelBtn" data-i18n="alt.cancel" hidden>(Cancel)</button>
   </div>
   <div class="toolbar-sep" aria-hidden="true"></div>
   <span class="status" id="statusText" aria-live="polite"></span>
@@ -882,7 +899,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.16.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.17.0</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -1189,6 +1206,8 @@ const I18N = {
     'alt.doneSkipped': 'Done — {n} file(s) skipped',
     'alt.copy': 'Copy',
     'alt.copied': 'Copied!',
+    'alt.cancel': '(Cancel)',
+    'alt.cancelled': 'Cancelled — {n} file(s) generated',
     'preview.btn': 'Preview',
     'preview.original': 'Original',
     'preview.generating': 'Generating preview...',
@@ -1353,6 +1372,8 @@ const I18N = {
     'alt.doneSkipped': '完了 — {n}件はスキップしました',
     'alt.copy': 'コピー',
     'alt.copied': 'コピーしました',
+    'alt.cancel': '(中止)',
+    'alt.cancelled': '中止しました — {n}件まで生成済み',
     'preview.btn': 'プレビュー',
     'preview.original': '元画像',
     'preview.generating': 'プレビューを生成中...',
@@ -4779,11 +4800,18 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
     }
     if (altBusy) return;
     altBusy = true;
+    const cancelBtn = document.getElementById('altCancelBtn');
+    let cancelRequested = false;
+    const onCancel = () => { cancelRequested = true; };
     try {
       if (!(await ensureAltSession(errEl))) return;
+      // 大量の画像だと長時間かかるため、進捗表示の隣に中止ボタンを出す
+      cancelBtn.hidden = false;
+      cancelBtn.addEventListener('click', onCancel);
       const out = {}; // ギャラリーの表示順どおりに ファイル名 → 代替テキスト を格納
       let skipped = 0;
       for (let i = 0; i < targets.length; i++) {
+        if (cancelRequested) break; // 中止: 生成済みの分だけでJSONを作る
         errEl.textContent = tf('alt.progress', { n: i + 1, m: targets.length });
         try {
           const file = await resolveFile(targets[i]);
@@ -4793,15 +4821,25 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
         }
         await new Promise(r => setTimeout(r, 30)); // UIをブロックしないよう小休止
       }
-      if (Object.keys(out).length === 0) {
+      const doneCount = Object.keys(out).length;
+      if (cancelRequested) {
+        errEl.textContent = tf('alt.cancelled', { n: doneCount });
+        if (doneCount === 0) return; // 1件もなければダウンロードするものがない
+      } else if (doneCount === 0) {
         errEl.textContent = t('alt.failed');
         return;
+      } else {
+        errEl.textContent = skipped ? tf('alt.doneSkipped', { n: skipped }) : '';
       }
-      errEl.textContent = skipped ? tf('alt.doneSkipped', { n: skipped }) : '';
       const folderName = (currentNode && currentNode.name) || 'alt';
       const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
       triggerDownload(blob, `${folderName}-alt.json`);
     } finally {
+      cancelBtn.removeEventListener('click', onCancel);
+      // 非表示にする前にフォーカスを退避させる（フォーカスがbodyへ落ちるのを防ぐ）
+      const hadFocus = document.activeElement === cancelBtn;
+      cancelBtn.hidden = true;
+      if (hadFocus) document.getElementById('bulkConvertDownload').focus();
       altBusy = false;
     }
     return;
