@@ -43,5 +43,6 @@
   "sndSkippedSmallVid": { "message": "Small videos excluded: $1" },
   "sndSkippedBlob": { "message": "Skipped (streaming/blob sources that cannot be fetched): $1" },
   "sndNoPayload": { "message": "Nothing to send. Use the Send button in the extension popup." },
+  "sndResend": { "message": "Send again" },
   "sndClose": { "message": "Close this tab" }
 }

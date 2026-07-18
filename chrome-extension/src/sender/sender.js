@@ -29,7 +29,14 @@ const statusEl = document.getElementById('senderStatus');
 const skipInfoEl = document.getElementById('skipInfo');
 const failBlock = document.getElementById('failBlock');
 const btnOpenViewer = document.getElementById('btnOpenViewer');
+const btnResend = document.getElementById('btnResend');
 const btnCloseTab = document.getElementById('btnCloseTab');
+
+// 送出済みFileはタブが生きている限り保持し、HeVタブを誤って閉じた場合などに再送出できるようにする
+let sentFiles = null;
+let sourceHost = '';
+let viewerUrl = '';
+let targetOrigin = '*';
 
 const msg = (key, subs) => chrome.i18n.getMessage(key, subs);
 
@@ -124,15 +131,40 @@ function openViewer(url) {
     if (w) { resolve(w); return; }
     setStatus(msg('sndBlocked'), true);
     btnOpenViewer.hidden = false;
-    btnOpenViewer.addEventListener('click', () => {
+    const onClick = () => {
       const w2 = window.open(url);
       if (w2) {
         btnOpenViewer.hidden = true;
+        btnOpenViewer.removeEventListener('click', onClick); // 再送出時に多重登録しないよう解除
         statusEl.classList.remove('error');
         resolve(w2);
       }
-    });
+    };
+    btnOpenViewer.addEventListener('click', onClick);
   });
+}
+
+// viewer を開いてハンドシェイク→送出する。初回と「もう一度送出する」の両方から呼ぶ
+async function sendPhase() {
+  btnResend.hidden = true;
+  setStatus(msg('sndOpening'));
+  const viewerWin = await openViewer(viewerUrl);
+  setStatus(msg('sndWaiting'));
+  try {
+    await waitForMessage(viewerWin, 'hev-ready', READY_TIMEOUT_MS);
+    viewerWin.postMessage({
+      type: 'hev-files',
+      sourceName: sourceHost,
+      files: sentFiles,
+    }, targetOrigin);
+    const received = await waitForMessage(viewerWin, 'hev-received', READY_TIMEOUT_MS);
+    setStatus(msg('sndDone', [String(received.count ?? sentFiles.length)]));
+  } catch (e) {
+    setStatus(msg('sndTimeout'), true);
+  }
+  // 成否によらず再送出は可能にしておく（タイムアウト後のリトライにも使える）
+  btnResend.hidden = false;
+  showCloseButton();
 }
 
 async function run() {
@@ -209,9 +241,7 @@ async function run() {
   }
 
   // ── 送出フェーズ ──
-  setStatus(msg('sndOpening'));
-  const viewerUrl = payload.targetUrl || DEFAULT_VIEWER_URL;
-  let targetOrigin = '*';
+  viewerUrl = payload.targetUrl || DEFAULT_VIEWER_URL;
   try {
     const o = new URL(viewerUrl).origin;
     if (o && o !== 'null') targetOrigin = o;
@@ -220,25 +250,15 @@ async function run() {
     showCloseButton();
     return;
   }
-  const viewerWin = await openViewer(viewerUrl);
-  setStatus(msg('sndWaiting'));
-  try {
-    await waitForMessage(viewerWin, 'hev-ready', READY_TIMEOUT_MS);
-    viewerWin.postMessage({
-      type: 'hev-files',
-      sourceName: payload.source && payload.source.host,
-      files: files.map(f => f.file),
-    }, targetOrigin);
-    const received = await waitForMessage(viewerWin, 'hev-received', READY_TIMEOUT_MS);
-    const count = String(received.count ?? files.length);
-    // タブの自動クローズはしない（結果メッセージが勝手に消えることになるため）。
-    // 閉じるのはユーザーの操作に委ねる
-    setStatus(msg('sndDone', [count]));
-    showCloseButton();
-  } catch (e) {
-    setStatus(msg('sndTimeout'), true);
-    showCloseButton();
-  }
+  sourceHost = (payload.source && payload.source.host) || '';
+  sentFiles = files.map(f => f.file);
+  // タブの自動クローズはしない（結果メッセージが勝手に消えることになるため）。
+  // 閉じるのはユーザーの操作に委ね、タブが生きている間は「もう一度送出する」で再送出できる
+  await sendPhase();
 }
+
+btnResend.addEventListener('click', () => {
+  if (sentFiles && sentFiles.length) sendPhase();
+});
 
 run();

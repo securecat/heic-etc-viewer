@@ -32,11 +32,11 @@ The extension requests access to all sites so it can download the media files th
 
 ## Changelog
 
-### v1.1.0 — 2026-07-18
+### v1.2.0 — 2026-07-18
 
 #### Added
 
-- New "CSS background images" choice (off by default) under "What to send": collects images referenced by CSS `background-image`, including `::before` / `::after` pseudo-elements
+- "Send again" button on the sender tab: if you accidentally close the viewer tab, you can send the same files again without re-fetching, as long as the sender tab stays open
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -76,10 +76,10 @@ See [CHANGELOG.md](CHANGELOG.md) for full history.
 
 ## 更新履歴
 
-### v1.1.0 — 2026-07-18
+### v1.2.0 — 2026-07-18
 
 #### 追加
 
-- オプションの送出対象に「CSS背景画像」を追加（デフォルトOFF）：CSSの`background-image`で参照される画像を、`::before`／`::after`擬似要素も含めて収集
+- 送出タブに「もう一度送出する」ボタンを追加：viewerタブをうっかり閉じてしまっても、送出タブが開いている間は再取得なしで同じファイルを再送出できる
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。

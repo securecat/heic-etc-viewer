@@ -3,6 +3,12 @@
 All notable changes to HeV Sender will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.2.0] - 2026-07-18
+
+### Added
+
+- "Send again" button on the sender tab after a send completes (or times out): the fetched files are kept in memory while the sender tab stays open, so if you accidentally close the viewer tab — or the viewer did not respond — you can send the same files again without re-fetching. Closing the sender tab discards the kept files
+
 ## [1.1.0] - 2026-07-18
 
 ### Added
@@ -22,6 +28,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [1.2.0] - 2026-07-18
+
+### 追加
+
+- 送出完了後(またはタイムアウト後)の送出タブに「もう一度送出する」ボタンを追加：取得済みファイルは送出タブが開いている間メモリ上に保持されるため、viewerタブをうっかり閉じてしまった場合や、viewerが応答しなかった場合に、再取得なしで同じファイルを再送出できる。送出タブを閉じると保持中のファイルは破棄される
 
 ## [1.1.0] - 2026-07-18
 

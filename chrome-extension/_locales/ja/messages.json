@@ -43,5 +43,6 @@
   "sndSkippedSmallVid": { "message": "小さい動画として除外：$1 件" },
   "sndSkippedBlob": { "message": "取得不可のためスキップ（ストリーミング配信など）：$1 件" },
   "sndNoPayload": { "message": "送出するデータがありません。拡張のポップアップから「送出する」を実行してください。" },
+  "sndResend": { "message": "もう一度送出する" },
   "sndClose": { "message": "このタブを閉じる" }
 }
