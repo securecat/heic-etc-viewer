@@ -33,7 +33,7 @@ The extension requests access to all sites so it can download the media files th
 
 ## Changelog
 
-### v1.3.0 — 2026-07-19
+### [1.3.0] - 2026-07-19
 
 #### Added
 
@@ -78,7 +78,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full history.
 
 ## 更新履歴
 
-### v1.3.0 — 2026-07-19
+### [1.3.0] - 2026-07-19
 
 #### 追加
 

@@ -46,7 +46,8 @@
 ## Chrome拡張「HeV Sender」のバージョン管理
 
 - バージョン記載箇所：`chrome-extension/manifest.json` の `version`
-- 変更内容は `chrome-extension/CHANGELOG.md`（全履歴）と `chrome-extension/README.md`（最新バージョンのみ、`### v1.2.0 — YYYY-MM-DD` 形式）に記載すること
+- 変更内容は `chrome-extension/CHANGELOG.md`（全履歴）と `chrome-extension/README.md`（最新バージョンのみ）に記載すること
+- フォーマットは viewer 本体に合わせること（同一リポジトリのため）。CHANGELOG.md は `## [1.2.0] - YYYY-MM-DD`、README.md は `### [1.2.0] - YYYY-MM-DD` 形式で、変更は `###`（README は `####`）見出しでカテゴリ別に記載
 - いずれも英語セクション → `---` → 日本語セクションの構成（本体と同様）
 - viewer本体とのプロトコル（postMessage の `hev-ready` / `hev-files` / `hev-received`）や対応拡張子リスト（`KNOWN_EXTS`）を変える場合は、両側の整合を必ず確認すること
 
