@@ -79,7 +79,7 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.17.1] - 2026-07-18
+### [3.17.1] - 2026-07-19
 
 #### Fixed
 
@@ -170,7 +170,7 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.17.1] - 2026-07-18
+### [3.17.1] - 2026-07-19
 
 #### 修正
 
