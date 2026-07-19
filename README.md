@@ -79,11 +79,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.17.0] - 2026-07-18
+### [3.17.1] - 2026-07-18
 
-#### Added
+#### Fixed
 
-- A "(Cancel)" button next to the progress indicator while bulk alt text export is running: cancelling stops the run and downloads a JSON containing everything generated up to that point
+- Pressing Esc during a conversion preview closed the whole lightbox; it now exits only the preview and returns to the original image
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -170,11 +170,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.17.0] - 2026-07-18
+### [3.17.1] - 2026-07-18
 
-#### 追加
+#### 修正
 
-- 一括の代替テキストエクスポート実行中、進捗表示の隣に「(中止)」ボタンを表示するように。中止すると、その時点までに生成した分のJSONがダウンロードされる
+- 変換プレビュー中にEscを押すとライトボックスごと閉じてしまっていた問題を修正。プレビューだけを終了して元画像の表示に戻るように
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

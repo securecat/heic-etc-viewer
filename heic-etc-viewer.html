@@ -899,7 +899,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.17.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.17.1</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -3386,6 +3386,10 @@ document.addEventListener('keydown', async e => {
       setZoomBtnLabel('lb.zoomExit');
     } else if (zoomMode) {
       exitZoomMode();
+    } else if (convertPreview) {
+      // 変換プレビュー中のEscはプレビューの終了（ライトボックスは閉じない）
+      exitConvertPreview();
+      await updateLightbox();
     } else {
       closeLightbox();
     }

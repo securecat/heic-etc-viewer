@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.17.1] - 2026-07-18
+
+### Fixed
+
+- Pressing Esc during a conversion preview (JPEG/WebP comparison) closed the whole lightbox; it now exits only the preview and returns to the original image, consistent with how Esc releases zoom before closing
+
 ## [3.17.0] - 2026-07-18
 
 ### Added
@@ -537,6 +543,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.17.1] - 2026-07-18
+
+### 修正
+
+- 変換プレビュー(JPEG/WebPの比較表示)中にEscを押すとライトボックスごと閉じてしまっていた問題を修正。ズーム解除と同様に、まずプレビューだけを終了して元画像の表示に戻るように
 
 ## [3.17.0] - 2026-07-18
 
