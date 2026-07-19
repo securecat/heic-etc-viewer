@@ -26,7 +26,7 @@ The extension requests access to all sites so it can download the media files th
 
 ### Developer Mode (Manual Install)
 
-1. Download or clone the [heic-etc-viewer](https://github.com/securecat/heic-etc-viewer) repository
+1. Download or clone the [heic-etc-viewer repository](https://github.com/securecat/heic-etc-viewer)
 2. Open Chrome and go to `chrome://extensions/`
 3. Enable **Developer mode** (toggle in the top right)
 4. Click **Load unpacked** and select the `chrome-extension` folder inside the repository
@@ -71,7 +71,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full history.
 
 ### デベロッパーモード（手動インストール）
 
-1. [heic-etc-viewer](https://github.com/securecat/heic-etc-viewer) リポジトリをダウンロードまたはクローン
+1. [heic-etc-viewer リポジトリ](https://github.com/securecat/heic-etc-viewer)をダウンロードまたはクローン
 2. Chromeで `chrome://extensions` を開く
 3. 右上の **デベロッパーモード** を有効にする
 4. **パッケージ化されていない拡張機能を読み込む** をクリックし、リポジトリ内の `chrome-extension` フォルダを選択
