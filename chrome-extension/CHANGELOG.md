@@ -3,6 +3,12 @@
 All notable changes to HeV Sender will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.0] - 2026-07-19
+
+### Added
+
+- In-page retry for hotlink-protected media: some sites reject requests that don't come from their own pages (checking the Referer header or session cookies, often disguised as 404). When the extension's direct fetch fails, it now retries the fetch inside the original tab's page context, where cookies and the Referer are naturally present — so same-origin media that only the page itself can access can still be collected. No new permissions are required, and the retried request stays within that page's own context
+
 ## [1.2.0] - 2026-07-18
 
 ### Added
@@ -28,6 +34,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [1.3.0] - 2026-07-19
+
+### 追加
+
+- 直リンク対策されたメディアのページ内リトライ：サイトによっては自分のページ以外からのリクエストを拒否する(RefererヘッダーやセッションCookieを検査し、404を装うことが多い)。拡張からの直接取得が失敗した場合、元タブのページ文脈でfetchをやり直すようにした。CookieとRefererが自然に付くため、ページ本人にしか取得できない同一オリジンのメディアも収集できる。追加の権限は不要で、リトライのリクエストはそのページ自身の文脈の中で完結する
 
 ## [1.2.0] - 2026-07-18
 

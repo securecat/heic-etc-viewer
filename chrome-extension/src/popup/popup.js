@@ -134,6 +134,8 @@ async function onSend() {
       items: data.items,
       blobSkipped: data.blobSkipped,
       source: data.source,
+      // 直リンク対策で拡張からの取得が弾かれた時、元タブのページ文脈で再取得するために使う
+      tabId: tab.id,
       // 小さい画像はDOM側でも除外するが、未ロードでサイズ不明のまま通過するものがあるため、
       // 送出ページが取得後の実寸でも再フィルタできるよう閾値も引き継ぐ
       skipSmallImages: s.skipSmallImages,

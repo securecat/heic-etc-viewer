@@ -75,17 +75,69 @@ function fileNameFor(url, blob, kind, index, usedNames) {
   return name;
 }
 
-async function fetchOne(item, index, usedNames) {
+// 元タブに注入してページ文脈でfetchする（直リンク対策のフォールバック）。
+// ページと同じ文脈なのでCookie・Refererが自然に付き、同一オリジンのメディアなら取得できる。
+// executeScript の戻り値はJSONシリアライズ可能である必要があるため、バイナリはbase64で返す。
+// 注入先で単体実行されるためASCIIのみ・自己完結で書くこと
+function pageFetch(url) {
+  return (async () => {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 60000);
+      const res = await fetch(url, { signal: ctrl.signal, credentials: 'include' });
+      clearTimeout(timer);
+      if (!res.ok) return { ok: false, error: 'HTTP ' + res.status };
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      let bin = '';
+      const CHUNK = 0x8000;
+      for (let i = 0; i < bytes.length; i += CHUNK) {
+        bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+      }
+      return { ok: true, b64: btoa(bin), type: res.headers.get('content-type') || '' };
+    } catch (e) {
+      return { ok: false, error: String(e) };
+    }
+  })();
+}
+
+async function fetchViaTab(tabId, url) {
+  const results = await chrome.scripting.executeScript({
+    target: { tabId },
+    func: pageFetch,
+    args: [url],
+  });
+  const r = results && results[0] && results[0].result;
+  if (!r || !r.ok) throw new Error((r && r.error) || 'page fetch failed');
+  const bin = atob(r.b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: (r.type || '').split(';')[0] });
+}
+
+function fileFromBlob(blob, item, index, usedNames) {
+  // 画像・動画URLがエラーページ等にすり替わっているケースを弾く
+  if (/^(text\/|application\/(json|xhtml))/.test(blob.type)) throw new Error(`unexpected type: ${blob.type}`);
+  const name = fileNameFor(item.url, blob, item.kind, index, usedNames);
+  return new File([blob], name, { type: blob.type });
+}
+
+async function fetchOne(item, index, usedNames, tabId) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
   try {
     const res = await fetch(item.url, { signal: ctrl.signal, credentials: 'omit' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const blob = await res.blob();
-    // 画像・動画URLがエラーページ等にすり替わっているケースを弾く
-    if (/^(text\/|application\/(json|xhtml))/.test(blob.type)) throw new Error(`unexpected type: ${blob.type}`);
-    const name = fileNameFor(item.url, blob, item.kind, index, usedNames);
-    return new File([blob], name, { type: blob.type });
+    return fileFromBlob(await res.blob(), item, index, usedNames);
+  } catch (primaryErr) {
+    // 拡張からの「まっさらなリクエスト」は直リンク対策(Referer/Cookie検査)で弾かれることがある。
+    // その場合は元タブのページ文脈で再取得を試みる（タブが閉じられていれば素直に失敗扱い）
+    if (tabId == null || !/^https?:/.test(item.url)) throw primaryErr;
+    try {
+      const blob = await fetchViaTab(tabId, item.url);
+      return fileFromBlob(blob, item, index, usedNames);
+    } catch (e) {
+      throw primaryErr;
+    }
   } finally {
     clearTimeout(timer);
   }
@@ -197,7 +249,7 @@ async function run() {
       const index = cursor++;
       const item = payload.items[index];
       try {
-        const file = await fetchOne(item, index, usedNames);
+        const file = await fetchOne(item, index, usedNames, payload.tabId);
         if (item.kind === 'video' && payload.skipSmallVideos && file.size <= payload.smallVidKB * 1024) {
           smallVidSkipped++;
         } else if (item.kind === 'image' && await isSmallImage(file, payload)) {
