@@ -79,11 +79,12 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.17.1] - 2026-07-19
+### [3.17.2] - 2026-07-21
 
 #### Fixed
 
-- Pressing Esc during a conversion preview closed the whole lightbox; it now exits only the preview and returns to the original image
+- While zooming in the lightbox (during selection or after a zoom is confirmed), the single-file convert dropdown was covered by the zoom display; the menu now layers above it, so conversion works during zooming
+- When a zoom is confirmed in the lightbox, alt text generation and video thumbnail export now target the zoomed region, matching how conversion already saves it
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -170,11 +171,12 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.17.1] - 2026-07-19
+### [3.17.2] - 2026-07-21
 
 #### 修正
 
-- 変換プレビュー中にEscを押すとライトボックスごと閉じてしまっていた問題を修正。プレビューだけを終了して元画像の表示に戻るように
+- ライトボックスのズーム中（選択中・ズーム確定後のいずれも）、単品コンバートのドロップダウンがズーム表示に覆われていた問題を修正。コンバートメニューをズーム表示より前面に重ね、ズーム中でも変換できるように
+- ライトボックスでズーム確定中、代替テキスト生成と動画サムネイル書き出しがズーム範囲を対象にするように（変換の挙動に合わせた）
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

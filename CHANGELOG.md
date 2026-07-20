@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.17.2] - 2026-07-21
+
+### Fixed
+
+- While zooming in the lightbox — both during crosshair selection and after a zoom is confirmed — the single-file convert dropdown was covered by the zoom display and its items couldn't be clicked. The convert menu now layers above the zoom display, so conversion works during zooming too
+- When a zoom is confirmed in the lightbox, generating alt text and exporting a video thumbnail now target the zoomed region (previously they always used the full, un-zoomed media), matching how conversion already saves the zoomed region
+
 ## [3.17.1] - 2026-07-19
 
 ### Fixed
@@ -543,6 +550,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.17.2] - 2026-07-21
+
+### 修正
+
+- ライトボックスのズーム中（十字ビームでの選択中・ズーム確定後のいずれも）、単品コンバートのドロップダウンがズーム表示に覆われて項目をクリックできなかった問題を修正。コンバートメニューがズーム表示より前面に重なるようにし、ズーム中でも変換できるようにした
+- ライトボックスでズームを確定しているとき、代替テキストの生成と動画サムネイルの書き出しが、ズーム範囲を対象にするように（従来は常に全体が対象だった）。ズーム範囲を保存する変換の挙動に合わせた
 
 ## [3.17.1] - 2026-07-19
 

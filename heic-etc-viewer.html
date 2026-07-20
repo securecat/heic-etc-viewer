@@ -420,6 +420,7 @@ input[type="range"]::-webkit-slider-thumb {
   padding: 10px 14px;
   display: flex; align-items: center; gap: 10px;
   background: rgba(0,0,0,0.65); backdrop-filter: blur(8px);
+  z-index: 2; /* 確定ズームの表示コンテナ(#lbZoomContainer, z-index:1)より前面 */
 }
 .lb-file-group { flex: 1; display: flex; align-items: baseline; gap: 0.6em; min-width: 0; overflow: hidden; }
 .lb-filename { font-size: 14px; color: #E4E4E4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex-shrink: 1; }
@@ -474,6 +475,10 @@ input[type="range"]::-webkit-slider-thumb {
   display: none;
 }
 #lbZoomCanvas.active { display: block; }
+/* コンバートメニューを開いている間だけ、キャンバスをライトボックス(z-index:1000)の背面へ落とす。
+   キャンバスはライトボックスの兄弟なので、上に乗ったままだと上方向に開くメニューを覆ってしまう。
+   メニュー操作中は十字選択をしないため、一時的な背面化で支障はない */
+#lbZoomCanvas.behind-menu { z-index: 999; }
 /* ズームモード中はメディアのクリックを通す */
 .lb-zoomed-media {
   cursor: zoom-out;
@@ -495,6 +500,7 @@ input[type="range"]::-webkit-slider-thumb {
   min-height: 32px;
   padding: 8px 14px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
   font-size: 14px; color: #949494; text-align: right;
+  z-index: 2; /* 確定ズームの表示コンテナ(#lbZoomContainer, z-index:1)より前面。上へ開くコンバートメニューが覆われないように */
 }
 #lbKeyHint {
   display: inline-flex;
@@ -899,7 +905,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.17.1</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.17.2</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -1695,6 +1701,20 @@ function cropCanvasByZoom(canvas, zoom) {
   out.width = sw; out.height = sh;
   out.getContext('2d').drawImage(canvas, sx, sy, sw, sh, 0, 0, sw, sh);
   return out;
+}
+
+// 画像Blobを、ズーム比率の範囲だけに切り出して再エンコードした Blob を返す
+// （ズーム確定中の動画サムネイル書き出し用。ズーム範囲はメディアと同じアスペクトの比率なので、
+//   サムネイル実寸に対しても比率がそのまま適用できる）
+async function cropBlobByZoom(blob, zoom, mime = 'image/jpeg', quality = 0.92) {
+  const bmp = await createImageBitmap(blob);
+  const canvas = document.createElement('canvas');
+  canvas.width = bmp.width; canvas.height = bmp.height;
+  canvas.getContext('2d').drawImage(bmp, 0, 0);
+  bmp.close();
+  const out = cropCanvasByZoom(canvas, zoom);
+  return await new Promise((res, rej) =>
+    out.toBlob(b => b ? res(b) : rej(new Error('encode failed')), mime, quality));
 }
 
 async function convertToBlob(file, targetFormat, cropZoom) {
@@ -3658,11 +3678,13 @@ function applyZoom(media, originX, originY, clipW, clipH, headerH) {
 
   const container = document.createElement('div');
   container.id = 'lbZoomContainer';
+  // lightbox の子として置き、z-index:1 で scrim(lightbox背景)より前面・ヘッダー/情報バー(z-index:2)より背面にする。
+  // これで確定ズーム中でも上へ開くコンバートメニューがコンテナに覆われない
   container.style.cssText = `
     position: fixed;
     left: ${left}px; top: ${top}px;
     width: ${dispW}px; height: ${dispH}px;
-    overflow: hidden; z-index: 1005;
+    overflow: hidden; z-index: 1;
     border-radius: 4px;
     box-shadow: 0 0 0 2px rgba(255,255,255,0.15), 0 8px 40px rgba(0,0,0,0.7);
   `;
@@ -3674,7 +3696,7 @@ function applyZoom(media, originX, originY, clipW, clipH, headerH) {
     dispCanvas.height = dispH;
     dispCanvas.style.cssText = 'display:block;width:100%;height:100%;';
     container.appendChild(dispCanvas);
-    document.body.appendChild(container);
+    lightbox.appendChild(container);
 
     // 元動画上の選択矩形（ピクセル座標）を計算
     const mRect   = media.getBoundingClientRect();
@@ -3701,7 +3723,7 @@ function applyZoom(media, originX, originY, clipW, clipH, headerH) {
       object-fit: contain; max-width: none; max-height: none;
     `;
     container.appendChild(innerEl);
-    document.body.appendChild(container);
+    lightbox.appendChild(container);
   }
 
   currentZoom._container = container;
@@ -4235,7 +4257,8 @@ async function ensureAltSession(errEl) {
 
 // 画像ファイルをモデルに渡せる ImageBitmap にする
 // （SVGは createImageBitmap 非対応のため <img> 経由でラスタライズ。GIFは先頭フレーム）
-async function decodeForAlt(file) {
+// cropZoom を渡すと、その比率範囲だけを切り出して対象にする（ズーム確定中の代替テキスト生成用）
+async function decodeForAlt(file, cropZoom) {
   let bitmap;
   if (extOf(file.name) === 'svg') {
     const url = URL.createObjectURL(file);
@@ -4253,6 +4276,16 @@ async function decodeForAlt(file) {
   } else {
     bitmap = await createImageBitmap(file);
   }
+  // ズーム確定中はその選択範囲だけを対象にする（比率×実寸で切り出す）
+  if (cropZoom) {
+    const sx = Math.round(cropZoom.ratioX * bitmap.width);
+    const sy = Math.round(cropZoom.ratioY * bitmap.height);
+    const sw = Math.max(1, Math.round(cropZoom.ratioW * bitmap.width));
+    const sh = Math.max(1, Math.round(cropZoom.ratioH * bitmap.height));
+    const cropped = await createImageBitmap(bitmap, sx, sy, sw, sh);
+    bitmap.close();
+    bitmap = cropped;
+  }
   // 巨大な写真をそのまま渡さないよう長辺を抑える（速度・メモリ対策）
   const MAX_DIM = 1536;
   if (bitmap.width > MAX_DIM || bitmap.height > MAX_DIM) {
@@ -4269,8 +4302,9 @@ async function decodeForAlt(file) {
 }
 
 // 1枚の画像の代替テキストを生成する（セッションは都度 clone して会話履歴の蓄積を避ける）
-async function generateAltText(file) {
-  const bitmap = await decodeForAlt(file);
+// cropZoom を渡すと、その範囲だけの画像から生成する（ズーム確定中のライトボックス生成用）
+async function generateAltText(file, cropZoom) {
+  const bitmap = await decodeForAlt(file, cropZoom);
   const session = await altBaseSession.clone();
   try {
     const langInstruction = ALT_LANG_INSTRUCTION[effectiveAltLang()];
@@ -4474,9 +4508,18 @@ function openLbFmtSub(item, focusFirst) {
 
 // focusItems=false はポインタ起動用: フォーカスをボタンに留めることで、直前の
 // キーボード操作で残った focus-visible 状態が項目に引き継がれてハイライトされるのを防ぐ
+// コンバートメニューを開いている間、選択モードの十字キャンバス(#lbZoomCanvas)を
+// ライトボックス(z-index:1000)より背面へ回す。キャンバスはライトボックスの兄弟で上に乗るため、
+// 上方向に開くメニューを覆ってしまう。メニュー操作中は選択しないので一時的な背面化で支障はない。
+// （確定ズームの表示コンテナ #lbZoomContainer はライトボックスの子で z-index により解決済みのため、ここでは触らない）
+function setZoomOverlaysBehindMenu(behind) {
+  zoomCanvas.classList.toggle('behind-menu', behind);
+}
+
 function openLbFmtMenu(focusLast = false, focusItems = true) {
   lbFmtList.hidden = false;
   lbFmtBtn.setAttribute('aria-expanded', 'true');
+  setZoomOverlaysBehindMenu(true);
   if (!focusItems) return;
   const items = lbFmtTopItems();
   const target = focusLast ? items[items.length - 1] : items[0];
@@ -4484,6 +4527,7 @@ function openLbFmtMenu(focusLast = false, focusItems = true) {
 }
 
 function closeLbFmtMenu(refocus = true) {
+  setZoomOverlaysBehindMenu(false); // 背面化を解除（ズーム中ならズーム表示を前面へ戻す）
   if (lbFmtList.hidden) return;
   closeLbFmtSub();
   lbFmtList.hidden = true;
@@ -4638,7 +4682,8 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
       if (!(await ensureAltSession(errEl))) return;
       errEl.textContent = t('alt.generating');
       const file = await resolveFile(entry);
-      const text = await generateAltText(file);
+      // ズーム確定中は、表示中のズーム範囲に対して代替テキストを生成する
+      const text = await generateAltText(file, zoomed ? currentZoom : null);
       errEl.textContent = '';
       showLbAltResult(text);
     } catch (e) {
@@ -4673,7 +4718,9 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
     errEl.textContent = '';
     try {
       const file = await resolveFile(entry);
-      const blob = await getVideoThumbnailBlob(file);
+      let blob = await getVideoThumbnailBlob(file);
+      // ズーム確定中は、代表フレームのサムネイルをズーム範囲に切り出して書き出す
+      if (zoomed && currentZoom) blob = await cropBlobByZoom(blob, currentZoom);
       triggerDownload(blob, `${baseName(entry.name)}.jpg`);
     } catch (e) {
       errEl.textContent = t('err.convFailed');
