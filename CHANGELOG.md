@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.18.0] - 2026-07-21
+
+### Added
+
+- Support for the `.jfif` extension. JFIF files are JPEG, so they are viewed, converted, and given alt text just like `.jpg` / `.jpeg`
+
+### Changed
+
+- Conversion preview (WebP/JPEG) now follows a confirmed zoom: previewing while zoomed compares the zoomed region (original vs converted), and exiting the preview returns to the zoomed view. Previously, starting a preview exited the zoom and always compared the full image
+
 ## [3.17.2] - 2026-07-21
 
 ### Fixed
@@ -550,6 +560,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.18.0] - 2026-07-21
+
+### 追加
+
+- `.jfif` 拡張子に対応。JFIFは実体がJPEGなので、`.jpg` / `.jpeg` と同様に閲覧・変換・代替テキスト生成ができる
+
+### 変更
+
+- 変換プレビュー(WebP/JPEG)がズーム確定に追従するように：ズーム確定中にプレビューすると、ズーム範囲同士（元画像と変換後）を比較し、プレビューを終了するとズーム表示に戻る。従来はプレビュー開始でズームが解除され、常に全体が比較対象だった
 
 ## [3.17.2] - 2026-07-21
 

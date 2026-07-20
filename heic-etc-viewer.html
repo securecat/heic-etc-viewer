@@ -905,7 +905,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.17.2</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.18.0</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -950,7 +950,7 @@ input[type="range"]::-webkit-slider-thumb {
   </div>
   <div class="info-panel" id="panelGuide" role="tabpanel" aria-labelledby="tabGuide" tabindex="0" hidden>
     <h3 data-i18n="g.formats.h">Supported file formats (view)</h3>
-    <p data-i18n="g.formats.p">HEIC/HEIF, JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO</p>
+    <p data-i18n="g.formats.p">HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO</p>
     <h3 data-i18n="g.convert.h">Convertible file formats</h3>
     <h4 data-i18n="g.convert.imgH">Images</h4>
     <p data-i18n="g.convert.imgP">HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. Lossy formats (WebP/JPEG) are marked with ▸ in the lightbox format menu: choose "Preview" from the submenu to overlay the original and the converted result with a divider, showing both file sizes, before you download.</p>
@@ -1139,7 +1139,7 @@ const I18N = {
     'sc.on': 'Enabled',
     'sc.off': 'Disabled',
     'g.formats.h': 'Supported file formats (view)',
-    'g.formats.p': 'HEIC/HEIF, JPEG, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO',
+    'g.formats.p': 'HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO',
     'g.convert.h': 'Convertible file formats',
     'g.convert.imgH': 'Images',
     'g.convert.imgP': 'HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. Lossy formats (WebP/JPEG) are marked with ▸ in the lightbox format menu: choose "Preview" from the submenu to overlay the original and the converted result with a divider, showing both file sizes, before you download.',
@@ -1305,7 +1305,7 @@ const I18N = {
     'sc.on': '有効',
     'sc.off': '無効',
     'g.formats.h': '対応ファイル形式(表示)',
-    'g.formats.p': 'HEIC/HEIF、JPEG、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、PDF、ICO',
+    'g.formats.p': 'HEIC/HEIF、JPEG、JFIF、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、PDF、ICO',
     'g.convert.h': '変換可能なファイル形式',
     'g.convert.imgH': '画像',
     'g.convert.imgP': 'HEIC/HEIF、JPEG、PNG、WebP、BMP、TIFF、AVIF → WebP・PNG・JPEG・PDF(1ファイルずつでも、一括でも可)。「高圧縮」のWebP/JPEGは、品質設定を大きく下げることでファイルサイズを大幅に小さくします。非可逆形式(WebP/JPEG)にはライトボックスの形式メニューで「▸」が付いていて、サブメニューの「プレビュー」を選ぶと、ダウンロード前に元画像と変換後を境界線付きで重ねて比較できます(それぞれのファイルサイズも表示)。',
@@ -1453,11 +1453,11 @@ async function detectRealType(file) {
 // ── サムネイル高速化：バイナリヘッダーだけを読んで実寸を取得する ──────
 // （フルデコードせずに済む形式のみ対応。対応外はnullを返し、呼び出し側は
 // 　従来通りのフルデコード経路にフォールバックする）
-const HEADER_DIM_EXTS = ['jpg','jpeg','png','gif','webp','bmp'];
+const HEADER_DIM_EXTS = ['jpg','jpeg','jfif','png','gif','webp','bmp'];
 async function readHeaderDimensions(file) {
   const ext = extOf(file.name);
   if (!HEADER_DIM_EXTS.includes(ext)) return null;
-  const readLen = (ext === 'jpg' || ext === 'jpeg') ? 262144 : 65536;
+  const readLen = (ext === 'jpg' || ext === 'jpeg' || ext === 'jfif') ? 262144 : 65536;
   const head = new Uint8Array(await file.slice(0, Math.min(readLen, file.size)).arrayBuffer());
   try {
     if (ext === 'png')  return readPngDims(head);
@@ -1620,7 +1620,7 @@ async function heicToURL(file) {
 }
 
 // ── 定数 ──────────────────────────────────────────────────────────
-const IMG_EXTS   = ['jpg','jpeg','png','gif','webp','avif','svg','bmp','tiff','tif'];
+const IMG_EXTS   = ['jpg','jpeg','jfif','png','gif','webp','avif','svg','bmp','tiff','tif'];
 const HEIC_EXTS  = ['heic','heif'];
 const VIDEO_EXTS = ['mp4','webm','mov'];
 const ICO_EXTS   = ['ico'];
@@ -1636,7 +1636,7 @@ function isPdf(name)  { return PDF_EXTS.includes(extOf(name)); }
 function escHtml(s)    { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ── 変換保存（静的ラスター画像 → WebP/PNG/JPEG/PDF） ──────────────────
-const CONVERTIBLE_EXTS = ['jpg','jpeg','png','webp','avif','bmp','tiff','tif', ...HEIC_EXTS];
+const CONVERTIBLE_EXTS = ['jpg','jpeg','jfif','png','webp','avif','bmp','tiff','tif', ...HEIC_EXTS];
 function isConvertible(name) { return CONVERTIBLE_EXTS.includes(extOf(name)); }
 function baseName(name) { return (name||'').replace(/\.[^.]+$/, ''); }
 
@@ -3399,17 +3399,17 @@ document.addEventListener('keydown', async e => {
       document.exitFullscreen();
       return;
     }
-    if (zoomed) {
+    if (convertPreview) {
+      // 変換プレビュー中のEscはプレビューの終了（ライトボックスは閉じない）。
+      // ズーム範囲のプレビュー中はズーム状態が生きているため、ズーム解除より先に判定する
+      await leaveConvertPreview();
+    } else if (zoomed) {
       // ズーム中ならズーム解除
       resetZoom();
       if (zoomMode) { syncZoomCanvas(); zoomCanvas.classList.add('active'); }
       setZoomBtnLabel('lb.zoomExit');
     } else if (zoomMode) {
       exitZoomMode();
-    } else if (convertPreview) {
-      // 変換プレビュー中のEscはプレビューの終了（ライトボックスは閉じない）
-      exitConvertPreview();
-      await updateLightbox();
     } else {
       closeLightbox();
     }
@@ -3733,6 +3733,7 @@ function applyZoom(media, originX, originY, clipW, clipH, headerH) {
 // リサイズ時にズームを再適用
 window.addEventListener('resize', () => {
   if (!zoomed || !currentZoom) return;
+  if (convertPreview) return; // ズーム範囲のプレビュー中はコンテナを隠しているので再適用しない
   const media = getCurrentMediaEl();
   if (!media) return;
   // リサイズ後のメディアサイズが確定してから再計算
@@ -3904,7 +3905,9 @@ async function renderDiffMode(currentFile, diffInfo) {
 }
 
 function resetDiffMode() {
-  document.getElementById('lbDiffWrap').style.display = 'none';
+  const diffWrap = document.getElementById('lbDiffWrap');
+  diffWrap.style.display = 'none';
+  diffWrap.style.padding = ''; // ズーム範囲プレビュー時にコンテナ合わせで上書きしたパディングを戻す
   lbDiffLeft.src  = '';
   lbDiffRight.src = '';
   lbDiffBadgeLeft.textContent  = '';
@@ -4219,7 +4222,7 @@ window.addEventListener('resize', () => {
 // ── 変換保存: 個別ファイル（ライトボックス） ─────────────────────────
 // ── AI 代替テキスト生成（Prompt API / Gemini Nano、オンデバイス）──
 // <img> で使える形式のみ対象（HEIC・TIFF 等は対象外）
-const ALT_TARGET_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'avif'];
+const ALT_TARGET_EXTS = ['jpg', 'jpeg', 'jfif', 'png', 'webp', 'gif', 'svg', 'avif'];
 function isAltTarget(name) { return ALT_TARGET_EXTS.includes(extOf(name)); }
 
 let altBaseSession = null; // システムプロンプト設定済みのベースセッション（画像ごとに clone して使う）
@@ -4352,11 +4355,32 @@ function formatBytes(bytes) {
   return bytes + ' B';
 }
 
-// プレビュー状態の破棄のみ行う（表示の復帰は呼び出し側で updateLightbox する）
+// プレビュー状態の破棄のみ行う（表示の復帰は呼び出し側で行う）
 function exitConvertPreview() {
   if (!convertPreview) return;
   URL.revokeObjectURL(convertPreview.url);
+  if (convertPreview.leftUrl) URL.revokeObjectURL(convertPreview.leftUrl); // ズーム範囲の元画像を切り出したBlob URL
   convertPreview = null;
+}
+
+// プレビューを終了して元の表示へ戻す。ズーム範囲のプレビューだった場合は、ズーム状態を保持したまま
+// ズーム表示へ復帰する（コンテナを隠していただけなので updateLightbox による作り直しは不要）
+async function leaveConvertPreview() {
+  if (!convertPreview) return;
+  const wasZoomed = convertPreview.wasZoomed;
+  exitConvertPreview();
+  if (wasZoomed) {
+    resetDiffMode(); // 比較ビューを隠す
+    document.getElementById('lbImgWrap').style.display = '';
+    const container = document.getElementById('lbZoomContainer');
+    if (container) container.style.display = ''; // 隠していたズーム表示を戻す
+    document.getElementById('lbZoomBtn').style.display = ''; // ズーム(解除)ボタンを戻す（回転・原寸はズーム中なので隠したまま）
+    lbFmtPreview = false;
+    updateLbFmtButtonLabel();
+    updateLbConvertButton();
+  } else {
+    await updateLightbox();
+  }
 }
 
 let previewBusy = false; // 生成中の多重実行防止
@@ -4374,19 +4398,45 @@ async function runConvertPreview() {
   previewBusy = true;
   errEl.textContent = t('preview.generating');
   try {
-    exitZoomMode(); // ズーム・回転とプレビューは併用しない（Diff表示と同じ扱い）
+    // ズーム確定中はその範囲だけを比較・保存する。ズーム状態は保持し、終了時にズーム表示へ戻す
+    const cropZoom = zoomed ? { ...currentZoom } : null;
     exitConvertPreview();
     const file = await resolveFile(entry);
-    const blob = await convertToBlob(file, fmt);
-    convertPreview = { entryName: entry.name, fmt, blob, url: URL.createObjectURL(blob) };
+    const blob = await convertToBlob(file, fmt, cropZoom);
     const fmtLabel = t(LB_IMAGE_CONVERT_FORMAT_LIST.find(o => o.value === fmt).labelKey);
-    // 左=元画像（表示中の lbImg.src を流用。HEIC等もデコード済みURLになっている）、右=変換後
-    const leftUrl = document.getElementById('lbImg').src;
+
+    let leftUrl, createdLeft = false, leftBadge;
+    if (cropZoom) {
+      // 左=元画像のズーム範囲を可逆(PNG)で切り出す。ズーム表示コンテナは隠すだけにして状態は保持する
+      const origCanvas = cropCanvasByZoom(await decodeToCanvas(file), cropZoom);
+      const leftBlob = await new Promise((res, rej) =>
+        origCanvas.toBlob(b => b ? res(b) : rej(new Error('encode failed')), 'image/png'));
+      leftUrl = URL.createObjectURL(leftBlob);
+      createdLeft = true;
+      leftBadge = t('preview.original'); // 切り出し範囲には元形式の容量がないので容量表記は出さない
+      const container = document.getElementById('lbZoomContainer');
+      if (container) container.style.display = 'none';
+      // 比較ビューの表示領域を、隠したズームコンテナと同じジオメトリ（幅-32／高さ-ヘッダー-情報バー-32、
+      // pad=16）に合わせる。固定パディング50/56のままだとクロップの表示サイズが変わって見えてしまうため
+      const headerH = document.querySelector('.lb-header').getBoundingClientRect().height;
+      const infoH   = document.querySelector('.lb-info').getBoundingClientRect().height;
+      document.getElementById('lbDiffWrap').style.padding = `${headerH + 16}px 16px ${infoH + 16}px 16px`;
+    } else {
+      exitZoomMode(); // 非ズーム時は従来どおり（回転等との排他）
+      // 左=元画像（表示中の lbImg.src を流用。HEIC等もデコード済みURLになっている）
+      leftUrl = document.getElementById('lbImg').src;
+      leftBadge = `${t('preview.original')} ${formatBytes(file.size)}`;
+    }
+
+    convertPreview = {
+      entryName: entry.name, fmt, blob, url: URL.createObjectURL(blob),
+      leftUrl: createdLeft ? leftUrl : null, wasZoomed: !!cropZoom,
+    };
     document.getElementById('lbImgWrap').style.display = 'none';
     await showCompareView(
       leftUrl, convertPreview.url,
       entry.name, `${entry.name} (${fmtLabel})`,
-      `${t('preview.original')} ${formatBytes(file.size)}`,
+      leftBadge,
       `${fmtLabel} ${formatBytes(blob.size)}`
     );
     document.getElementById('lbZoomBtn').style.display = 'none';
@@ -4551,8 +4601,7 @@ async function selectLbFmt(value, preview) {
       updateLbFmtButtonLabel();
     }
   } else if (convertPreview) {
-    exitConvertPreview();
-    await updateLightbox();
+    await leaveConvertPreview();
   }
 }
 
@@ -4770,8 +4819,9 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
   }
   errEl.textContent = '';
   try {
-    // プレビューで同条件のエンコード済みBlobがあればそれを保存（二重エンコードしない）
-    if (convertPreview && convertPreview.entryName === entry.name && convertPreview.fmt === fmt && !zoomed) {
+    // プレビューで同条件のエンコード済みBlobがあればそれを保存（二重エンコードしない）。
+    // ズーム範囲のプレビューなら blob もその範囲で作られているので、そのまま保存してよい
+    if (convertPreview && convertPreview.entryName === entry.name && convertPreview.fmt === fmt) {
       triggerDownload(convertPreview.blob, `${baseName(entry.name)}.${convertExt(fmt)}`);
       return;
     }
