@@ -79,15 +79,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.18.0] - 2026-07-21
-
-#### Added
-
-- Support for the `.jfif` extension (JFIF is JPEG, so it is viewed, converted, and given alt text like `.jpg` / `.jpeg`)
+### [3.18.1] - 2026-07-23
 
 #### Changed
 
-- Conversion preview (WebP/JPEG) now follows a confirmed zoom: previewing while zoomed compares the zoomed region and returns to the zoomed view when you exit. Previously, starting a preview exited the zoom and always compared the full image
+- Japanese label of the lightbox convert menu item "PDF (individual pages)" changed from 「PDF(ページごと)」 to 「PDF(ページごとに)」 to avoid misreading (English label is unchanged)
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -174,15 +170,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.18.0] - 2026-07-21
-
-#### 追加
-
-- `.jfif` 拡張子に対応（JFIFは実体がJPEGなので、`.jpg` / `.jpeg` と同様に閲覧・変換・代替テキスト生成が可能）
+### [3.18.1] - 2026-07-23
 
 #### 変更
 
-- 変換プレビュー(WebP/JPEG)がズーム確定に追従するように：ズーム確定中にプレビューするとズーム範囲を比較し、終了するとズーム表示に戻る。従来はプレビュー開始でズームが解除され、常に全体が比較対象だった
+- ライトボックスの変換メニュー「PDF(ページごと)」の日本語ラベルを「PDF(ページごとに)」に変更。「ごと」が「ページを丸ごと」の意味に誤読されうるため（英語ラベルは変更なし）
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.18.1] - 2026-07-23
+
+### Changed
+
+- Japanese label of the lightbox convert menu item "PDF (individual pages)" changed from 「PDF(ページごと)」 to 「PDF(ページごとに)」 to avoid misreading 「ごと」 as "whole pages included" (English label is unchanged)
+
 ## [3.18.0] - 2026-07-21
 
 ### Added
@@ -560,6 +566,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.18.1] - 2026-07-23
+
+### 変更
+
+- ライトボックスの変換メニュー「PDF(ページごと)」の日本語ラベルを「PDF(ページごとに)」に変更。「ごと」が「ページを丸ごと」の意味に誤読されうるため（英語ラベルは変更なし）
 
 ## [3.18.0] - 2026-07-21
 

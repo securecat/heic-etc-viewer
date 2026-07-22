@@ -905,7 +905,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.18.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.18.1</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -1255,7 +1255,7 @@ const I18N = {
     'fmt.pdf': 'PDF',
     'fmt.pdfEach': 'PDF(画像ごとに)',
     'fmt.pdfCombined': 'PDF(1つに結合)',
-    'fmt.pdfSplit': 'PDF(ページごと)',
+    'fmt.pdfSplit': 'PDF(ページごとに)',
     'fmt.sound': '音声',
     'fmt.thumbnail': 'サムネイル',
     'fmt.thumbnails': 'サムネイル',
@@ -1312,7 +1312,7 @@ const I18N = {
     'g.convert.videoH': '動画',
     'g.convert.videoP': 'MP4、WebM、MOV → 音声またはサムネイル。「音声」は音声トラックを再エンコードせずそのまま抽出するため、出力ファイルの実際のコーデックは元動画に依存します(例: AAC、Opus)。音声トラックのない動画は、一括変換ではスキップされ、個別変換ではエラーになります。「サムネイル」は動画の序盤からJPEGのスナップショットを保存します(一括では動画ごとに1枚ずつダウンロード)。',
     'g.convert.pdfH': 'PDF',
-    'g.convert.pdfP': 'ライトボックスで表示中のPDFは「PDF(ページごと)」で1ページずつのPDFに分割し、zipでダウンロードできます(1ページのPDFはそのまま1ファイルで保存)。ページは再レンダリングせず、そのまま取り出します。',
+    'g.convert.pdfP': 'ライトボックスで表示中のPDFは「PDF(ページごとに)」で1ページずつのPDFに分割し、zipでダウンロードできます(1ページのPDFはそのまま1ファイルで保存)。ページは再レンダリングせず、そのまま取り出します。',
     'g.zip.h': 'ZIPでエクスポート',
     'g.zip.p': '変換は行いません。ギャラリーに表示中のすべてのファイル(絞り込み後)を、変換せずそのまま1つのZIPにまとめます。変換対象で「すべて」を選ぶと使用できます。',
     'g.diff.h': '画像Diffモード',
@@ -4777,7 +4777,7 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
     return;
   }
 
-  // 「PDF(ページごと)」: PDFを1ページずつのPDFに分割し、複数ページならzipでダウンロード
+  // 「PDF(ページごとに)」: PDFを1ページずつのPDFに分割し、複数ページならzipでダウンロード
   if (fmt === 'pdf-split') {
     if (!entry || !isPdf(entry.name)) {
       errEl.textContent = t('err.cannotConvert');
