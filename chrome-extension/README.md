@@ -22,7 +22,9 @@ The extension requests access to all sites so it can download the media files th
 
 ### Chrome Web Store
 
-(Coming soon)
+https://chromewebstore.google.com/detail/hev-sender/palmekgdpbibhjeoflhnocfnhieenebn
+
+> The Chrome Web Store version may lag behind the repository during the review process.
 
 ### Developer Mode (Manual Install)
 
@@ -69,7 +71,9 @@ See [CHANGELOG.md](CHANGELOG.md) for full history.
 
 ### Chrome ウェブストア
 
-準備中
+https://chromewebstore.google.com/detail/hev-sender/palmekgdpbibhjeoflhnocfnhieenebn
+
+> Chrome ウェブストア版は、審査中のため最新リリースより古い場合があります。
 
 ### デベロッパーモード（手動インストール）
 
