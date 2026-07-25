@@ -6,10 +6,11 @@ A Chrome extension that sends images, videos, and PDFs from the page you are vie
 
 Click **Send** in the popup, and the extension collects the images, videos, and PDFs found on the current tab, then opens them in HEIC etc Viewer (v3.15.0 or later) — ready to browse, compare, and convert with all the viewer's features.
 
-- **Exclude small images** (on by default): skips tracking pixels, spacers, and other tiny images. The threshold (default: width 10px / height 10px, either side at or below counts as small) can be changed in the options
-- **Exclude small videos**: skips videos at or below a file-size threshold (default: 2KB)
-- The options page also lets you choose what to send (images / CSS background images / videos / PDF) and override the destination URL, e.g. for a locally hosted viewer. CSS background images (off by default) are collected from `background-image` values, including `::before` / `::after` pseudo-elements
+- **Exclude small images** (on by default): skips tracking pixels, spacers, and other tiny images. The threshold (default: width 100px / height 100px, either side at or below counts as small) can be changed in the options
+- **Exclude small videos**: skips videos at or below a file-size threshold (default: 200KB)
+- The options page also lets you choose what to send (images / CSS background images / videos / PDF — all on by default) and override the destination URL, e.g. for a locally hosted viewer. CSS background images are collected from `background-image` values, including `::before` / `::after` pseudo-elements
 - Hotlink-protected media (rejected unless requested by the page itself) is retried inside the original page's context, so it can still be collected in most same-origin cases
+- Files that still could not be fetched are listed with a button that overlays a **manual-download panel** on the original page: the failed URLs appear there as real links, so right-click "Save link as…" (or saving from the tab a click opens) works even for hotlink-protected media on other subdomains. Saved files can be added to the viewer by drag & drop
 - Videos delivered as streaming (`blob:`) sources cannot be fetched and are skipped with a note
 
 The extension's UI follows your browser language: Japanese browsers get Japanese, everything else gets English.
@@ -17,6 +18,8 @@ The extension's UI follows your browser language: Japanese browsers get Japanese
 ### Privacy & permissions
 
 The extension requests access to all sites so it can download the media files themselves (they are often hosted on CDNs on other domains). The files are handed over directly between browser tabs — nothing is uploaded to any server.
+
+The manual-download panel is injected into the original page only when you press its button, lists only the URLs that failed, and is removed with its Close button or the Esc key.
 
 ## Installation
 
@@ -37,11 +40,15 @@ HeV Sender is part of the [heic-etc-viewer repository](https://github.com/secure
 
 ## Changelog
 
-### [1.3.0] - 2026-07-19
+### [1.4.0] - 2026-07-25
 
 #### Added
 
-- In-page retry for hotlink-protected media: when the extension's direct fetch fails, it retries inside the original page's context (where cookies and the Referer are naturally present), so media that only the page itself can access can still be collected
+- A manual-download panel that can be overlaid on the original page, listing the files that could not be fetched as real in-page links — with the page's cookies and Referer, saving succeeds where the extension's own fetches cannot. No new permissions required
+
+#### Changed
+
+- Default settings: all "What to send" types start checked, small-image threshold is now 100×100px, small-video threshold is now 200KB (saved settings are not affected)
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -55,10 +62,11 @@ See [CHANGELOG.md](CHANGELOG.md) for full history.
 
 ポップアップの**送出する**を押すと、現在のタブ内にある画像・動画・PDFを収集し、HEIC etc Viewer（v3.15.0以降）で開きます。そのままビューアーの機能で閲覧・比較・変換できます。
 
-- **小さい画像を含めない**（デフォルトON）：トラッキングピクセルやスペーサーなどの極小画像を除外します。閾値（デフォルト：幅10px／高さ10px、どちらか一方でも以下なら「小さい」と判定）はオプションで変更できます
-- **小さい動画を含めない**：ファイル容量が閾値（デフォルト：2KB）以下の動画を除外します
-- オプションページでは、送出対象（画像／CSS背景画像／動画／PDF）の選択と、送出先URLの上書き（ローカルで動かしているviewerに送りたい場合など）ができます。CSS背景画像（デフォルトOFF）は`background-image`の参照先を`::before`／`::after`擬似要素も含めて収集します
+- **小さい画像を含めない**（デフォルトON）：トラッキングピクセルやスペーサーなどの小さい画像を除外します。閾値（デフォルト：幅100px／高さ100px、どちらか一方でも以下なら「小さい」と判定）はオプションで変更できます
+- **小さい動画を含めない**：ファイル容量が閾値（デフォルト：200KB）以下の動画を除外します
+- オプションページでは、送出対象（画像／CSS背景画像／動画／PDF、デフォルトはすべてON）の選択と、送出先URLの上書き（ローカルで動かしているviewerに送りたい場合など）ができます。CSS背景画像は`background-image`の参照先を`::before`／`::after`擬似要素も含めて収集します
 - 直リンク対策されたメディア（ページ本人からのリクエスト以外を拒否するもの）は、元ページの文脈で取得をリトライするため、同一オリジンのケースではほぼ収集できます
+- それでも取得できなかったファイルは一覧表示され、**手動ダウンロードパネル**を元のページ上にオーバーレイ表示できます。失敗したURLがページ内の本物のリンクとして並ぶため、右クリック「名前を付けてリンク先を保存」（またはクリックで開いたタブからの保存）が、サブドメイン違いの直リンク対策メディアにも通ります。保存したファイルはドラッグ＆ドロップでviewerに追加できます
 - ストリーミング配信（`blob:`）の動画は取得できないため、その旨を表示してスキップします
 
 拡張のUIはブラウザの言語設定に従います。日本語のブラウザでは日本語、それ以外では英語で表示されます。
@@ -66,6 +74,8 @@ See [CHANGELOG.md](CHANGELOG.md) for full history.
 ### プライバシーと権限
 
 メディアファイルそのもの（別ドメインのCDNに置かれていることが多い）をダウンロードするため、すべてのサイトへのアクセス権限を要求します。ファイルの受け渡しはブラウザのタブ間で直接行われ、どこかのサーバーにアップロードされることはありません。
+
+手動ダウンロードパネルは、ボタンを押した時のみ元のページに注入され、取得に失敗したURLだけを表示します。閉じるボタンまたはEscキーで取り除けます。
 
 ## インストール
 
@@ -86,10 +96,14 @@ HeV Sender は [heic-etc-viewer リポジトリ](https://github.com/securecat/he
 
 ## 更新履歴
 
-### [1.3.0] - 2026-07-19
+### [1.4.0] - 2026-07-25
 
 #### 追加
 
-- 直リンク対策されたメディアのページ内リトライ：拡張からの直接取得が失敗した場合、元ページの文脈（CookieとRefererが自然に付く）でfetchをやり直し、ページ本人にしか取得できないメディアも収集できるように
+- 元のページ上にオーバーレイ表示できる手動ダウンロードパネルを追加：取得できなかったファイルをページ内の本物のリンクとして並べるため、ページのCookie・Refererが付き、拡張自身のfetchでは取れないメディアも保存できる。新しい権限は不要
+
+#### 変更
+
+- デフォルト設定を変更：「送出対象」は全種類チェック済み、「小さい画像の大きさ」は 100×100px、「小さい動画の大きさ」は 200KB に（保存済みの設定には影響なし）
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。

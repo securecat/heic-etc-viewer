@@ -6,11 +6,11 @@ const SETTING_DEFAULTS = {
   targetUrl: '',        // 空文字 = デフォルトの送出先を使う
   sendImages: true,
   sendVideos: true,
-  sendPdf: false,
-  sendBgImages: false,  // CSS背景画像（::before/::after含む）。ノイズが増えがちなのでデフォルトOFF
-  smallImgW: 10,        // px。幅または高さがこの値以下なら「小さい画像」
-  smallImgH: 10,
-  smallVidKB: 2,        // KB。容量がこの値以下なら「小さい動画」
+  sendPdf: true,
+  sendBgImages: true,   // CSS背景画像（::before/::after含む）
+  smallImgW: 100,       // px。幅または高さがこの値以下なら「小さい画像」
+  smallImgH: 100,
+  smallVidKB: 200,      // KB。容量がこの値以下なら「小さい動画」
   skipSmallImages: true,  // popup側のチェック状態も記憶する
   skipSmallVideos: false,
 };

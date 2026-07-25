@@ -3,6 +3,16 @@
 All notable changes to HeV Sender will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.4.0] - 2026-07-25
+
+### Added
+
+- "Show a manual-download panel on the original page" button under the "Files that could not be fetched" list: it overlays a small panel on the original page listing the failed URLs as links. Hotlink protection only accepts requests coming from the page itself (Referer and cookies), so links living in that page can still save media that neither fetch strategy could reach — e.g. hotlink-protected files on a different subdomain. Save via right-click "Save link as…", or click a link and save from the tab that opens, then add the file to HEIC etc Viewer by drag & drop. The panel is injected only when the user presses the button, closes with its Close button or the Esc key, and requires no new permissions
+
+### Changed
+
+- Default settings: every "What to send" type (images / CSS background images / videos / PDF) now starts checked, the small-image threshold defaults to 100×100px (was 10×10px), and the small-video threshold defaults to 200KB (was 2KB). Users who already saved their own settings are not affected
+
 ## [1.3.0] - 2026-07-19
 
 ### Added
@@ -34,6 +44,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [1.4.0] - 2026-07-25
+
+### 追加
+
+- 「取得できなかったファイル」一覧の下に「元のページに手動ダウンロードパネルを表示」ボタンを追加：元ページ上に、失敗したURLをリンクとして並べる小さなパネルをオーバーレイ表示する。直リンク対策は「ページ本人からのリクエスト」（Referer・Cookie）しか通さないため、ページ内に置かれたリンクなら、2段構えのfetchでも取れなかったメディア（例：サブドメイン違い×直リンク対策）も保存できる。リンクの右クリック「名前を付けてリンク先を保存」か、クリックして開いたタブから保存し、ドラッグ＆ドロップで HEIC etc Viewer に追加する。パネルはボタンを押した時だけ注入され、閉じるボタンまたはEscキーで閉じられる。新しい権限は不要
+
+### 変更
+
+- デフォルト設定を変更：「送出対象」は全種類（画像／CSS背景画像／動画／PDF）がチェック済みに、「小さい画像の大きさ」は 100×100px（旧 10×10px）に、「小さい動画の大きさ」は 200KB（旧 2KB）に。設定を保存済みのユーザーには影響しない
 
 ## [1.3.0] - 2026-07-19
 

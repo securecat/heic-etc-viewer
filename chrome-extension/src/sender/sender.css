@@ -23,4 +23,15 @@ h1 {
   word-break: break-all;
 }
 
+.fail-actions { margin-top: 12px; }
+
+/* パネル表示の結果。ボタン操作への応答なので自動では消さない */
+.fail-panel-status {
+  display: block;
+  margin-top: 4px;
+  color: var(--success);
+}
+
+.fail-panel-status.error { color: var(--danger); }
+
 .actions { margin-top: 16px; }

@@ -100,6 +100,79 @@ function pageFetch(url) {
   })();
 }
 
+// 元タブに注入して、取得に失敗したURLのリンク一覧パネルをオーバーレイ表示する（直リンク対策の最終救済）。
+// ページ内のリンクからの保存にはそのページのCookie・Refererが付くため、拡張からは取れないものも保存できる。
+// 注入先で単体実行されるため自己完結・ASCIIのみで書くこと（表示文字列は引数で受け取る。関数内コメントも不可）。
+// リンクに noreferrer を付けないのは意図的（Refererこそがこの救済の要のため）。
+// スタイルはShadow DOMで隔離し、A11Y.md準拠（16px・sans-serif・7:1/3:1コントラスト・両テーマ・フォーカス可視）
+function showDownloadPanel(opts) {
+  const HOST_ID = 'hev-sender-dl-panel';
+  const prev = document.getElementById(HOST_ID);
+  if (prev) prev.remove();
+  const host = document.createElement('div');
+  host.id = HOST_ID;
+  const root = host.attachShadow({ mode: 'open' });
+  const style = document.createElement('style');
+  style.textContent = [
+    ':host { all: initial; }',
+    '.panel { position: fixed; right: 16px; top: 16px; z-index: 2147483647;',
+    '  box-sizing: border-box; width: min(480px, calc(100vw - 32px)); max-height: calc(100vh - 32px);',
+    '  overflow: auto; background: #ffffff; color: #1f1f1f; border: 2px solid #595959;',
+    '  border-radius: 8px; padding: 16px; font-family: sans-serif; font-size: 16px; line-height: 1.6;',
+    '  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35); }',
+    '.panel h2 { margin: 0 0 8px; font-size: 18px; }',
+    '.panel p { margin: 0 0 12px; }',
+    '.panel ul { margin: 0 0 12px; padding-left: 20px; }',
+    '.panel li { margin: 0 0 8px; word-break: break-all; }',
+    '.panel a { color: #1446a0; text-decoration: underline; }',
+    '.panel a:hover { text-decoration-thickness: 2px; }',
+    '.panel button { font: inherit; border: 1px solid #595959; border-radius: 6px;',
+    '  background: #ffffff; color: #1f1f1f; padding: 6px 14px; cursor: pointer; }',
+    '.panel button:hover { background: #e8e8e8; }',
+    '.panel :is(a, button):focus-visible { outline: 2px solid #1446a0; outline-offset: 2px; }',
+    '@media (prefers-color-scheme: dark) {',
+    '  .panel { background: #202124; color: #eaeaea; border-color: #8f9099; }',
+    '  .panel a { color: #82b3ff; }',
+    '  .panel button { background: #2a2b2e; color: #eaeaea; border-color: #8f9099; }',
+    '  .panel button:hover { background: #3a3b3f; }',
+    '  .panel :is(a, button):focus-visible { outline-color: #82b3ff; }',
+    '}',
+  ].join('\n');
+  const panel = document.createElement('section');
+  panel.className = 'panel';
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-label', opts.title);
+  panel.tabIndex = -1;
+  if (opts.lang) panel.setAttribute('lang', opts.lang);
+  const heading = document.createElement('h2');
+  heading.textContent = opts.title;
+  const hint = document.createElement('p');
+  hint.textContent = opts.hint;
+  const ul = document.createElement('ul');
+  opts.urls.forEach(u => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = u;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = u;
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+  const close = document.createElement('button');
+  close.textContent = opts.close;
+  close.addEventListener('click', () => host.remove());
+  panel.addEventListener('keydown', e => { if (e.key === 'Escape') host.remove(); });
+  panel.appendChild(heading);
+  panel.appendChild(hint);
+  panel.appendChild(ul);
+  panel.appendChild(close);
+  root.appendChild(style);
+  root.appendChild(panel);
+  document.documentElement.appendChild(host);
+  panel.focus();
+}
+
 async function fetchViaTab(tabId, url) {
   const results = await chrome.scripting.executeScript({
     target: { tabId },
@@ -284,6 +357,49 @@ async function run() {
       ul.appendChild(li);
     });
     failBlock.appendChild(ul);
+    // 直リンク対策されたメディアは「元ページからのリクエスト」しか通さないため、拡張側からの
+    // 再取得やchrome.downloadsでは救えない（Referer・SameSite Cookieが付かない）。
+    // 元ページにリンク一覧のパネルを注入し、ページ文脈での保存（右クリック保存等）に委ねる
+    const httpFailures = failures.filter(u => /^https?:/.test(u));
+    if (httpFailures.length && payload.tabId != null) {
+      const actions = document.createElement('p');
+      actions.className = 'fail-actions';
+      const btn = document.createElement('button');
+      btn.textContent = msg('sndFailPanelBtn');
+      const fb = document.createElement('span');
+      fb.className = 'fail-panel-status';
+      fb.setAttribute('role', 'status');
+      btn.addEventListener('click', async () => {
+        try {
+          await chrome.scripting.executeScript({
+            target: { tabId: payload.tabId },
+            func: showDownloadPanel,
+            args: [{
+              urls: httpFailures,
+              lang: document.documentElement.lang,
+              title: msg('sndPanelTitle'),
+              hint: msg('sndPanelHint'),
+              close: msg('sndPanelClose'),
+            }],
+          });
+        } catch (e) {
+          fb.classList.add('error');
+          fb.textContent = msg('sndFailPanelError');
+          return;
+        }
+        fb.classList.remove('error');
+        fb.textContent = msg('sndFailPanelShown');
+        // パネルの注入自体は済んでいるため、元タブへの切り替えに失敗しても成功扱いのままでよい
+        try {
+          const tab = await chrome.tabs.get(payload.tabId);
+          await chrome.windows.update(tab.windowId, { focused: true });
+          await chrome.tabs.update(payload.tabId, { active: true });
+        } catch (e) {}
+      });
+      actions.appendChild(btn);
+      actions.appendChild(fb);
+      failBlock.appendChild(actions);
+    }
     failBlock.hidden = false;
   }
   if (!files.length) {
