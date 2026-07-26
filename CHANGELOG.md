@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.20.0] - 2026-07-26
+
+### Fixed
+
+- TIFF files now actually display. TIFF has been listed as a supported format since v1.0, but rendering relied on the browser's native decoder — which Chrome does not have (among major browsers, only Safari decodes TIFF) — so every TIFF failed to load. TIFFs are now decoded with UTIF.js (loaded from CDN) in a Web Worker, covering thumbnails, the lightbox, and conversion. Conversion decodes losslessly; for display, TIFFs with an alpha channel keep their transparency. Common compressions (uncompressed, LZW, PackBits) and multi-page TIFFs (the largest page is shown) are supported
+- The "No files are checked for export" error of the zip export now clears as soon as any file is checked again (or "Select all" is pressed). Previously it stayed until the subject, format, or folder was changed
+
 ## [3.19.0] - 2026-07-26
 
 ### Added
@@ -573,6 +580,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.20.0] - 2026-07-26
+
+### 修正
+
+- TIFFファイルが実際に表示されるように修正。TIFFはv1.0から対応形式として掲げていたが、表示はブラウザのネイティブデコーダー頼みで、Chromeはこれを搭載していない（主要ブラウザでTIFFを表示できるのはSafariのみ）ため、実際にはすべてのTIFFが読込失敗になっていた。UTIF.js（CDNから読み込み）によるWeb Worker上のデコードに切り替え、サムネイル・ライトボックス・変換のすべてで表示・処理できるように。変換時は劣化なしでデコードし、表示時はアルファチャンネル付きTIFFの透過も保持する。一般的な圧縮（無圧縮・LZW・PackBits）とマルチページTIFF（最大ページを表示）に対応
+- ZIPでエクスポートの「エクスポートに含めるファイルにチェックがありません」エラーが、どれか1つチェックを入れ直した時点（または「全選択」押下時）で消えるように修正。従来は対象・形式・フォルダを変えるまで表示されたままだった
 
 ## [3.19.0] - 2026-07-26
 

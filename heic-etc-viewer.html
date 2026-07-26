@@ -933,7 +933,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.19.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.20.0</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -1444,6 +1444,14 @@ let zipSelectMode = false;
 let zipSelectNode = null;
 const zipExcluded = new Set();
 
+// 「エクスポートに含めるファイルにチェックがありません」エラーは、何か1つチェックが入った時点で
+// 解決済みなので消す（他のエラー文言は消さない。言語切替後も消せるよう全言語の文言と比較する）
+function clearZipNoneCheckedError() {
+  const errEl = document.getElementById('bulkConvertError');
+  const msgs = Object.values(I18N).map(d => d['err.zipNoneChecked']);
+  if (msgs.includes(errEl.textContent)) errEl.textContent = '';
+}
+
 function addZipCheckbox(item) {
   if (item.querySelector('.zip-check')) return;
   const name = item.dataset.name || '';
@@ -1458,6 +1466,7 @@ function addZipCheckbox(item) {
   cb.addEventListener('keydown', e => e.stopPropagation());
   cb.addEventListener('change', () => {
     if (cb.checked) zipExcluded.delete(name); else zipExcluded.add(name);
+    if (cb.checked) clearZipNoneCheckedError();
   });
   wrap.addEventListener('click', e => e.stopPropagation());
   wrap.appendChild(cb);
@@ -1704,6 +1713,87 @@ async function heicToURL(file) {
   return { url: URL.createObjectURL(blob), realType: 'heic' };
 }
 
+// ── TIFFデコード（Web Worker + UTIF.js） ─────────────────────────
+// ChromeはTIFFをネイティブデコードできない（対応しているのはSafariのみ）ため、
+// HEICと同じ構図でUTIF.jsによりRGBA化し、ブラウザが扱えるblobへ変換する。
+// lossless=false: 表示用（JPEG 0.9。アルファ付きTIFFは透過を保つためPNG）
+// lossless=true : 変換保存用（常にPNGで劣化なし）
+const TIFF_WORKER_SRC = `
+let utifReady = false;
+function getUTIF() {
+  if (!utifReady) {
+    importScripts('https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.js');
+    utifReady = true;
+  }
+  return UTIF;
+}
+self.onmessage = async (e) => {
+  const { id, buffer, lossless } = e.data;
+  try {
+    const UTIF = getUTIF();
+    const ifds = UTIF.decode(buffer);
+    if (!ifds || !ifds.length) throw new Error('decode failed');
+    // マルチページ/サムネイル入りTIFFでは最大ピクセルのページを本体として選ぶ
+    let ifd = ifds[0];
+    const px = f => ((f.t256 && f.t256[0]) || 0) * ((f.t257 && f.t257[0]) || 0);
+    for (const f of ifds) { if (px(f) > px(ifd)) ifd = f; }
+    UTIF.decodeImage(buffer, ifd);
+    const rgba = UTIF.toRGBA8(ifd);
+    const w = ifd.width, h = ifd.height;
+    if (!w || !h) throw new Error('decode failed');
+    const canvas = new OffscreenCanvas(w, h);
+    const ctx = canvas.getContext('2d');
+    ctx.putImageData(new ImageData(new Uint8ClampedArray(rgba.buffer, rgba.byteOffset, rgba.length), w, h), 0, 0);
+    // ExtraSamples(t338)がある、またはRGB+4サンプル(CMYK=Photometric5を除く)ならアルファ持ちとみなす
+    const hasAlpha = (ifd.t338 && ifd.t338.length > 0) ||
+      (ifd.t277 && ifd.t277[0] === 4 && !(ifd.t262 && ifd.t262[0] === 5));
+    const blob = (lossless || hasAlpha)
+      ? await canvas.convertToBlob({ type: 'image/png' })
+      : await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.9 });
+    self.postMessage({ id, blob });
+  } catch (err) {
+    self.postMessage({ id, error: (err && err.message) || String(err) });
+  }
+};
+`;
+let tiffWorker = null;
+let tiffWorkerReqId = 0;
+const tiffWorkerPending = new Map();
+function getTiffWorker() {
+  if (!tiffWorker) {
+    const blob = new Blob([TIFF_WORKER_SRC], { type: 'application/javascript' });
+    tiffWorker = new Worker(URL.createObjectURL(blob));
+    tiffWorker.onmessage = e => {
+      const { id, blob, error } = e.data;
+      const pending = tiffWorkerPending.get(id);
+      if (!pending) return;
+      tiffWorkerPending.delete(id);
+      if (error) pending.reject(new Error(error));
+      else pending.resolve(blob);
+    };
+    tiffWorker.onerror = () => {
+      for (const pending of tiffWorkerPending.values()) pending.reject(new Error('TIFF worker crashed'));
+      tiffWorkerPending.clear();
+      tiffWorker = null;
+    };
+  }
+  return tiffWorker;
+}
+function decodeTiffInWorker(buffer, lossless = false) {
+  const worker = getTiffWorker();
+  const id = ++tiffWorkerReqId;
+  return new Promise((resolve, reject) => {
+    tiffWorkerPending.set(id, { resolve, reject });
+    worker.postMessage({ id, buffer, lossless }, [buffer]);
+  });
+}
+
+async function tiffToURL(file) {
+  const buffer = await file.arrayBuffer();
+  const blob = await decodeTiffInWorker(buffer);
+  return { url: URL.createObjectURL(blob) };
+}
+
 // ── 定数 ──────────────────────────────────────────────────────────
 const IMG_EXTS   = ['jpg','jpeg','jfif','png','gif','webp','avif','svg','bmp','tiff','tif'];
 const HEIC_EXTS  = ['heic','heif'];
@@ -1717,6 +1807,7 @@ function isImage(name){ return [...IMG_EXTS,...HEIC_EXTS,...ICO_EXTS].includes(e
 function isVideo(name){ return VIDEO_EXTS.includes(extOf(name)); }
 function isHeic(name) { return HEIC_EXTS.includes(extOf(name)); }
 function isIco(name)  { return ICO_EXTS.includes(extOf(name)); }
+function isTiff(name) { return extOf(name) === 'tiff' || extOf(name) === 'tif'; }
 function isPdf(name)  { return PDF_EXTS.includes(extOf(name)); }
 function escHtml(s)    { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -1728,6 +1819,16 @@ function baseName(name) { return (name||'').replace(/\.[^.]+$/, ''); }
 // 変換元ファイルを実寸のcanvasにデコードする（HEICはlibheifで直接デコード、他はブラウザネイティブ）
 // 拡張子はHEICでも実体が別形式のファイル（HEIC(JPEG)等）があるため、実体で判定する
 async function decodeToCanvas(file) {
+  // TIFFはブラウザネイティブでデコードできないため、Workerでロスレス(PNG)に変換してから展開する
+  if (isTiff(file.name)) {
+    const blob = await decodeTiffInWorker(await file.arrayBuffer(), true);
+    const bmp = await createImageBitmap(blob);
+    const canvas = document.createElement('canvas');
+    canvas.width = bmp.width; canvas.height = bmp.height;
+    canvas.getContext('2d').drawImage(bmp, 0, 0);
+    bmp.close();
+    return canvas;
+  }
   if (isHeic(file.name) && (await detectRealType(file)) === 'heic') {
     if (!heifLib) throw new Error('libheif not ready');
     const data = new Uint8ClampedArray(await file.arrayBuffer());
@@ -2056,6 +2157,10 @@ async function makeURL(file) {
   if (isHeic(file.name)) {
     const r = await heicToURL(file);
     url = r.url; realType = r.realType;
+  } else if (isTiff(file.name)) {
+    // ChromeはTIFFを<img>で表示できないため、Workerでデコードした表示用blobに差し替える
+    const r = await tiffToURL(file);
+    url = r.url; realType = null;
   } else {
     url = URL.createObjectURL(file);
     realType = null;
@@ -2262,6 +2367,7 @@ document.getElementById('bulkConvertFormat').addEventListener('change', e => {
 document.getElementById('zipSelectAll').addEventListener('click', () => {
   filteredFiles.forEach(f => zipExcluded.delete(f.name));
   document.querySelectorAll('.gallery .zip-check input').forEach(cb => { cb.checked = true; });
+  clearZipNoneCheckedError();
 });
 document.getElementById('zipClearAll').addEventListener('click', () => {
   filteredFiles.forEach(f => zipExcluded.add(f.name));

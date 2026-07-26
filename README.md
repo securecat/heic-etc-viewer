@@ -42,6 +42,7 @@ Built as a single HTML file with no build tools or package dependencies.
 
 - **Vanilla HTML** / **CSS** / **JavaScript** — no frameworks
 - **[libheif.js](https://github.com/strukturag/libheif)** — HEIC/HEIF decoding via WebAssembly, run in a Web Worker (loaded from CDN)
+- **[UTIF.js](https://github.com/photopea/UTIF.js)** — TIFF decoding, run in a Web Worker (loaded from CDN)
 - **[PDF.js](https://github.com/mozilla/pdf.js)** — PDF thumbnail rendering (loaded from CDN)
 - **[jsPDF](https://github.com/parallax/jsPDF)** — PDF generation for the convert-to-PDF feature (loaded from CDN)
 - **[pdf-lib](https://github.com/Hopding/pdf-lib)** — per-page PDF splitting (loaded from CDN)
@@ -79,12 +80,12 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.19.0] - 2026-07-26
+### [3.20.0] - 2026-07-26
 
-#### Added
+#### Fixed
 
-- File selection for "Export as a Zip": while the format is selected, every thumbnail shows a checkbox in its top-left corner (all checked by default) — untick the files you don't need before downloading
-- "Select all" / "Clear all" buttons next to the Download button to switch all shown files at once
+- TIFF files now actually display: Chrome has no native TIFF decoder, so the long-advertised TIFF support never worked in practice. TIFFs are now decoded with UTIF.js in a Web Worker — thumbnails, lightbox, and conversion all work, with lossless decoding for conversion
+- The "No files are checked for export" error of the zip export now clears as soon as any file is checked again
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -134,6 +135,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 
 - **Vanilla HTML** / **CSS** / **JavaScript** — フレームワーク不使用
 - **[libheif.js](https://github.com/strukturag/libheif)** — WebAssemblyによるHEIC/HEIFデコード。Web Worker上で実行（CDNから読み込み）
+- **[UTIF.js](https://github.com/photopea/UTIF.js)** — TIFFデコード。Web Worker上で実行（CDNから読み込み）
 - **[PDF.js](https://github.com/mozilla/pdf.js)** — PDFサムネイルのレンダリング（CDNから読み込み）
 - **[jsPDF](https://github.com/parallax/jsPDF)** — PDF変換保存機能のPDF生成（CDNから読み込み）
 - **[pdf-lib](https://github.com/Hopding/pdf-lib)** — PDFのページごと分割（CDNから読み込み）
@@ -171,12 +173,12 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.19.0] - 2026-07-26
+### [3.20.0] - 2026-07-26
 
-#### 追加
+#### 修正
 
-- 「ZIPでエクスポート」にファイル選択機能を追加：この形式を選んでいる間、各サムネ左上にチェックボックスが表示される(デフォルトは全部ON)ので、不要なファイルはチェックを外してからダウンロードできる
-- ダウンロードボタンの右に「全選択」「全解除」ボタンを追加。表示中のファイルのチェックを一括で切り替えられる
+- TIFFファイルが実際に表示されるように修正：ChromeにはTIFFのネイティブデコーダーがなく、対応形式として掲げていたTIFF表示は実際には機能していなかった。UTIF.jsによるWeb Worker上のデコードに切り替え、サムネイル・ライトボックス・変換のすべてで動作する（変換時は劣化なしでデコード）
+- ZIPでエクスポートの「チェックがありません」エラーが、どれか1つチェックを入れ直した時点で消えるように修正
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
