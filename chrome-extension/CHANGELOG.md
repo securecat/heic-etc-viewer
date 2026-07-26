@@ -3,6 +3,16 @@
 All notable changes to HeV Sender will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.4.1] - 2026-07-26
+
+### Fixed
+
+- Files whose actual content differs from their URL extension are now sent under the extension of the real format, detected from the file's magic bytes. For example, when a CDN returns WebP for a `.jpg` URL, the file now arrives as `.webp` instead of a mislabeled `.jpg` that extension-based tools (some image viewers, uploaders, etc.) fail to open. Spelling variants of the same format (`.jpeg`/`.jpg`/`.jfif`, `.tif`/`.tiff`, `.heif`/`.heic`, and the `.mp4`/`.mov` container family) keep their original extension
+
+### Added
+
+- `.jfif` added to the known extensions, matching the viewer's v3.18.0 support
+
 ## [1.4.0] - 2026-07-25
 
 ### Added
@@ -44,6 +54,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [1.4.1] - 2026-07-26
+
+### 修正
+
+- URLの拡張子と実際の中身が異なるファイルを、実形式（先頭バイトのマジックナンバーで判定）の拡張子で送出するように修正。例：`.jpg` のURLでWebPを返すCDNの画像は `.webp` として届くようになり、拡張子で処理を分岐するツール（一部の画像ビューアーやアップローダー等）でも保存後のファイルを正しく開ける。同一形式の表記ゆれ（`.jpeg`/`.jpg`/`.jfif`、`.tif`/`.tiff`、`.heif`/`.heic`、`.mp4`/`.mov` 系コンテナ）は元の表記を維持する
+
+### 追加
+
+- viewer本体の v3.18.0 に合わせ、既知の拡張子に `.jfif` を追加
 
 ## [1.4.0] - 2026-07-25
 

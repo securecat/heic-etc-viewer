@@ -40,15 +40,15 @@ HeV Sender is part of the [heic-etc-viewer repository](https://github.com/secure
 
 ## Changelog
 
-### [1.4.0] - 2026-07-25
+### [1.4.1] - 2026-07-26
+
+#### Fixed
+
+- Files whose actual content differs from their URL extension (e.g. a CDN returning WebP for a `.jpg` URL) are now sent under the real format's extension, detected from the file's magic bytes, so extension-based tools open the saved file correctly
 
 #### Added
 
-- A manual-download panel that can be overlaid on the original page, listing the files that could not be fetched as real in-page links — with the page's cookies and Referer, saving succeeds where the extension's own fetches cannot. No new permissions required
-
-#### Changed
-
-- Default settings: all "What to send" types start checked, small-image threshold is now 100×100px, small-video threshold is now 200KB (saved settings are not affected)
+- `.jfif` added to the known extensions, matching the viewer's v3.18.0 support
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -96,14 +96,14 @@ HeV Sender は [heic-etc-viewer リポジトリ](https://github.com/securecat/he
 
 ## 更新履歴
 
-### [1.4.0] - 2026-07-25
+### [1.4.1] - 2026-07-26
+
+#### 修正
+
+- URLの拡張子と実際の中身が異なるファイル（例：`.jpg` のURLでWebPを返すCDN）を、先頭バイトから判定した実形式の拡張子で送出するように修正。拡張子で処理を分岐するツールでも保存後のファイルを正しく開ける
 
 #### 追加
 
-- 元のページ上にオーバーレイ表示できる手動ダウンロードパネルを追加：取得できなかったファイルをページ内の本物のリンクとして並べるため、ページのCookie・Refererが付き、拡張自身のfetchでは取れないメディアも保存できる。新しい権限は不要
-
-#### 変更
-
-- デフォルト設定を変更：「送出対象」は全種類チェック済み、「小さい画像の大きさ」は 100×100px、「小さい動画の大きさ」は 200KB に（保存済みの設定には影響なし）
+- viewer本体の v3.18.0 に合わせ、既知の拡張子に `.jfif` を追加
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。

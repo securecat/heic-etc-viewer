@@ -2,7 +2,7 @@
 // HEIC etc Viewer を window.open で開いて postMessage で受け渡す
 
 // viewer側の対応拡張子（heic-etc-viewer.html の ALL_EXTS と揃えること）
-const KNOWN_EXTS = ['jpg','jpeg','png','gif','webp','avif','svg','bmp','tiff','tif','heic','heif','mp4','webm','mov','ico','pdf'];
+const KNOWN_EXTS = ['jpg','jpeg','jfif','png','gif','webp','avif','svg','bmp','tiff','tif','heic','heif','mp4','webm','mov','ico','pdf'];
 const MIME_EXT = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
@@ -53,7 +53,34 @@ function closeSelf() {
   chrome.tabs.getCurrent(tab => { if (tab) chrome.tabs.remove(tab.id); });
 }
 
-function fileNameFor(url, blob, kind, index, usedNames) {
+// 取得したバイト列のマジックナンバーから実形式の拡張子を推定する（判定できなければ空文字）。
+// CDNや画像変換サーバが「.jpg のURLのままWebPを返す」等、URL・Content-Typeと中身が
+// 食い違うことがあるため、ファイル名の拡張子は実バイトの判定を最優先する
+function sniffExt(b) {
+  if (b.length < 12) return '';
+  const ascii = (start, len) => String.fromCharCode.apply(null, b.subarray(start, start + len));
+  if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) return 'jpg';
+  if (b[0] === 0x89 && ascii(1, 3) === 'PNG') return 'png';
+  const head6 = ascii(0, 6);
+  if (head6 === 'GIF87a' || head6 === 'GIF89a') return 'gif';
+  if (ascii(0, 4) === 'RIFF' && ascii(8, 4) === 'WEBP') return 'webp';
+  if (b[0] === 0x42 && b[1] === 0x4D) return 'bmp';
+  if ((b[0] === 0x49 && b[1] === 0x49 && b[2] === 0x2A && b[3] === 0x00) ||
+      (b[0] === 0x4D && b[1] === 0x4D && b[2] === 0x00 && b[3] === 0x2A)) return 'tiff';
+  if (b[0] === 0x00 && b[1] === 0x00 && b[2] === 0x01 && b[3] === 0x00) return 'ico';
+  if (ascii(0, 4) === '%PDF') return 'pdf';
+  if (b[0] === 0x1A && b[1] === 0x45 && b[2] === 0xDF && b[3] === 0xA3) return 'webm'; // EBML(webm/mkv)
+  if (ascii(4, 4) === 'ftyp') {
+    const brand = ascii(8, 4);
+    if (brand === 'avif' || brand === 'avis') return 'avif';
+    if (/^(hei[cxms]|hev[cxms]|mif1|msf1)/.test(brand)) return 'heic';
+    if (brand === 'qt  ') return 'mov';
+    return 'mp4'; // isom/mp41/mp42等のISO-BMFF全般
+  }
+  return ''; // SVG等のテキスト系はここでは判定しない（URL・MIMEに委ねる）
+}
+
+function fileNameFor(url, blob, kind, index, usedNames, sniffedExt) {
   let base = '';
   let ext = '';
   if (!url.startsWith('data:')) {
@@ -65,7 +92,13 @@ function fileNameFor(url, blob, kind, index, usedNames) {
     if (KNOWN_EXTS.includes(e)) { ext = e; base = base.slice(0, dot); }
   }
   if (!ext) ext = MIME_EXT[(blob.type || '').split(';')[0]] || '';
-  // 拡張子もMIMEも不明な場合は種別からの推定に頼る（viewer側に実形式の検出があるため許容）
+  // 実バイトから形式が判定できた場合はそれを最優先する（URL拡張子と中身の食い違い対策）。
+  // ただし同一形式の表記ゆれ（jpg/jpeg/jfif・tif/tiff・heic/heif・mp4/mov系コンテナ）は元の表記を尊重する
+  if (sniffedExt) {
+    const canon = e => ({ jpeg: 'jpg', jfif: 'jpg', tif: 'tiff', heif: 'heic', mov: 'mp4' }[e] || e);
+    if (!ext || canon(ext) !== canon(sniffedExt)) ext = sniffedExt;
+  }
+  // 拡張子もMIMEも実形式も不明な場合は種別からの推定に頼る（viewer側に実形式の検出があるため許容）
   if (!ext) ext = kind === 'video' ? 'mp4' : kind === 'pdf' ? 'pdf' : 'jpg';
   base = (base || `file-${index + 1}`).replace(/[\\/:*?"<>|]/g, '_');
   let name = `${base}.${ext}`;
@@ -187,10 +220,11 @@ async function fetchViaTab(tabId, url) {
   return new Blob([bytes], { type: (r.type || '').split(';')[0] });
 }
 
-function fileFromBlob(blob, item, index, usedNames) {
+async function fileFromBlob(blob, item, index, usedNames) {
   // 画像・動画URLがエラーページ等にすり替わっているケースを弾く
   if (/^(text\/|application\/(json|xhtml))/.test(blob.type)) throw new Error(`unexpected type: ${blob.type}`);
-  const name = fileNameFor(item.url, blob, item.kind, index, usedNames);
+  const head = new Uint8Array(await blob.slice(0, 16).arrayBuffer());
+  const name = fileNameFor(item.url, blob, item.kind, index, usedNames, sniffExt(head));
   return new File([blob], name, { type: blob.type });
 }
 
@@ -200,14 +234,15 @@ async function fetchOne(item, index, usedNames, tabId) {
   try {
     const res = await fetch(item.url, { signal: ctrl.signal, credentials: 'omit' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return fileFromBlob(await res.blob(), item, index, usedNames);
+    // fileFromBlobの失敗（エラーページへのすり替わり等）もページ文脈でのリトライ対象にするため必ずawaitする
+    return await fileFromBlob(await res.blob(), item, index, usedNames);
   } catch (primaryErr) {
     // 拡張からの「まっさらなリクエスト」は直リンク対策(Referer/Cookie検査)で弾かれることがある。
     // その場合は元タブのページ文脈で再取得を試みる（タブが閉じられていれば素直に失敗扱い）
     if (tabId == null || !/^https?:/.test(item.url)) throw primaryErr;
     try {
       const blob = await fetchViaTab(tabId, item.url);
-      return fileFromBlob(blob, item, index, usedNames);
+      return await fileFromBlob(blob, item, index, usedNames);
     } catch (e) {
       throw primaryErr;
     }
