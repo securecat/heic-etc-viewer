@@ -375,6 +375,32 @@ input[type="range"]::-webkit-slider-thumb {
 .ico-badge       { background: #2C864A; }
 .video-badge     { background: #A86810; }
 .unplayable-badge{ background: #B84040; }
+/* ZIPエクスポートの選択チェックボックス（サムネ左上）。
+   任意のサムネ画像の上に載るため、チップは不透明背景＋明色ボーダーでコントラストを確保する */
+.zip-check {
+  position: absolute; top: 5px; left: 5px; z-index: 3;
+  display: flex;
+  background: var(--bg-toolbar);
+  border: 1px solid var(--text-muted);
+  border-radius: 4px; padding: 3px;
+}
+.zip-check input {
+  display: block;
+  width: 18px; height: 18px; margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.zip-check input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* ZIP選択モードの全選択/全解除。テキストリンク風のボタン。
+   ツールバー背景(#1c1c1c)に対して7:1以上を確保するため --accent(6.4:1) より明るい色を使う */
+.zip-bulk-btn {
+  background: none; border: none; padding: 2px 4px;
+  font: inherit; font-size: 16px;
+  color: #8AB4FF;
+  text-decoration: underline; cursor: pointer;
+}
+.zip-bulk-btn:hover { text-decoration-thickness: 2px; }
+.zip-bulk-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .thumb-play {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
@@ -848,6 +874,8 @@ input[type="range"]::-webkit-slider-thumb {
       <option value="pdf-combined">PDF (combine into one)</option>
     </select>
     <button class="btn" id="bulkConvertDownload" data-i18n="convert.downloadTextHeader" data-i18n-attr="aria-label:convert.download" aria-label="Download">📁Download</button>
+    <button class="zip-bulk-btn" id="zipSelectAll" data-i18n="zip.selectAll" hidden>Select all</button>
+    <button class="zip-bulk-btn" id="zipClearAll" data-i18n="zip.clearAll" hidden>Clear all</button>
     <span class="convert-error" id="bulkConvertError" aria-live="polite"></span>
     <button class="alt-cancel" id="altCancelBtn" data-i18n="alt.cancel" hidden>(Cancel)</button>
   </div>
@@ -905,7 +933,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.18.1</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.19.0</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -1148,7 +1176,7 @@ const I18N = {
     'g.convert.pdfH': 'PDF',
     'g.convert.pdfP': 'A PDF opened in the lightbox can be split into one PDF per page ("PDF (individual pages)"), downloaded as a zip (or as a single file for one-page PDFs). Pages are extracted as-is, without re-rendering.',
     'g.zip.h': 'Export as a Zip',
-    'g.zip.p': 'Doesn\'t convert anything — bundles every file currently shown in the gallery (after any filter) into a single zip, unchanged. Available by selecting "All" as the convert subject.',
+    'g.zip.p': 'Doesn\'t convert anything — bundles the files currently shown in the gallery (after any filter) into a single zip, unchanged. While this format is selected, a checkbox appears in the top-left corner of every thumbnail (all checked by default); untick the files you don\'t need before downloading. The "Select all" / "Clear all" buttons next to the Download button switch every shown file at once. Available by selecting "All" as the convert subject.',
     'g.diff.h': 'Image diff mode',
     'g.diff.p': 'Open a parent folder containing exactly two subfolders whose image files share the same filename (ignoring extension) to compare them. Opening a matched file in the lightbox shows both versions overlaid with a divider that follows your mouse — the alphabetically-first subfolder is on the left. Files without a match in the other subfolder, or matched pairs that aren\'t both images, display normally.',
     'g.kbd.h': 'Keyboard operation',
@@ -1194,6 +1222,10 @@ const I18N = {
     'err.cannotConvert': 'This file cannot be converted',
     'err.convFailed': 'Conversion failed',
     'err.noExport': 'No files to export',
+    'err.zipNoneChecked': 'No files are checked for export',
+    'zip.include': 'Include in ZIP: {name}',
+    'zip.selectAll': 'Select all',
+    'zip.clearAll': 'Clear all',
     'err.noVideo': 'No video files',
     'err.noAudio': 'No video files with an audio track',
     'err.noAudioTrack': 'This video has no audio track',
@@ -1314,7 +1346,7 @@ const I18N = {
     'g.convert.pdfH': 'PDF',
     'g.convert.pdfP': 'ライトボックスで表示中のPDFは「PDF(ページごとに)」で1ページずつのPDFに分割し、zipでダウンロードできます(1ページのPDFはそのまま1ファイルで保存)。ページは再レンダリングせず、そのまま取り出します。',
     'g.zip.h': 'ZIPでエクスポート',
-    'g.zip.p': '変換は行いません。ギャラリーに表示中のすべてのファイル(絞り込み後)を、変換せずそのまま1つのZIPにまとめます。変換対象で「すべて」を選ぶと使用できます。',
+    'g.zip.p': '変換は行いません。ギャラリーに表示中のファイル(絞り込み後)を、変換せずそのまま1つのZIPにまとめます。この形式を選んでいる間は各サムネの左上にチェックボックスが表示される(デフォルトは全部ON)ので、不要なファイルはチェックを外してからダウンロードしてください。ダウンロードボタンの右の「全選択」「全解除」で、表示中のファイルをまとめて切り替えられます。変換対象で「すべて」を選ぶと使用できます。',
     'g.diff.h': '画像Diffモード',
     'g.diff.p': '拡張子を除いたファイル名が一致する画像ファイルを持つ、ちょうど2つのサブフォルダを含む親フォルダを開くと比較できます。一致したファイルをライトボックスで開くと、マウスに追従する境界線で2つのバージョンが重ねて表示されます(アルファベット順で先のサブフォルダが左側)。もう一方のサブフォルダに一致がないファイルや、両方が画像ではないペアは、通常どおり表示されます。',
     'g.kbd.h': 'キーボード操作',
@@ -1360,6 +1392,10 @@ const I18N = {
     'err.cannotConvert': 'このファイルは変換できません',
     'err.convFailed': '変換に失敗しました',
     'err.noExport': 'エクスポートするファイルがありません',
+    'err.zipNoneChecked': 'エクスポートに含めるファイルにチェックがありません',
+    'zip.include': 'ZIPに含める: {name}',
+    'zip.selectAll': '全選択',
+    'zip.clearAll': '全解除',
     'err.noVideo': '動画ファイルがありません',
     'err.noAudio': '音声トラックを含む動画ファイルがありません',
     'err.noAudioTrack': 'この動画には音声トラックがありません',
@@ -1400,6 +1436,50 @@ function tf(key, params) {
   return t(key).replace(/\{(\w+)\}/g, (_, k) => (params[k] ?? ''));
 }
 
+// ── ZIPエクスポートの選択モード ─────────────────────────────────
+// 「ZIPでエクスポート」を選んでいる間、サムネ左上にチェックボックスを出して除外を選べるようにする。
+// デフォルト全選択のため、状態は「チェックを外した名前の集合」で持つ。
+// モードに入り直した時と、モード中に別フォルダへ移動した時は全選択に戻す
+let zipSelectMode = false;
+let zipSelectNode = null;
+const zipExcluded = new Set();
+
+function addZipCheckbox(item) {
+  if (item.querySelector('.zip-check')) return;
+  const name = item.dataset.name || '';
+  const wrap = document.createElement('div');
+  wrap.className = 'zip-check';
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.checked = !zipExcluded.has(name);
+  cb.setAttribute('aria-label', tf('zip.include', { name }));
+  // クリック・キー操作がサムネ本体（ライトボックスを開く）に伝播しないようにする
+  cb.addEventListener('click', e => e.stopPropagation());
+  cb.addEventListener('keydown', e => e.stopPropagation());
+  cb.addEventListener('change', () => {
+    if (cb.checked) zipExcluded.delete(name); else zipExcluded.add(name);
+  });
+  wrap.addEventListener('click', e => e.stopPropagation());
+  wrap.appendChild(cb);
+  item.appendChild(wrap);
+}
+
+function setZipSelectMode(on) {
+  if (zipSelectMode === on) return;
+  zipSelectMode = on;
+  if (on) { zipExcluded.clear(); zipSelectNode = currentNode; }
+  document.getElementById('zipSelectAll').hidden = !on;
+  document.getElementById('zipClearAll').hidden = !on;
+  document.querySelectorAll('.gallery .thumb-item').forEach(item => {
+    if (on) {
+      addZipCheckbox(item);
+    } else {
+      const el = item.querySelector('.zip-check');
+      if (el) el.remove();
+    }
+  });
+}
+
 // 静的DOMと状態依存ラベルへ現在の言語を適用する（言語切り替え時・初期化時に呼ぶ）
 function applyI18n() {
   document.documentElement.lang = lang;
@@ -1419,6 +1499,11 @@ function applyI18n() {
   fixFormatSelectWidth('bulkConvertFormat', CONVERT_FORMAT_LISTS);
   rebuildLbFmtMenu();
   fixLbFmtButtonWidth();
+  // ZIP選択モード中のチェックボックスのaria-labelも言語に追従させる
+  document.querySelectorAll('.gallery .zip-check input').forEach(cb => {
+    const item = cb.closest('.thumb-item');
+    cb.setAttribute('aria-label', tf('zip.include', { name: (item && item.dataset.name) || '' }));
+  });
   // 状態依存のボタンラベル
   updateSlideshowButtonLabels();
   updateLayoutToggleLabels();
@@ -2165,10 +2250,22 @@ function fixFormatSelectWidth(formatSelectId, lists) {
 document.getElementById('bulkConvertSubject').addEventListener('change', e => {
   document.getElementById('bulkConvertFormat').innerHTML = formatOptionsHTML(CONVERT_FORMAT_LISTS[e.target.value]);
   document.getElementById('bulkConvertError').textContent = '';
+  setZipSelectMode(false); // 形式リストが作り直され選択が外れるため、ZIP選択モードも解除する
 });
 // 形式の選び直しでも前のエラーメッセージを消す（どの操作のエラーか判別できなくなるため）
-document.getElementById('bulkConvertFormat').addEventListener('change', () => {
+document.getElementById('bulkConvertFormat').addEventListener('change', e => {
   document.getElementById('bulkConvertError').textContent = '';
+  setZipSelectMode(e.target.value === 'zip');
+});
+// ZIP選択モードの全選択/全解除。対象は表示中（絞り込み後）のファイルのみで、
+// 絞り込みで隠れているファイルのチェック状態には触らない
+document.getElementById('zipSelectAll').addEventListener('click', () => {
+  filteredFiles.forEach(f => zipExcluded.delete(f.name));
+  document.querySelectorAll('.gallery .zip-check input').forEach(cb => { cb.checked = true; });
+});
+document.getElementById('zipClearAll').addEventListener('click', () => {
+  filteredFiles.forEach(f => zipExcluded.add(f.name));
+  document.querySelectorAll('.gallery .zip-check input').forEach(cb => { cb.checked = false; });
 });
 fixFormatSelectWidth('bulkConvertFormat', CONVERT_FORMAT_LISTS);
 // ライトボックス側の形式メニューはカスタムメニュー（lb-fmt-menu）。
@@ -2771,6 +2868,7 @@ function renderTileGallery(generation) {
       const name = entry.name || '';
       const item = document.createElement('div');
       item.className = 'thumb-item';
+      item.dataset.name = name;
       item.style.flexBasis = Math.round(rowHeight * ratio) + 'px';
       item.setAttribute('role', 'button');
       item.setAttribute('tabindex', '0');
@@ -2802,6 +2900,7 @@ function renderTileGallery(generation) {
       item.appendChild(infoEl);
       item.addEventListener('click', () => openLightbox(i));
       item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(i); } });
+      if (zipSelectMode) addZipCheckbox(item);
       rowEl.appendChild(item);
 
       tasks.push(() => loadThumb(entry, item, loading, generation));
@@ -2863,6 +2962,12 @@ function renderGallery({ preserveScroll = false } = {}) {
     return;
   }
 
+  // ZIP選択モード中に別フォルダへ移動した場合は、選択状態を白紙（全選択）に戻す
+  if (zipSelectMode && zipSelectNode !== currentNode) {
+    zipSelectNode = currentNode;
+    zipExcluded.clear();
+  }
+
   if (layoutMode === 'tile') {
     gallery.classList.add('layout-tile');
     renderTileGallery(myGeneration);
@@ -2877,6 +2982,7 @@ function renderGallery({ preserveScroll = false } = {}) {
     const name = entry.name||'';
     const item = document.createElement('div');
     item.className = 'thumb-item';
+    item.dataset.name = name;
     item.setAttribute('role', 'button');
     item.setAttribute('tabindex', '0');
     item.setAttribute('aria-label', name + ' - open');
@@ -2907,6 +3013,7 @@ function renderGallery({ preserveScroll = false } = {}) {
     item.appendChild(infoEl);
     item.addEventListener('click', () => openLightbox(i));
     item.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){e.preventDefault();openLightbox(i);} });
+    if (zipSelectMode) addZipCheckbox(item);
     gallery.appendChild(item);
 
     tasks.push(() => loadThumb(entry, item, loading, myGeneration));
@@ -4872,15 +4979,20 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
     return;
   }
 
-  // 「All」: 変換せず、今表示中の全ファイル（フィルタ適用後）をそのままzipにまとめる
+  // 「All」: 変換せず、今表示中のファイル（フィルタ適用後）のうちチェックされたものをzipにまとめる
   if (fmt === 'zip') {
     if (!filteredFiles.length) {
       errEl.textContent = t('err.noExport');
       return;
     }
+    const targets = filteredFiles.filter(f => !zipExcluded.has(f.name));
+    if (!targets.length) {
+      errEl.textContent = t('err.zipNoneChecked');
+      return;
+    }
     errEl.textContent = '';
     const entries = [];
-    for (const entry of filteredFiles) {
+    for (const entry of targets) {
       try {
         const file = await resolveFile(entry);
         entries.push({ name: entry.name, blob: file });

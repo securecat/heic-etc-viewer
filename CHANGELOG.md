@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.19.0] - 2026-07-26
+
+### Added
+
+- File selection for "Export as a Zip": while the format is selected, every gallery thumbnail shows a checkbox in its top-left corner, all checked by default. Untick the files you don't need and download — only the checked files are bundled. The selection resets to all-checked when the format is re-selected or when you move to another folder
+- "Select all" / "Clear all" text buttons next to the Download button while the zip format is selected. They switch all currently shown (filtered) files at once — handy for picking just a few files out of many
+
 ## [3.18.1] - 2026-07-23
 
 ### Changed
@@ -566,6 +573,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.19.0] - 2026-07-26
+
+### 追加
+
+- 「ZIPでエクスポート」にファイル選択機能を追加：この形式を選んでいる間、ギャラリーの各サムネ左上にチェックボックスが表示される(デフォルトは全部ON)。不要なファイルのチェックを外してダウンロードすると、チェックされたファイルだけがZIPにまとめられる。形式を選び直した時と別フォルダへ移動した時は全選択に戻る
+- ZIPでエクスポート選択中、ダウンロードボタンの右に「全選択」「全解除」のテキストボタンを表示。表示中(絞り込み後)のファイルのチェックを一括で切り替えられ、多数の中から少数だけ選びたい時に便利
 
 ## [3.18.1] - 2026-07-23
 

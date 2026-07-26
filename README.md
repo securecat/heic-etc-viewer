@@ -79,11 +79,12 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.18.1] - 2026-07-23
+### [3.19.0] - 2026-07-26
 
-#### Changed
+#### Added
 
-- Japanese label of the lightbox convert menu item "PDF (individual pages)" changed from 「PDF(ページごと)」 to 「PDF(ページごとに)」 to avoid misreading (English label is unchanged)
+- File selection for "Export as a Zip": while the format is selected, every thumbnail shows a checkbox in its top-left corner (all checked by default) — untick the files you don't need before downloading
+- "Select all" / "Clear all" buttons next to the Download button to switch all shown files at once
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -170,11 +171,12 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.18.1] - 2026-07-23
+### [3.19.0] - 2026-07-26
 
-#### 変更
+#### 追加
 
-- ライトボックスの変換メニュー「PDF(ページごと)」の日本語ラベルを「PDF(ページごとに)」に変更。「ごと」が「ページを丸ごと」の意味に誤読されうるため（英語ラベルは変更なし）
+- 「ZIPでエクスポート」にファイル選択機能を追加：この形式を選んでいる間、各サムネ左上にチェックボックスが表示される(デフォルトは全部ON)ので、不要なファイルはチェックを外してからダウンロードできる
+- ダウンロードボタンの右に「全選択」「全解除」ボタンを追加。表示中のファイルのチェックを一括で切り替えられる
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
