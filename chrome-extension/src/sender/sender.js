@@ -206,9 +206,10 @@ function showDownloadPanel(opts) {
   panel.focus();
 }
 
-async function fetchViaTab(tabId, url) {
+async function fetchViaTab(tabId, url, frameId) {
+  // iframe由来のメディアは、そのiframeのフレーム文脈（Cookie・Referer）で再取得する
   const results = await chrome.scripting.executeScript({
-    target: { tabId },
+    target: { tabId, frameIds: [frameId || 0] },
     func: pageFetch,
     args: [url],
   });
@@ -241,7 +242,7 @@ async function fetchOne(item, index, usedNames, tabId) {
     // その場合は元タブのページ文脈で再取得を試みる（タブが閉じられていれば素直に失敗扱い）
     if (tabId == null || !/^https?:/.test(item.url)) throw primaryErr;
     try {
-      const blob = await fetchViaTab(tabId, item.url);
+      const blob = await fetchViaTab(tabId, item.url, item.frameId);
       return await fileFromBlob(blob, item, index, usedNames);
     } catch (e) {
       throw primaryErr;

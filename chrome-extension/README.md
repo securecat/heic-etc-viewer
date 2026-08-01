@@ -9,7 +9,8 @@ Click **Send** in the popup, and the extension collects the images, videos, and 
 - **Exclude small images** (on by default): skips tracking pixels, spacers, and other tiny images. The threshold (default: width 100px / height 100px, either side at or below counts as small) can be changed in the options
 - **Exclude small videos**: skips videos at or below a file-size threshold (default: 200KB)
 - The options page also lets you choose what to send (images / CSS background images / videos / PDF — all on by default) and override the destination URL, e.g. for a locally hosted viewer. CSS background images are collected from `background-image` values, including `::before` / `::after` pseudo-elements
-- Hotlink-protected media (rejected unless requested by the page itself) is retried inside the original page's context, so it can still be collected in most same-origin cases
+- Media inside iframes (embedded pages) is collected too — the scan runs in every frame of the tab, including cross-origin iframes
+- Hotlink-protected media (rejected unless requested by the page itself) is retried inside the original page's context — for iframe media, inside that frame's context — so it can still be collected in most same-origin cases
 - Files that still could not be fetched are listed with a button that overlays a **manual-download panel** on the original page: the failed URLs appear there as real links, so right-click "Save link as…" (or saving from the tab a click opens) works even for hotlink-protected media on other subdomains. Saved files can be added to the viewer by drag & drop
 - Videos delivered as streaming (`blob:`) sources cannot be fetched and are skipped with a note
 
@@ -40,15 +41,11 @@ HeV Sender is part of the [heic-etc-viewer repository](https://github.com/secure
 
 ## Changelog
 
-### [1.4.1] - 2026-07-26
-
-#### Fixed
-
-- Files whose actual content differs from their URL extension (e.g. a CDN returning WebP for a `.jpg` URL) are now sent under the real format's extension, detected from the file's magic bytes, so extension-based tools open the saved file correctly
+### [1.5.0] - 2026-08-01
 
 #### Added
 
-- `.jfif` added to the known extensions, matching the viewer's v3.18.0 support
+- Media inside iframes is now collected: the scan runs in every frame of the tab (cross-origin iframes included), with cross-frame duplicates removed. The in-page retry for hotlink-protected media runs in the frame the media came from
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -65,7 +62,8 @@ See [CHANGELOG.md](CHANGELOG.md) for full history.
 - **小さい画像を含めない**（デフォルトON）：トラッキングピクセルやスペーサーなどの小さい画像を除外します。閾値（デフォルト：幅100px／高さ100px、どちらか一方でも以下なら「小さい」と判定）はオプションで変更できます
 - **小さい動画を含めない**：ファイル容量が閾値（デフォルト：200KB）以下の動画を除外します
 - オプションページでは、送出対象（画像／CSS背景画像／動画／PDF、デフォルトはすべてON）の選択と、送出先URLの上書き（ローカルで動かしているviewerに送りたい場合など）ができます。CSS背景画像は`background-image`の参照先を`::before`／`::after`擬似要素も含めて収集します
-- 直リンク対策されたメディア（ページ本人からのリクエスト以外を拒否するもの）は、元ページの文脈で取得をリトライするため、同一オリジンのケースではほぼ収集できます
+- iframe（埋め込みページ）内のメディアも収集対象です。収集はタブ内の全フレームで実行され、クロスオリジンのiframeにも対応します
+- 直リンク対策されたメディア（ページ本人からのリクエスト以外を拒否するもの）は、元ページの文脈（iframe由来のメディアはそのフレームの文脈）で取得をリトライするため、同一オリジンのケースではほぼ収集できます
 - それでも取得できなかったファイルは一覧表示され、**手動ダウンロードパネル**を元のページ上にオーバーレイ表示できます。失敗したURLがページ内の本物のリンクとして並ぶため、右クリック「名前を付けてリンク先を保存」（またはクリックで開いたタブからの保存）が、サブドメイン違いの直リンク対策メディアにも通ります。保存したファイルはドラッグ＆ドロップでviewerに追加できます
 - ストリーミング配信（`blob:`）の動画は取得できないため、その旨を表示してスキップします
 
@@ -96,14 +94,10 @@ HeV Sender は [heic-etc-viewer リポジトリ](https://github.com/securecat/he
 
 ## 更新履歴
 
-### [1.4.1] - 2026-07-26
-
-#### 修正
-
-- URLの拡張子と実際の中身が異なるファイル（例：`.jpg` のURLでWebPを返すCDN）を、先頭バイトから判定した実形式の拡張子で送出するように修正。拡張子で処理を分岐するツールでも保存後のファイルを正しく開ける
+### [1.5.0] - 2026-08-01
 
 #### 追加
 
-- viewer本体の v3.18.0 に合わせ、既知の拡張子に `.jfif` を追加
+- iframe内のメディアも収集されるように：収集をタブ内の全フレームで実行（クロスオリジンのiframeにも対応）し、フレーム横断で重複を除去。直リンク対策メディアのページ内リトライも由来フレームの文脈で実行される
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。

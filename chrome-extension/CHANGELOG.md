@@ -3,6 +3,12 @@
 All notable changes to HeV Sender will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.0] - 2026-08-01
+
+### Added
+
+- Media inside iframes is now collected. The scanner previously ran only in the tab's top frame, so images and videos in embedded pages (iframes) were never found; it now runs in every frame of the tab and the results are merged with cross-frame duplicates removed. Works for cross-origin iframes as well. The in-page retry for hotlink-protected media also runs in the frame the media came from, so that frame's cookies and Referer are used
+
 ## [1.4.1] - 2026-07-26
 
 ### Fixed
@@ -54,6 +60,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [1.5.0] - 2026-08-01
+
+### 追加
+
+- iframe内のメディアも収集されるように。従来の収集スクリプトはタブのトップフレームでしか実行されず、埋め込みページ（iframe）内の画像・動画は対象外だった。タブ内の全フレームで収集を実行し、フレーム横断で重複を除去してマージする。クロスオリジンのiframeにも対応。直リンク対策メディアのページ内リトライも、そのメディアの由来フレームの文脈（Cookie・Referer）で実行される
 
 ## [1.4.1] - 2026-07-26
 

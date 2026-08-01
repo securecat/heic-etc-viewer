@@ -108,8 +108,9 @@ async function onSend() {
     const s = await getSettings();
     let results;
     try {
+      // allFrames: iframe内のメディアも対象にするため、タブ内の全フレームで収集を実行する
       results = await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
+        target: { tabId: tab.id, allFrames: true },
         func: collectMedia,
         args: [{
           sendImages: s.sendImages,
@@ -125,15 +126,36 @@ async function onSend() {
       showError('popupError', String(e));
       return;
     }
-    const data = results && results[0] && results[0].result;
-    if (!data) { showError('popupError', 'executeScript returned no result'); return; }
-    if (!data.ok) { showError('popupError', data.error); return; }
-    if (!data.items.length) { showError('popupNoFiles'); return; }
+    // フレームごとの収集結果をマージする。取得リトライ時にフレーム文脈を再現できるよう
+    // 各アイテムに由来フレームの frameId を付与し、URLの重複はフレーム横断で除去する。
+    // （サンドボックス等で注入できないフレームは result が空になるので読み飛ばす）
+    const frames = (results || []).filter(r => r && r.result);
+    const okFrames = frames.filter(f => f.result.ok);
+    if (!okFrames.length) {
+      const failed = frames.find(f => !f.result.ok);
+      showError('popupError', failed ? failed.result.error : 'executeScript returned no result');
+      return;
+    }
+    // メインフレーム（frameId 0）の結果を先頭にして、ページ本体の画像が先に並ぶようにする
+    const ordered = [...okFrames.filter(f => f.frameId === 0), ...okFrames.filter(f => f.frameId !== 0)];
+    const seen = new Set();
+    const items = [];
+    let blobSkipped = 0;
+    for (const f of ordered) {
+      blobSkipped += f.result.blobSkipped || 0;
+      for (const it of f.result.items) {
+        if (seen.has(it.url)) continue;
+        seen.add(it.url);
+        items.push({ ...it, frameId: f.frameId });
+      }
+    }
+    const source = ordered[0].result.source;
+    if (!items.length) { showError('popupNoFiles'); return; }
     // 収集結果を送出ページへ引き継ぐ（バイナリ取得と受け渡しは送出ページが行う）
     await chrome.storage.session.set({ hevPayload: {
-      items: data.items,
-      blobSkipped: data.blobSkipped,
-      source: data.source,
+      items,
+      blobSkipped,
+      source,
       // 直リンク対策で拡張からの取得が弾かれた時、元タブのページ文脈で再取得するために使う
       tabId: tab.id,
       // 小さい画像はDOM側でも除外するが、未ロードでサイズ不明のまま通過するものがあるため、
