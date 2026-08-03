@@ -41,11 +41,11 @@ HeV Sender is part of the [heic-etc-viewer repository](https://github.com/secure
 
 ## Changelog
 
-### [1.5.0] - 2026-08-01
+### [1.5.1] - 2026-08-03
 
-#### Added
+#### Changed
 
-- Media inside iframes is now collected: the scan runs in every frame of the tab (cross-origin iframes included), with cross-frame duplicates removed. The in-page retry for hotlink-protected media runs in the frame the media came from
+- The "Files that could not be fetched" list and the manual-download panel list are now numbered (`<ol>`), making it easier to track progress when downloading many files one by one
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -94,10 +94,10 @@ HeV Sender は [heic-etc-viewer リポジトリ](https://github.com/securecat/he
 
 ## 更新履歴
 
-### [1.5.0] - 2026-08-01
+### [1.5.1] - 2026-08-03
 
-#### 追加
+#### 変更
 
-- iframe内のメディアも収集されるように：収集をタブ内の全フレームで実行（クロスオリジンのiframeにも対応）し、フレーム横断で重複を除去。直リンク対策メディアのページ内リトライも由来フレームの文脈で実行される
+- 「取得できなかったファイル」一覧と手動ダウンロードパネルの一覧を番号付きリスト（`<ol>`）に変更。多数のファイルを順にダウンロードする時に進み具合を把握しやすく
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。

@@ -155,7 +155,7 @@ function showDownloadPanel(opts) {
     '  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35); }',
     '.panel h2 { margin: 0 0 8px; font-size: 18px; }',
     '.panel p { margin: 0 0 12px; }',
-    '.panel ul { margin: 0 0 12px; padding-left: 20px; }',
+    '.panel ol { margin: 0 0 12px; padding-left: 32px; }',
     '.panel li { margin: 0 0 8px; word-break: break-all; }',
     '.panel a { color: #1446a0; text-decoration: underline; }',
     '.panel a:hover { text-decoration-thickness: 2px; }',
@@ -181,7 +181,7 @@ function showDownloadPanel(opts) {
   heading.textContent = opts.title;
   const hint = document.createElement('p');
   hint.textContent = opts.hint;
-  const ul = document.createElement('ul');
+  const list = document.createElement('ol');
   opts.urls.forEach(u => {
     const li = document.createElement('li');
     const a = document.createElement('a');
@@ -190,7 +190,7 @@ function showDownloadPanel(opts) {
     a.rel = 'noopener';
     a.textContent = u;
     li.appendChild(a);
-    ul.appendChild(li);
+    list.appendChild(li);
   });
   const close = document.createElement('button');
   close.textContent = opts.close;
@@ -198,7 +198,7 @@ function showDownloadPanel(opts) {
   panel.addEventListener('keydown', e => { if (e.key === 'Escape') host.remove(); });
   panel.appendChild(heading);
   panel.appendChild(hint);
-  panel.appendChild(ul);
+  panel.appendChild(list);
   panel.appendChild(close);
   root.appendChild(style);
   root.appendChild(panel);
@@ -385,14 +385,15 @@ async function run() {
     skipInfoEl.hidden = false;
   }
   if (failures.length) {
-    const ul = document.createElement('ul');
-    ul.id = 'failList';
+    // 番号付きリストにして、手動ダウンロードを上から順に消化する時の現在位置を把握しやすくする
+    const list = document.createElement('ol');
+    list.id = 'failList';
     failures.forEach(u => {
       const li = document.createElement('li');
       li.textContent = u;
-      ul.appendChild(li);
+      list.appendChild(li);
     });
-    failBlock.appendChild(ul);
+    failBlock.appendChild(list);
     // 直リンク対策されたメディアは「元ページからのリクエスト」しか通さないため、拡張側からの
     // 再取得やchrome.downloadsでは救えない（Referer・SameSite Cookieが付かない）。
     // 元ページにリンク一覧のパネルを注入し、ページ文脈での保存（右クリック保存等）に委ねる
