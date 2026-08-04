@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.21.0] - 2026-08-05
+
+### Added
+
+- Hover playback for video thumbnails: while the mouse pointer (or keyboard focus) rests on a video thumbnail, the video plays muted and looped at that thumbnail's size, and stops as soon as you move away. Playback starts after a short delay so that merely passing the pointer over thumbnails doesn't trigger it, and only one thumbnail plays at a time
+- A "Video thumbnail hover playback" setting in the Settings tab to turn the above on or off. The initial value follows the system's reduced-motion preference: disabled when reduce is requested, enabled otherwise
+
 ## [3.20.0] - 2026-07-26
 
 ### Fixed
@@ -580,6 +587,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.21.0] - 2026-08-05
+
+### 追加
+
+- 動画サムネイルのホバー再生：動画のサムネイルにマウスカーソル（またはキーボードフォーカス）がある間、そのサムネイルのサイズのまま無音でループ再生し、離れるとすぐ停止する。サムネイル上をマウスが通過しただけでは再生しないよう少し待ってから開始し、同時に再生されるのは1つだけ
+- 設定タブに「動画サムネのホバー再生」の有効・無効切り替えを追加。初期値はOSのモーション低減設定に従う（低減が有効なら無効、それ以外は有効）
 
 ## [3.20.0] - 2026-07-26
 

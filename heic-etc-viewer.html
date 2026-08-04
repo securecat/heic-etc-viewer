@@ -415,6 +415,18 @@ input[type="range"]::-webkit-slider-thumb {
   transition: background 0.15s;
 }
 .thumb-item:hover .thumb-play-icon { background: rgba(0,0,0,0.75); }
+/* 動画サムネのホバー再生。videoはメタデータ読み込み前は何も描画しない（下のサムネ画像がそのまま見える）ため、
+   背景色を敷かずに重ねることで再生開始まで表示が途切れない。
+   ▶アイコン・バッジ・ファイル名より下に来るよう、DOM上ではサムネ画像の直後に挿入する */
+.thumb-hover-video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  background: transparent;
+  pointer-events: none;
+}
+/* 再生中は▶アイコンを消す（動きそのものが再生中であることを示すため） */
+.thumb-item.is-hover-playing .thumb-play { display: none; }
 /* 中央寄せは .lb-img-wrap と同じ auto マージン方式（原寸表示のスクロール対応のため）。
    PDFラッパーもこのクラスを共有するが、iframe が 100%×100% で埋めるため影響しない */
 .lb-video-wrap {
@@ -933,7 +945,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.20.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.21.0</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -968,6 +980,12 @@ input[type="range"]::-webkit-slider-thumb {
         <option value="de" data-i18n="altLang.de">German</option>
         <option value="es" data-i18n="altLang.es">Spanish</option>
       </select>
+    </fieldset>
+    <fieldset class="settings-fieldset">
+      <legend data-i18n="hp.legend">Video thumbnail hover playback</legend>
+      <p class="settings-note" data-i18n="hp.desc">Plays a video muted, at its thumbnail size, while the mouse pointer or keyboard focus stays on that thumbnail. It stops as soon as you move away.</p>
+      <label><input type="radio" name="hoverPlay" value="on"> <span data-i18n="hp.on">Enabled</span></label>
+      <label><input type="radio" name="hoverPlay" value="off"> <span data-i18n="hp.off">Disabled</span></label>
     </fieldset>
     <fieldset class="settings-fieldset">
       <legend data-i18n="sc.legend">Keyboard shortcuts</legend>
@@ -1162,6 +1180,10 @@ const I18N = {
     'altLang.fr': 'French',
     'altLang.de': 'German',
     'altLang.es': 'Spanish',
+    'hp.legend': 'Video thumbnail hover playback',
+    'hp.desc': 'Plays a video muted, at its thumbnail size, while the mouse pointer or keyboard focus stays on that thumbnail. It stops as soon as you move away.',
+    'hp.on': 'Enabled',
+    'hp.off': 'Disabled',
     'sc.legend': 'Keyboard shortcuts',
     'sc.desc': 'Single-key shortcuts in the lightbox (Z, R, C, 1, L). Disable them if they conflict with key commands of a screen reader or other assistive technology. Arrow keys and Esc always work.',
     'sc.on': 'Enabled',
@@ -1332,6 +1354,10 @@ const I18N = {
     'altLang.fr': 'フランス語',
     'altLang.de': 'ドイツ語',
     'altLang.es': 'スペイン語',
+    'hp.legend': '動画サムネのホバー再生',
+    'hp.desc': 'サムネイルにマウスカーソルまたはキーボードフォーカスがある間、そのサムネイルのサイズのまま動画を無音で再生します。離れるとすぐに停止します。',
+    'hp.on': '有効',
+    'hp.off': '無効',
     'sc.legend': 'キーボードショートカット',
     'sc.desc': 'ライトボックスの1文字キーのショートカット(Z・R・C・1・L)です。スクリーンリーダーなど支援技術のキー操作と競合する場合は無効にしてください。矢印キーとEscは常に有効です。',
     'sc.on': '有効',
@@ -2254,6 +2280,95 @@ function effectiveAltLang() {
   });
 }
 
+// ── 動画サムネのホバー再生 ────────────────────────────────────────
+// サムネにマウスカーソル（またはキーボードフォーカス）がある間だけ、そのサムネのサイズのまま
+// 無音でループ再生する。動きの開始・終了は常にユーザー操作に紐づき、離せば止まる（WCAG 2.2.2）。
+// それでも意図しない動きを避けたい人のために設定で無効化でき、OSのモーション低減設定が
+// 有効な環境では初期値を無効にする（WCAG 2.3.3）
+const HOVER_PLAY_STORAGE_KEY = 'hev-hover-play';
+const HOVER_PLAY_DELAY_MS = 220; // サムネ上をマウスが通過しただけでは再生を始めない
+let hoverPlayEnabled = (() => {
+  const saved = localStorage.getItem(HOVER_PLAY_STORAGE_KEY);
+  if (saved === 'on')  return true;
+  if (saved === 'off') return false;
+  return !matchMedia('(prefers-reduced-motion: reduce)').matches;
+})();
+{
+  const initRadio = document.querySelector(`input[name="hoverPlay"][value="${hoverPlayEnabled ? 'on' : 'off'}"]`);
+  if (initRadio) initRadio.checked = true;
+}
+document.querySelectorAll('input[name="hoverPlay"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    if (!radio.checked) return;
+    hoverPlayEnabled = radio.value !== 'off';
+    localStorage.setItem(HOVER_PLAY_STORAGE_KEY, hoverPlayEnabled ? 'on' : 'off');
+    if (!hoverPlayEnabled) stopHoverPlay(); // 再生中に無効化されたら即止める
+  });
+});
+
+let hoverPlayTimer = null;
+let hoverPlayToken = 0;    // 非同期処理の途中でホバーが移った場合に、古い処理を捨てるための番号
+let hoverPlayVideo = null; // 再生中の<video>（同時に1つだけ）
+let hoverPlayUrl = '';
+
+function stopHoverPlay() {
+  hoverPlayToken++;
+  if (hoverPlayTimer) { clearTimeout(hoverPlayTimer); hoverPlayTimer = null; }
+  if (hoverPlayVideo) {
+    const item = hoverPlayVideo.closest('.thumb-item');
+    hoverPlayVideo.pause();
+    // src を外して load() することで、読み込み中の通信とデコーダーを解放する
+    hoverPlayVideo.removeAttribute('src');
+    hoverPlayVideo.load();
+    hoverPlayVideo.remove();
+    if (item) item.classList.remove('is-hover-playing');
+    hoverPlayVideo = null;
+  }
+  if (hoverPlayUrl) { URL.revokeObjectURL(hoverPlayUrl); hoverPlayUrl = ''; }
+}
+
+async function startHoverPlay(item, entry) {
+  const token = ++hoverPlayToken;
+  try {
+    const file = await resolveFile(entry);
+    if (token !== hoverPlayToken) return;
+    const video = document.createElement('video');
+    video.className = 'thumb-hover-video';
+    video.muted = true; // ホバーで音が鳴るのは望まれないため常に無音
+    video.loop = true;
+    video.playsInline = true;
+    video.setAttribute('aria-hidden', 'true'); // サムネ画像の一時的な差し替えなので支援技術には不要
+    hoverPlayUrl = URL.createObjectURL(file);
+    hoverPlayVideo = video;
+    video.src = hoverPlayUrl;
+    // ▶アイコン・バッジ・ファイル名が上に残るよう、サムネ画像の直後（▶の手前）に挿す
+    item.insertBefore(video, item.querySelector('.thumb-play'));
+    await video.play();
+    if (token !== hoverPlayToken) return; // 再生開始までに離れていれば stopHoverPlay 済み
+    item.classList.add('is-hover-playing');
+  } catch (e) {
+    // 再生できない動画（コーデック未対応など）はサムネ画像の表示に戻すだけでよい
+    if (token === hoverPlayToken) stopHoverPlay();
+  }
+}
+
+// 動画サムネにホバー再生を仕込む（通常レイアウト・タイルレイアウト共通）
+function attachHoverPlay(item, entry) {
+  const enter = () => {
+    if (!hoverPlayEnabled) return;
+    stopHoverPlay(); // 直前のサムネの再生を確実に終わらせてから始める
+    hoverPlayTimer = setTimeout(() => {
+      hoverPlayTimer = null;
+      startHoverPlay(item, entry);
+    }, HOVER_PLAY_DELAY_MS);
+  };
+  item.addEventListener('mouseenter', enter);
+  item.addEventListener('mouseleave', stopHoverPlay);
+  // キーボード操作でも同じ体験が得られるようにする（Tab・矢印キーでの移動で再生・停止）
+  item.addEventListener('focusin', enter);
+  item.addEventListener('focusout', stopHoverPlay);
+}
+
 // ── キーボードショートカット設定 ──────────────────────────────────
 // ライトボックスの1文字キー(Z/R/C/1/L)はスクリーンリーダー等のキー操作を奪いうるため、
 // 設定で無効化できる(WCAG 2.1.4)。矢印キー・Escは常に有効
@@ -3006,6 +3121,7 @@ function renderTileGallery(generation) {
       item.appendChild(infoEl);
       item.addEventListener('click', () => openLightbox(i));
       item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(i); } });
+      if (isVideo(name)) attachHoverPlay(item, entry);
       if (zipSelectMode) addZipCheckbox(item);
       rowEl.appendChild(item);
 
@@ -3024,6 +3140,7 @@ function updateThumbSizeClass() {
 }
 
 function renderGallery({ preserveScroll = false } = {}) {
+  stopHoverPlay(); // 再描画で消えるサムネの再生を残さない
   updateThumbSizeClass();
   const q = filterInput.value.trim().toLowerCase();
   const raw = getCurrentFiles();
@@ -3119,6 +3236,7 @@ function renderGallery({ preserveScroll = false } = {}) {
     item.appendChild(infoEl);
     item.addEventListener('click', () => openLightbox(i));
     item.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){e.preventDefault();openLightbox(i);} });
+    if (isVideo(name)) attachHoverPlay(item, entry);
     if (zipSelectMode) addZipCheckbox(item);
     gallery.appendChild(item);
 
@@ -3378,6 +3496,7 @@ function setBackgroundInert(isInert) {
 }
 
 async function openLightbox(idx) {
+  stopHoverPlay(); // ギャラリーがinertになりmouseleaveが来ないため、明示的に止める
   currentIdx = idx;
   await updateLightbox();
   lightbox.classList.add('open');

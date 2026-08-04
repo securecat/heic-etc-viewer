@@ -17,6 +17,7 @@ A single-file local image/video viewer and converter with HEIC, PDF, and ICO sup
 - WAI-ARIA APG-compliant folder tree (fully keyboard operable) and folder drag & drop
 - Two gallery layouts: the default grid, and a justified tile view that packs thumbnails edge-to-edge row by row while preserving their aspect ratios — thumbnail size is adjustable in both
 - Thumbnail caching; video thumbnails automatically pick a representative frame, skipping dark or fade-in openings
+- Video thumbnails play muted, at thumbnail size, while the pointer or keyboard focus rests on them — switchable in Settings, and off by default when the system asks for reduced motion
 - Files whose extension doesn't match their content (e.g. a `.heic` file that is really a JPEG) are detected and handled by their real format
 
 ### Lightbox
@@ -80,12 +81,12 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.20.0] - 2026-07-26
+### [3.21.0] - 2026-08-05
 
-#### Fixed
+#### Added
 
-- TIFF files now actually display: Chrome has no native TIFF decoder, so the long-advertised TIFF support never worked in practice. TIFFs are now decoded with UTIF.js in a Web Worker — thumbnails, lightbox, and conversion all work, with lossless decoding for conversion
-- The "No files are checked for export" error of the zip export now clears as soon as any file is checked again
+- Hover playback for video thumbnails: a video plays muted and looped at thumbnail size while the pointer or keyboard focus rests on it, and stops as soon as you move away
+- A "Video thumbnail hover playback" setting to turn it on or off — initially off when the system asks for reduced motion
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -110,6 +111,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 - WAI-ARIA APG準拠のフォルダツリー（キーボード操作に完全対応）と、フォルダのドラッグ＆ドロップ
 - ギャラリーは通常のグリッド表示に加え、縦横比を保ったままサムネイルを行ごとに隙間なく敷き詰めるタイル表示に切り替え可能。サムネイルサイズはどちらの表示でも調整できる
 - サムネイルのキャッシュ。動画のサムネイルは冒頭の暗転やフェードインを避けて代表フレームを自動選択
+- 動画のサムネイルは、マウスカーソルまたはキーボードフォーカスがある間、サムネイルのサイズのまま無音で再生。設定で切り替え可能（OSのモーション低減設定が有効な場合は初期値OFF）
 - 拡張子と中身が食い違うファイル（例：中身がJPEGの `.heic`）は、実際の形式を検出して扱う
 
 ### ライトボックス
@@ -173,12 +175,12 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.20.0] - 2026-07-26
+### [3.21.0] - 2026-08-05
 
-#### 修正
+#### 追加
 
-- TIFFファイルが実際に表示されるように修正：ChromeにはTIFFのネイティブデコーダーがなく、対応形式として掲げていたTIFF表示は実際には機能していなかった。UTIF.jsによるWeb Worker上のデコードに切り替え、サムネイル・ライトボックス・変換のすべてで動作する（変換時は劣化なしでデコード）
-- ZIPでエクスポートの「チェックがありません」エラーが、どれか1つチェックを入れ直した時点で消えるように修正
+- 動画サムネイルのホバー再生：マウスカーソルまたはキーボードフォーカスがある間、サムネイルのサイズのまま無音でループ再生し、離れるとすぐ停止する
+- 設定タブに「動画サムネのホバー再生」の有効・無効切り替えを追加（OSのモーション低減設定が有効な場合は初期値OFF）
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
