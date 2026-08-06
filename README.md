@@ -81,12 +81,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.21.0] - 2026-08-05
+### [3.21.1] - 2026-08-06
 
-#### Added
+#### Fixed
 
-- Hover playback for video thumbnails: a video plays muted and looped at thumbnail size while the pointer or keyboard focus rests on it, and stops as soon as you move away
-- A "Video thumbnail hover playback" setting to turn it on or off — initially off when the system asks for reduced motion
+- During hover playback, the filename bar was hidden behind the playing video. It now comes to the front while the pointer is over the bar itself
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -175,12 +174,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.21.0] - 2026-08-05
+### [3.21.1] - 2026-08-06
 
-#### 追加
+#### 修正
 
-- 動画サムネイルのホバー再生：マウスカーソルまたはキーボードフォーカスがある間、サムネイルのサイズのまま無音でループ再生し、離れるとすぐ停止する
-- 設定タブに「動画サムネのホバー再生」の有効・無効切り替えを追加（OSのモーション低減設定が有効な場合は初期値OFF）
+- ホバー再生中、ファイル名の帯が再生中の動画に隠れていた問題を修正。帯そのものにカーソルが重なっている間は帯が前面に出る
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

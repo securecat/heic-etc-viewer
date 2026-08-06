@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.21.1] - 2026-08-06
+
+### Fixed
+
+- During hover playback of a video thumbnail, the filename bar was hidden behind the playing video. It now comes to the front while the mouse pointer is over the bar itself, so the filename can be read without stopping playback (the video stays fully visible while the pointer is anywhere else on the thumbnail)
+
 ## [3.21.0] - 2026-08-05
 
 ### Added
@@ -587,6 +593,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.21.1] - 2026-08-06
+
+### 修正
+
+- 動画サムネイルのホバー再生中、ファイル名の帯が再生中の動画に隠れていた問題を修正。帯そのものにマウスカーソルが重なっている間は帯が前面に出るため、再生を止めずにファイル名を読める（カーソルがサムネイルの他の位置にある間は、従来どおり動画がすべて見える）
 
 ## [3.21.0] - 2026-08-05
 

@@ -427,6 +427,10 @@ input[type="range"]::-webkit-slider-thumb {
 }
 /* 再生中は▶アイコンを消す（動きそのものが再生中であることを示すため） */
 .thumb-item.is-hover-playing .thumb-play { display: none; }
+/* 再生中、ファイル名の帯にカーソルが重なっている間だけ帯を動画より前面に出す。
+   videoはpointer-events:noneなので、その下にある帯がカーソルを受け取れる */
+.thumb-item.is-hover-playing .thumb-info { pointer-events: auto; }
+.thumb-item.is-hover-playing .thumb-info:hover { z-index: 1; }
 /* 中央寄せは .lb-img-wrap と同じ auto マージン方式（原寸表示のスクロール対応のため）。
    PDFラッパーもこのクラスを共有するが、iframe が 100%×100% で埋めるため影響しない */
 .lb-video-wrap {
@@ -945,7 +949,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.21.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.21.1</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -2341,7 +2345,7 @@ async function startHoverPlay(item, entry) {
     hoverPlayUrl = URL.createObjectURL(file);
     hoverPlayVideo = video;
     video.src = hoverPlayUrl;
-    // ▶アイコン・バッジ・ファイル名が上に残るよう、サムネ画像の直後（▶の手前）に挿す
+    // サムネ画像に重ねる。▶アイコンの手前に挿し、再生中はそのアイコンをCSSで隠す
     item.insertBefore(video, item.querySelector('.thumb-play'));
     await video.play();
     if (token !== hoverPlayToken) return; // 再生開始までに離れていれば stopHoverPlay 済み
