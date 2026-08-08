@@ -81,11 +81,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.21.1] - 2026-08-06
+### [3.21.2] - 2026-08-08
 
 #### Fixed
 
-- During hover playback, the filename bar was hidden behind the playing video. It now comes to the front while the pointer is over the bar itself
+- Drag-to-select zoom now clamps vertically as it does horizontally: dragging past the top or bottom edge of the media counts as pointing at that edge, instead of the selection being discarded
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -174,11 +174,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.21.1] - 2026-08-06
+### [3.21.2] - 2026-08-08
 
 #### 修正
 
-- ホバー再生中、ファイル名の帯が再生中の動画に隠れていた問題を修正。帯そのものにカーソルが重なっている間は帯が前面に出る
+- ドラッグによるズームの範囲選択で、上下方向も左右方向と同様にクランプされるように修正。メディアの上端・下端を越えてドラッグしても、選択が破棄されずその端をポイントしたものとして扱う
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
