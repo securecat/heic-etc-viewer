@@ -85,7 +85,7 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 #### Fixed
 
-- Drag-to-select zoom now clamps vertically as it does horizontally: dragging past the top or bottom edge of the media counts as pointing at that edge, instead of the selection being discarded
+- Drag-to-select zoom now clamps vertically the same way it already did horizontally: dragging past the top or bottom edge of the image or video counts as pointing at that edge. The drag used to be tracked only within the selection canvas — which stops short of the lightbox header and info bar — so a selection extended above or below the media was not registered, and releasing the button there discarded it entirely. Dragging over the left/right nav buttons now works the same way
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -178,7 +178,7 @@ python -m http.server 8080
 
 #### 修正
 
-- ドラッグによるズームの範囲選択で、上下方向も左右方向と同様にクランプされるように修正。メディアの上端・下端を越えてドラッグしても、選択が破棄されずその端をポイントしたものとして扱う
+- ドラッグによるズームの範囲選択で、上下方向も左右方向と同様にクランプされるように修正。画像・動画の上端・下端を越えてドラッグしても、その端をポイントしたものとして扱う。従来はドラッグの追跡が選択用canvas（ライトボックスのヘッダーと情報バーを避けて配置されている）の内側でしか行われず、メディアの上下へはみ出した選択が反映されないうえ、その位置でボタンを離すと選択そのものが破棄されていた。左右のナビゲーションボタンの上へはみ出した場合も同様に扱われる
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

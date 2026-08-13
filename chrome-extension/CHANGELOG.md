@@ -3,6 +3,12 @@
 All notable changes to HeV Sender will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.2] - 2026-08-13
+
+### Changed
+
+- The extension icon is now tone-inverted (a white "HeV" on black). When you send from a page, the original page, the sender tab, and the HEIC etc Viewer tab end up side by side; once tabs get narrow — with the viewer already open, or after sending from several pages — the sender's icon was hard to tell apart from the viewer's. The inverted icon makes the two distinguishable at a glance
+
 ## [1.5.1] - 2026-08-03
 
 ### Changed
@@ -66,6 +72,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [1.5.2] - 2026-08-13
+
+### 変更
+
+- 拡張のアイコンを階調反転（黒地に白の「HeV」）に変更。送出時は元のページ・送出タブ・HEIC etc Viewer のタブが並ぶため、viewerを既に開いていた場合や複数のページから送出した場合にタブ幅が狭くなると、送出タブのアイコンがviewer本体と見分けにくかった。反転により一目で区別できるように
 
 ## [1.5.1] - 2026-08-03
 

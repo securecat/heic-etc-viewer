@@ -41,11 +41,11 @@ HeV Sender is part of the [heic-etc-viewer repository](https://github.com/secure
 
 ## Changelog
 
-### [1.5.1] - 2026-08-03
+### [1.5.2] - 2026-08-13
 
 #### Changed
 
-- The "Files that could not be fetched" list and the manual-download panel list are now numbered (`<ol>`), making it easier to track progress when downloading many files one by one
+- The extension icon is now tone-inverted (a white "HeV" on black). When you send from a page, the original page, the sender tab, and the HEIC etc Viewer tab end up side by side; once tabs get narrow — with the viewer already open, or after sending from several pages — the sender's icon was hard to tell apart from the viewer's. The inverted icon makes the two distinguishable at a glance
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -94,10 +94,10 @@ HeV Sender は [heic-etc-viewer リポジトリ](https://github.com/securecat/he
 
 ## 更新履歴
 
-### [1.5.1] - 2026-08-03
+### [1.5.2] - 2026-08-13
 
 #### 変更
 
-- 「取得できなかったファイル」一覧と手動ダウンロードパネルの一覧を番号付きリスト（`<ol>`）に変更。多数のファイルを順にダウンロードする時に進み具合を把握しやすく
+- 拡張のアイコンを階調反転（黒地に白の「HeV」）に変更。送出時は元のページ・送出タブ・HEIC etc Viewer のタブが並ぶため、viewerを既に開いていた場合や複数のページから送出した場合にタブ幅が狭くなると、送出タブのアイコンがviewer本体と見分けにくかった。反転により一目で区別できるように
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
