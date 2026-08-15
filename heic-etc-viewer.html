@@ -312,6 +312,8 @@ input[type="range"]::-webkit-slider-thumb {
   color: #AFAFAF; font-size: 11px; /* 状態を伝える文字なので --text-muted より明るく（対 --thumb-bg 約7:1） */
   overflow: hidden;
 }
+/* 進行中の文言のみ最小サイズで省く（読込失敗などの結果表示は常に出す） */
+.gallery.thumb-size-min .thumb-loading-text.is-progress { display: none; }
 .thumb-loading-text {
   width: 100%;
   padding: 0 6px;
@@ -1210,6 +1212,7 @@ const I18N = {
     'status.files': '{n} files',
     'status.filtered': '{x} / {y} files',
     'thumb.open': '{name} - open',
+    'thumb.loading': 'Loading thumbnail…',
     'thumb.failed': 'Failed to load',
     'thumb.unplayable': 'Unplayable',
     'thumb.unplayableTitle': 'Cannot be played in this browser',
@@ -1248,6 +1251,7 @@ const I18N = {
     'wmv.cancel': 'Cancel conversion',
     'wmv.thumbPrep': 'Loading converter…',
     'wmv.thumbPrepPct': 'Loading converter… {p}%',
+    'wmv.thumbPreparing': 'Starting converter…',
     'wmv.downloading': 'Downloading the converter… {p}%',
     'wmv.starting': 'Starting the converter…',
     'wmv.converting': 'Converting… {p}%',
@@ -1402,6 +1406,7 @@ const I18N = {
     'status.files': '{n} 件',
     'status.filtered': '{x} / {y} 件',
     'thumb.open': '{name} を表示',
+    'thumb.loading': 'サムネイル読込中…',
     'thumb.failed': '読込失敗',
     'thumb.unplayable': '再生できません',
     'thumb.unplayableTitle': 'このブラウザでは再生できません',
@@ -1440,6 +1445,7 @@ const I18N = {
     'wmv.cancel': '変換中止',
     'wmv.thumbPrep': '変換エンジン読込中…',
     'wmv.thumbPrepPct': '変換エンジン読込中… {p}%',
+    'wmv.thumbPreparing': '変換エンジン起動中…',
     'wmv.downloading': '変換エンジンをダウンロード中… {p}%',
     'wmv.starting': '変換エンジンを起動中…',
     'wmv.converting': '変換中… {p}%',
@@ -2009,14 +2015,20 @@ async function execWithGuard(ff, args, ms) {
 // 戻ってこなくなるファイルがあるため使わない。通常の変換と同じ経路なら安定して通るので、
 // 実際のフレーム取り出しはブラウザ側（captureVideoFrameBlob）に任せる。
 // ffmpegのログには動画の長さも出るので、変換の所要時間を伝えるために一緒に拾っておく
-function extractWmvHead(file, onDownload) {
+function extractWmvHead(file, { onDownload, onReady } = {}) {
   return withFFmpeg(async ff => {
+    if (onReady) onReady(); // ここまで来ればエンジンの用意は済んでいる
     let duration = 0;
     ffmpegLogCb = msg => {
       const m = /Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/.exec(msg);
       if (m) duration = (+m[1]) * 3600 + (+m[2]) * 60 + parseFloat(m[3]);
     };
-    await ff.writeFile('thumb-in.wmv', new Uint8Array(await file.arrayBuffer()));
+    // 使うのは先頭の数秒だけなので、大きなファイルは先頭だけ切り出して渡す。
+    // 1GBを丸ごとWASM側へ転送すると、それだけで数十秒かかってしまうため。
+    // ASFはヘッダーが先頭にあるので、切り出しても動画の長さは読み取れる
+    const HEAD_BYTES = 32 * 1024 * 1024;
+    const src = file.size > HEAD_BYTES ? file.slice(0, HEAD_BYTES) : file;
+    await ff.writeFile('thumb-in.wmv', new Uint8Array(await src.arrayBuffer()));
     const code = await execWithGuard(ff, ['-hide_banner', '-y', '-i', 'thumb-in.wmv', '-t', '3',
       '-an', '-c:v', 'libx264', '-preset', 'ultrafast', '-pix_fmt', 'yuv420p',
       '-movflags', 'faststart', 'thumb-out.mp4'], 30000);
@@ -3355,7 +3367,7 @@ function renderTileGallery(generation) {
 
       const loading = document.createElement('div');
       loading.className = 'thumb-loading';
-      loading.innerHTML = '<div class="thumb-spinner" aria-hidden="true"></div>';
+      loading.innerHTML = `<div class="thumb-spinner" aria-hidden="true"></div><span class="thumb-loading-text is-progress">${t('thumb.loading')}</span>`;
 
       const badge = document.createElement('div');
       badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name)) ? ' video-badge' : isPdf(name) ? ' pdf-badge' : isIco(name) ? ' ico-badge' : '');
@@ -3394,7 +3406,10 @@ function renderTileGallery(generation) {
 
 // サムネイルサイズスライダーが中間以上かどうかで、拡張子バッジの文字サイズを切り替える
 function updateThumbSizeClass() {
-  gallery.classList.toggle('thumb-size-large', parseInt(sizeSlider.value) >= 190);
+  const size = parseInt(sizeSlider.value);
+  gallery.classList.toggle('thumb-size-large', size >= 190);
+  // 最小サイズでは読み込み中の文言が窮屈になるので、スピナーだけにする
+  gallery.classList.toggle('thumb-size-min', size <= 80);
 }
 
 function renderGallery({ preserveScroll = false } = {}) {
@@ -3470,7 +3485,7 @@ function renderGallery({ preserveScroll = false } = {}) {
 
     const loading = document.createElement('div');
     loading.className = 'thumb-loading';
-    loading.innerHTML = '<div class="thumb-spinner" aria-hidden="true"></div>';
+    loading.innerHTML = `<div class="thumb-spinner" aria-hidden="true"></div><span class="thumb-loading-text is-progress">${t('thumb.loading')}</span>`;
 
     const badge = document.createElement('div');
     badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name)) ? ' video-badge' : isPdf(name) ? ' pdf-badge' : isIco(name) ? ' ico-badge' : '');
@@ -3708,14 +3723,10 @@ async function loadWmvThumb(file, item, loading, key, generation) {
     return;
   }
   // 初回はコア（約31MB）の読み込みで待たされるため、何をどこまで待っているのかを表示しておく
-  let prepTextEl = null;
   const showPrep = text => {
     if (loading.parentNode !== item) return;
-    if (!prepTextEl) {
-      loading.innerHTML = '<div class="thumb-spinner" aria-hidden="true"></div><span class="thumb-loading-text"></span>';
-      prepTextEl = loading.querySelector('.thumb-loading-text');
-    }
-    prepTextEl.textContent = text;
+    const el = loading.querySelector('.thumb-loading-text');
+    if (el) el.textContent = text;
   };
   if (!ffmpegAssetsPromise) showPrep(t('wmv.thumbPrep'));
   // 進捗はチャンクごとに来るので、表示の更新は1%刻みに間引く（DOM更新でメインスレッドを詰まらせない）
@@ -3724,10 +3735,14 @@ async function loadWmvThumb(file, item, loading, key, generation) {
     const pct = Math.round(p * 100);
     if (pct === lastPct) return;
     lastPct = pct;
-    showPrep(tf('wmv.thumbPrepPct', { p: pct }));
+    // 100%の後もWASMの初期化が続くため、「読込中100%」のまま止まって見えないようにする
+    showPrep(pct >= 100 ? t('wmv.thumbPreparing') : tf('wmv.thumbPrepPct', { p: pct }));
   };
   try {
-    const { blob, duration } = await extractWmvHead(file, onDownload);
+    const { blob, duration } = await extractWmvHead(file, {
+      onDownload,
+      onReady: () => showPrep(t('thumb.loading')), // ここから先は他の形式と同じ「読込中」
+    });
     if (generation !== galleryGeneration) return;
     if (key && duration) wmvDurationCache.set(key, duration); // ライトボックスで所要時間を示すのに使う
     // MP4になった先頭部分から、他の動画と同じやり方で代表フレームを取る
