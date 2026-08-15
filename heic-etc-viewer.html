@@ -309,7 +309,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 100%; height: 100%;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 6px;
-  color: var(--text-muted); font-size: 11px;
+  color: #AFAFAF; font-size: 11px; /* 状態を伝える文字なので --text-muted より明るく（対 --thumb-bg 約7:1） */
   overflow: hidden;
 }
 .thumb-loading-text {
@@ -991,7 +991,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.22.0</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.22.1</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -1247,6 +1247,7 @@ const I18N = {
     'wmv.note': 'Everything runs in your browser — nothing is uploaded.<br>The first run also downloads about 31MB of converter.',
     'wmv.cancel': 'Cancel conversion',
     'wmv.thumbPrep': 'Loading converter…',
+    'wmv.thumbPrepPct': 'Loading converter… {p}%',
     'wmv.downloading': 'Downloading the converter… {p}%',
     'wmv.starting': 'Starting the converter…',
     'wmv.converting': 'Converting… {p}%',
@@ -1438,6 +1439,7 @@ const I18N = {
     'wmv.note': '処理はすべてブラウザ内で行われ、どこにもアップロードされません。<br>初回は変換エンジン(約31MB)のダウンロードも発生します。',
     'wmv.cancel': '変換中止',
     'wmv.thumbPrep': '変換エンジン読込中…',
+    'wmv.thumbPrepPct': '変換エンジン読込中… {p}%',
     'wmv.downloading': '変換エンジンをダウンロード中… {p}%',
     'wmv.starting': '変換エンジンを起動中…',
     'wmv.converting': '変換中… {p}%',
@@ -1917,14 +1919,16 @@ function decodeTiffInWorker(buffer, lossless = false) {
 const FFMPEG_BASE       = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/esm';
 const FFMPEG_CORE_BASE  = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm';
 const FFMPEG_WASM_BYTES = 32232419; // 進捗の分母。CDNは圧縮配信でContent-Lengthを当てにできない
-let ffmpegPromise = null;
-let ffmpegProgressCb = null; // 進捗・ログのリスナーは1度だけ登録し、通知先だけ差し替える
+let ffmpegAssetsPromise = null; // FFmpegクラス・worker・wasm（重いのでここだけ使い回す）
+let ffmpegProgressCb = null;    // 進捗・ログの通知先。実行中のタスクが差し替える
 let ffmpegLogCb = null;
 const wmvDurationCache = new Map(); // cacheKey → 動画の長さ（秒）。サムネイル生成時に判明する
 
-async function getFFmpeg(onDownload) {
-  if (!ffmpegPromise) {
-    ffmpegPromise = (async () => {
+// 読み込みに時間のかかる部品（FFmpegクラス・worker・31MBのwasm）だけを使い回す。
+// インスタンス自体は毎回作り直すので、ここではURLとクラスの用意だけを行う
+async function prepareFFmpegAssets(onDownload) {
+  if (!ffmpegAssetsPromise) {
+    ffmpegAssetsPromise = (async () => {
       const { FFmpeg } = await import(`${FFMPEG_BASE}/index.js`);
       // CDN上のworkerはクロスオリジンのままでは new Worker できない。かといってworker.js自体を
       // blob化すると中の相対import（./const.js等）の基準がblob:になって解決できなくなるため、
@@ -1944,101 +1948,119 @@ async function getFFmpeg(onDownload) {
         if (onDownload) onDownload(Math.min(1, received / FFMPEG_WASM_BYTES));
       }
       const wasmURL = URL.createObjectURL(new Blob(chunks, { type: 'application/wasm' }));
-      const ff = new FFmpeg();
-      ff.on('progress', ({ progress }) => {
-        if (ffmpegProgressCb) ffmpegProgressCb(Math.max(0, Math.min(1, progress || 0)));
-      });
-      ff.on('log', ({ message }) => { if (ffmpegLogCb) ffmpegLogCb(message); });
-      // coreもblob化せずCDNのURLをそのまま渡す（wasmは実体が大きいので取得済みのblobを使う）
-      await ff.load({ coreURL: `${FFMPEG_CORE_BASE}/ffmpeg-core.js`, wasmURL, classWorkerURL });
-      return ff;
+      return { FFmpeg, classWorkerURL, wasmURL };
     })();
   }
   try {
-    return await ffmpegPromise;
+    return await ffmpegAssetsPromise;
   } catch (e) {
-    ffmpegPromise = null; // 失敗を引きずらず、次回はやり直せるようにする
+    ffmpegAssetsPromise = null; // 失敗を引きずらず、次回はやり直せるようにする
     throw e;
   }
 }
 
-// ffmpegのインスタンスは1つしか持てないため、サムネイル生成と再生用変換が
-// 同時に走らないよう直列化する（前のタスクの成否に関わらず次へ進める）
+// ffmpegは1回 exec するとランタイムが終了する（ログの最後に Aborted() が出る）ため、
+// 同じインスタンスで2回目を実行すると memory access out of bounds でクラッシュする。
+// そのため処理ごとにインスタンスを作り、終わったら必ず破棄する。
+// 同時に複数動かすとメモリを圧迫するので、実行は直列化する
 let ffmpegChain = Promise.resolve();
-function runFFmpegExclusive(fn) {
-  const next = ffmpegChain.then(fn, fn);
+function withFFmpeg(fn, onDownload) {
+  const run = async () => {
+    const { FFmpeg, classWorkerURL, wasmURL } = await prepareFFmpegAssets(onDownload);
+    const ff = new FFmpeg();
+    ff.on('progress', ({ progress }) => {
+      if (ffmpegProgressCb) ffmpegProgressCb(Math.max(0, Math.min(1, progress || 0)));
+    });
+    ff.on('log', ({ message }) => { if (ffmpegLogCb) ffmpegLogCb(message); });
+    // coreもblob化せずCDNのURLをそのまま渡す（wasmは実体が大きいので取得済みのblobを使う）。
+    // Worker側の失敗は表に出ずハングすることがあるため、無応答が続いたら諦める
+    await Promise.race([
+      ff.load({ coreURL: `${FFMPEG_CORE_BASE}/ffmpeg-core.js`, wasmURL, classWorkerURL }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('ffmpeg init timed out')), 45000)),
+    ]);
+    try {
+      return await fn(ff);
+    } finally {
+      ffmpegProgressCb = null;
+      ffmpegLogCb = null;
+      try { ff.terminate(); } catch (e) {}
+    }
+  };
+  const next = ffmpegChain.then(run, run);
   ffmpegChain = next.catch(() => {});
   return next;
 }
 
-// WMVから1フレームだけ取り出してサムネイル用のJPEGにする。
+// ffmpegがWASM内部でブロックすると exec のtimeoutオプションも効かないため、JS側で見張る
+async function execWithGuard(ff, args, ms) {
+  let timer = null;
+  try {
+    return await Promise.race([
+      ff.exec(args),
+      new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('ffmpeg exec timed out')), ms); }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+// WMVの先頭数秒だけをMP4に変換する（サムネイル用）。
+// 1フレームだけ出力する指定（-frames:v 1）は、出力後すぐ終了する処理でffmpegが
+// 戻ってこなくなるファイルがあるため使わない。通常の変換と同じ経路なら安定して通るので、
+// 実際のフレーム取り出しはブラウザ側（captureVideoFrameBlob）に任せる。
 // ffmpegのログには動画の長さも出るので、変換の所要時間を伝えるために一緒に拾っておく
-function extractWmvFrame(file) {
-  return runFFmpegExclusive(async () => {
-    const ff = await getFFmpeg();
+function extractWmvHead(file, onDownload) {
+  return withFFmpeg(async ff => {
     let duration = 0;
     ffmpegLogCb = msg => {
       const m = /Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/.exec(msg);
       if (m) duration = (+m[1]) * 3600 + (+m[2]) * 60 + parseFloat(m[3]);
     };
     await ff.writeFile('thumb-in.wmv', new Uint8Array(await file.arrayBuffer()));
-    try {
-      // 冒頭は暗いことがあるので3秒地点を狙い、それより短い動画では先頭から取る
-      let code = await ff.exec(['-hide_banner', '-ss', '3', '-i', 'thumb-in.wmv', '-frames:v', '1', '-q:v', '3', 'thumb-out.jpg']);
-      if (code !== 0) {
-        code = await ff.exec(['-hide_banner', '-i', 'thumb-in.wmv', '-frames:v', '1', '-q:v', '3', 'thumb-out.jpg']);
-      }
-      if (code !== 0) throw new Error(`ffmpeg exited with ${code}`);
-      const data = await ff.readFile('thumb-out.jpg');
-      return { blob: new Blob([data.buffer], { type: 'image/jpeg' }), duration };
-    } finally {
-      ffmpegLogCb = null;
-      // WASM側のメモリに残り続けるため、次のファイルのために必ず消す
-      try { await ff.deleteFile('thumb-in.wmv'); } catch (e) {}
-      try { await ff.deleteFile('thumb-out.jpg'); } catch (e) {}
-    }
-  });
+    const code = await execWithGuard(ff, ['-hide_banner', '-y', '-i', 'thumb-in.wmv', '-t', '3',
+      '-an', '-c:v', 'libx264', '-preset', 'ultrafast', '-pix_fmt', 'yuv420p',
+      '-movflags', 'faststart', 'thumb-out.mp4'], 30000);
+    if (code !== 0) throw new Error(`ffmpeg exited with ${code}`);
+    const data = await ff.readFile('thumb-out.mp4');
+    return { blob: new Blob([data.buffer], { type: 'video/mp4' }), duration };
+  }, onDownload);
 }
 
 // WMVをMP4へ変換する。{ promise, cancel } を返し、cancel() で実行中でも打ち切れる
 function convertWmvToMp4(file, { onDownload, onProgress } = {}) {
   let canceled = false;
-  let ff = null;
+  let current = null; // 実行中のインスタンス（中止時に止める相手）
   const job = {
     cancel() {
       canceled = true;
       ffmpegProgressCb = null;
-      // 実行中のffmpegは terminate でしか止められない。次回は読み込みからやり直しになる
-      if (ff) { try { ff.terminate(); } catch (e) {} }
-      ffmpegPromise = null;
+      // 実行中のffmpegは terminate でしか止められない
+      if (current) { try { current.terminate(); } catch (e) {} }
     },
   };
-  job.promise = runFFmpegExclusive(async () => {
-    if (canceled) throw new Error('canceled');
-    ff = await getFFmpeg(onDownload);
+  // withAudio=false は、音声側だけが原因で失敗した時のやり直し用。
+  // 1回 exec するとランタイムが終わるため、やり直しは新しいインスタンスで行う
+  const run = withAudio => withFFmpeg(async ff => {
+    current = ff;
     if (canceled) throw new Error('canceled');
     ffmpegProgressCb = onProgress || null;
+    await ff.writeFile('in.wmv', new Uint8Array(await file.arrayBuffer()));
+    if (canceled) throw new Error('canceled');
+    const code = await ff.exec(['-hide_banner', '-y', '-i', 'in.wmv', '-c:v', 'libx264', '-preset', 'ultrafast',
+      '-pix_fmt', 'yuv420p', ...(withAudio ? ['-c:a', 'aac'] : ['-an']), '-movflags', 'faststart', 'out.mp4']);
+    if (canceled) throw new Error('canceled');
+    if (code !== 0) throw new Error(`ffmpeg exited with ${code}`);
+    const data = await ff.readFile('out.mp4');
+    return new Blob([data.buffer], { type: 'video/mp4' });
+  }, onDownload);
+  job.promise = (async () => {
     try {
-      await ff.writeFile('in.wmv', new Uint8Array(await file.arrayBuffer()));
-      if (canceled) throw new Error('canceled');
-      const args = withAudio => ['-hide_banner', '-i', 'in.wmv', '-c:v', 'libx264', '-preset', 'ultrafast',
-        '-pix_fmt', 'yuv420p', ...(withAudio ? ['-c:a', 'aac'] : ['-an']), '-movflags', 'faststart', 'out.mp4'];
-      let code = await ff.exec(args(true));
-      // 音声側だけが原因で失敗することがあるため、映像のみで一度だけやり直す
-      if (code !== 0 && !canceled) code = await ff.exec(args(false));
-      if (canceled) throw new Error('canceled');
-      if (code !== 0) throw new Error(`ffmpeg exited with ${code}`);
-      const data = await ff.readFile('out.mp4');
-      return new Blob([data.buffer], { type: 'video/mp4' });
-    } finally {
-      ffmpegProgressCb = null;
-      // 入出力はWASM側のメモリに残り続けるため、次の変換のために必ず消す
-      if (!canceled) {
-        try { await ff.deleteFile('in.wmv'); } catch (e) {}
-        try { await ff.deleteFile('out.mp4'); } catch (e) {}
-      }
+      return await run(true);
+    } catch (e) {
+      if (canceled || String(e && e.message) === 'canceled') throw e;
+      return await run(false);
     }
-  });
+  })();
   return job;
 }
 
@@ -3336,7 +3358,7 @@ function renderTileGallery(generation) {
       loading.innerHTML = '<div class="thumb-spinner" aria-hidden="true"></div>';
 
       const badge = document.createElement('div');
-      badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : isVideo(name) ? ' video-badge' : isPdf(name) ? ' pdf-badge' : isIco(name) ? ' ico-badge' : '');
+      badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name)) ? ' video-badge' : isPdf(name) ? ' pdf-badge' : isIco(name) ? ' ico-badge' : '');
       badge.textContent = extOf(name).toUpperCase();
       badge.setAttribute('aria-hidden', 'true');
       badge.dataset.badge = 'true';
@@ -3451,7 +3473,7 @@ function renderGallery({ preserveScroll = false } = {}) {
     loading.innerHTML = '<div class="thumb-spinner" aria-hidden="true"></div>';
 
     const badge = document.createElement('div');
-    badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : isVideo(name) ? ' video-badge' : isPdf(name) ? ' pdf-badge' : isIco(name) ? ' ico-badge' : '');
+    badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name)) ? ' video-badge' : isPdf(name) ? ' pdf-badge' : isIco(name) ? ' ico-badge' : '');
     badge.textContent = extOf(name).toUpperCase();
     badge.setAttribute('aria-hidden', 'true');
     badge.dataset.badge = 'true';
@@ -3672,8 +3694,6 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dis
 
 // WMVのサムネイル。ffmpegで1フレームだけ取り出す（初回はコアの読み込みが挟まる）
 async function loadWmvThumb(file, item, loading, key, generation) {
-  const badge = item.querySelector('[data-badge]');
-  if (badge) badge.className = 'ext-badge video-badge';
   const addPlayIcon = () => {
     const play = document.createElement('div');
     play.className = 'thumb-play';
@@ -3687,27 +3707,47 @@ async function loadWmvThumb(file, item, loading, key, generation) {
     addPlayIcon();
     return;
   }
-  // 初回はコア（約31MB）の読み込みで待たされるため、何を待っているのかを表示しておく
-  if (!ffmpegPromise) {
-    loading.innerHTML = `<div class="thumb-spinner" aria-hidden="true"></div><span class="thumb-loading-text">${t('wmv.thumbPrep')}</span>`;
-  }
+  // 初回はコア（約31MB）の読み込みで待たされるため、何をどこまで待っているのかを表示しておく
+  let prepTextEl = null;
+  const showPrep = text => {
+    if (loading.parentNode !== item) return;
+    if (!prepTextEl) {
+      loading.innerHTML = '<div class="thumb-spinner" aria-hidden="true"></div><span class="thumb-loading-text"></span>';
+      prepTextEl = loading.querySelector('.thumb-loading-text');
+    }
+    prepTextEl.textContent = text;
+  };
+  if (!ffmpegAssetsPromise) showPrep(t('wmv.thumbPrep'));
+  // 進捗はチャンクごとに来るので、表示の更新は1%刻みに間引く（DOM更新でメインスレッドを詰まらせない）
+  let lastPct = -1;
+  const onDownload = p => {
+    const pct = Math.round(p * 100);
+    if (pct === lastPct) return;
+    lastPct = pct;
+    showPrep(tf('wmv.thumbPrepPct', { p: pct }));
+  };
   try {
-    const { blob, duration } = await extractWmvFrame(file);
+    const { blob, duration } = await extractWmvHead(file, onDownload);
     if (generation !== galleryGeneration) return;
     if (key && duration) wmvDurationCache.set(key, duration); // ライトボックスで所要時間を示すのに使う
-    const url = URL.createObjectURL(blob);
+    // MP4になった先頭部分から、他の動画と同じやり方で代表フレームを取る
+    const head = new File([blob], 'wmv-head.mp4', { type: 'video/mp4' });
+    const { blob: frameBlob, width, height } = await captureVideoFrameBlob(head);
+    if (generation !== galleryGeneration) return;
+    const url = URL.createObjectURL(frameBlob);
     objectURLs.push(url);
-    const bmp = await createImageBitmap(blob);
-    const dim = `${bmp.width} × ${bmp.height}`;
-    const ratio = bmp.width / bmp.height;
-    bmp.close();
+    const dim = `${width} × ${height}`;
     applyThumbImage(item, loading, url, dim, null, file.name);
     addPlayIcon();
     if (key) thumbCache.set(key, { url, dim });
-    if (aspectRatioCache.get(file.name) !== ratio) { aspectRatioCache.set(file.name, ratio); scheduleRelayout(); }
+    if (width && height) {
+      const ratio = width / height;
+      if (aspectRatioCache.get(file.name) !== ratio) { aspectRatioCache.set(file.name, ratio); scheduleRelayout(); }
+    }
   } catch (e) {
     if (generation !== galleryGeneration) return;
-    // 失敗してもライトボックスからは変換を試せるので、再生アイコンだけ出しておく
+    // サムネイルが作れなくてもライトボックスからは変換して見られるので、
+    // 「壊れたファイル」に見えないよう、動画であることを示す表示に留める
     if (loading.parentNode === item) loading.remove();
     addPlayIcon();
     console.warn('wmv thumb failed:', file.name, e);

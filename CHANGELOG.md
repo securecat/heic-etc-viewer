@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.22.1] - 2026-08-16
+
+### Fixed
+
+- WMV thumbnails were mostly not generated at all. Asking ffmpeg for a single frame (`-frames:v 1`) makes it hang on many files — the decoding itself is fine, it is the "stop right after one frame" path that never returns. Thumbnails are now made by converting the first few seconds to MP4 (the same path the lightbox conversion already takes, which always worked) and then picking a frame from it with the viewer's regular video-thumbnail routine, so the usual handling that avoids dark openings applies to WMV as well
+- A converted or extracted result could crash the next one with "memory access out of bounds": ffmpeg shuts its runtime down after a single run, so the instance is now created fresh for each job and discarded afterwards. The 31MB converter itself is still fetched only once
+- The status text shown on a thumbnail while it loads was too dim (about 5.1:1) for something that reports progress; it is now brighter (about 7:1)
+- The WMV badge on gallery thumbnails came in two colours: grey while the thumbnail was still queued, turning orange once its extraction started. The badge is now orange from the start, like the other video formats
+
 ## [3.22.0] - 2026-08-16
 
 ### Added
@@ -609,6 +618,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.22.1] - 2026-08-16
+
+### 修正
+
+- WMVのサムネイルがほとんど生成されなかった問題を修正。ffmpegに1フレームだけ出力させる指定(`-frames:v 1`)は、多くのファイルで戻ってこなくなる(デコード自体は正常で、「1フレーム出したら即終了」する処理が返らない)。先頭の数秒をMP4に変換し(ライトボックスの変換と同じ経路。こちらは常に成功していた)、そのMP4から通常の動画サムネイル生成でフレームを取り出す方式に変更した。冒頭の暗転を避ける既存の処理もWMVに適用される
+- 変換・抽出のあと、次の処理が「memory access out of bounds」で落ちることがあった問題を修正。ffmpegは1回実行するとランタイムが終了するため、処理ごとにインスタンスを作り直して使い終わったら破棄するようにした(変換エンジン本体31MBの取得は初回の1度だけ)
+- サムネイルの読み込み中に表示する文字が、状態を伝えるには暗すぎた(約5.1:1)ため明るく変更(約7:1)
+- ギャラリーのサムネイルに付くWMVバッジの色が2種類になっていた問題を修正。サムネイル生成の順番待ちの間はグレーで、生成が始まるとオレンジに変わっていた。他の動画形式と同じく、最初からオレンジで表示する
 
 ## [3.22.0] - 2026-08-16
 
