@@ -9,7 +9,7 @@ A single-file local image/video viewer and converter with HEIC, PDF, and ICO sup
 ### Supported formats
 
 - Images: HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, ICO
-- Videos: MP4, WebM, MOV
+- Videos: MP4, WebM, MOV, WMV
 - Documents: PDF
 
 ### Folders & gallery
@@ -25,6 +25,7 @@ A single-file local image/video viewer and converter with HEIC, PDF, and ICO sup
 - Images and videos open "as large as possible" by default, with an actual-size (1:1) toggle and scrolling for media that doesn't fit
 - Drag-to-select zoom, 90° rotation, checker background (for checking transparency and frame boundaries), video loop, and slideshow mode
 - Image diff: open a parent folder containing two subfolders with matching filenames to compare both versions with a mouse-driven divider
+- WMV is converted to MP4 in your browser on demand and then played
 - Keyboard shortcuts for all major operations
 
 ### Conversion
@@ -44,6 +45,7 @@ Built as a single HTML file with no build tools or package dependencies.
 - **Vanilla HTML** / **CSS** / **JavaScript** — no frameworks
 - **[libheif.js](https://github.com/strukturag/libheif)** — HEIC/HEIF decoding via WebAssembly, run in a Web Worker (loaded from CDN)
 - **[UTIF.js](https://github.com/photopea/UTIF.js)** — TIFF decoding, run in a Web Worker (loaded from CDN)
+- **[ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm)** — MP4 conversion for WMV playback, and WMV thumbnails (loaded from CDN)
 - **[PDF.js](https://github.com/mozilla/pdf.js)** — PDF thumbnail rendering (loaded from CDN)
 - **[jsPDF](https://github.com/parallax/jsPDF)** — PDF generation for the convert-to-PDF feature (loaded from CDN)
 - **[pdf-lib](https://github.com/Hopding/pdf-lib)** — per-page PDF splitting (loaded from CDN)
@@ -81,11 +83,15 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.21.2] - 2026-08-08
+### [3.22.0] - 2026-08-16
+
+#### Added
+
+- Support for the WMV format. No browser can decode WMV (ASF + WMV3/VC-1), so ffmpeg.wasm (loaded from CDN) does the decoding inside your browser — nothing is uploaded. Thumbnails are extracted a frame at a time, and in the lightbox a WMV is not played as it is: a panel states how long the video is and offers a "Convert and play" button, which converts the whole file to MP4 and plays the result. The converter is about 31MB and is fetched the first time a WMV needs it; converting takes roughly as long as the video itself (measured at 0.7× the running time for a 1080p clip) and shows a progress bar, an estimate of the time left, and a cancel button. A converted video is kept for the rest of the session, so reopening it plays immediately. Slideshow, hover playback, and the conversion features do not cover WMV
 
 #### Fixed
 
-- Drag-to-select zoom now clamps vertically the same way it already did horizontally: dragging past the top or bottom edge of the image or video counts as pointing at that edge. The drag used to be tracked only within the selection canvas — which stops short of the lightbox header and info bar — so a selection extended above or below the media was not registered, and releasing the button there discarded it entirely. Dragging over the left/right nav buttons now works the same way
+- Moving to the previous/next file during a slideshow could land on a file the slideshow does not cover — PDF, and now WMV. Advancing automatically already skipped those files; manual navigation now skips them as well. The counter in the header also shows the position among the slideshow's own targets, instead of counting every file in the gallery
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -102,7 +108,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 ### 対応形式
 
 - 画像：HEIC/HEIF、JPEG、JFIF、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、ICO
-- 動画：MP4、WebM、MOV
+- 動画：MP4、WebM、MOV、WMV
 - ドキュメント：PDF
 
 ### フォルダとギャラリー
@@ -118,6 +124,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 - 静止画・動画とも「できるだけ大きく」表示がデフォルト。原寸表示（1:1）への切り替えと、収まらない場合のスクロールに対応
 - ドラッグで範囲選択するズーム、90度回転、市松模様背景（透過や画角の確認に）、動画のループ再生、スライドショーモード
 - 画像Diff：同名ファイルを持つ2つのサブフォルダの親フォルダを開くと、マウス追従の境界線で両バージョンを重ねて比較できる
+- WMVは都度ブラウザ内でMP4に変換して再生
 - 主要な操作はキーボードショートカットに対応
 
 ### 変換
@@ -137,6 +144,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 - **Vanilla HTML** / **CSS** / **JavaScript** — フレームワーク不使用
 - **[libheif.js](https://github.com/strukturag/libheif)** — WebAssemblyによるHEIC/HEIFデコード。Web Worker上で実行（CDNから読み込み）
 - **[UTIF.js](https://github.com/photopea/UTIF.js)** — TIFFデコード。Web Worker上で実行（CDNから読み込み）
+- **[ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm)** — WMV再生のためのMP4変換とサムネ表示（CDNから読み込み）
 - **[PDF.js](https://github.com/mozilla/pdf.js)** — PDFサムネイルのレンダリング（CDNから読み込み）
 - **[jsPDF](https://github.com/parallax/jsPDF)** — PDF変換保存機能のPDF生成（CDNから読み込み）
 - **[pdf-lib](https://github.com/Hopding/pdf-lib)** — PDFのページごと分割（CDNから読み込み）
@@ -174,11 +182,15 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.21.2] - 2026-08-08
+### [3.22.0] - 2026-08-16
+
+#### 追加
+
+- WMV形式に対応。WMV(ASF + WMV3/VC-1)はどのブラウザもデコードできないため、CDNから読み込んだ ffmpeg.wasm がブラウザ内でデコードする(どこにもアップロードされない)。サムネイルは1フレームを取り出して生成し、ライトボックスではそのまま再生せず、動画の長さを示したパネルの「変換して再生する」ボタンから、ファイル全体をMP4に変換して再生する。変換エンジンは約31MBあり、最初にWMVを扱うときに読み込む。変換には動画の長さと同程度の時間がかかり(1080pの実測で再生時間の0.7倍)、進捗バー・残り時間の目安・中止ボタンを表示する。変換した動画はそのセッション中は保持されるので、開き直せばすぐ再生できる。スライドショー・ホバー再生・変換保存の対象外
 
 #### 修正
 
-- ドラッグによるズームの範囲選択で、上下方向も左右方向と同様にクランプされるように修正。画像・動画の上端・下端を越えてドラッグしても、その端をポイントしたものとして扱う。従来はドラッグの追跡が選択用canvas（ライトボックスのヘッダーと情報バーを避けて配置されている）の内側でしか行われず、メディアの上下へはみ出した選択が反映されないうえ、その位置でボタンを離すと選択そのものが破棄されていた。左右のナビゲーションボタンの上へはみ出した場合も同様に扱われる
+- スライドショー中に前後のファイルへ移動すると、スライドショーの対象外のファイル(PDF、および今回対応したWMV)が表示されてしまう問題を修正。自動で進むときは元から飛ばしていたが、手動の移動でも飛ばすようにした。ヘッダーの件数表示も、ギャラリー全体の件数ではなくスライドショー対象の中での位置を示すように
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

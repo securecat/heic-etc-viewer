@@ -431,6 +431,48 @@ input[type="range"]::-webkit-slider-thumb {
    videoはpointer-events:noneなので、その下にある帯がカーソルを受け取れる */
 .thumb-item.is-hover-playing .thumb-info { pointer-events: auto; }
 .thumb-item.is-hover-playing .thumb-info:hover { z-index: 1; }
+/* WMVはブラウザが再生できないため、変換を促すパネルをライトボックス中央に出す */
+.lb-wmv-panel {
+  margin: auto;
+  width: 620px;
+  max-width: 100%; /* 幅は固定。画面がこれより狭いときだけ縮める */
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid #949494;
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+.lb-wmv-lead { margin: 0; font-size: 16px; color: var(--text); }
+.lb-wmv-note { margin: 0; font-size: 16px; color: var(--text-muted); } /* 対 --bg-card 約5.2:1 */
+.lb-wmv-duration { margin: 0; font-size: 16px; color: var(--text); }
+.lb-wmv-status { margin: 0; font-size: 16px; color: var(--text); }
+.lb-wmv-status:empty { display: none; } /* 空のときに余白だけ空かないように */
+.lb-wmv-panel .btn {
+  background: #001C43;      /* 対 #DDDDDD 約11.7:1 */
+  border-color: #4D6EE1;    /* 対 --bg-card 約3.8:1 */
+  color: #DDDDDD;
+  font-size: 16px;
+  padding: 8px 18px;
+}
+.lb-wmv-panel .btn:hover { background: #0A2E63; } /* 対 #DDDDDD 約9.5:1 */
+.lb-wmv-progress-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+/* display指定はhidden属性のUAスタイルより優先されるため、明示的に消す */
+.lb-wmv-progress-box[hidden],
+.lb-wmv-panel .btn[hidden] { display: none; }
+.lb-wmv-progress-label { font-size: 16px; color: var(--text); }
+.lb-wmv-progress { width: 100%; height: 14px; }
+.lb-wmv-progress::-webkit-progress-bar { background: #6e6e6e; border-radius: 4px; } /* 対 --bg-card 約3.1:1 */
+.lb-wmv-progress::-webkit-progress-value { background: var(--accent); border-radius: 4px; }
 /* 中央寄せは .lb-img-wrap と同じ auto マージン方式（原寸表示のスクロール対応のため）。
    PDFラッパーもこのクラスを共有するが、iframe が 100%×100% で埋めるため影響しない */
 .lb-video-wrap {
@@ -949,7 +991,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.21.2</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.22.0</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -1000,7 +1042,9 @@ input[type="range"]::-webkit-slider-thumb {
   </div>
   <div class="info-panel" id="panelGuide" role="tabpanel" aria-labelledby="tabGuide" tabindex="0" hidden>
     <h3 data-i18n="g.formats.h">Supported file formats (view)</h3>
-    <p data-i18n="g.formats.p">HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO</p>
+    <p data-i18n="g.formats.p">HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, WMV, PDF, and ICO</p>
+    <h4 data-i18n="g.wmv.h">About WMV</h4>
+    <p data-i18n="g.wmv.p">No browser can decode WMV, so ffmpeg.wasm is loaded from a CDN and does the decoding — entirely inside your browser, with nothing uploaded. Gallery thumbnails are made by extracting a single frame, and opening one in the lightbox shows a "Convert and play" button: pressing it converts the whole video to MP4 and plays the result. The converter is about 31MB and is fetched the first time a WMV needs it; converting a whole video takes roughly as long as the video itself, with a progress bar and a cancel button. Converted videos are kept for the rest of the session, so reopening one plays it right away. Slideshow, hover playback, and the conversion features do not cover WMV.</p>
     <h3 data-i18n="g.convert.h">Convertible file formats</h3>
     <h4 data-i18n="g.convert.imgH">Images</h4>
     <p data-i18n="g.convert.imgP">HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. Lossy formats (WebP/JPEG) are marked with ▸ in the lightbox format menu: choose "Preview" from the submenu to overlay the original and the converted result with a divider, showing both file sizes, before you download.</p>
@@ -1073,6 +1117,20 @@ input[type="range"]::-webkit-slider-thumb {
   </div>
   <div class="lb-video-wrap" id="lbPdfWrap" style="display:none">
     <iframe id="lbPdfFrame" style="width:100%;height:100%;border:none;border-radius:4px;" data-i18n-attr="title:lb.pdfTitle" title="PDF viewer" loading="lazy"></iframe>
+  </div>
+  <div class="lb-video-wrap" id="lbWmvWrap" style="display:none">
+    <div class="lb-wmv-panel">
+      <p class="lb-wmv-lead" data-i18n-html="wmv.lead">Browsers cannot play WMV directly.<br>Converting it to MP4 here makes it playable.</p>
+      <button class="btn" type="button" id="lbWmvConvert" data-i18n="wmv.convert">Convert and play</button>
+      <p class="lb-wmv-duration" id="lbWmvDuration"></p>
+      <p class="lb-wmv-note" data-i18n-html="wmv.note">Everything runs in your browser — nothing is uploaded.<br>The first run also downloads about 31MB of converter.</p>
+      <div class="lb-wmv-progress-box" id="lbWmvProgressBox" hidden>
+        <label class="lb-wmv-progress-label" id="lbWmvProgressLabel" for="lbWmvProgress"></label>
+        <progress class="lb-wmv-progress" id="lbWmvProgress" value="0" max="100" aria-describedby="lbWmvProgressLabel">0%</progress>
+        <button class="btn" type="button" id="lbWmvCancel" data-i18n="wmv.cancel" aria-describedby="lbWmvProgressLabel lbWmvProgress">Cancel conversion</button>
+      </div>
+      <p class="lb-wmv-status" id="lbWmvStatus" role="status"></p>
+    </div>
   </div>
   <button class="lb-nav prev" id="lbPrev" data-i18n-attr="aria-label:lb.prev" aria-label="Previous">‹</button>
   <button class="lb-nav next" id="lbNext" data-i18n-attr="aria-label:lb.next" aria-label="Next">›</button>
@@ -1184,6 +1242,21 @@ const I18N = {
     'altLang.fr': 'French',
     'altLang.de': 'German',
     'altLang.es': 'Spanish',
+    'wmv.lead': 'Browsers cannot play WMV directly.<br>Converting it to MP4 here makes it playable.',
+    'wmv.convert': 'Convert and play',
+    'wmv.note': 'Everything runs in your browser — nothing is uploaded.<br>The first run also downloads about 31MB of converter.',
+    'wmv.cancel': 'Cancel conversion',
+    'wmv.thumbPrep': 'Loading converter…',
+    'wmv.downloading': 'Downloading the converter… {p}%',
+    'wmv.starting': 'Starting the converter…',
+    'wmv.converting': 'Converting… {p}%',
+    'wmv.convertingEta': 'Converting… {p}% (about {r} left)',
+    'wmv.duration': 'This video is {d} long,<br>and converting takes about the same amount of time.',
+    'wmv.durationUnknown': 'Converting takes about as long as the video itself.',
+    'wmv.mmss': '{m} min {s} sec',
+    'wmv.ss': '{s} sec',
+    'wmv.canceled': 'Canceled. The converter has to be downloaded again for the next try.',
+    'wmv.failed': 'Conversion failed. This file may use a variant that cannot be decoded.',
     'hp.legend': 'Video thumbnail hover playback',
     'hp.desc': 'Plays a video muted, at its thumbnail size, while the mouse pointer or keyboard focus stays on that thumbnail. It stops as soon as you move away.',
     'hp.on': 'Enabled',
@@ -1193,7 +1266,9 @@ const I18N = {
     'sc.on': 'Enabled',
     'sc.off': 'Disabled',
     'g.formats.h': 'Supported file formats (view)',
-    'g.formats.p': 'HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, PDF, and ICO',
+    'g.formats.p': 'HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, WMV, PDF, and ICO',
+    'g.wmv.h': 'About WMV',
+    'g.wmv.p': 'No browser can decode WMV, so ffmpeg.wasm is loaded from a CDN and does the decoding — entirely inside your browser, with nothing uploaded. Gallery thumbnails are made by extracting a single frame, and opening one in the lightbox shows how long the video is plus a "Convert and play" button: pressing it converts the whole video to MP4 and plays the result. The converter is about 31MB and is fetched the first time a WMV needs it; converting takes roughly as long as the video itself, with a progress bar, an estimate of the time left, and a cancel button. Converted videos are kept for the rest of the session, so reopening one plays it right away. Slideshow, hover playback, and the conversion features do not cover WMV.',
     'g.convert.h': 'Convertible file formats',
     'g.convert.imgH': 'Images',
     'g.convert.imgP': 'HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. Lossy formats (WebP/JPEG) are marked with ▸ in the lightbox format menu: choose "Preview" from the submenu to overlay the original and the converted result with a divider, showing both file sizes, before you download.',
@@ -1358,6 +1433,21 @@ const I18N = {
     'altLang.fr': 'フランス語',
     'altLang.de': 'ドイツ語',
     'altLang.es': 'スペイン語',
+    'wmv.lead': 'WMVはブラウザで直接再生できません。<br>MP4に変換すると再生できます。',
+    'wmv.convert': '変換して再生する',
+    'wmv.note': '処理はすべてブラウザ内で行われ、どこにもアップロードされません。<br>初回は変換エンジン(約31MB)のダウンロードも発生します。',
+    'wmv.cancel': '変換中止',
+    'wmv.thumbPrep': '変換エンジン読込中…',
+    'wmv.downloading': '変換エンジンをダウンロード中… {p}%',
+    'wmv.starting': '変換エンジンを起動中…',
+    'wmv.converting': '変換中… {p}%',
+    'wmv.convertingEta': '変換中… {p}%（残り約{r}）',
+    'wmv.duration': 'この動画の長さは {d} で、<br>変換にはおおよそ同じくらいの時間がかかります。',
+    'wmv.durationUnknown': '変換には動画の長さと同程度の時間がかかります。',
+    'wmv.mmss': '{m}分{s}秒',
+    'wmv.ss': '{s}秒',
+    'wmv.canceled': '中止しました。次に試すときは変換エンジンのダウンロードからやり直しになります。',
+    'wmv.failed': '変換に失敗しました。デコードできない種類のファイルかもしれません。',
     'hp.legend': '動画サムネのホバー再生',
     'hp.desc': 'サムネイルにマウスカーソルまたはキーボードフォーカスがある間、そのサムネイルのサイズのまま動画を無音で再生します。離れるとすぐに停止します。',
     'hp.on': '有効',
@@ -1367,7 +1457,9 @@ const I18N = {
     'sc.on': '有効',
     'sc.off': '無効',
     'g.formats.h': '対応ファイル形式(表示)',
-    'g.formats.p': 'HEIC/HEIF、JPEG、JFIF、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、PDF、ICO',
+    'g.formats.p': 'HEIC/HEIF、JPEG、JFIF、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、WMV、PDF、ICO',
+    'g.wmv.h': 'WMVについて',
+    'g.wmv.p': 'WMVはどのブラウザもデコードできないため、CDNから ffmpeg.wasm を読み込んでデコードします。処理はすべてブラウザ内で完結し、どこにもアップロードされません。ギャラリーのサムネイルは1フレームを取り出して生成し、ライトボックスで開くと動画の長さと「変換して再生する」ボタンが表示されます。押すと動画全体をMP4に変換して再生します。変換エンジンは約31MBあり、最初にWMVを扱うときに読み込みます。変換には動画の長さと同程度の時間がかかり、進捗バー・残り時間の目安・中止ボタンが表示されます。変換した動画はそのセッション中は保持されるので、開き直せばすぐ再生できます。スライドショー・ホバー再生・変換保存の対象外です。',
     'g.convert.h': '変換可能なファイル形式',
     'g.convert.imgH': '画像',
     'g.convert.imgP': 'HEIC/HEIF、JPEG、PNG、WebP、BMP、TIFF、AVIF → WebP・PNG・JPEG・PDF(1ファイルずつでも、一括でも可)。「高圧縮」のWebP/JPEGは、品質設定を大きく下げることでファイルサイズを大幅に小さくします。非可逆形式(WebP/JPEG)にはライトボックスの形式メニューで「▸」が付いていて、サブメニューの「プレビュー」を選ぶと、ダウンロード前に元画像と変換後を境界線付きで重ねて比較できます(それぞれのファイルサイズも表示)。',
@@ -1818,6 +1910,138 @@ function decodeTiffInWorker(buffer, lossless = false) {
   });
 }
 
+// ── WMV（ASF + WMV3/VC-1）: ffmpeg.wasm でMP4へ変換してから再生する ──────
+// どのブラウザもWMVをデコードできず、WebCodecsにも該当コーデックが無いため、
+// デコーダごと持ち込むしかない。コアが約31MBあるので、読み込むのは
+// ユーザーがライトボックスで変換ボタンを押した時だけにする
+const FFMPEG_BASE       = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/esm';
+const FFMPEG_CORE_BASE  = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm';
+const FFMPEG_WASM_BYTES = 32232419; // 進捗の分母。CDNは圧縮配信でContent-Lengthを当てにできない
+let ffmpegPromise = null;
+let ffmpegProgressCb = null; // 進捗・ログのリスナーは1度だけ登録し、通知先だけ差し替える
+let ffmpegLogCb = null;
+const wmvDurationCache = new Map(); // cacheKey → 動画の長さ（秒）。サムネイル生成時に判明する
+
+async function getFFmpeg(onDownload) {
+  if (!ffmpegPromise) {
+    ffmpegPromise = (async () => {
+      const { FFmpeg } = await import(`${FFMPEG_BASE}/index.js`);
+      // CDN上のworkerはクロスオリジンのままでは new Worker できない。かといってworker.js自体を
+      // blob化すると中の相対import（./const.js等）の基準がblob:になって解決できなくなるため、
+      // 「絶対URLでworker.jsをimportするだけ」の中継スクリプトをblobにして渡す
+      const stub = `import ${JSON.stringify(`${FFMPEG_BASE}/worker.js`)};`;
+      const classWorkerURL = URL.createObjectURL(new Blob([stub], { type: 'text/javascript' }));
+      const resp = await fetch(`${FFMPEG_CORE_BASE}/ffmpeg-core.wasm`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const chunks = [];
+      let received = 0;
+      const reader = resp.body.getReader();
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        received += value.length;
+        if (onDownload) onDownload(Math.min(1, received / FFMPEG_WASM_BYTES));
+      }
+      const wasmURL = URL.createObjectURL(new Blob(chunks, { type: 'application/wasm' }));
+      const ff = new FFmpeg();
+      ff.on('progress', ({ progress }) => {
+        if (ffmpegProgressCb) ffmpegProgressCb(Math.max(0, Math.min(1, progress || 0)));
+      });
+      ff.on('log', ({ message }) => { if (ffmpegLogCb) ffmpegLogCb(message); });
+      // coreもblob化せずCDNのURLをそのまま渡す（wasmは実体が大きいので取得済みのblobを使う）
+      await ff.load({ coreURL: `${FFMPEG_CORE_BASE}/ffmpeg-core.js`, wasmURL, classWorkerURL });
+      return ff;
+    })();
+  }
+  try {
+    return await ffmpegPromise;
+  } catch (e) {
+    ffmpegPromise = null; // 失敗を引きずらず、次回はやり直せるようにする
+    throw e;
+  }
+}
+
+// ffmpegのインスタンスは1つしか持てないため、サムネイル生成と再生用変換が
+// 同時に走らないよう直列化する（前のタスクの成否に関わらず次へ進める）
+let ffmpegChain = Promise.resolve();
+function runFFmpegExclusive(fn) {
+  const next = ffmpegChain.then(fn, fn);
+  ffmpegChain = next.catch(() => {});
+  return next;
+}
+
+// WMVから1フレームだけ取り出してサムネイル用のJPEGにする。
+// ffmpegのログには動画の長さも出るので、変換の所要時間を伝えるために一緒に拾っておく
+function extractWmvFrame(file) {
+  return runFFmpegExclusive(async () => {
+    const ff = await getFFmpeg();
+    let duration = 0;
+    ffmpegLogCb = msg => {
+      const m = /Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/.exec(msg);
+      if (m) duration = (+m[1]) * 3600 + (+m[2]) * 60 + parseFloat(m[3]);
+    };
+    await ff.writeFile('thumb-in.wmv', new Uint8Array(await file.arrayBuffer()));
+    try {
+      // 冒頭は暗いことがあるので3秒地点を狙い、それより短い動画では先頭から取る
+      let code = await ff.exec(['-hide_banner', '-ss', '3', '-i', 'thumb-in.wmv', '-frames:v', '1', '-q:v', '3', 'thumb-out.jpg']);
+      if (code !== 0) {
+        code = await ff.exec(['-hide_banner', '-i', 'thumb-in.wmv', '-frames:v', '1', '-q:v', '3', 'thumb-out.jpg']);
+      }
+      if (code !== 0) throw new Error(`ffmpeg exited with ${code}`);
+      const data = await ff.readFile('thumb-out.jpg');
+      return { blob: new Blob([data.buffer], { type: 'image/jpeg' }), duration };
+    } finally {
+      ffmpegLogCb = null;
+      // WASM側のメモリに残り続けるため、次のファイルのために必ず消す
+      try { await ff.deleteFile('thumb-in.wmv'); } catch (e) {}
+      try { await ff.deleteFile('thumb-out.jpg'); } catch (e) {}
+    }
+  });
+}
+
+// WMVをMP4へ変換する。{ promise, cancel } を返し、cancel() で実行中でも打ち切れる
+function convertWmvToMp4(file, { onDownload, onProgress } = {}) {
+  let canceled = false;
+  let ff = null;
+  const job = {
+    cancel() {
+      canceled = true;
+      ffmpegProgressCb = null;
+      // 実行中のffmpegは terminate でしか止められない。次回は読み込みからやり直しになる
+      if (ff) { try { ff.terminate(); } catch (e) {} }
+      ffmpegPromise = null;
+    },
+  };
+  job.promise = runFFmpegExclusive(async () => {
+    if (canceled) throw new Error('canceled');
+    ff = await getFFmpeg(onDownload);
+    if (canceled) throw new Error('canceled');
+    ffmpegProgressCb = onProgress || null;
+    try {
+      await ff.writeFile('in.wmv', new Uint8Array(await file.arrayBuffer()));
+      if (canceled) throw new Error('canceled');
+      const args = withAudio => ['-hide_banner', '-i', 'in.wmv', '-c:v', 'libx264', '-preset', 'ultrafast',
+        '-pix_fmt', 'yuv420p', ...(withAudio ? ['-c:a', 'aac'] : ['-an']), '-movflags', 'faststart', 'out.mp4'];
+      let code = await ff.exec(args(true));
+      // 音声側だけが原因で失敗することがあるため、映像のみで一度だけやり直す
+      if (code !== 0 && !canceled) code = await ff.exec(args(false));
+      if (canceled) throw new Error('canceled');
+      if (code !== 0) throw new Error(`ffmpeg exited with ${code}`);
+      const data = await ff.readFile('out.mp4');
+      return new Blob([data.buffer], { type: 'video/mp4' });
+    } finally {
+      ffmpegProgressCb = null;
+      // 入出力はWASM側のメモリに残り続けるため、次の変換のために必ず消す
+      if (!canceled) {
+        try { await ff.deleteFile('in.wmv'); } catch (e) {}
+        try { await ff.deleteFile('out.mp4'); } catch (e) {}
+      }
+    }
+  });
+  return job;
+}
+
 async function tiffToURL(file) {
   const buffer = await file.arrayBuffer();
   const blob = await decodeTiffInWorker(buffer);
@@ -1828,9 +2052,12 @@ async function tiffToURL(file) {
 const IMG_EXTS   = ['jpg','jpeg','jfif','png','gif','webp','avif','svg','bmp','tiff','tif'];
 const HEIC_EXTS  = ['heic','heif'];
 const VIDEO_EXTS = ['mp4','webm','mov'];
+// WMVはどのブラウザもデコードできないため、動画（VIDEO_EXTS）とは別扱いにして
+// 「変換して再生」の経路だけを用意する。スライドショー・ホバー再生・変換保存の対象外
+const WMV_EXTS   = ['wmv'];
 const ICO_EXTS   = ['ico'];
 const PDF_EXTS   = ['pdf'];
-const ALL_EXTS   = [...IMG_EXTS, ...HEIC_EXTS, ...VIDEO_EXTS, ...ICO_EXTS, ...PDF_EXTS];
+const ALL_EXTS   = [...IMG_EXTS, ...HEIC_EXTS, ...VIDEO_EXTS, ...WMV_EXTS, ...ICO_EXTS, ...PDF_EXTS];
 
 function extOf(name)  { return (name||'').split('.').pop().toLowerCase(); }
 function isImage(name){ return [...IMG_EXTS,...HEIC_EXTS,...ICO_EXTS].includes(extOf(name)); }
@@ -1838,6 +2065,7 @@ function isVideo(name){ return VIDEO_EXTS.includes(extOf(name)); }
 function isHeic(name) { return HEIC_EXTS.includes(extOf(name)); }
 function isIco(name)  { return ICO_EXTS.includes(extOf(name)); }
 function isTiff(name) { return extOf(name) === 'tiff' || extOf(name) === 'tif'; }
+function isWmv(name)  { return WMV_EXTS.includes(extOf(name)); }
 function isPdf(name)  { return PDF_EXTS.includes(extOf(name)); }
 function escHtml(s)    { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -2180,6 +2408,10 @@ function clearThumbCache() {
   thumbCache.forEach(v => { try { URL.revokeObjectURL(v.url); } catch(e){} });
   thumbCache.clear();
   aspectRatioCache.clear();
+  // 変換済みWMVは実体が大きいので、キャッシュを捨てる時に一緒に解放する
+  wmvBlobCache.forEach(url => { try { URL.revokeObjectURL(url); } catch(e){} });
+  wmvBlobCache.clear();
+  wmvDurationCache.clear();
 }
 
 async function makeURL(file) {
@@ -3265,6 +3497,10 @@ async function loadThumb(entry, item, loading, generation) {
       await loadPdfThumb(file, item, loading, key, generation);
       return;
     }
+    if (isWmv(file.name)) {
+      await loadWmvThumb(file, item, loading, key, generation);
+      return;
+    }
 
     // キャッシュヒット
     if (thumbCache.has(key)) {
@@ -3434,6 +3670,50 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dis
   }
 }
 
+// WMVのサムネイル。ffmpegで1フレームだけ取り出す（初回はコアの読み込みが挟まる）
+async function loadWmvThumb(file, item, loading, key, generation) {
+  const badge = item.querySelector('[data-badge]');
+  if (badge) badge.className = 'ext-badge video-badge';
+  const addPlayIcon = () => {
+    const play = document.createElement('div');
+    play.className = 'thumb-play';
+    play.innerHTML = '<div class="thumb-play-icon" aria-hidden="true">▶</div>';
+    item.appendChild(play);
+  };
+
+  if (key && thumbCache.has(key)) {
+    const cached = thumbCache.get(key);
+    applyThumbImage(item, loading, cached.url, cached.dim, null, file.name);
+    addPlayIcon();
+    return;
+  }
+  // 初回はコア（約31MB）の読み込みで待たされるため、何を待っているのかを表示しておく
+  if (!ffmpegPromise) {
+    loading.innerHTML = `<div class="thumb-spinner" aria-hidden="true"></div><span class="thumb-loading-text">${t('wmv.thumbPrep')}</span>`;
+  }
+  try {
+    const { blob, duration } = await extractWmvFrame(file);
+    if (generation !== galleryGeneration) return;
+    if (key && duration) wmvDurationCache.set(key, duration); // ライトボックスで所要時間を示すのに使う
+    const url = URL.createObjectURL(blob);
+    objectURLs.push(url);
+    const bmp = await createImageBitmap(blob);
+    const dim = `${bmp.width} × ${bmp.height}`;
+    const ratio = bmp.width / bmp.height;
+    bmp.close();
+    applyThumbImage(item, loading, url, dim, null, file.name);
+    addPlayIcon();
+    if (key) thumbCache.set(key, { url, dim });
+    if (aspectRatioCache.get(file.name) !== ratio) { aspectRatioCache.set(file.name, ratio); scheduleRelayout(); }
+  } catch (e) {
+    if (generation !== galleryGeneration) return;
+    // 失敗してもライトボックスからは変換を試せるので、再生アイコンだけ出しておく
+    if (loading.parentNode === item) loading.remove();
+    addPlayIcon();
+    console.warn('wmv thumb failed:', file.name, e);
+  }
+}
+
 async function loadVideoThumb(file, item, loading, key, generation) {
   // キャッシュヒット
   if (key && thumbCache.has(key)) {
@@ -3505,10 +3785,13 @@ async function openLightbox(idx) {
   await updateLightbox();
   lightbox.classList.add('open');
   setBackgroundInert(true);
-  // 動画はvideo要素に、それ以外はlightbox本体にフォーカス
+  // 動画はvideo要素に、WMVは変換ボタンに、それ以外はlightbox本体にフォーカス
   const videoWrap = document.getElementById('lbVideoWrap');
+  const wmvWrap = document.getElementById('lbWmvWrap');
   if (videoWrap.style.display !== 'none') {
     document.getElementById('lbVideo').focus();
+  } else if (wmvWrap.style.display !== 'none') {
+    document.getElementById('lbWmvConvert').focus();
   } else {
     lightbox.focus();
   }
@@ -3529,8 +3812,8 @@ function updateLbKeyHint() {
   } else if (isVideo(name)) {
     if (sc) segs.push(`Z: ${t('hint.zoom')}`, `R: ${t('hint.rotate')}`, `C: ${t('hint.checker')}`, `1: ${t('hint.actual')}`, `L: ${t('hint.loop')}`);
     segs.push(escCloseZoom);
-  } else if (isPdf(name)) {
-    segs.push(`Esc: ${t('hint.close')}`); // PDFはズーム・市松切替とも不可
+  } else if (isPdf(name) || isWmv(name)) {
+    segs.push(`Esc: ${t('hint.close')}`); // PDF・WMVはズーム・市松切替とも不可
   } else {
     const diffInfo = getDiffPartner(entry);
     const isDiff = diffInfo && isImage(diffInfo.partner.name || '');
@@ -3550,10 +3833,18 @@ function updateLbKeyHint() {
 }
 
 async function updateLightbox() {
+  cancelWmvJob(); // 別のファイルへ移ったら、進行中の変換は打ち切る
   const entry = filteredFiles[currentIdx];
   const name = entry.name||'';
   lbFilename.textContent = name;
-  lbCounter.textContent = (currentIdx+1) + ' / ' + filteredFiles.length;
+  // スライドショー中は、その対象ファイルの中での位置を示す（ギャラリー全体の件数ではない）
+  if (ssActive) {
+    const ssFiles = getSsFiles();
+    const pos = ssFiles.indexOf(entry);
+    lbCounter.textContent = (pos >= 0 ? pos + 1 : 1) + ' / ' + ssFiles.length;
+  } else {
+    lbCounter.textContent = (currentIdx+1) + ' / ' + filteredFiles.length;
+  }
   const lbDimEl = document.getElementById('lbDim'); if(lbDimEl) lbDimEl.textContent = '';
   document.getElementById('lbConvertError').textContent = '';
 
@@ -3588,10 +3879,12 @@ async function updateLightbox() {
     const file = await resolveFile(entry);
     const pdfWrap   = document.getElementById('lbPdfWrap');
     const pdfFrame  = document.getElementById('lbPdfFrame');
+    const wmvWrap   = document.getElementById('lbWmvWrap');
     pdfFrame.src = '';
     imgWrap.style.display   = 'none';
     videoWrap.style.display = 'none';
     pdfWrap.style.display   = 'none';
+    wmvWrap.style.display   = 'none';
     diffWrap.style.display  = 'none';
     // Diffモードでは、2つのファイルのどちらを変換するのか予想がつかないため変換UIごと隠す
     document.querySelector('.lb-info .convert-group').style.display = '';
@@ -3601,18 +3894,22 @@ async function updateLightbox() {
     const rotateBtn = document.getElementById('lbRotate');
     const actualBtn = document.getElementById('lbActualBtn');
     updateLbKeyHint();
-    if (isVideo(file.name)) {
-      zoomBtn.style.display = ssActive ? 'none' : '';
-      loopBtn.style.display = ssActive ? 'none' : '';
+    // 変換済みのWMVは通常の動画と同じ経路で再生する（ズーム等の操作は対象外のまま隠す）
+    const wmvUrl = isWmv(file.name) ? wmvBlobCache.get(cacheKey(file)) : null;
+    if (isVideo(file.name) || wmvUrl) {
+      const wmvMode = !!wmvUrl;
+      zoomBtn.style.display = (ssActive || wmvMode) ? 'none' : '';
+      loopBtn.style.display = (ssActive || wmvMode) ? 'none' : '';
       loopBtn.classList.toggle('is-active', videoLoop);
       loopBtn.title = t(videoLoop ? 'lb.loopOn' : 'lb.loopOff');
       // 市松模様は動画でも有効: 暗い演出などで画角の範囲が分かりにくい動画のチェックに役立つ
-      checkerBtn.style.display = ssActive ? 'none' : '';
-      actualBtn.style.display = (ssActive || zoomMode) ? 'none' : '';
-      rotateBtn.style.display = (ssActive || zoomMode) ? 'none' : '';
+      checkerBtn.style.display = (ssActive || wmvMode) ? 'none' : '';
+      actualBtn.style.display = (ssActive || zoomMode || wmvMode) ? 'none' : '';
+      rotateBtn.style.display = (ssActive || zoomMode || wmvMode) ? 'none' : '';
+      if (wmvMode) document.querySelector('.lb-info .convert-group').style.display = 'none';
       lbVideo.loop = ssActive ? false : videoLoop;
-      const url = URL.createObjectURL(file);
-      objectURLs.push(url);
+      const url = wmvUrl || URL.createObjectURL(file);
+      if (!wmvUrl) objectURLs.push(url); // 変換結果のURLはキャッシュ側で管理する
       videoWrap.style.display = 'flex';
       lbVideo.src = url;
       lbVideo.load();
@@ -3638,6 +3935,17 @@ async function updateLightbox() {
       objectURLs.push(url);
       pdfWrap.style.display = 'flex';
       pdfFrame.src = url;
+    } else if (isWmv(file.name)) {
+      // 未変換のWMV: 中央のパネルから変換を始めてもらう（ここでは何も読み込まない）
+      zoomBtn.style.display = 'none';
+      loopBtn.style.display = 'none';
+      checkerBtn.style.display = 'none';
+      actualBtn.style.display = 'none';
+      rotateBtn.style.display = 'none';
+      document.querySelector('.lb-info .convert-group').style.display = 'none';
+      exitZoomMode();
+      wmvWrap.style.display = 'flex';
+      setupWmvPanel(file, cacheKey(file));
     } else {
       const diffInfo = getDiffPartner(entry);
       const isDiff = diffInfo && isImage(diffInfo.partner.name || '');
@@ -3666,7 +3974,100 @@ async function updateLightbox() {
   setupZoomForCurrentMedia();
   if (ssActive) scheduleNext();
 }
+// ── WMVの変換パネル ───────────────────────────────────────────────
+const wmvBlobCache = new Map(); // cacheKey → 変換済みMP4のURL（同じセッション中は再変換しない）
+let wmvJob = null;
+
+function cancelWmvJob() {
+  if (!wmvJob) return;
+  wmvJob.cancel();
+  wmvJob = null;
+}
+
+// 秒数を「3分3秒」のように表示する（1時間を超える動画は分表記のまま）
+function fmtWmvDuration(sec) {
+  const s = Math.max(0, Math.round(sec));
+  const m = Math.floor(s / 60);
+  return m ? tf('wmv.mmss', { m, s: s % 60 }) : tf('wmv.ss', { s: s });
+}
+
+function setupWmvPanel(file, key) {
+  const convertBtn = document.getElementById('lbWmvConvert');
+  const cancelBtn  = document.getElementById('lbWmvCancel');
+  const statusEl   = document.getElementById('lbWmvStatus');
+  const box        = document.getElementById('lbWmvProgressBox');
+  const label      = document.getElementById('lbWmvProgressLabel');
+  const bar        = document.getElementById('lbWmvProgress');
+  const durEl      = document.getElementById('lbWmvDuration');
+  const setProgress = (text, pct) => {
+    label.textContent = text;
+    bar.value = pct;
+    bar.textContent = `${Math.round(pct)}%`;
+  };
+  // 進捗バーと中止ボタンは変換中だけ出す（何を中止するのかが分かる状態でのみ見せる）
+  const showProgress = on => {
+    box.hidden = !on;
+    box.setAttribute('aria-busy', on ? 'true' : 'false');
+    convertBtn.hidden = on;
+  };
+  // 動画の長さはサムネイル生成の時点で分かっている。取れていない場合だけ一般的な説明にする
+  const duration = wmvDurationCache.get(key) || 0;
+  // 中央揃えの文章なので、句点の位置で改行させる（辞書側に <br> を持たせている）
+  durEl.innerHTML = duration
+    ? tf('wmv.duration', { d: fmtWmvDuration(duration) })
+    : t('wmv.durationUnknown');
+  // 前のファイルの状態を持ち越さない
+  showProgress(false);
+  setProgress('', 0);
+  statusEl.textContent = '';
+  convertBtn.onclick = async () => {
+    if (wmvJob) return; // 多重起動の抑止（disabled属性は使わない）
+    statusEl.textContent = '';
+    showProgress(true);
+    setProgress(t('wmv.starting'), 0);
+    const startedAt = performance.now();
+    const job = convertWmvToMp4(file, {
+      onDownload: p => setProgress(tf('wmv.downloading', { p: Math.round(p * 100) }), p * 100),
+      onProgress: p => {
+        const pct = Math.round(p * 100);
+        // 経過時間と進捗から残りを見積もる（序盤は当てにならないので少し進んでから出す）
+        const elapsed = (performance.now() - startedAt) / 1000;
+        const remain = (p > 0.03 && elapsed > 3) ? elapsed * (1 - p) / p : 0;
+        setProgress(remain
+          ? tf('wmv.convertingEta', { p: pct, r: fmtWmvDuration(remain) })
+          : tf('wmv.converting', { p: pct }), pct);
+      },
+    });
+    wmvJob = job;
+    try {
+      const blob = await job.promise;
+      if (wmvJob !== job) return; // 中止後・別ファイルへ移った後に届いた結果は捨てる
+      wmvJob = null;
+      wmvBlobCache.set(key, URL.createObjectURL(blob));
+      await updateLightbox(); // 変換済みとして描き直され、そのまま再生される
+      // 押していたボタンは消えるため、フォーカスを再生中のプレーヤーへ引き継ぐ
+      if (document.getElementById('lbVideoWrap').style.display !== 'none') {
+        document.getElementById('lbVideo').focus();
+      }
+    } catch (e) {
+      const canceled = wmvJob !== job || String(e && e.message) === 'canceled';
+      if (wmvJob === job) wmvJob = null;
+      showProgress(false);
+      statusEl.textContent = t(canceled ? 'wmv.canceled' : 'wmv.failed');
+      convertBtn.focus();
+    }
+  };
+  cancelBtn.onclick = () => {
+    if (!wmvJob) return;
+    cancelWmvJob();
+    showProgress(false);
+    statusEl.textContent = t('wmv.canceled');
+    convertBtn.focus(); // 中止ボタンは消えるので、フォーカスを変換ボタンへ戻す
+  };
+}
+
 function closeLightbox() {
+  cancelWmvJob();
   if (ssActive) stopSlideshow();
   exitZoomMode();
   resetDiffMode();
@@ -3714,16 +4115,16 @@ document.getElementById('lbChecker').addEventListener('click', () => {
   btn.title = label;
   btn.setAttribute('aria-label', label);
 });
-document.getElementById('lbPrev').addEventListener('click', async () => {
+// ライトボックスの前後移動。スライドショー中は、自動で進むときと同じく
+// 対象ファイル（画像・動画）だけを巡回する（PDFやWMVには止まらない）
+async function stepLightbox(dir) {
+  if (ssActive) { await advanceSlideshowTo(dir > 0 ? 'next' : 'prev'); return; }
   exitZoomMode();
-  currentIdx = (currentIdx-1+filteredFiles.length)%filteredFiles.length;
+  currentIdx = (currentIdx + dir + filteredFiles.length) % filteredFiles.length;
   await updateLightbox();
-});
-document.getElementById('lbNext').addEventListener('click', async () => {
-  exitZoomMode();
-  currentIdx = (currentIdx+1)%filteredFiles.length;
-  await updateLightbox();
-});
+}
+document.getElementById('lbPrev').addEventListener('click', () => stepLightbox(-1));
+document.getElementById('lbNext').addEventListener('click', () => stepLightbox(1));
 lightbox.addEventListener('click', e => { if(e.target===lightbox) closeLightbox(); });
 document.addEventListener('keydown', async e => {
   if (!lightbox.classList.contains('open')) return;
@@ -3754,8 +4155,8 @@ document.addEventListener('keydown', async e => {
   // 原寸表示のスクロール領域にフォーカスがある間、矢印キーはファイル移動ではなくスクロールに使う
   if ((e.target.id === 'lbImgWrap' || e.target.id === 'lbVideoWrap') && e.key.startsWith('Arrow')) return;
   // ズーム選択モード中でも左右移動は可能。移動先は必ずズーム完全解除の状態で開く
-  if (e.key === 'ArrowLeft')  { e.preventDefault(); exitZoomMode(); currentIdx=(currentIdx-1+filteredFiles.length)%filteredFiles.length; await updateLightbox(); }
-  if (e.key === 'ArrowRight') { e.preventDefault(); exitZoomMode(); currentIdx=(currentIdx+1)%filteredFiles.length; await updateLightbox(); }
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); await stepLightbox(-1); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); await stepLightbox(1); }
   // 以降の1文字キーショートカットは設定で無効化できる（支援技術のキー操作との競合対策）
   if (!lbShortcutsEnabled) return;
   // L/C/R は対応するボタンが表示されている（＝そのファイル種別で意味がある）時のみ動作

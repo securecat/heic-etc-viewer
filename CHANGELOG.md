@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.22.0] - 2026-08-16
+
+### Added
+
+- Support for the WMV format. No browser can decode WMV (ASF + WMV3/VC-1), so ffmpeg.wasm (loaded from CDN) does the decoding inside your browser — nothing is uploaded. Thumbnails are extracted a frame at a time, and in the lightbox a WMV is not played as it is: a panel states how long the video is and offers a "Convert and play" button, which converts the whole file to MP4 and plays the result. The converter is about 31MB and is fetched the first time a WMV needs it; converting takes roughly as long as the video itself (measured at 0.7× the running time for a 1080p clip) and shows a progress bar, an estimate of the time left, and a cancel button. A converted video is kept for the rest of the session, so reopening it plays immediately. Slideshow, hover playback, and the conversion features do not cover WMV
+
+### Fixed
+
+- Moving to the previous/next file during a slideshow could land on a file the slideshow does not cover — PDF, and now WMV. Advancing automatically already skipped those files; manual navigation now skips them as well. The counter in the header also shows the position among the slideshow's own targets, instead of counting every file in the gallery
+
 ## [3.21.2] - 2026-08-08
 
 ### Fixed
@@ -599,6 +609,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.22.0] - 2026-08-16
+
+### 追加
+
+- WMV形式に対応。WMV(ASF + WMV3/VC-1)はどのブラウザもデコードできないため、CDNから読み込んだ ffmpeg.wasm がブラウザ内でデコードする(どこにもアップロードされない)。サムネイルは1フレームを取り出して生成し、ライトボックスではそのまま再生せず、動画の長さを示したパネルの「変換して再生する」ボタンから、ファイル全体をMP4に変換して再生する。変換エンジンは約31MBあり、最初にWMVを扱うときに読み込む。変換には動画の長さと同程度の時間がかかり(1080pの実測で再生時間の0.7倍)、進捗バー・残り時間の目安・中止ボタンを表示する。変換した動画はそのセッション中は保持されるので、開き直せばすぐ再生できる。スライドショー・ホバー再生・変換保存の対象外
+
+### 修正
+
+- スライドショー中に前後のファイルへ移動すると、スライドショーの対象外のファイル(PDF、および今回対応したWMV)が表示されてしまう問題を修正。自動で進むときは元から飛ばしていたが、手動の移動でも飛ばすようにした。ヘッダーの件数表示も、ギャラリー全体の件数ではなくスライドショー対象の中での位置を示すように
 
 ## [3.21.2] - 2026-08-08
 
