@@ -3,6 +3,12 @@
 All notable changes to HeV Sender will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.0] - 2026-08-16
+
+### Added
+
+- WMV is now sent as well, matching HEIC etc Viewer v3.22.0, which can play WMV. Since no browser can play WMV inline, it is usually placed as a plain link rather than a `<video>` element, so links ending in `.wmv` are collected too (as videos). Files whose content is ASF but whose URL says otherwise are also recognised, by the same magic-byte check used for the other formats
+
 ## [1.5.2] - 2026-08-13
 
 ### Changed
@@ -72,6 +78,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [1.6.0] - 2026-08-16
+
+### 追加
+
+- WMVも送出するように（WMVを再生できる HEIC etc Viewer v3.22.0 に合わせた対応）。WMVはどのブラウザもインライン再生できない都合上、`<video>` 要素ではなく単なるリンクとして置かれていることが多いため、`.wmv` で終わるリンクも（動画として）収集する。URLの拡張子と中身が食い違うASFファイルも、他の形式と同じマジックナンバー判定で認識する
 
 ## [1.5.2] - 2026-08-13
 

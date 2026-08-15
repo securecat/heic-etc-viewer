@@ -2,7 +2,7 @@
 // HEIC etc Viewer を window.open で開いて postMessage で受け渡す
 
 // viewer側の対応拡張子（heic-etc-viewer.html の ALL_EXTS と揃えること）
-const KNOWN_EXTS = ['jpg','jpeg','jfif','png','gif','webp','avif','svg','bmp','tiff','tif','heic','heif','mp4','webm','mov','ico','pdf'];
+const KNOWN_EXTS = ['jpg','jpeg','jfif','png','gif','webp','avif','svg','bmp','tiff','tif','heic','heif','mp4','webm','mov','wmv','ico','pdf'];
 const MIME_EXT = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
@@ -19,6 +19,8 @@ const MIME_EXT = {
   'video/mp4': 'mp4',
   'video/webm': 'webm',
   'video/quicktime': 'mov',
+  'video/x-ms-wmv': 'wmv',
+  'video/x-ms-asf': 'wmv',
   'application/pdf': 'pdf',
 };
 const FETCH_TIMEOUT_MS = 60000;
@@ -70,6 +72,9 @@ function sniffExt(b) {
   if (b[0] === 0x00 && b[1] === 0x00 && b[2] === 0x01 && b[3] === 0x00) return 'ico';
   if (ascii(0, 4) === '%PDF') return 'pdf';
   if (b[0] === 0x1A && b[1] === 0x45 && b[2] === 0xDF && b[3] === 0xA3) return 'webm'; // EBML(webm/mkv)
+  // ASFヘッダーGUIDの先頭8バイト（WMV/WMAで共通。拾うのは動画リンクのみなのでwmv扱いでよい）
+  if (b[0] === 0x30 && b[1] === 0x26 && b[2] === 0xB2 && b[3] === 0x75 &&
+      b[4] === 0x8E && b[5] === 0x66 && b[6] === 0xCF && b[7] === 0x11) return 'wmv';
   if (ascii(4, 4) === 'ftyp') {
     const brand = ascii(8, 4);
     if (brand === 'avif' || brand === 'avis') return 'avif';

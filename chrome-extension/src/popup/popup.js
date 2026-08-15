@@ -30,9 +30,16 @@ function collectMedia(opts) {
     }
     if (opts.sendVideos) {
       document.querySelectorAll('video').forEach(v => {
+        // currentSrc is empty when the browser cannot play the source (e.g. WMV), so fall back to src
         let u = v.currentSrc || v.src;
         if (!u) { const srcEl = v.querySelector('source[src]'); u = srcEl ? srcEl.src : ''; }
         push(abs(u), 'video');
+      });
+      // browsers cannot play WMV inline, so it is usually placed as a plain link instead of a <video>
+      const isWmvUrl = u => { try { return new URL(u).pathname.toLowerCase().endsWith('.wmv'); } catch (e) { return false; } };
+      document.querySelectorAll('a[href]').forEach(a => {
+        const u = abs(a.href);
+        if (u && isWmvUrl(u)) push(u, 'video');
       });
     }
     if (opts.sendBgImages) {
