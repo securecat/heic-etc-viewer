@@ -993,7 +993,7 @@ input[type="range"]::-webkit-slider-thumb {
   <!-- フッター -->
   <footer class="app-footer">
     <h2 class="sr-only" data-i18n="footer.h2">App info</h2>
-    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.22.1</span></span>
+    <span class="app-title">HEIC etc Viewer <span style="font-size:14px;color:#949494;font-weight:400">v3.22.2</span></span>
     <button class="btn-icon" id="btnSettingsInfo" data-i18n-attr="aria-label:settings.label,title:settings.label" aria-label="Settings & Information" title="Settings & Information">⚙</button>
   </footer>
 </div>
@@ -1258,8 +1258,9 @@ const I18N = {
     'wmv.convertingEta': 'Converting… {p}% (about {r} left)',
     'wmv.duration': 'This video is {d} long,<br>and converting takes about the same amount of time.',
     'wmv.durationUnknown': 'Converting takes about as long as the video itself.',
-    'wmv.mmss': '{m} min {s} sec',
-    'wmv.ss': '{s} sec',
+    'wmv.h': '{h} hr ',
+    'wmv.m': '{m} min ',
+    'wmv.s': '{s} sec',
     'wmv.canceled': 'Canceled. The converter has to be downloaded again for the next try.',
     'wmv.failed': 'Conversion failed. This file may use a variant that cannot be decoded.',
     'hp.legend': 'Video thumbnail hover playback',
@@ -1452,8 +1453,9 @@ const I18N = {
     'wmv.convertingEta': '変換中… {p}%（残り約{r}）',
     'wmv.duration': 'この動画の長さは {d} で、<br>変換にはおおよそ同じくらいの時間がかかります。',
     'wmv.durationUnknown': '変換には動画の長さと同程度の時間がかかります。',
-    'wmv.mmss': '{m}分{s}秒',
-    'wmv.ss': '{s}秒',
+    'wmv.h': '{h}時間',
+    'wmv.m': '{m}分',
+    'wmv.s': '{s}秒',
     'wmv.canceled': '中止しました。次に試すときは変換エンジンのダウンロードからやり直しになります。',
     'wmv.failed': '変換に失敗しました。デコードできない種類のファイルかもしれません。',
     'hp.legend': '動画サムネのホバー再生',
@@ -2010,6 +2012,37 @@ async function execWithGuard(ff, args, ms) {
   }
 }
 
+// ASFヘッダーの File Properties Object から再生時間（秒）を読む。
+// サムネイル用には先頭だけを切り出してffmpegへ渡すため、ffmpegが報告する長さは
+// 「切り出した分の長さ」になってしまう。本当の長さはヘッダーに書かれているので自前で読む
+async function readAsfDuration(file) {
+  try {
+    const head = new Uint8Array(await file.slice(0, 65536).arrayBuffer());
+    if (head.length < 118) return 0;
+    const dv = new DataView(head.buffer, head.byteOffset, head.byteLength);
+    const HEADER_GUID = [0x30,0x26,0xB2,0x75,0x8E,0x66,0xCF,0x11,0xA6,0xD9,0x00,0xAA,0x00,0x62,0xCE,0x6C];
+    const PROPS_GUID  = [0xA1,0xDC,0xAB,0x8C,0x47,0xA9,0xCF,0x11,0x8E,0xE4,0x00,0xC0,0x0C,0x20,0x53,0x65];
+    const guidAt = (off, guid) => guid.every((b, i) => head[off + i] === b);
+    if (!guidAt(0, HEADER_GUID)) return 0;
+    // ヘッダーオブジェクト（先頭30バイト）の中に並ぶサブオブジェクトを順に辿る
+    let off = 30;
+    while (off + 88 <= head.length) {
+      if (guidAt(off, PROPS_GUID)) {
+        const play    = Number(dv.getBigUint64(off + 64, true)); // 100ナノ秒単位
+        const preroll = Number(dv.getBigUint64(off + 80, true)); // ミリ秒単位（再生開始前の余白）
+        const sec = play / 1e7 - preroll / 1e3;
+        return sec > 0 ? sec : 0;
+      }
+      const size = Number(dv.getBigUint64(off + 16, true));
+      if (!Number.isFinite(size) || size < 24) break;
+      off += size;
+    }
+    return 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
 // WMVの先頭数秒だけをMP4に変換する（サムネイル用）。
 // 1フレームだけ出力する指定（-frames:v 1）は、出力後すぐ終了する処理でffmpegが
 // 戻ってこなくなるファイルがあるため使わない。通常の変換と同じ経路なら安定して通るので、
@@ -2034,7 +2067,9 @@ function extractWmvHead(file, { onDownload, onReady } = {}) {
       '-movflags', 'faststart', 'thumb-out.mp4'], 30000);
     if (code !== 0) throw new Error(`ffmpeg exited with ${code}`);
     const data = await ff.readFile('thumb-out.mp4');
-    return { blob: new Blob([data.buffer], { type: 'video/mp4' }), duration };
+    // 切り出して渡した場合、ffmpegの言う長さは切り出した分でしかない。ヘッダーの値を優先する
+    const headerSec = await readAsfDuration(file);
+    return { blob: new Blob([data.buffer], { type: 'video/mp4' }), duration: headerSec || duration };
   }, onDownload);
 }
 
@@ -4039,11 +4074,17 @@ function cancelWmvJob() {
   wmvJob = null;
 }
 
-// 秒数を「3分3秒」のように表示する（1時間を超える動画は分表記のまま）
+// 秒数を「1時間13秒」「3分3秒」のように表示する（0になる単位は書かない）
 function fmtWmvDuration(sec) {
   const s = Math.max(0, Math.round(sec));
-  const m = Math.floor(s / 60);
-  return m ? tf('wmv.mmss', { m, s: s % 60 }) : tf('wmv.ss', { s: s });
+  const h = Math.floor(s / 3600);
+  const m = Math.floor(s / 60) % 60;
+  const r = s % 60;
+  const parts = [];
+  if (h) parts.push(tf('wmv.h', { h }));
+  if (m) parts.push(tf('wmv.m', { m }));
+  if (r || !parts.length) parts.push(tf('wmv.s', { s: r })); // ちょうど0秒でも「0秒」は出す
+  return parts.join('').trim();
 }
 
 function setupWmvPanel(file, key) {

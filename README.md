@@ -83,19 +83,12 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.22.1] - 2026-08-16
-
-#### Added
-
-- Thumbnails now say "Loading thumbnail…" beside the spinner while they are being prepared, so slow formats (HEIC, TIFF, WMV) no longer look like nothing is happening. At the smallest thumbnail size the spinner is shown alone, and results such as "Failed to load" are always shown regardless of size. For the first WMV, the converter's download and start-up are reported as their own steps before that
+### [3.22.2] - 2026-08-17
 
 #### Fixed
 
-- WMV thumbnails were mostly not generated at all. Asking ffmpeg for a single frame (`-frames:v 1`) makes it hang on many files — the decoding itself is fine, it is the "stop right after one frame" path that never returns. Thumbnails are now made by converting the first few seconds to MP4 (the same path the lightbox conversion already takes, which always worked) and then picking a frame from it with the viewer's regular video-thumbnail routine, so the usual handling that avoids dark openings applies to WMV as well
-- A converted or extracted result could crash the next one with "memory access out of bounds": ffmpeg shuts its runtime down after a single run, so the instance is now created fresh for each job and discarded afterwards. The 31MB converter itself is still fetched only once
-- A thumbnail for a large WMV took as long as it took to hand the whole file over to the converter — about 30 seconds for a 1GB file. Only the first 32MB is passed now, since just the opening seconds are needed, bringing it down to a few seconds
-- The status text shown on a thumbnail while it loads was too dim (about 5.1:1) for something that reports progress; it is now brighter (about 7:1)
-- The WMV badge on gallery thumbnails came in two colours: grey while the thumbnail was still queued, turning orange once its extraction started. The badge is now orange from the start, like the other video formats
+- The length shown for a WMV in the lightbox was far too short for large files — a 59-minute video was reported as 1 minute 39 seconds. Only the first 32MB of a file is handed to the converter when making its thumbnail, and ffmpeg was estimating the length from that fragment alone. The real length is now read directly from the ASF header, which carries it in the first few kilobytes
+- Lengths of an hour or more were spelled out in minutes ("60 min 13 sec"); they now use hours, and any unit that comes to zero is left out ("1 hr 13 sec" rather than "1 hr 0 min")
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -186,19 +179,12 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.22.1] - 2026-08-16
-
-#### 追加
-
-- サムネイルの読み込み中、スピナーの隣に「サムネイル読込中…」と表示するように。時間のかかる形式(HEIC・TIFF・WMV)で何も起きていないように見えることがなくなる。サムネイルサイズが最小のときはスピナーのみとし、「読込失敗」などの結果表示はサイズによらず常に表示する。WMVの初回は、その前に変換エンジンのダウンロードと起動も別の段階として表示する
+### [3.22.2] - 2026-08-17
 
 #### 修正
 
-- WMVのサムネイルがほとんど生成されなかった問題を修正。ffmpegに1フレームだけ出力させる指定(`-frames:v 1`)は、多くのファイルで戻ってこなくなる(デコード自体は正常で、「1フレーム出したら即終了」する処理が返らない)。先頭の数秒をMP4に変換し(ライトボックスの変換と同じ経路。こちらは常に成功していた)、そのMP4から通常の動画サムネイル生成でフレームを取り出す方式に変更した。冒頭の暗転を避ける既存の処理もWMVに適用される
-- 変換・抽出のあと、次の処理が「memory access out of bounds」で落ちることがあった問題を修正。ffmpegは1回実行するとランタイムが終了するため、処理ごとにインスタンスを作り直して使い終わったら破棄するようにした(変換エンジン本体31MBの取得は初回の1度だけ)
-- 大きなWMVのサムネイルが、ファイル全体を変換エンジンへ渡す時間だけ待たされていた(1GBで約30秒)問題を修正。必要なのは冒頭の数秒だけなので、先頭32MBのみを渡すようにして数秒で表示されるようにした
-- サムネイルの読み込み中に表示する文字が、状態を伝えるには暗すぎた(約5.1:1)ため明るく変更(約7:1)
-- ギャラリーのサムネイルに付くWMVバッジの色が2種類になっていた問題を修正。サムネイル生成の順番待ちの間はグレーで、生成が始まるとオレンジに変わっていた。他の動画形式と同じく、最初からオレンジで表示する
+- ライトボックスに表示されるWMVの長さが、大きなファイルでは実際よりはるかに短く表示されていた問題を修正(59分の動画が「1分39秒」と表示されていた)。サムネイル作成時はファイルの先頭32MBだけを変換エンジンに渡しているため、ffmpegがその断片から長さを推定していた。実際の長さは先頭数KBのASFヘッダーに書かれているので、そこから直接読むようにした
+- 1時間以上の長さが分表記(「60分13秒」)になっていたので時間表記にした。あわせて0になる単位は書かないようにした(「1時間0分」ではなく「1時間13秒」)
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

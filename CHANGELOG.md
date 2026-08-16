@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.22.2] - 2026-08-17
+
+### Fixed
+
+- The length shown for a WMV in the lightbox was far too short for large files — a 59-minute video was reported as 1 minute 39 seconds. Only the first 32MB of a file is handed to the converter when making its thumbnail, and ffmpeg was estimating the length from that fragment alone. The real length is now read directly from the ASF header, which carries it in the first few kilobytes
+- Lengths of an hour or more were spelled out in minutes ("60 min 13 sec"); they now use hours, and any unit that comes to zero is left out ("1 hr 13 sec" rather than "1 hr 0 min")
+
 ## [3.22.1] - 2026-08-16
 
 ### Added
@@ -623,6 +630,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.22.2] - 2026-08-17
+
+### 修正
+
+- ライトボックスに表示されるWMVの長さが、大きなファイルでは実際よりはるかに短く表示されていた問題を修正(59分の動画が「1分39秒」と表示されていた)。サムネイル作成時はファイルの先頭32MBだけを変換エンジンに渡しているため、ffmpegがその断片から長さを推定していた。実際の長さは先頭数KBのASFヘッダーに書かれているので、そこから直接読むようにした
+- 1時間以上の長さが分表記(「60分13秒」)になっていたので時間表記にした。あわせて0になる単位は書かないようにした(「1時間0分」ではなく「1時間13秒」)
 
 ## [3.22.1] - 2026-08-16
 
