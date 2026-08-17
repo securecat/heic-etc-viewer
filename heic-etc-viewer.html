@@ -909,6 +909,9 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* ── ブックマーク ── */
 .bookmarks-group { position: relative; }
+/* .btn-icon の既定は transparent だが、ボタン単体でコントラスト比を確保できるよう不透過にする
+   （body等の背景色が変わってもボタンのコントラストが壊れないようにするため） */
+#btnBookmarksToggle { background: var(--bg-card); }
 .bookmarks-popup {
   position: absolute;
   top: calc(100% + 4px);
@@ -3312,6 +3315,16 @@ document.addEventListener('pointerdown', e => {
   if (bookmarksPopup.hidden) return;
   if (bookmarkAddDialog.open || bookmarkDeleteDialog.open) return;
   if (!bookmarksGroup.contains(e.target)) closeBookmarksPopup(false);
+});
+// マウスで外側をクリックした時と同様、キーボードで他のコントロールへ移動した時も閉じる。
+// ただしポップアップ内のボタンから追加・削除ダイアログを開いた直後もフォーカスは外へ出るため、
+// その場合まで閉じてしまわないよう pointerdown と同じガードを入れる
+// （ダイアログを閉じた後、ネイティブの挙動でこのボタンへフォーカスが戻る）
+bookmarksGroup.addEventListener('focusout', e => {
+  if (bookmarksPopup.hidden) return;
+  if (bookmarkAddDialog.open || bookmarkDeleteDialog.open) return;
+  const next = e.relatedTarget;
+  if (!next || !bookmarksGroup.contains(next)) closeBookmarksPopup(false);
 });
 
 // 保存済みハンドルへのアクセス許可を取り直してからツリーを読み込む
