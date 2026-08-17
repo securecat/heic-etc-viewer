@@ -80,7 +80,8 @@ body {
 .btn.primary { background: #4D6EE1; border-color: transparent; color: #fff; }
 .btn.primary:hover, .btn.primary:active { background: var(--accent-hover); }
 .btn-icon {
-  background: transparent;
+  /* ボタン単体でコントラスト比を確保するため不透過にする（親要素の背景色に依存させない） */
+  background: var(--bg-card);
   border: 1px solid #fff;
   color: var(--text);
   border-radius: var(--radius);
@@ -513,7 +514,8 @@ input[type="range"]::-webkit-slider-thumb {
 .lb-dim-text { font-size: 14px; color: #949494; white-space: nowrap; flex-shrink: 0; }
 .lb-counter { font-size: 14px; color: #949494; white-space: nowrap; }
 .lb-close {
-  background: none; border: 1px solid #fff;
+  /* ボタン単体でコントラスト比を確保するため不透過にする（下に写真等が透けて見える構成にしない） */
+  background: var(--bg-card); border: 1px solid #fff;
   color: rgba(255,255,255,0.75); border-radius: 6px;
   width: 28px; height: 28px; cursor: pointer; font-size: 15px;
   display: flex; align-items: center; justify-content: center;
@@ -909,9 +911,6 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* ── ブックマーク ── */
 .bookmarks-group { position: relative; }
-/* .btn-icon の既定は transparent だが、ボタン単体でコントラスト比を確保できるよう不透過にする
-   （body等の背景色が変わってもボタンのコントラストが壊れないようにするため） */
-#btnBookmarksToggle { background: var(--bg-card); }
 .bookmarks-popup {
   position: absolute;
   top: calc(100% + 4px);
