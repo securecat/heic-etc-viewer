@@ -1,0 +1,16 @@
+{
+  // ローカルに設定ファイルを1つでも置くと、markuplint既定の recommended プリセットが
+  // 自動適用されなくなる（設定ファイルが見つからない時だけのフォールバックのため）。
+  // なので明示的に継承しないと defer 以外の全チェックまで無効化されてしまう
+  "extends": ["markuplint:recommended"],
+  // libheif-bundle.js は defer を付けると読み込み順序が崩れて動作しなくなるため、
+  // required-attr(defer) の対象から除外する。詳細は CLAUDE.md の「Markuplint」節を参照
+  "nodeRules": [
+    {
+      "selector": "script[src*=\"libheif-bundle.js\"]",
+      "rules": {
+        "required-attr": false
+      }
+    }
+  ]
+}

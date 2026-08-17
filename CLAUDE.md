@@ -53,7 +53,7 @@
 
 ## Markuplint
 
-- `heic-etc-viewer.html` 内の `<script src="...">`（libheif-bundle.js 等）に対する「`defer` 属性が必要」という Markuplint エラーは無視してよい
+- `heic-etc-viewer.html` 内の `libheif-bundle.js` の `<script src="...">` に対する「`defer` 属性が必要」というエラーは、リポジトリ直下の `.markuplintrc` で対象スクリプトのみ抑制済み（他のチェックはすべて有効）。手動で無視する必要はない
   - プログラムの都合上、`defer` を付けると読み込み順序が崩れて動作しなくなるため
-  - Markuplint 自体を無効化する必要はない（このルールだけの例外として無視すればOK）
+  - `.markuplintrc` を編集する際は、必ず `"extends": ["markuplint:recommended"]` を残すこと。設定ファイルが1つでも存在すると markuplint既定の recommended プリセットの自動適用が効かなくなるため、これを外すと defer 以外の全チェックまで無効化されてしまう
 
