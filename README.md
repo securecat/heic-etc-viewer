@@ -83,12 +83,16 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.22.2] - 2026-08-17
+### [3.23.0] - 2026-08-18
+
+#### Added
+
+- A bookmarks dropdown (▼) next to "Open Folder": save frequently used folders and reopen them later without browsing to them again. Adding one opens a native folder picker; reopening only needs a quick permission confirmation instead. Uses the File System Access API, so it's available in Chromium-based browsers only (Chrome, Edge, etc.) — attempting to add a bookmark in an unsupported browser shows an explanation instead of hiding the button
 
 #### Fixed
 
-- The length shown for a WMV in the lightbox was far too short for large files — a 59-minute video was reported as 1 minute 39 seconds. Only the first 32MB of a file is handed to the converter when making its thumbnail, and ffmpeg was estimating the length from that fragment alone. The real length is now read directly from the ASF header, which carries it in the first few kilobytes
-- Lengths of an hour or more were spelled out in minutes ("60 min 13 sec"); they now use hours, and any unit that comes to zero is left out ("1 hr 13 sec" rather than "1 hr 0 min")
+- Icon buttons (reload, slideshow, layout toggle, the bookmarks toggle, dialog close buttons, and the lightbox's zoom/rotate/checker/actual-size/loop/close buttons) had a transparent background, so their contrast depended entirely on whatever was behind them. They now have their own opaque background
+- The primary "Open Folder" button had a transparent border, relying solely on its fill color's contrast against the toolbar. It now has a defined border color of its own
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -179,12 +183,16 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.22.2] - 2026-08-17
+### [3.23.0] - 2026-08-18
+
+#### 追加
+
+- 「フォルダを開く」の右に「▼」ブックマーク機能を追加。よく使うフォルダを登録しておき、あとで辿り直さずに開き直せる。追加時はOSのネイティブなフォルダ選択ダイアログが開き、次回以降は簡単な許可確認だけで開ける。File System Access APIを利用しているため、Chromium系ブラウザ(Chrome、Edgeなど)でのみ利用可能。非対応ブラウザでもボタン自体は表示したままで、追加しようとした際に案内を表示する
 
 #### 修正
 
-- ライトボックスに表示されるWMVの長さが、大きなファイルでは実際よりはるかに短く表示されていた問題を修正(59分の動画が「1分39秒」と表示されていた)。サムネイル作成時はファイルの先頭32MBだけを変換エンジンに渡しているため、ffmpegがその断片から長さを推定していた。実際の長さは先頭数KBのASFヘッダーに書かれているので、そこから直接読むようにした
-- 1時間以上の長さが分表記(「60分13秒」)になっていたので時間表記にした。あわせて0になる単位は書かないようにした(「1時間0分」ではなく「1時間13秒」)
+- アイコンボタン(リロード・スライドショー・レイアウト切替・ブックマークの▼・ダイアログの閉じるボタン、ライトボックスのズーム・回転・市松・原寸表示・ループ・閉じるの各ボタン)の背景色がtransparentで、コントラスト比が背後の要素に依存していた問題を修正。ボタン自体に不透過の背景色を持たせた
+- 「フォルダを開く」ボタンの境界線がtransparentで、塗り色とトップバー背景とのコントラストだけに依存していた問題を修正。ボタン自体に境界線の色を持たせた
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
