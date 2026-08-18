@@ -3040,7 +3040,10 @@ document.getElementById('btnReload').addEventListener('click', async () => {
   revokeAll();
   clearThumbCache();
   if (rootNode && rootNode.entry) {
-    await loadDirectoryEntry(rootNode.entry);
+    // ブックマークから開いたフォルダ（全階層を読み切り済み）は、リロード後も
+    // 同じ読み込み方にする。遅延読み込みに戻すと展開マークの見え方が変わってしまうため
+    if (rootNode.eager) await loadDirectoryHandleEager(rootNode.entry);
+    else await loadDirectoryEntry(rootNode.entry);
   } else {
     gallery.innerHTML = '';
     renderGallery();
@@ -3080,6 +3083,36 @@ async function readHandleChildren(dirHandle) {
     results.push(handle);
   }
   return results;
+}
+
+// ── ブックマークから開く時専用：全階層を読み切ってからツリーを構築 ──────
+// 通常の遅延読み込み（loadDirectoryEntry）は「未展開＝子ありとみなす」ため、
+// 展開してみるまで実際には空のフォルダかどうか分からない。ブックマークは
+// 選び直された1フォルダを毎回開くだけなので、あらかじめ全部読んで正確な
+// 展開マークを最初から出す（DOM構築自体は従来どおり展開時まで遅延される）
+async function buildTreeFromHandleRecursive(handle) {
+  const node = { name: handle.name, entry: handle, files: [], children: [], loaded: true, el: null, parent: null };
+  const rawChildren = await readHandleChildren(handle);
+  for (const c of rawChildren) {
+    if (c.isFile) {
+      if (ALL_EXTS.includes(extOf(c.name))) node.files.push(c);
+    } else if (c.isDirectory && !c.name.startsWith('.') && !c.name.startsWith('$')) {
+      const childNode = await buildTreeFromHandleRecursive(c);
+      childNode.parent = node;
+      node.children.push(childNode);
+    }
+  }
+  node.children.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+  return node;
+}
+
+async function loadDirectoryHandleEager(handle) {
+  const node = await buildTreeFromHandleRecursive(handle);
+  node.eager = true;
+  rootNode = node;
+  renderTree();
+  await detectDiffPair(node);
+  selectNode(node);
 }
 
 // ── ディレクトリエントリからツリー構築（遅延読み込み）──────────────
@@ -3343,7 +3376,7 @@ async function openBookmark(bm) {
     revokeAll();
     clearThumbCache();
     document.getElementById('btnReload').style.display = '';
-    await loadDirectoryEntry(bm.handle);
+    await loadDirectoryHandleEager(bm.handle);
     closeBookmarksPopup();
   } catch (err) {
     showBookmarksError(tf('bookmarks.openFailed', { name: bm.name }));
