@@ -3017,7 +3017,7 @@ document.body.addEventListener('drop', async e => {
     loadFlatFiles(files, t('drop.rootName'));
     return;
   }
-  await loadDirectoryEntry(dirEntry);
+  await loadDirectoryEagerly(dirEntry);
 });
 
 // ── ボタン選択 ────────────────────────────────────────────────────
@@ -3040,10 +3040,7 @@ document.getElementById('btnReload').addEventListener('click', async () => {
   revokeAll();
   clearThumbCache();
   if (rootNode && rootNode.entry) {
-    // ブックマークから開いたフォルダ（全階層を読み切り済み）は、リロード後も
-    // 同じ読み込み方にする。遅延読み込みに戻すと展開マークの見え方が変わってしまうため
-    if (rootNode.eager) await loadDirectoryHandleEager(rootNode.entry);
-    else await loadDirectoryEntry(rootNode.entry);
+    await loadDirectoryEagerly(rootNode.entry);
   } else {
     gallery.innerHTML = '';
     renderGallery();
@@ -3085,19 +3082,20 @@ async function readHandleChildren(dirHandle) {
   return results;
 }
 
-// ── ブックマークから開く時専用：全階層を読み切ってからツリーを構築 ──────
-// 通常の遅延読み込み（loadDirectoryEntry）は「未展開＝子ありとみなす」ため、
-// 展開してみるまで実際には空のフォルダかどうか分からない。ブックマークは
-// 選び直された1フォルダを毎回開くだけなので、あらかじめ全部読んで正確な
-// 展開マークを最初から出す（DOM構築自体は従来どおり展開時まで遅延される）
-async function buildTreeFromHandleRecursive(handle) {
-  const node = { name: handle.name, entry: handle, files: [], children: [], loaded: true, el: null, parent: null };
-  const rawChildren = await readHandleChildren(handle);
+// ── フォルダを開く時：全階層を読み切ってからツリーを構築 ────────────────
+// 「未展開＝子ありとみなす」だと、展開してみるまで実際には空のフォルダかどうか
+// 分からず、全フォルダに展開マークが付いて見える。ドラッグ＆ドロップ・ブックマーク
+// いずれも1フォルダをまるごと開くだけなので、あらかじめ全部読んで正確な展開マークを
+// 最初から出す（DOM構築自体は従来どおり実際に展開するまで遅延される）。
+// FileSystemEntry（D&D）・FileSystemHandle（ブックマーク）どちらも readEntryChildren が吸収する
+async function buildTreeEagerly(entry) {
+  const node = { name: entry.name, entry, files: [], children: [], loaded: true, el: null, parent: null };
+  const rawChildren = await readEntryChildren(entry);
   for (const c of rawChildren) {
     if (c.isFile) {
       if (ALL_EXTS.includes(extOf(c.name))) node.files.push(c);
     } else if (c.isDirectory && !c.name.startsWith('.') && !c.name.startsWith('$')) {
-      const childNode = await buildTreeFromHandleRecursive(c);
+      const childNode = await buildTreeEagerly(c);
       childNode.parent = node;
       node.children.push(childNode);
     }
@@ -3106,33 +3104,17 @@ async function buildTreeFromHandleRecursive(handle) {
   return node;
 }
 
-async function loadDirectoryHandleEager(handle) {
-  const node = await buildTreeFromHandleRecursive(handle);
-  node.eager = true;
+async function loadDirectoryEagerly(entry) {
+  const node = await buildTreeEagerly(entry);
   rootNode = node;
   renderTree();
   await detectDiffPair(node);
   selectNode(node);
 }
 
-// ── ディレクトリエントリからツリー構築（遅延読み込み）──────────────
-async function loadDirectoryEntry(dirEntry) {
-  const node = {
-    name: dirEntry.name,
-    entry: dirEntry,
-    files: null,       // null = 未読み込み
-    children: null,    // null = 未読み込み
-    loaded: false,
-    el: null,
-    parent: null,
-  };
-  rootNode = node;
-  renderTree();
-  await expandNode(node);
-  await detectDiffPair(node);
-  selectNode(node);
-}
-
+// expandNode: フォルダツリーの遅延展開用。フォルダを開く経路はすべて
+// buildTreeEagerly で全階層を読み切る（node.loaded は最初からtrue）ため、
+// 通常は下記の呼び出しは素通りするが、将来lazyな読み込み経路を足す時のために残す
 async function expandNode(node) {
   if (node.loaded) return;
   node.loaded = true;
@@ -3376,7 +3358,7 @@ async function openBookmark(bm) {
     revokeAll();
     clearThumbCache();
     document.getElementById('btnReload').style.display = '';
-    await loadDirectoryHandleEager(bm.handle);
+    await loadDirectoryEagerly(bm.handle);
     closeBookmarksPopup();
   } catch (err) {
     showBookmarksError(tf('bookmarks.openFailed', { name: bm.name }));
