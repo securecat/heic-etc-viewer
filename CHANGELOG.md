@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.23.3] - 2026-08-18
+
+### Fixed
+
+- Folders opened by dragging and dropping them in now also have their whole tree read upfront (see 3.23.2), instead of only bookmarked folders
+
+## [3.23.2] - 2026-08-18
+
+### Fixed
+
+- Opening a bookmarked folder showed every directory in the tree as expandable, even ones with no subfolders at all, until you actually opened them and found them empty. Bookmarks now read the whole folder tree before showing it, so the expand arrows are accurate from the start
+
+## [3.23.1] - 2026-08-18
+
+### Changed
+
+- The bookmarks toggle button's "▼" is now a bookmark-shaped icon. The icon carries its own accessible name (via an SVG `<title>`) instead of being hidden with a label bolted onto the button
+
 ## [3.23.0] - 2026-08-18
 
 ### Added
@@ -641,6 +659,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.23.3] - 2026-08-18
+
+### 修正
+
+- ドラッグ＆ドロップで開いたフォルダも、(3.23.2の)全階層の先読みが行われるようにした。これまではブックマークから開いた時だけだった
+
+## [3.23.2] - 2026-08-18
+
+### 修正
+
+- ブックマークからフォルダを開いた時、サブフォルダが実際には無いディレクトリまで、開いてみるまで「展開可能」に見えていた問題を修正。ブックマークから開く時はあらかじめ全階層を読んでからツリーを表示するようにし、展開マークが最初から正確になるようにした
+
+## [3.23.1] - 2026-08-18
+
+### 変更
+
+- ブックマークのトグルボタンのアイコンを「▼」からブックマーク形のアイコンに変更。アイコンを隠してボタン側にラベルを付ける形ではなく、アイコン自身がSVGの`<title>`でアクセシブルネームを持つようにした
 
 ## [3.23.0] - 2026-08-18
 

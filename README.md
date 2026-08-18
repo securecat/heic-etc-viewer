@@ -83,16 +83,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.23.0] - 2026-08-18
-
-#### Added
-
-- A bookmarks dropdown (▼) next to "Open Folder": save frequently used folders and reopen them later without browsing to them again. Adding one opens a native folder picker; reopening only needs a quick permission confirmation instead. Uses the File System Access API, so it's available in Chromium-based browsers only (Chrome, Edge, etc.) — attempting to add a bookmark in an unsupported browser shows an explanation instead of hiding the button
+### [3.23.3] - 2026-08-18
 
 #### Fixed
 
-- Icon buttons (reload, slideshow, layout toggle, the bookmarks toggle, dialog close buttons, and the lightbox's zoom/rotate/checker/actual-size/loop/close buttons) had a transparent background, so their contrast depended entirely on whatever was behind them. They now have their own opaque background
-- The primary "Open Folder" button had a transparent border, relying solely on its fill color's contrast against the toolbar. It now has a defined border color of its own
+- Folders opened by dragging and dropping them in now also have their whole tree read upfront, instead of only bookmarked folders
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -183,16 +178,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.23.0] - 2026-08-18
-
-#### 追加
-
-- 「フォルダを開く」の右に「▼」ブックマーク機能を追加。よく使うフォルダを登録しておき、あとで辿り直さずに開き直せる。追加時はOSのネイティブなフォルダ選択ダイアログが開き、次回以降は簡単な許可確認だけで開ける。File System Access APIを利用しているため、Chromium系ブラウザ(Chrome、Edgeなど)でのみ利用可能。非対応ブラウザでもボタン自体は表示したままで、追加しようとした際に案内を表示する
+### [3.23.3] - 2026-08-18
 
 #### 修正
 
-- アイコンボタン(リロード・スライドショー・レイアウト切替・ブックマークの▼・ダイアログの閉じるボタン、ライトボックスのズーム・回転・市松・原寸表示・ループ・閉じるの各ボタン)の背景色がtransparentで、コントラスト比が背後の要素に依存していた問題を修正。ボタン自体に不透過の背景色を持たせた
-- 「フォルダを開く」ボタンの境界線がtransparentで、塗り色とトップバー背景とのコントラストだけに依存していた問題を修正。ボタン自体に境界線の色を持たせた
+- ドラッグ＆ドロップで開いたフォルダも、全階層の先読みが行われるようにした。これまではブックマークから開いた時だけだった
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
