@@ -87,7 +87,7 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 #### Fixed
 
-- Folders opened by dragging and dropping them in now also have their whole tree read upfront, instead of only bookmarked folders
+- Folders opened by dragging and dropping them in showed every directory in the tree as expandable, even ones with no subfolders at all, until you actually opened them and found them empty. Drag-and-drop now reads the whole folder tree upfront too, the same way bookmarks already did, so the expand arrows are accurate from the start
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -182,7 +182,7 @@ python -m http.server 8080
 
 #### 修正
 
-- ドラッグ＆ドロップで開いたフォルダも、全階層の先読みが行われるようにした。これまではブックマークから開いた時だけだった
+- ドラッグ＆ドロップでフォルダを開いた時、サブフォルダが実際には無いディレクトリまで、開いてみるまで「展開可能」に見えていた問題を修正。ブックマークから開く時と同様、ドラッグ＆ドロップでもあらかじめ全階層を読んでからツリーを表示するようにし、展開マークが最初から正確になるようにした
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
