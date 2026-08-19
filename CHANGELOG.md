@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.23.4] - 2026-08-18
+
+### Changed
+
+- The tree and gallery scrollbar color changed from a dark navy blue to the app's accent blue, with a lighter shade on hover
+
 ## [3.23.3] - 2026-08-18
 
 ### Fixed
@@ -659,6 +665,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.23.4] - 2026-08-18
+
+### 変更
+
+- ツリーとギャラリーのスクロールバーの色を、暗いネイビーからアプリのアクセントカラー（青）に変更。ホバー時は明るい色になる
 
 ## [3.23.3] - 2026-08-18
 

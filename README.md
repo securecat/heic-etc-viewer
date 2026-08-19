@@ -83,11 +83,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.23.3] - 2026-08-18
+### [3.23.4] - 2026-08-18
 
-#### Fixed
+#### Changed
 
-- Folders opened by dragging and dropping them in showed every directory in the tree as expandable, even ones with no subfolders at all, until you actually opened them and found them empty. Drag-and-drop now reads the whole folder tree upfront too, the same way bookmarks already did, so the expand arrows are accurate from the start
+- The tree and gallery scrollbar color changed from a dark navy blue to the app's accent blue, with a lighter shade on hover
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -178,11 +178,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.23.3] - 2026-08-18
+### [3.23.4] - 2026-08-18
 
-#### 修正
+#### 変更
 
-- ドラッグ＆ドロップでフォルダを開いた時、サブフォルダが実際には無いディレクトリまで、開いてみるまで「展開可能」に見えていた問題を修正。ブックマークから開く時と同様、ドラッグ＆ドロップでもあらかじめ全階層を読んでからツリーを表示するようにし、展開マークが最初から正確になるようにした
+- ツリーとギャラリーのスクロールバーの色を、暗いネイビーからアプリのアクセントカラー（青）に変更。ホバー時は明るい色になる
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
