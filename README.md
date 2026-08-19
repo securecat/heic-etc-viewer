@@ -83,11 +83,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.23.4] - 2026-08-18
+### [3.23.5] - 2026-08-19
 
 #### Changed
 
-- The tree and gallery scrollbar color changed from a dark navy blue to the app's accent blue, with a lighter shade on hover
+- Deepened the bookmark icon's notch and enlarged it from 14x14 to 18x18px so it reads more clearly as a bookmark shape
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -178,11 +178,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.23.4] - 2026-08-18
+### [3.23.5] - 2026-08-19
 
 #### 変更
 
-- ツリーとギャラリーのスクロールバーの色を、暗いネイビーからアプリのアクセントカラー（青）に変更。ホバー時は明るい色になる
+- ブックマークアイコンの切り込みを深くし、サイズも14×14pxから18×18pxに拡大。ブックマークの形として認識しやすくした
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

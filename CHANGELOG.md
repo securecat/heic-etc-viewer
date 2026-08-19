@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.23.5] - 2026-08-19
+
+### Changed
+
+- Deepened the bookmark icon's notch and enlarged it from 14x14 to 18x18px so it reads more clearly as a bookmark shape
+
 ## [3.23.4] - 2026-08-18
 
 ### Changed
@@ -665,6 +671,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.23.5] - 2026-08-19
+
+### 変更
+
+- ブックマークアイコンの切り込みを深くし、サイズも14×14pxから18×18pxに拡大。ブックマークの形として認識しやすくした
 
 ## [3.23.4] - 2026-08-18
 
