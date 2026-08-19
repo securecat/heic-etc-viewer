@@ -1007,7 +1007,7 @@ input[type="range"]::-webkit-slider-thumb {
   <input type="file" id="fileInput" webkitdirectory multiple style="display:none" aria-hidden="true">
   <div class="bookmarks-group">
     <button class="btn-icon" id="btnBookmarksToggle" aria-expanded="false" aria-controls="bookmarksPopup">
-      <svg role="img" width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><title data-i18n="bookmarks.toggleLabel">Bookmarks</title><path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Z"/></svg>
+      <svg role="img" width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><title data-i18n="bookmarks.toggleLabel">Bookmarks</title><path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-360 200-120Z"/></svg>
     </button>
     <div class="bookmarks-popup" id="bookmarksPopup" hidden>
       <p class="bookmarks-empty" id="bookmarksEmpty" data-i18n="bookmarks.empty">No bookmarks yet.</p>
@@ -1162,7 +1162,7 @@ input[type="range"]::-webkit-slider-thumb {
     <h3 data-i18n="g.alt.h">Alt text generation (AI)</h3>
     <p data-i18n="g.alt.p">Generates alt text for images with Chrome's built-in on-device AI (Gemini Nano) — nothing is sent to any server. Works with JPEG, PNG, WebP, GIF, SVG, and AVIF (formats usable in &lt;img&gt;), and the output language can be chosen with "Alt text language" in the Settings tab (when unset, it follows the browser language: Japanese or English). Select "All" as the convert subject and choose "Export alt text (AI)" to download a JSON file pairing each filename with its alt text, or use "Alt text" in the lightbox to generate and copy text for one image. Requires Chrome 148 or later, at least 22 GB of free disk space, more than 4 GB of VRAM, and 16 GB of RAM; the first run downloads the model. Animated GIFs are described from their first frame.</p>
     <h3 data-i18n="g.bookmarks.h">Bookmarks</h3>
-    <p data-i18n="g.bookmarks.p">Click the ▼ next to "Open Folder" to save frequently used folders and reopen them without browsing to them again. Adding one opens a native folder picker; reopening a bookmark only needs a quick permission confirmation instead of the full picker. Available in Chromium-based browsers only (Chrome, Edge, etc.), since it relies on the File System Access API.</p>
+    <p data-i18n="g.bookmarks.p">Click the bookmark icon next to "Open Folder" to save frequently used folders and reopen them without browsing to them again. Adding one opens a native folder picker; reopening a bookmark only needs a quick permission confirmation instead of the full picker. Available in Chromium-based browsers only (Chrome, Edge, etc.), since it relies on the File System Access API.</p>
     <h3 data-i18n="g.kbd.h">Keyboard operation</h3>
     <h4 data-i18n="g.kbd.treeH">Folder tree</h4>
     <p data-i18n-html="g.kbd.treeP"><kbd>Tab</kbd> enters the tree on the selected folder. <kbd>↑</kbd> <kbd>↓</kbd> move between visible folders. <kbd>→</kbd> expands a closed folder; on the selected folder with nothing left to expand, it moves focus into the gallery. <kbd>←</kbd> collapses an open folder. <kbd>Enter</kbd> / <kbd>Space</kbd> shows the folder's contents in the gallery; pressing it again moves focus into the gallery. <kbd>Home</kbd> / <kbd>End</kbd> jump to the first / last folder. Typing a character jumps to the next folder whose name starts with it.</p>
@@ -1507,7 +1507,7 @@ const I18N = {
     'g.alt.h': 'Alt text generation (AI)',
     'g.alt.p': 'Generates alt text for images with Chrome\'s built-in on-device AI (Gemini Nano) — nothing is sent to any server. Works with JPEG, PNG, WebP, GIF, SVG, and AVIF (formats usable in <img>), and the output language can be chosen with "Alt text language" in the Settings tab (when unset, it follows the browser language: Japanese or English). Select "All" as the convert subject and choose "Export alt text (AI)" to download a JSON file pairing each filename with its alt text, or use "Alt text" in the lightbox to generate and copy text for one image. Requires Chrome 148 or later, at least 22 GB of free disk space, more than 4 GB of VRAM, and 16 GB of RAM; the first run downloads the model. Animated GIFs are described from their first frame.',
     'g.bookmarks.h': 'Bookmarks',
-    'g.bookmarks.p': 'Click the ▼ next to "Open Folder" to save frequently used folders and reopen them without browsing to them again. Adding one opens a native folder picker; reopening a bookmark only needs a quick permission confirmation instead of the full picker. Available in Chromium-based browsers only (Chrome, Edge, etc.), since it relies on the File System Access API.',
+    'g.bookmarks.p': 'Click the bookmark icon next to "Open Folder" to save frequently used folders and reopen them without browsing to them again. Adding one opens a native folder picker; reopening a bookmark only needs a quick permission confirmation instead of the full picker. Available in Chromium-based browsers only (Chrome, Edge, etc.), since it relies on the File System Access API.',
   },
   ja: {
     'app.toolbar': 'ツールバー',
@@ -1721,7 +1721,7 @@ const I18N = {
     'g.alt.h': '代替テキスト生成(AI)',
     'g.alt.p': 'Chrome内蔵のオンデバイスAI(Gemini Nano)で画像の代替テキストを生成します。サーバーには何も送信されません。対象はJPEG・PNG・WebP・GIF・SVG・AVIF(<img>で使える形式)で、生成される言語は設定タブの「代替テキストの言語」で選べます(未選択の場合は、ブラウザの言語設定に応じて日本語または英語になります)。変換対象「すべて」の「代替テキストをエクスポート(AI)」で、ファイル名と代替テキストを対にしたJSONをダウンロードできます。ライトボックスの「代替テキスト」では1枚ずつ生成してコピーできます。Chrome 148以降・空きストレージ22GB以上・VRAM 4GB超・RAM 16GB以上が必要で、初回はAIモデルのダウンロードが行われます。アニメーションGIFは先頭フレームの内容から生成されます。',
     'g.bookmarks.h': 'ブックマーク',
-    'g.bookmarks.p': '「フォルダを開く」の右にある▼から、よく使うフォルダを登録していつでも呼び出せます。追加時はOSのフォルダ選択ダイアログが開き、次回以降はフォルダを辿り直さなくても、簡単な許可確認だけで開けます。File System Access APIを利用しているため、Chromium系ブラウザ(Chrome、Edgeなど)でのみ利用できます。',
+    'g.bookmarks.p': '「フォルダを開く」の右にあるブックマークのアイコンから、よく使うフォルダを登録していつでも呼び出せます。追加時はOSのフォルダ選択ダイアログが開き、次回以降はフォルダを辿り直さなくても、簡単な許可確認だけで開けます。File System Access APIを利用しているため、Chromium系ブラウザ(Chrome、Edgeなど)でのみ利用できます。',
   },
 };
 const LANG_STORAGE_KEY = 'hev-lang';
