@@ -369,16 +369,17 @@ input[type="range"]::-webkit-slider-thumb {
   position: absolute; top: 5px; right: 5px;
   background: #333;
   border-radius: 4px; padding: 2px 4px;
-  font-size: 9px; color: rgba(255,255,255,0.75);
+  font-size: 9px; color: #fff;
   text-transform: uppercase;
 }
 /* サムネイルサイズが中間以上の時は、バッジの文字も少し大きくする */
 .gallery.thumb-size-large .ext-badge { font-size: 12px; }
 .heic-badge      { background: #4D5FCC; }
 .pdf-badge       { background: #B84040; }
-.ico-badge       { background: #2C864A; }
-.video-badge     { background: #A86810; }
-.unplayable-badge{ background: #B84040; }
+.video-badge     { background: #2C864A; }
+/* 変換が必要な動画（WMV・MKVの低速パス）は文字色を黒にして通常動画と区別する */
+.video-badge.needs-convert { color: #000; }
+.unplayable-badge{ background: #A86810; }
 /* ZIPエクスポートの選択チェックボックス（サムネ左上）。
    任意のサムネ画像の上に載るため、チップは不透明背景＋明色ボーダーでコントラストを確保する */
 .zip-check {
@@ -3876,7 +3877,7 @@ function renderTileGallery(generation) {
       loading.innerHTML = `<div class="thumb-spinner" aria-hidden="true"></div><span class="thumb-loading-text is-progress">${t('thumb.loading')}</span>`;
 
       const badge = document.createElement('div');
-      badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name)) ? ' video-badge' : isPdf(name) ? ' pdf-badge' : isIco(name) ? ' ico-badge' : '');
+      badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name)) ? ' video-badge' + (isWmv(name) ? ' needs-convert' : '') : isPdf(name) ? ' pdf-badge' : '');
       badge.textContent = extOf(name).toUpperCase();
       badge.setAttribute('aria-hidden', 'true');
       badge.dataset.badge = 'true';
@@ -3994,7 +3995,7 @@ function renderGallery({ preserveScroll = false } = {}) {
     loading.innerHTML = `<div class="thumb-spinner" aria-hidden="true"></div><span class="thumb-loading-text is-progress">${t('thumb.loading')}</span>`;
 
     const badge = document.createElement('div');
-    badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name)) ? ' video-badge' : isPdf(name) ? ' pdf-badge' : isIco(name) ? ' ico-badge' : '');
+    badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name)) ? ' video-badge' + (isWmv(name) ? ' needs-convert' : '') : isPdf(name) ? ' pdf-badge' : '');
     badge.textContent = extOf(name).toUpperCase();
     badge.setAttribute('aria-hidden', 'true');
     badge.dataset.badge = 'true';
