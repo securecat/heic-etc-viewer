@@ -83,11 +83,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.23.5] - 2026-08-19
+### [3.24.0] - 2026-08-22
 
-#### Changed
+#### Added
 
-- Deepened the bookmark icon's notch and enlarged it from 14x14 to 18x18px so it reads more clearly as a bookmark shape
+- A "Rotate" option in the lightbox's video format menu (90° clockwise, 180°, or 90° counter-clockwise): saves a copy of the video rotated by rewriting the container's rotation metadata, without re-encoding, so it finishes almost instantly. The output keeps the source's own container format (MP4/MOV/WebM). Verified against real players (Windows Media Player, Movies & TV, Photos, VLC, ACDSee), all of which read the rotation metadata correctly
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -178,11 +178,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.23.5] - 2026-08-19
+### [3.24.0] - 2026-08-22
 
-#### 変更
+#### 追加
 
-- ブックマークアイコンの切り込みを深くし、サイズも14×14pxから18×18pxに拡大。ブックマークの形として認識しやすくした
+- ライトボックスの動画変換メニューに「回転」を追加(時計回りに90度・180度・反時計回りに90度)。コンテナの回転メタデータを書き換えるだけで映像自体は再エンコードしないため、ほぼ一瞬で完了する。出力は元と同じコンテナ形式(MP4/MOV/WebM)を維持する。実際の再生ソフト(メディアプレイヤー・映画＆テレビ・フォト・VLC・ACDSee)でメタデータが正しく反映されることを確認済み
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
