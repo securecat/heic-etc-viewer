@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.24.1] - 2026-08-22
+
+### Changed
+
+- Recolored gallery thumbnail badges: video files now get green (freed up from ICO, which now uses the plain default badge style instead), and "can't play this in this browser" moves from red (previously shared with PDF, which was misleading) to orange. A video badge for a file that needs converting before it can play (currently WMV) also shows in black text, to flag that it isn't a normal ready-to-play video
+
+### Fixed
+
+- Gallery thumbnail badges (the small file-type label in the corner) used semi-transparent white text, which pushed the effective contrast below the required minimum against every colored badge (HEIC, video, PDF, and "can't play this in this browser") — all were failing. Text is now fully opaque
+
 ## [3.24.0] - 2026-08-22
 
 ### Added
@@ -677,6 +687,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.24.1] - 2026-08-22
+
+### 変更
+
+- ギャラリーサムネイルのバッジの配色を変更。動画は緑に(ICO用だった色を転用。ICOは通常画像と同じ既定のバッジ見た目になったため空いた)、「このブラウザで再生不可」は赤(従来PDFと共用で紛らわしかった)からオレンジに。再生前に変換が必要な動画(現状WMVのみ)のバッジは、通常の動画バッジと区別するため文字色を黒にした
+
+### 修正
+
+- ギャラリーサムネイルのバッジ(角に出るファイル種別ラベル)の文字色が半透明の白になっており、色付きバッジ(HEIC・動画・PDF・「このブラウザで再生不可」)すべてで実効コントラスト比が基準を下回っていた問題を修正。文字を完全に不透明にした
 
 ## [3.24.0] - 2026-08-22
 

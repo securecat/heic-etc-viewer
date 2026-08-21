@@ -83,11 +83,15 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.24.0] - 2026-08-22
+### [3.24.1] - 2026-08-22
 
-#### Added
+#### Changed
 
-- A "Rotate" option in the lightbox's video format menu (90° clockwise, 180°, or 90° counter-clockwise): saves a copy of the video rotated by rewriting the container's rotation metadata, without re-encoding, so it finishes almost instantly. The output keeps the source's own container format (MP4/MOV/WebM). Verified against real players (Windows Media Player, Movies & TV, Photos, VLC, ACDSee), all of which read the rotation metadata correctly
+- Recolored gallery thumbnail badges: video files now get green (freed up from ICO, which now uses the plain default badge style instead), and "can't play this in this browser" moves from red (previously shared with PDF, which was misleading) to orange. A video badge for a file that needs converting before it can play (currently WMV) also shows in black text, to flag that it isn't a normal ready-to-play video
+
+#### Fixed
+
+- Gallery thumbnail badges (the small file-type label in the corner) used semi-transparent white text, which pushed the effective contrast below the required minimum against every colored badge (HEIC, video, PDF, and "can't play this in this browser") — all were failing. Text is now fully opaque
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -178,11 +182,15 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.24.0] - 2026-08-22
+### [3.24.1] - 2026-08-22
 
-#### 追加
+#### 変更
 
-- ライトボックスの動画変換メニューに「回転」を追加(時計回りに90度・180度・反時計回りに90度)。コンテナの回転メタデータを書き換えるだけで映像自体は再エンコードしないため、ほぼ一瞬で完了する。出力は元と同じコンテナ形式(MP4/MOV/WebM)を維持する。実際の再生ソフト(メディアプレイヤー・映画＆テレビ・フォト・VLC・ACDSee)でメタデータが正しく反映されることを確認済み
+- ギャラリーサムネイルのバッジの配色を変更。動画は緑に(ICO用だった色を転用。ICOは通常画像と同じ既定のバッジ見た目になったため空いた)、「このブラウザで再生不可」は赤(従来PDFと共用で紛らわしかった)からオレンジに。再生前に変換が必要な動画(現状WMVのみ)のバッジは、通常の動画バッジと区別するため文字色を黒にした
+
+#### 修正
+
+- ギャラリーサムネイルのバッジ(角に出るファイル種別ラベル)の文字色が半透明の白になっており、色付きバッジ(HEIC・動画・PDF・「このブラウザで再生不可」)すべてで実効コントラスト比が基準を下回っていた問題を修正。文字を完全に不透明にした
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
