@@ -1152,7 +1152,7 @@ input[type="range"]::-webkit-slider-thumb {
     <h4 data-i18n="g.convert.imgH">Images</h4>
     <p data-i18n="g.convert.imgP">HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. Lossy formats (WebP/JPEG) are marked with ▸ in the lightbox format menu: choose "Preview" from the submenu to overlay the original and the converted result with a divider, showing both file sizes, before you download.</p>
     <h4 data-i18n="g.convert.videoH">Video</h4>
-    <p data-i18n="g.convert.videoP">MP4, WebM, and MOV → Sound, Thumbnail, or Rotate. Sound extracts the audio track as-is (no re-encoding), so the resulting file's actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video). Rotate (lightbox only) saves a copy rotated 90°, 180°, or 270° clockwise by rewriting the container's rotation metadata — the video itself isn't re-encoded, so it finishes almost instantly.</p>
+    <p data-i18n="g.convert.videoP">MP4, WebM, and MOV → Sound, Thumbnail, or Rotate. Sound extracts the audio track as-is (no re-encoding), so the resulting file's actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video). Rotate (lightbox only) saves a copy rotated 90° clockwise, 180°, or 90° counter-clockwise by rewriting the container's rotation metadata — the video itself isn't re-encoded, so it finishes almost instantly.</p>
     <h4 data-i18n="g.convert.pdfH">PDF</h4>
     <p data-i18n="g.convert.pdfP">A PDF opened in the lightbox can be split into one PDF per page ("PDF (individual pages)"), downloaded as a zip (or as a single file for one-page PDFs). Pages are extracted as-is, without re-rendering.</p>
     <h3 data-i18n="g.zip.h">Export as a Zip</h3>
@@ -1353,7 +1353,7 @@ const I18N = {
     'fmt.thumbnails': 'Thumbnails',
     'fmt.rotate90': 'Rotate (90° clockwise)',
     'fmt.rotate180': 'Rotate (180°)',
-    'fmt.rotate270': 'Rotate (270° clockwise)',
+    'fmt.rotate270': 'Rotate (90° counter-clockwise)',
     'fmt.zip': 'Export as a Zip',
     'tree.label': 'Folder tree',
     'gallery.h2': 'Gallery',
@@ -1430,7 +1430,7 @@ const I18N = {
     'g.convert.imgH': 'Images',
     'g.convert.imgP': 'HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. Lossy formats (WebP/JPEG) are marked with ▸ in the lightbox format menu: choose "Preview" from the submenu to overlay the original and the converted result with a divider, showing both file sizes, before you download.',
     'g.convert.videoH': 'Video',
-    'g.convert.videoP': 'MP4, WebM, and MOV → Sound or Thumbnail. Sound extracts the audio track as-is (no re-encoding), so the resulting file\'s actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video).',
+    'g.convert.videoP': 'MP4, WebM, and MOV → Sound, Thumbnail, or Rotate. Sound extracts the audio track as-is (no re-encoding), so the resulting file\'s actual codec depends on the source (e.g. AAC, Opus); files with no audio track are skipped in bulk, or shown an error individually. Thumbnail saves a JPEG snapshot from early in the video (bulk downloads one per video). Rotate (lightbox only) saves a copy rotated 90° clockwise, 180°, or 90° counter-clockwise by rewriting the container\'s rotation metadata — the video itself isn\'t re-encoded, so it finishes almost instantly.',
     'g.convert.pdfH': 'PDF',
     'g.convert.pdfP': 'A PDF opened in the lightbox can be split into one PDF per page ("PDF (individual pages)"), downloaded as a zip (or as a single file for one-page PDFs). Pages are extracted as-is, without re-rendering.',
     'g.zip.h': 'Export as a Zip',
@@ -1570,7 +1570,7 @@ const I18N = {
     'fmt.thumbnails': 'サムネイル',
     'fmt.rotate90': '回転(時計回りに90度)',
     'fmt.rotate180': '回転(180度)',
-    'fmt.rotate270': '回転(時計回りに270度)',
+    'fmt.rotate270': '回転(反時計回りに90度)',
     'fmt.zip': 'ZIPでエクスポート',
     'tree.label': 'フォルダツリー',
     'gallery.h2': 'ギャラリーエリア',
@@ -1647,7 +1647,7 @@ const I18N = {
     'g.convert.imgH': '画像',
     'g.convert.imgP': 'HEIC/HEIF、JPEG、PNG、WebP、BMP、TIFF、AVIF → WebP・PNG・JPEG・PDF(1ファイルずつでも、一括でも可)。「高圧縮」のWebP/JPEGは、品質設定を大きく下げることでファイルサイズを大幅に小さくします。非可逆形式(WebP/JPEG)にはライトボックスの形式メニューで「▸」が付いていて、サブメニューの「プレビュー」を選ぶと、ダウンロード前に元画像と変換後を境界線付きで重ねて比較できます(それぞれのファイルサイズも表示)。',
     'g.convert.videoH': '動画',
-    'g.convert.videoP': 'MP4、WebM、MOV → 音声、サムネイル、または回転。「音声」は音声トラックを再エンコードせずそのまま抽出するため、出力ファイルの実際のコーデックは元動画に依存します(例: AAC、Opus)。音声トラックのない動画は、一括変換ではスキップされ、個別変換ではエラーになります。「サムネイル」は動画の序盤からJPEGのスナップショットを保存します(一括では動画ごとに1枚ずつダウンロード)。「回転」(ライトボックスのみ)は、時計回りに90度・180度・270度回転したコピーを保存します。コンテナの回転メタデータを書き換えるだけで映像自体は再エンコードしないため、ほぼ一瞬で完了します。',
+    'g.convert.videoP': 'MP4、WebM、MOV → 音声、サムネイル、または回転。「音声」は音声トラックを再エンコードせずそのまま抽出するため、出力ファイルの実際のコーデックは元動画に依存します(例: AAC、Opus)。音声トラックのない動画は、一括変換ではスキップされ、個別変換ではエラーになります。「サムネイル」は動画の序盤からJPEGのスナップショットを保存します(一括では動画ごとに1枚ずつダウンロード)。「回転」(ライトボックスのみ)は、時計回りに90度・180度・反時計回りに90度のいずれかで回転したコピーを保存します。コンテナの回転メタデータを書き換えるだけで映像自体は再エンコードしないため、ほぼ一瞬で完了します。',
     'g.convert.pdfH': 'PDF',
     'g.convert.pdfP': 'ライトボックスで表示中のPDFは「PDF(ページごとに)」で1ページずつのPDFに分割し、zipでダウンロードできます(1ページのPDFはそのまま1ファイルで保存)。ページは再レンダリングせず、そのまま取り出します。',
     'g.zip.h': 'ZIPでエクスポート',
@@ -2451,12 +2451,16 @@ async function extractSoundBlob(file) {
 // 動画を指定の角度（時計回り）で回転して保存する。allowRotationMetadata:true により
 // 映像データ自体は再エンコードせず、コンテナの回転メタデータを書き換えるだけなのでほぼ一瞬。
 // 主要な再生ソフト（Windowsのメディアプレイヤー・映画＆テレビ・フォト、VLC、ACDSee）で
-// 正しく反映されることを確認済み（2026-08-22）
+// 正しく反映されることを確認済み（2026-08-22）。
+// 出力コンテナは元の拡張子に合わせる（例えばWebMをMP4化すると、コーデックの互換性次第で
+// 「メタデータの書き換えだけ」のはずが暗黙の再エンコードに化けてしまうため）
 async function rotateVideoBlob(file, degreesClockwise) {
-  const { Input, Output, Conversion, ALL_FORMATS, BlobSource, Mp4OutputFormat, BufferTarget } =
+  const { Input, Output, Conversion, ALL_FORMATS, BlobSource, Mp4OutputFormat, MovOutputFormat, WebMOutputFormat, BufferTarget } =
     await import('https://cdn.jsdelivr.net/npm/mediabunny@1.50.6/+esm');
+  const OUTPUT_FORMATS = { mp4: Mp4OutputFormat, mov: MovOutputFormat, webm: WebMOutputFormat };
+  const FormatClass = OUTPUT_FORMATS[extOf(file.name)] || Mp4OutputFormat;
   const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
-  const output = new Output({ format: new Mp4OutputFormat(), target: new BufferTarget() });
+  const output = new Output({ format: new FormatClass(), target: new BufferTarget() });
   const conversion = await Conversion.init({
     input, output,
     video: { rotate: degreesClockwise, allowRotationMetadata: true },
@@ -6132,7 +6136,7 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
       const degrees = { 'rotate-90': 90, 'rotate-180': 180, 'rotate-270': 270 }[fmt];
       const file = await resolveFile(entry);
       const blob = await rotateVideoBlob(file, degrees);
-      triggerDownload(blob, `${baseName(entry.name)}.mp4`);
+      triggerDownload(blob, entry.name); // 拡張子は元のまま（rotateVideoBlobが元のコンテナ形式で出力するため）
     } catch (e) {
       errEl.textContent = t('err.convFailed');
     }
