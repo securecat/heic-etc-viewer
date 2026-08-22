@@ -3,6 +3,12 @@
 All notable changes to HeV Sender will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.7.0] - 2026-08-22
+
+### Added
+
+- MKV is now sent as well, matching HEIC etc Viewer v3.25.0, which can play MKV. Since no browser can play MKV inline, it is usually placed as a plain link rather than a `<video>` element, so links ending in `.mkv` are collected too (as videos). Because MKV and WebM share the same EBML container magic bytes, files are now told apart by reading the container's DocType element instead of guessing from the extension alone
+
 ## [1.6.0] - 2026-08-16
 
 ### Added
@@ -78,6 +84,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [1.7.0] - 2026-08-22
+
+### 追加
+
+- MKVも送出するように（MKVを再生できる HEIC etc Viewer v3.25.0 に合わせた対応）。MKVはどのブラウザもインライン再生できない都合上、`<video>` 要素ではなく単なるリンクとして置かれていることが多いため、`.mkv` で終わるリンクも（動画として）収集する。MKVとWebMは先頭のEBMLコンテナのマジックバイトが共通のため、拡張子だけに頼らず、コンテナのDocType要素を読んで判別するようにした
 
 ## [1.6.0] - 2026-08-16
 

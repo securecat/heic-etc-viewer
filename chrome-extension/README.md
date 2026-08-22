@@ -10,7 +10,7 @@ Click **Send** in the popup, and the extension collects the images, videos, and 
 - **Exclude small videos**: skips videos at or below a file-size threshold (default: 200KB)
 - The options page also lets you choose what to send (images / CSS background images / videos / PDF — all on by default) and override the destination URL, e.g. for a locally hosted viewer. CSS background images are collected from `background-image` values, including `::before` / `::after` pseudo-elements
 - Media inside iframes (embedded pages) is collected too — the scan runs in every frame of the tab, including cross-origin iframes
-- Links ending in `.wmv` are collected as videos: no browser can play WMV inline, so it tends to sit on a page as a plain link (HEIC etc Viewer v3.22.0 or later can play it)
+- Links ending in `.wmv` or `.mkv` are collected as videos: no browser can play these formats inline, so they tend to sit on a page as a plain link (HEIC etc Viewer v3.22.0 or later plays WMV, v3.25.0 or later plays MKV)
 - Hotlink-protected media (rejected unless requested by the page itself) is retried inside the original page's context — for iframe media, inside that frame's context — so it can still be collected in most same-origin cases
 - Files that still could not be fetched are listed with a button that overlays a **manual-download panel** on the original page: the failed URLs appear there as real links, so right-click "Save link as…" (or saving from the tab a click opens) works even for hotlink-protected media on other subdomains. Saved files can be added to the viewer by drag & drop
 - Videos delivered as streaming (`blob:`) sources cannot be fetched and are skipped with a note
@@ -42,11 +42,11 @@ HeV Sender is part of the [heic-etc-viewer repository](https://github.com/secure
 
 ## Changelog
 
-### [1.6.0] - 2026-08-16
+### [1.7.0] - 2026-08-22
 
 #### Added
 
-- WMV is now sent as well, matching HEIC etc Viewer v3.22.0, which can play WMV. Since no browser can play WMV inline, it is usually placed as a plain link rather than a `<video>` element, so links ending in `.wmv` are collected too (as videos). Files whose content is ASF but whose URL says otherwise are also recognised, by the same magic-byte check used for the other formats
+- MKV is now sent as well, matching HEIC etc Viewer v3.25.0, which can play MKV. Since no browser can play MKV inline, it is usually placed as a plain link rather than a `<video>` element, so links ending in `.mkv` are collected too (as videos). Because MKV and WebM share the same EBML container magic bytes, files are now told apart by reading the container's DocType element instead of guessing from the extension alone
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -64,7 +64,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full history.
 - **小さい動画を含めない**：ファイル容量が閾値（デフォルト：200KB）以下の動画を除外します
 - オプションページでは、送出対象（画像／CSS背景画像／動画／PDF、デフォルトはすべてON）の選択と、送出先URLの上書き（ローカルで動かしているviewerに送りたい場合など）ができます。CSS背景画像は`background-image`の参照先を`::before`／`::after`擬似要素も含めて収集します
 - iframe（埋め込みページ）内のメディアも収集対象です。収集はタブ内の全フレームで実行され、クロスオリジンのiframeにも対応します
-- `.wmv` で終わるリンクも動画として収集します。WMVはどのブラウザもインライン再生できないため、ページ上では単なるリンクとして置かれていることが多いためです（HEIC etc Viewer v3.22.0 以降で再生できます）
+- `.wmv` や `.mkv` で終わるリンクも動画として収集します。これらはどのブラウザもインライン再生できないため、ページ上では単なるリンクとして置かれていることが多いためです（WMVはHEIC etc Viewer v3.22.0以降、MKVはv3.25.0以降で再生できます）
 - 直リンク対策されたメディア（ページ本人からのリクエスト以外を拒否するもの）は、元ページの文脈（iframe由来のメディアはそのフレームの文脈）で取得をリトライするため、同一オリジンのケースではほぼ収集できます
 - それでも取得できなかったファイルは一覧表示され、**手動ダウンロードパネル**を元のページ上にオーバーレイ表示できます。失敗したURLがページ内の本物のリンクとして並ぶため、右クリック「名前を付けてリンク先を保存」（またはクリックで開いたタブからの保存）が、サブドメイン違いの直リンク対策メディアにも通ります。保存したファイルはドラッグ＆ドロップでviewerに追加できます
 - ストリーミング配信（`blob:`）の動画は取得できないため、その旨を表示してスキップします
@@ -96,10 +96,10 @@ HeV Sender は [heic-etc-viewer リポジトリ](https://github.com/securecat/he
 
 ## 更新履歴
 
-### [1.6.0] - 2026-08-16
+### [1.7.0] - 2026-08-22
 
 #### 追加
 
-- WMVも送出するように（WMVを再生できる HEIC etc Viewer v3.22.0 に合わせた対応）。WMVはどのブラウザもインライン再生できない都合上、`<video>` 要素ではなく単なるリンクとして置かれていることが多いため、`.wmv` で終わるリンクも（動画として）収集する。URLの拡張子と中身が食い違うASFファイルも、他の形式と同じマジックナンバー判定で認識する
+- MKVも送出するように（MKVを再生できる HEIC etc Viewer v3.25.0 に合わせた対応）。MKVはどのブラウザもインライン再生できない都合上、`<video>` 要素ではなく単なるリンクとして置かれていることが多いため、`.mkv` で終わるリンクも（動画として）収集する。MKVとWebMは先頭のEBMLコンテナのマジックバイトが共通のため、拡張子だけに頼らず、コンテナのDocType要素を読んで判別するようにした
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。

@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.25.0] - 2026-08-22
+
+### Added
+
+- MKV video support: opening one in the lightbox converts it to MP4 automatically in the background — a fast container remux when the codec is natively supported, falling back to full re-encoding otherwise, with a progress bar and cancel button shown only if it takes a moment. Gallery thumbnails are extracted directly from the source file, without a full conversion. A file needing the slower re-encoding is marked with a badge; once converted, an MKV is shown as "MKV(MP4)" in its badge and behaves exactly like a native video file for the rest of the session — slideshow, hover playback, and the Sound/Thumbnail/Rotate conversion menu all included
+
+### Changed
+
+- The lightbox's rotate button (`R`) now rotates 90° clockwise instead of counter-clockwise
+
+### Fixed
+
+- "Export as zip" (convert subject "All") now uses the real format's extension for a file whose actual content differs from its name — a HEIC that's actually JPEG/PNG/GIF, or an MKV already converted to MP4 this session — instead of keeping the original extension
+
 ## [3.24.1] - 2026-08-22
 
 ### Changed
@@ -687,6 +701,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.25.0] - 2026-08-22
+
+### 追加
+
+- MKV動画に対応。ライトボックスで開くとバックグラウンドで自動的にMP4へ変換する。対応コーデックならコンテナの詰め替えだけで済みほぼ一瞬で終わり、非対応の場合は再エンコードにフォールバックして、時間がかかる時だけ進捗バーと中止ボタンを表示する。ギャラリーのサムネイルは元ファイルから、変換を経ずに直接生成する。再エンコードが必要と判明したファイルはバッジで示され、変換済みのMKVはバッジに「MKV(MP4)」と表示され、そのセッション中はスライドショー・ホバー再生・Sound/Thumbnail/Rotate変換メニューも含め、普通の動画ファイルと全く同じように扱われる
+
+### 変更
+
+- ライトボックスの回転ボタン(`R`)が、反時計回りではなく時計回りに90度回転するようになった
+
+### 修正
+
+- 「ZIPでエクスポート」(変換対象「すべて」)で、実体が名前と食い違うファイル(実体がJPEG/PNG/GIFだったHEIC、このセッション中にMP4へ変換済みのMKV)が、元の拡張子のままではなく実体に合わせた拡張子で入るようになった
 
 ## [3.24.1] - 2026-08-22
 

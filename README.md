@@ -9,7 +9,7 @@ A single-file local image/video viewer and converter with HEIC, PDF, and ICO sup
 ### Supported formats
 
 - Images: HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, ICO
-- Videos: MP4, WebM, MOV, WMV
+- Videos: MP4, WebM, MOV, WMV, MKV
 - Documents: PDF
 
 ### Folders & gallery
@@ -25,7 +25,7 @@ A single-file local image/video viewer and converter with HEIC, PDF, and ICO sup
 - Images and videos open "as large as possible" by default, with an actual-size (1:1) toggle and scrolling for media that doesn't fit
 - Drag-to-select zoom, 90° rotation, checker background (for checking transparency and frame boundaries), video loop, and slideshow mode
 - Image diff: open a parent folder containing two subfolders with matching filenames to compare both versions with a mouse-driven divider
-- WMV is converted to MP4 in your browser on demand and then played
+- WMV and MKV are converted to MP4 in your browser and then played — WMV on a button press, MKV automatically in the background when opened
 - Keyboard shortcuts for all major operations
 
 ### Conversion
@@ -49,7 +49,7 @@ Built as a single HTML file with no build tools or package dependencies.
 - **[PDF.js](https://github.com/mozilla/pdf.js)** — PDF thumbnail rendering (loaded from CDN)
 - **[jsPDF](https://github.com/parallax/jsPDF)** — PDF generation for the convert-to-PDF feature (loaded from CDN)
 - **[pdf-lib](https://github.com/Hopding/pdf-lib)** — per-page PDF splitting (loaded from CDN)
-- **[mediabunny](https://github.com/Vanilagy/mediabunny)** — audio track extraction from videos (loaded from CDN)
+- **[mediabunny](https://github.com/Vanilagy/mediabunny)** — MKV-to-MP4 playback conversion and audio track extraction from videos (loaded from CDN)
 - **[client-zip](https://github.com/Touffy/client-zip)** — zip generation for bulk downloads (loaded from CDN)
 - **Prompt API (Gemini Nano)** — Chrome's built-in on-device AI, used for alt text generation
 - **Canvas API** — video frame thumbnails, zoom region rendering, and image re-encoding for conversion
@@ -83,15 +83,19 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.24.1] - 2026-08-22
+### [3.25.0] - 2026-08-22
+
+#### Added
+
+- MKV video support: opening one in the lightbox converts it to MP4 automatically in the background — a fast container remux when the codec is natively supported, falling back to full re-encoding otherwise, with a progress bar and cancel button shown only if it takes a moment. Gallery thumbnails are extracted directly from the source file, without a full conversion. A file needing the slower re-encoding is marked with a badge; once converted, an MKV is shown as "MKV(MP4)" in its badge and behaves exactly like a native video file for the rest of the session — slideshow, hover playback, and the Sound/Thumbnail/Rotate conversion menu all included
 
 #### Changed
 
-- Recolored gallery thumbnail badges: video files now get green (freed up from ICO, which now uses the plain default badge style instead), and "can't play this in this browser" moves from red (previously shared with PDF, which was misleading) to orange. A video badge for a file that needs converting before it can play (currently WMV) also shows in black text, to flag that it isn't a normal ready-to-play video
+- The lightbox's rotate button (`R`) now rotates 90° clockwise instead of counter-clockwise
 
 #### Fixed
 
-- Gallery thumbnail badges (the small file-type label in the corner) used semi-transparent white text, which pushed the effective contrast below the required minimum against every colored badge (HEIC, video, PDF, and "can't play this in this browser") — all were failing. Text is now fully opaque
+- "Export as zip" (convert subject "All") now uses the real format's extension for a file whose actual content differs from its name — a HEIC that's actually JPEG/PNG/GIF, or an MKV already converted to MP4 this session — instead of keeping the original extension
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -108,7 +112,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 ### 対応形式
 
 - 画像：HEIC/HEIF、JPEG、JFIF、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、ICO
-- 動画：MP4、WebM、MOV、WMV
+- 動画：MP4、WebM、MOV、WMV、MKV
 - ドキュメント：PDF
 
 ### フォルダとギャラリー
@@ -124,7 +128,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 - 静止画・動画とも「できるだけ大きく」表示がデフォルト。原寸表示（1:1）への切り替えと、収まらない場合のスクロールに対応
 - ドラッグで範囲選択するズーム、90度回転、市松模様背景（透過や画角の確認に）、動画のループ再生、スライドショーモード
 - 画像Diff：同名ファイルを持つ2つのサブフォルダの親フォルダを開くと、マウス追従の境界線で両バージョンを重ねて比較できる
-- WMVは都度ブラウザ内でMP4に変換して再生
+- WMV・MKVはブラウザ内でMP4に変換して再生（WMVはボタン操作で、MKVは開くと自動でバックグラウンド変換）
 - 主要な操作はキーボードショートカットに対応
 
 ### 変換
@@ -148,7 +152,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 - **[PDF.js](https://github.com/mozilla/pdf.js)** — PDFサムネイルのレンダリング（CDNから読み込み）
 - **[jsPDF](https://github.com/parallax/jsPDF)** — PDF変換保存機能のPDF生成（CDNから読み込み）
 - **[pdf-lib](https://github.com/Hopding/pdf-lib)** — PDFのページごと分割（CDNから読み込み）
-- **[mediabunny](https://github.com/Vanilagy/mediabunny)** — 動画からの音声トラック抽出（CDNから読み込み）
+- **[mediabunny](https://github.com/Vanilagy/mediabunny)** — MKVの再生用MP4変換、動画からの音声トラック抽出（CDNから読み込み）
 - **[client-zip](https://github.com/Touffy/client-zip)** — 一括ダウンロード時のzip生成（CDNから読み込み）
 - **Prompt API（Gemini Nano）** — 代替テキスト生成に使うChrome内蔵のオンデバイスAI
 - **Canvas API** — 動画フレームのサムネイル生成・ズーム領域のレンダリング・変換機能での画像再エンコード
@@ -182,15 +186,19 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.24.1] - 2026-08-22
+### [3.25.0] - 2026-08-22
+
+#### 追加
+
+- MKV動画に対応。ライトボックスで開くとバックグラウンドで自動的にMP4へ変換する。対応コーデックならコンテナの詰め替えだけで済みほぼ一瞬で終わり、非対応の場合は再エンコードにフォールバックして、時間がかかる時だけ進捗バーと中止ボタンを表示する。ギャラリーのサムネイルは元ファイルから、変換を経ずに直接生成する。再エンコードが必要と判明したファイルはバッジで示され、変換済みのMKVはバッジに「MKV(MP4)」と表示され、そのセッション中はスライドショー・ホバー再生・Sound/Thumbnail/Rotate変換メニューも含め、普通の動画ファイルと全く同じように扱われる
 
 #### 変更
 
-- ギャラリーサムネイルのバッジの配色を変更。動画は緑に(ICO用だった色を転用。ICOは通常画像と同じ既定のバッジ見た目になったため空いた)、「このブラウザで再生不可」は赤(従来PDFと共用で紛らわしかった)からオレンジに。再生前に変換が必要な動画(現状WMVのみ)のバッジは、通常の動画バッジと区別するため文字色を黒にした
+- ライトボックスの回転ボタン(`R`)が、反時計回りではなく時計回りに90度回転するようになった
 
 #### 修正
 
-- ギャラリーサムネイルのバッジ(角に出るファイル種別ラベル)の文字色が半透明の白になっており、色付きバッジ(HEIC・動画・PDF・「このブラウザで再生不可」)すべてで実効コントラスト比が基準を下回っていた問題を修正。文字を完全に不透明にした
+- 「ZIPでエクスポート」(変換対象「すべて」)で、実体が名前と食い違うファイル(実体がJPEG/PNG/GIFだったHEIC、このセッション中にMP4へ変換済みのMKV)が、元の拡張子のままではなく実体に合わせた拡張子で入るようになった
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
