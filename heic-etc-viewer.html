@@ -1271,7 +1271,7 @@ input[type="range"]::-webkit-slider-thumb {
   </div>
   <div class="lb-video-wrap" id="lbMkvWrap" style="display:none">
     <div class="lb-mkv-panel">
-      <p class="lb-mkv-lead" data-i18n="mkv.lead">Browsers cannot play MKV directly, so it's converted automatically when opened — often almost instantly.</p>
+      <p class="lb-mkv-lead" data-i18n-html="mkv.lead">Browsers cannot play MKV files directly, <br>so they are automatically converted when opened. <br>This process usually completes quickly.</p>
       <div class="lb-mkv-progress-box" id="lbMkvProgressBox" hidden>
         <label class="lb-mkv-progress-label" id="lbMkvProgressLabel" for="lbMkvProgress"></label>
         <progress class="lb-mkv-progress" id="lbMkvProgress" value="0" max="100" aria-describedby="lbMkvProgressLabel">0%</progress>
@@ -1430,7 +1430,7 @@ const I18N = {
     'wmv.s': '{s} sec',
     'wmv.canceled': 'Canceled. The converter has to be downloaded again for the next try.',
     'wmv.failed': 'Conversion failed. This file may use a variant that cannot be decoded.',
-    'mkv.lead': "Browsers cannot play MKV directly, so it's converted automatically when opened — often almost instantly.",
+    'mkv.lead': 'Browsers cannot play MKV files directly, <br>so they are automatically converted when opened. <br>This process usually completes quickly.',
     'mkv.cancel': 'Cancel conversion',
     'mkv.retry': 'Try again',
     'mkv.starting': 'Starting…',
@@ -1657,7 +1657,7 @@ const I18N = {
     'wmv.s': '{s}秒',
     'wmv.canceled': '中止しました。次に試すときは変換エンジンのダウンロードからやり直しになります。',
     'wmv.failed': '変換に失敗しました。デコードできない種類のファイルかもしれません。',
-    'mkv.lead': 'MKVはブラウザで直接再生できないため、開くと自動的に変換します。相性の良いファイルは一瞬で終わります。',
+    'mkv.lead': 'MKVはブラウザで直接再生できないため、開くと自動的に変換します。<br>多くの場合、すぐに終わります。',
     'mkv.cancel': '変換中止',
     'mkv.retry': 'もう一度試す',
     'mkv.starting': '開始中…',
