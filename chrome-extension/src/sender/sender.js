@@ -2,7 +2,7 @@
 // HEIC etc Viewer を window.open で開いて postMessage で受け渡す
 
 // viewer側の対応拡張子（heic-etc-viewer.html の ALL_EXTS と揃えること）
-const KNOWN_EXTS = ['jpg','jpeg','jfif','png','gif','webp','avif','svg','bmp','tiff','tif','heic','heif','mp4','webm','mov','wmv','ico','pdf'];
+const KNOWN_EXTS = ['jpg','jpeg','jfif','png','gif','webp','avif','svg','bmp','tiff','tif','heic','heif','mp4','webm','mov','wmv','mkv','ico','pdf'];
 const MIME_EXT = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
@@ -21,6 +21,7 @@ const MIME_EXT = {
   'video/quicktime': 'mov',
   'video/x-ms-wmv': 'wmv',
   'video/x-ms-asf': 'wmv',
+  'video/x-matroska': 'mkv',
   'application/pdf': 'pdf',
 };
 const FETCH_TIMEOUT_MS = 60000;
@@ -55,6 +56,59 @@ function closeSelf() {
   chrome.tabs.getCurrent(tab => { if (tab) chrome.tabs.remove(tab.id); });
 }
 
+// EBML可変長整数(VINT)の先頭バイトから長さ(1〜8バイト)を読む。0を返すのは不正/データ不足
+function ebmlVintLen(b, pos) {
+  const first = b[pos];
+  if (first === undefined) return 0;
+  let mask = 0x80, len = 1;
+  while (len <= 8 && !(first & mask)) { mask >>= 1; len++; }
+  return len <= 8 ? len : 0;
+}
+// 要素ID: 長さマーカービットを含めたバイト列そのままを数値化する（EBML仕様の慣例表記に合わせる）
+function ebmlReadId(b, pos) {
+  const len = ebmlVintLen(b, pos);
+  if (!len || pos + len > b.length) return null;
+  let id = 0;
+  for (let i = 0; i < len; i++) id = id * 256 + b[pos + i];
+  return { id, length: len };
+}
+// サイズ: 先頭バイトの長さマーカービットを外した値
+function ebmlReadSize(b, pos) {
+  const len = ebmlVintLen(b, pos);
+  if (!len || pos + len > b.length) return null;
+  let value = b[pos] & (0xFF >> len);
+  for (let i = 1; i < len; i++) value = value * 256 + b[pos + i];
+  return { value, length: len };
+}
+// EBML(WebM/Matroska共通のコンテナ形式)のDocType要素(ID 0x4282)を読み、内容が
+// 'matroska'ならMKV、'webm'ならWebMと判定する。先頭マジックバイトは両者共通のため、
+// これを見ないと区別できない
+function sniffEbmlDocType(b) {
+  const rootId = ebmlReadId(b, 0);
+  if (!rootId || rootId.id !== 0x1A45DFA3) return '';
+  let pos = rootId.length;
+  const rootSize = ebmlReadSize(b, pos);
+  if (!rootSize) return '';
+  pos += rootSize.length;
+  const end = Math.min(b.length, pos + rootSize.value);
+  while (pos < end) {
+    const childId = ebmlReadId(b, pos);
+    if (!childId) break;
+    pos += childId.length;
+    const childSize = ebmlReadSize(b, pos);
+    if (!childSize) break;
+    pos += childSize.length;
+    if (childId.id === 0x4282) {
+      const str = String.fromCharCode.apply(null, b.subarray(pos, pos + childSize.value));
+      if (str.startsWith('matroska')) return 'mkv';
+      if (str.startsWith('webm')) return 'webm';
+      return '';
+    }
+    pos += childSize.value;
+  }
+  return '';
+}
+
 // 取得したバイト列のマジックナンバーから実形式の拡張子を推定する（判定できなければ空文字）。
 // CDNや画像変換サーバが「.jpg のURLのままWebPを返す」等、URL・Content-Typeと中身が
 // 食い違うことがあるため、ファイル名の拡張子は実バイトの判定を最優先する
@@ -71,7 +125,7 @@ function sniffExt(b) {
       (b[0] === 0x4D && b[1] === 0x4D && b[2] === 0x00 && b[3] === 0x2A)) return 'tiff';
   if (b[0] === 0x00 && b[1] === 0x00 && b[2] === 0x01 && b[3] === 0x00) return 'ico';
   if (ascii(0, 4) === '%PDF') return 'pdf';
-  if (b[0] === 0x1A && b[1] === 0x45 && b[2] === 0xDF && b[3] === 0xA3) return 'webm'; // EBML(webm/mkv)
+  if (b[0] === 0x1A && b[1] === 0x45 && b[2] === 0xDF && b[3] === 0xA3) return sniffEbmlDocType(b) || 'webm'; // EBML(webm/mkv、共通の先頭マジックバイトだけでは区別できない)
   // ASFヘッダーGUIDの先頭8バイト（WMV/WMAで共通。拾うのは動画リンクのみなのでwmv扱いでよい）
   if (b[0] === 0x30 && b[1] === 0x26 && b[2] === 0xB2 && b[3] === 0x75 &&
       b[4] === 0x8E && b[5] === 0x66 && b[6] === 0xCF && b[7] === 0x11) return 'wmv';
@@ -229,7 +283,8 @@ async function fetchViaTab(tabId, url, frameId) {
 async function fileFromBlob(blob, item, index, usedNames) {
   // 画像・動画URLがエラーページ等にすり替わっているケースを弾く
   if (/^(text\/|application\/(json|xhtml))/.test(blob.type)) throw new Error(`unexpected type: ${blob.type}`);
-  const head = new Uint8Array(await blob.slice(0, 16).arrayBuffer());
+  // EBML(WebM/MKV)のDocType要素まで読むには16バイトでは足りないため128バイト確保する
+  const head = new Uint8Array(await blob.slice(0, 128).arrayBuffer());
   const name = fileNameFor(item.url, blob, item.kind, index, usedNames, sniffExt(head));
   return new File([blob], name, { type: blob.type });
 }

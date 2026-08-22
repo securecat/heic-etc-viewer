@@ -35,11 +35,11 @@ function collectMedia(opts) {
         if (!u) { const srcEl = v.querySelector('source[src]'); u = srcEl ? srcEl.src : ''; }
         push(abs(u), 'video');
       });
-      // browsers cannot play WMV inline, so it is usually placed as a plain link instead of a <video>
-      const isWmvUrl = u => { try { return new URL(u).pathname.toLowerCase().endsWith('.wmv'); } catch (e) { return false; } };
+      // browsers cannot play WMV/MKV inline, so they are usually placed as plain links instead of a <video>
+      const isUnplayableLinkedVideo = u => { try { const p = new URL(u).pathname.toLowerCase(); return p.endsWith('.wmv') || p.endsWith('.mkv'); } catch (e) { return false; } };
       document.querySelectorAll('a[href]').forEach(a => {
         const u = abs(a.href);
-        if (u && isWmvUrl(u)) push(u, 'video');
+        if (u && isUnplayableLinkedVideo(u)) push(u, 'video');
       });
     }
     if (opts.sendBgImages) {

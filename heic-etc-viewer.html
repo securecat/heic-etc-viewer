@@ -436,8 +436,9 @@ input[type="range"]::-webkit-slider-thumb {
    videoはpointer-events:noneなので、その下にある帯がカーソルを受け取れる */
 .thumb-item.is-hover-playing .thumb-info { pointer-events: auto; }
 .thumb-item.is-hover-playing .thumb-info:hover { z-index: 1; }
-/* WMVはブラウザが再生できないため、変換を促すパネルをライトボックス中央に出す */
-.lb-wmv-panel {
+/* WMV・MKVはブラウザが再生できないため、変換を促す（またはMKVは自動変換中の）パネルを
+   ライトボックス中央に出す。見た目はほぼ共通のため、セレクタごと2形式で共有する */
+.lb-wmv-panel, .lb-mkv-panel {
   margin: auto;
   width: 620px;
   max-width: 100%; /* 幅は固定。画面がこれより狭いときだけ縮める */
@@ -451,20 +452,20 @@ input[type="range"]::-webkit-slider-thumb {
   gap: 14px;
   text-align: center;
 }
-.lb-wmv-lead { margin: 0; font-size: 16px; color: var(--text); }
+.lb-wmv-lead, .lb-mkv-lead { margin: 0; font-size: 16px; color: var(--text); }
 .lb-wmv-note { margin: 0; font-size: 16px; color: var(--text-muted); } /* 対 --bg-card 約5.2:1 */
 .lb-wmv-duration { margin: 0; font-size: 16px; color: var(--text); }
-.lb-wmv-status { margin: 0; font-size: 16px; color: var(--text); }
-.lb-wmv-status:empty { display: none; } /* 空のときに余白だけ空かないように */
-.lb-wmv-panel .btn {
+.lb-wmv-status, .lb-mkv-status { margin: 0; font-size: 16px; color: var(--text); }
+.lb-wmv-status:empty, .lb-mkv-status:empty { display: none; } /* 空のときに余白だけ空かないように */
+.lb-wmv-panel .btn, .lb-mkv-panel .btn {
   background: #001C43;      /* 対 #DDDDDD 約11.7:1 */
   border-color: #4D6EE1;    /* 対 --bg-card 約3.8:1 */
   color: #DDDDDD;
   font-size: 16px;
   padding: 8px 18px;
 }
-.lb-wmv-panel .btn:hover { background: #0A2E63; } /* 対 #DDDDDD 約9.5:1 */
-.lb-wmv-progress-box {
+.lb-wmv-panel .btn:hover, .lb-mkv-panel .btn:hover { background: #0A2E63; } /* 対 #DDDDDD 約9.5:1 */
+.lb-wmv-progress-box, .lb-mkv-progress-box {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -472,12 +473,12 @@ input[type="range"]::-webkit-slider-thumb {
   gap: 10px;
 }
 /* display指定はhidden属性のUAスタイルより優先されるため、明示的に消す */
-.lb-wmv-progress-box[hidden],
-.lb-wmv-panel .btn[hidden] { display: none; }
-.lb-wmv-progress-label { font-size: 16px; color: var(--text); }
-.lb-wmv-progress { width: 100%; height: 14px; }
-.lb-wmv-progress::-webkit-progress-bar { background: #6e6e6e; border-radius: 4px; } /* 対 --bg-card 約3.1:1 */
-.lb-wmv-progress::-webkit-progress-value { background: var(--accent); border-radius: 4px; }
+.lb-wmv-progress-box[hidden], .lb-mkv-progress-box[hidden],
+.lb-wmv-panel .btn[hidden], .lb-mkv-panel .btn[hidden] { display: none; }
+.lb-wmv-progress-label, .lb-mkv-progress-label { font-size: 16px; color: var(--text); }
+.lb-wmv-progress, .lb-mkv-progress { width: 100%; height: 14px; }
+.lb-wmv-progress::-webkit-progress-bar, .lb-mkv-progress::-webkit-progress-bar { background: #6e6e6e; border-radius: 4px; } /* 対 --bg-card 約3.1:1 */
+.lb-wmv-progress::-webkit-progress-value, .lb-mkv-progress::-webkit-progress-value { background: var(--accent); border-radius: 4px; }
 /* 中央寄せは .lb-img-wrap と同じ auto マージン方式（原寸表示のスクロール対応のため）。
    PDFラッパーもこのクラスを共有するが、iframe が 100%×100% で埋めるため影響しない */
 .lb-video-wrap {
@@ -1146,9 +1147,11 @@ input[type="range"]::-webkit-slider-thumb {
   </div>
   <div class="info-panel" id="panelGuide" role="tabpanel" aria-labelledby="tabGuide" tabindex="0" hidden>
     <h3 data-i18n="g.formats.h">Supported file formats (view)</h3>
-    <p data-i18n="g.formats.p">HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, WMV, PDF, and ICO</p>
+    <p data-i18n="g.formats.p">HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, WMV, MKV, PDF, and ICO</p>
     <h4 data-i18n="g.wmv.h">About WMV</h4>
     <p data-i18n="g.wmv.p">No browser can decode WMV, so ffmpeg.wasm is loaded from a CDN and does the decoding — entirely inside your browser, with nothing uploaded. Gallery thumbnails are made by extracting a single frame, and opening one in the lightbox shows a "Convert and play" button: pressing it converts the whole video to MP4 and plays the result. The converter is about 31MB and is fetched the first time a WMV needs it; converting a whole video takes roughly as long as the video itself, with a progress bar and a cancel button. Converted videos are kept for the rest of the session, so reopening one plays it right away. Slideshow, hover playback, and the conversion features do not cover WMV.</p>
+    <h4 data-i18n="g.mkv.h">About MKV</h4>
+    <p data-i18n="g.mkv.p">No browser can decode MKV either, so it's converted to MP4 in the browser using the mediabunny library — nothing is uploaded. Opening one in the lightbox starts the conversion automatically; if the video's codec is natively supported, this is just a fast container repackaging and finishes almost instantly, while an unsupported codec falls back to full re-encoding, with a progress bar and a cancel button shown once it takes a moment. Files needing that slower re-encoding are marked with a badge in the gallery. Once converted, an MKV behaves exactly like a native video file — including slideshow, hover playback, and the Sound/Thumbnail/Rotate conversion options — for the rest of the session.</p>
     <h3 data-i18n="g.convert.h">Convertible file formats</h3>
     <h4 data-i18n="g.convert.imgH">Images</h4>
     <p data-i18n="g.convert.imgP">HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. Lossy formats (WebP/JPEG) are marked with ▸ in the lightbox format menu: choose "Preview" from the submenu to overlay the original and the converted result with a divider, showing both file sizes, before you download.</p>
@@ -1264,6 +1267,18 @@ input[type="range"]::-webkit-slider-thumb {
         <button class="btn" type="button" id="lbWmvCancel" data-i18n="wmv.cancel" aria-describedby="lbWmvProgressLabel lbWmvProgress">Cancel conversion</button>
       </div>
       <p class="lb-wmv-status" id="lbWmvStatus" role="status"></p>
+    </div>
+  </div>
+  <div class="lb-video-wrap" id="lbMkvWrap" style="display:none">
+    <div class="lb-mkv-panel">
+      <p class="lb-mkv-lead" data-i18n="mkv.lead">Browsers cannot play MKV directly, so it's converted automatically when opened — often almost instantly.</p>
+      <div class="lb-mkv-progress-box" id="lbMkvProgressBox" hidden>
+        <label class="lb-mkv-progress-label" id="lbMkvProgressLabel" for="lbMkvProgress"></label>
+        <progress class="lb-mkv-progress" id="lbMkvProgress" value="0" max="100" aria-describedby="lbMkvProgressLabel">0%</progress>
+        <button class="btn" type="button" id="lbMkvCancel" data-i18n="mkv.cancel" aria-describedby="lbMkvProgressLabel lbMkvProgress">Cancel conversion</button>
+      </div>
+      <button class="btn" type="button" id="lbMkvRetry" data-i18n="mkv.retry" hidden>Try again</button>
+      <p class="lb-mkv-status" id="lbMkvStatus" role="status"></p>
     </div>
   </div>
   <button class="lb-nav prev" id="lbPrev" data-i18n-attr="aria-label:lb.prev" aria-label="Previous">‹</button>
@@ -1415,6 +1430,14 @@ const I18N = {
     'wmv.s': '{s} sec',
     'wmv.canceled': 'Canceled. The converter has to be downloaded again for the next try.',
     'wmv.failed': 'Conversion failed. This file may use a variant that cannot be decoded.',
+    'mkv.lead': "Browsers cannot play MKV directly, so it's converted automatically when opened — often almost instantly.",
+    'mkv.cancel': 'Cancel conversion',
+    'mkv.retry': 'Try again',
+    'mkv.starting': 'Starting…',
+    'mkv.converting': 'Converting… {p}%',
+    'mkv.convertingEta': 'Converting… {p}% (about {r} left)',
+    'mkv.canceled': 'Canceled.',
+    'mkv.failed': 'Conversion failed. This file may use a variant that cannot be decoded.',
     'hp.legend': 'Video thumbnail hover playback',
     'hp.desc': 'Plays a video muted, at its thumbnail size, while the mouse pointer or keyboard focus stays on that thumbnail. It stops as soon as you move away.',
     'hp.on': 'Enabled',
@@ -1424,9 +1447,11 @@ const I18N = {
     'sc.on': 'Enabled',
     'sc.off': 'Disabled',
     'g.formats.h': 'Supported file formats (view)',
-    'g.formats.p': 'HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, WMV, PDF, and ICO',
+    'g.formats.p': 'HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, WMV, MKV, PDF, and ICO',
     'g.wmv.h': 'About WMV',
     'g.wmv.p': 'No browser can decode WMV, so ffmpeg.wasm is loaded from a CDN and does the decoding — entirely inside your browser, with nothing uploaded. Gallery thumbnails are made by extracting a single frame, and opening one in the lightbox shows how long the video is plus a "Convert and play" button: pressing it converts the whole video to MP4 and plays the result. The converter is about 31MB and is fetched the first time a WMV needs it; converting takes roughly as long as the video itself, with a progress bar, an estimate of the time left, and a cancel button. Converted videos are kept for the rest of the session, so reopening one plays it right away. Slideshow, hover playback, and the conversion features do not cover WMV.',
+    'g.mkv.h': 'About MKV',
+    'g.mkv.p': 'No browser can decode MKV, so it\'s converted to MP4 in the browser using the mediabunny library — nothing is uploaded. Opening one in the lightbox starts the conversion automatically; if the video\'s codec is natively supported, this is just a fast container repackaging and finishes almost instantly, while an unsupported codec falls back to full re-encoding, with a progress bar and a cancel button shown once it takes a moment. Files needing that slower re-encoding are marked with a badge in the gallery. Once converted, an MKV behaves exactly like a native video file — including slideshow, hover playback, and the Sound/Thumbnail/Rotate conversion options — for the rest of the session.',
     'g.convert.h': 'Convertible file formats',
     'g.convert.imgH': 'Images',
     'g.convert.imgP': 'HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. Lossy formats (WebP/JPEG) are marked with ▸ in the lightbox format menu: choose "Preview" from the submenu to overlay the original and the converted result with a divider, showing both file sizes, before you download.',
@@ -1632,6 +1657,14 @@ const I18N = {
     'wmv.s': '{s}秒',
     'wmv.canceled': '中止しました。次に試すときは変換エンジンのダウンロードからやり直しになります。',
     'wmv.failed': '変換に失敗しました。デコードできない種類のファイルかもしれません。',
+    'mkv.lead': 'MKVはブラウザで直接再生できないため、開くと自動的に変換します。相性の良いファイルは一瞬で終わります。',
+    'mkv.cancel': '変換中止',
+    'mkv.retry': 'もう一度試す',
+    'mkv.starting': '開始中…',
+    'mkv.converting': '変換中… {p}%',
+    'mkv.convertingEta': '変換中… {p}%（残り約{r}）',
+    'mkv.canceled': '中止しました。',
+    'mkv.failed': '変換に失敗しました。デコードできない種類のファイルかもしれません。',
     'hp.legend': '動画サムネのホバー再生',
     'hp.desc': 'サムネイルにマウスカーソルまたはキーボードフォーカスがある間、そのサムネイルのサイズのまま動画を無音で再生します。離れるとすぐに停止します。',
     'hp.on': '有効',
@@ -1641,9 +1674,11 @@ const I18N = {
     'sc.on': '有効',
     'sc.off': '無効',
     'g.formats.h': '対応ファイル形式(表示)',
-    'g.formats.p': 'HEIC/HEIF、JPEG、JFIF、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、WMV、PDF、ICO',
+    'g.formats.p': 'HEIC/HEIF、JPEG、JFIF、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、WMV、MKV、PDF、ICO',
     'g.wmv.h': 'WMVについて',
     'g.wmv.p': 'WMVはどのブラウザもデコードできないため、CDNから ffmpeg.wasm を読み込んでデコードします。処理はすべてブラウザ内で完結し、どこにもアップロードされません。ギャラリーのサムネイルは1フレームを取り出して生成し、ライトボックスで開くと動画の長さと「変換して再生する」ボタンが表示されます。押すと動画全体をMP4に変換して再生します。変換エンジンは約31MBあり、最初にWMVを扱うときに読み込みます。変換には動画の長さと同程度の時間がかかり、進捗バー・残り時間の目安・中止ボタンが表示されます。変換した動画はそのセッション中は保持されるので、開き直せばすぐ再生できます。スライドショー・ホバー再生・変換保存の対象外です。',
+    'g.mkv.h': 'MKVについて',
+    'g.mkv.p': 'MKVもどのブラウザもデコードできないため、mediabunnyというライブラリでブラウザ内でMP4に変換します。どこにもアップロードされません。ライトボックスで開くと自動的に変換が始まり、対応コーデックならコンテナの詰め替えだけで済むためほぼ一瞬で終わります。対応外のコーデックの場合は再エンコードにフォールバックし、時間がかかる場合だけ進捗バーと中止ボタンが表示されます。再エンコードが必要と判明したファイルはギャラリーでバッジ表示されます。変換が終わったMKVは、そのセッション中はスライドショー・ホバー再生・Sound/Thumbnail/Rotateの変換保存も含め、普通の動画ファイルと全く同じように扱われます。',
     'g.convert.h': '変換可能なファイル形式',
     'g.convert.imgH': '画像',
     'g.convert.imgP': 'HEIC/HEIF、JPEG、PNG、WebP、BMP、TIFF、AVIF → WebP・PNG・JPEG・PDF(1ファイルずつでも、一括でも可)。「高圧縮」のWebP/JPEGは、品質設定を大きく下げることでファイルサイズを大幅に小さくします。非可逆形式(WebP/JPEG)にはライトボックスの形式メニューで「▸」が付いていて、サブメニューの「プレビュー」を選ぶと、ダウンロード前に元画像と変換後を境界線付きで重ねて比較できます(それぞれのファイルサイズも表示)。',
@@ -2107,6 +2142,11 @@ let ffmpegAssetsPromise = null; // FFmpegクラス・worker・wasm（重いの�
 let ffmpegProgressCb = null;    // 進捗・ログの通知先。実行中のタスクが差し替える
 let ffmpegLogCb = null;
 const wmvDurationCache = new Map(); // cacheKey → 動画の長さ（秒）。サムネイル生成時に判明する
+const mkvDurationCache = new Map(); // cacheKey → 動画の長さ（秒）。サムネイル生成時に判明する
+// entry参照をそのままキーにする（FileSystemFileEntryはFileと違いsizeを同期取得できず
+// cacheKeyが作れないため、バッジ・ホバー再生等の同期判定にはentry自体の同一性を使う）
+const mkvConvertedEntries = new Set();     // 変換済み（再生可能）と分かったentry
+const mkvNeedsConvertEntries = new Set();  // サムネ生成時に低速な再エンコードが必要と判明したentry
 
 // 読み込みに時間のかかる部品（FFmpegクラス・worker・31MBのwasm）だけを使い回す。
 // インスタンス自体は毎回作り直すので、ここではURLとクラスの用意だけを行う
@@ -2300,9 +2340,12 @@ const VIDEO_EXTS = ['mp4','webm','mov'];
 // WMVはどのブラウザもデコードできないため、動画（VIDEO_EXTS）とは別扱いにして
 // 「変換して再生」の経路だけを用意する。スライドショー・ホバー再生・変換保存の対象外
 const WMV_EXTS   = ['wmv'];
+// MKVもブラウザがネイティブ再生できないため変換が要るが、WMVと違い変換後は
+// 普通の動画（isVideo）と同じ扱いにする（isPlayableVideo参照）
+const MKV_EXTS   = ['mkv'];
 const ICO_EXTS   = ['ico'];
 const PDF_EXTS   = ['pdf'];
-const ALL_EXTS   = [...IMG_EXTS, ...HEIC_EXTS, ...VIDEO_EXTS, ...WMV_EXTS, ...ICO_EXTS, ...PDF_EXTS];
+const ALL_EXTS   = [...IMG_EXTS, ...HEIC_EXTS, ...VIDEO_EXTS, ...WMV_EXTS, ...MKV_EXTS, ...ICO_EXTS, ...PDF_EXTS];
 
 function extOf(name)  { return (name||'').split('.').pop().toLowerCase(); }
 function isImage(name){ return [...IMG_EXTS,...HEIC_EXTS,...ICO_EXTS].includes(extOf(name)); }
@@ -2311,7 +2354,16 @@ function isHeic(name) { return HEIC_EXTS.includes(extOf(name)); }
 function isIco(name)  { return ICO_EXTS.includes(extOf(name)); }
 function isTiff(name) { return extOf(name) === 'tiff' || extOf(name) === 'tif'; }
 function isWmv(name)  { return WMV_EXTS.includes(extOf(name)); }
+function isMkv(name)  { return MKV_EXTS.includes(extOf(name)); }
 function isPdf(name)  { return PDF_EXTS.includes(extOf(name)); }
+// 変換済みのMKVを含め、「ライトボックスで普通の動画として再生できる」かどうか
+function isPlayableVideo(entry) {
+  return isVideo(entry.name) || (isMkv(entry.name) && mkvConvertedEntries.has(entry));
+}
+// 拡張子バッジに「要変換」を出すかどうか。WMVは常に対象、MKVは未変換かつ低速パス確定分のみ
+function badgeNeedsConvert(entry) {
+  return isWmv(entry.name) || (isMkv(entry.name) && !mkvConvertedEntries.has(entry) && mkvNeedsConvertEntries.has(entry));
+}
 function escHtml(s)    { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ── 変換保存（静的ラスター画像 → WebP/PNG/JPEG/PDF） ──────────────────
@@ -2471,6 +2523,55 @@ async function rotateVideoBlob(file, degreesClockwise) {
   return new Blob([output.target.buffer], { type: output.format.mimeType });
 }
 
+// 候補フレームの時刻リスト（先頭付近を最優先し、暗転・フェードインなら奥の割合位置へフォールバック）。
+// video要素(captureVideoFrameBlob)・mediabunnyのCanvasSink(captureMkvFrame)の両方で共有する
+function frameCandidateTimes(duration) {
+  const clamp = t => Math.min(Math.max(t, 0), Math.max(duration - 0.05, 0));
+  return duration
+    ? [...new Set([0.1, Math.min(duration * 0.1, 1.0), duration * 0.25, duration * 0.4, duration * 0.55, duration * 0.7].map(clamp))]
+    : [0];
+}
+
+// 候補フレームの「単色っぽさ・極端な明暗・のっぺり感」を16x16の縮小描画から安価に判定する。
+// video要素・canvasのどちらもCanvasImageSourceとして渡せるため、通常動画・MKVのサムネ生成で共有する
+// （しきい値は実サンプル4パターンの16x16実測値から較正）:
+// - 分散: 単色でない（ただしノイズ・テクスチャだけでも出てしまう）
+// - 平均輝度: 露出不足・白飛びフレームを弾く（暗い実写イントロは30前後だった）
+// - 局所コントラスト: ベタ塗りカードを弾く（カードは1〜2、暗い実写でも4前後、右隣・下隣との輝度差の平均）
+function scoreFrameSource(source, probeCtx) {
+  probeCtx.drawImage(source, 0, 0, 16, 16);
+  const { data } = probeCtx.getImageData(0, 0, 16, 16);
+  const lums = new Float32Array(256);
+  let sum = 0, sumSq = 0;
+  for (let i = 0; i < 256; i++) {
+    const o = i * 4;
+    const lum = (data[o] + data[o + 1] + data[o + 2]) / 3;
+    lums[i] = lum;
+    sum += lum;
+    sumSq += lum * lum;
+  }
+  const mean = sum / 256;
+  const variance = sumSq / 256 - mean * mean;
+  let diffSum = 0, diffN = 0;
+  for (let y = 0; y < 16; y++) {
+    for (let x = 0; x < 16; x++) {
+      const i = y * 16 + x;
+      if (x < 15) { diffSum += Math.abs(lums[i] - lums[i + 1]); diffN++; }
+      if (y < 15) { diffSum += Math.abs(lums[i] - lums[i + 16]); diffN++; }
+    }
+  }
+  const localContrast = diffSum / diffN;
+  const BLANK_VARIANCE_THRESHOLD = 15;
+  const MEAN_MIN = 40, MEAN_MAX = 215;
+  const LOCAL_CONTRAST_MIN = 5;
+  // 全候補が不合格だった場合に備えたスコア。暗すぎ/明るすぎ・のっぺりを減点して
+  // 「カードよりは暗い実写」が選ばれるようにする
+  const brightnessFactor = Math.min(1, Math.min(mean, 255 - mean) / 64);
+  const flatnessFactor = Math.min(1, localContrast / LOCAL_CONTRAST_MIN);
+  const passed = variance >= BLANK_VARIANCE_THRESHOLD && mean >= MEAN_MIN && mean <= MEAN_MAX && localContrast >= LOCAL_CONTRAST_MIN;
+  return { score: variance * brightnessFactor * flatnessFactor, passed };
+}
+
 // 動画から代表フレームを切り出す（ギャラリー表示・変換ダウンロードの両方から使う共通処理）。
 // 冒頭は暗転・フェードインで単色なことが多いため、動画内の複数地点を候補にして
 // 「ほぼ単色でない」フレームが見つかるまで安価な縮小キャンバスで判定してから、
@@ -2519,62 +2620,17 @@ function captureVideoFrameBlob(file) {
     const probe = document.createElement('canvas');
     probe.width = 16; probe.height = 16;
     const probeCtx = probe.getContext('2d', { willReadFrequently: true });
-    function probeFrame() {
-      probeCtx.drawImage(video, 0, 0, 16, 16);
-      const { data } = probeCtx.getImageData(0, 0, 16, 16);
-      const lums = new Float32Array(256);
-      let sum = 0, sumSq = 0;
-      for (let i = 0; i < 256; i++) {
-        const o = i * 4;
-        const lum = (data[o] + data[o + 1] + data[o + 2]) / 3;
-        lums[i] = lum;
-        sum += lum;
-        sumSq += lum * lum;
-      }
-      const mean = sum / 256;
-      const variance = sumSq / 256 - mean * mean;
-      // 局所コントラスト: 右隣・下隣との輝度差の平均。ベタ塗りカードは緩やかな
-      // グラデーションで「分散」は出てしまうが、隣接差はほぼゼロなので実写と区別できる
-      let diffSum = 0, diffN = 0;
-      for (let y = 0; y < 16; y++) {
-        for (let x = 0; x < 16; x++) {
-          const i = y * 16 + x;
-          if (x < 15) { diffSum += Math.abs(lums[i] - lums[i + 1]); diffN++; }
-          if (y < 15) { diffSum += Math.abs(lums[i] - lums[i + 16]); diffN++; }
-        }
-      }
-      return { mean, variance, localContrast: diffSum / diffN };
-    }
 
     video.addEventListener('loadedmetadata', async () => {
       try {
         const duration = video.duration || 0;
-        // 候補は「先頭付近(0.1s)」を最優先し、エクスプローラー等のファイル一覧と概ね揃える。
-        // 先頭がフェードイン等で単色の場合に備えて「10%地点・上限1秒」（v3.4.0の元仕様）、
-        // それも単色なら奥の割合位置へとフォールバックしていく
-        const clamp = t => Math.min(Math.max(t, 0), Math.max(duration - 0.05, 0));
-        const candidateTimes = duration
-          ? [...new Set([0.1, Math.min(duration * 0.1, 1.0), duration * 0.25, duration * 0.4, duration * 0.55, duration * 0.7].map(clamp))]
-          : [0];
-        // 合格条件は3つ（しきい値は実サンプル4パターンの16x16実測値から較正）:
-        // - 分散: 単色でない（ただしノイズ・テクスチャだけでも出てしまう）
-        // - 平均輝度: 露出不足・白飛びフレームを弾く（暗い実写イントロは30前後だった）
-        // - 局所コントラスト: ベタ塗りカードを弾く（カードは1〜2、暗い実写でも4前後）
-        const BLANK_VARIANCE_THRESHOLD = 15;
-        const MEAN_MIN = 40, MEAN_MAX = 215;
-        const LOCAL_CONTRAST_MIN = 5;
         let bestTime = 0, bestScore = -1;
-        for (const t of candidateTimes) {
+        for (const t of frameCandidateTimes(duration)) {
           await seekTo(t);
           await waitForFrame();
-          const { mean, variance, localContrast } = probeFrame();
-          // 全候補が不合格だった場合に備えたスコア。暗すぎ/明るすぎ・のっぺりを減点して
-          // 「カードよりは暗い実写」が選ばれるようにする
-          const brightnessFactor = Math.min(1, Math.min(mean, 255 - mean) / 64);
-          const flatnessFactor = Math.min(1, localContrast / LOCAL_CONTRAST_MIN);
-          const score = variance * brightnessFactor * flatnessFactor;
+          const { score, passed } = scoreFrameSource(video, probeCtx);
           if (score > bestScore) { bestScore = score; bestTime = video.currentTime; }
-          if (variance >= BLANK_VARIANCE_THRESHOLD && mean >= MEAN_MIN && mean <= MEAN_MAX && localContrast >= LOCAL_CONTRAST_MIN) break; // 合格
+          if (passed) break;
         }
         if (video.currentTime !== bestTime) {
           await seekTo(bestTime);
@@ -2593,6 +2649,79 @@ function captureVideoFrameBlob(file) {
 
     video.load();
   });
+}
+
+// MKVから代表フレームを直接デコードする。mediabunnyのCanvasSinkはBlobを必要な部分だけ
+// 遅延読み込みできるため、WMVのような「先頭だけ切り出して渡す」処理が不要で、
+// 動画のどの時刻でもそのままデコードできる。
+// canDecode()の結果は、後で再生用に変換する際に速い詰め替え(remux)で済むか、遅い
+// 再エンコード(transcode)が要るかの目安として返す（実際の判定はmediabunny側が変換時に行う）。
+// 映像トラックが無い/デコードできない場合は err.code = 'unplayable' を投げる
+async function captureMkvFrame(file) {
+  const { Input, ALL_FORMATS, BlobSource, CanvasSink } =
+    await import('https://cdn.jsdelivr.net/npm/mediabunny@1.50.6/+esm');
+  const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
+  const videoTrack = await input.getPrimaryVideoTrack();
+  if (!videoTrack) {
+    const err = new Error('No video track');
+    err.code = 'unplayable';
+    throw err;
+  }
+  const needsConvert = !(await videoTrack.canDecode());
+  const duration = (await input.getDurationFromMetadata()) ?? (await input.computeDuration()) ?? 0;
+  const sink = new CanvasSink(videoTrack);
+  const probe = document.createElement('canvas');
+  probe.width = 16; probe.height = 16;
+  const probeCtx = probe.getContext('2d', { willReadFrequently: true });
+  let best = null, bestScore = -1;
+  for (const t of frameCandidateTimes(duration)) {
+    const result = await sink.getCanvas(t);
+    if (!result) continue;
+    const { score, passed } = scoreFrameSource(result.canvas, probeCtx);
+    if (score > bestScore) { bestScore = score; best = result; }
+    if (passed) break;
+  }
+  if (!best) {
+    const err = new Error('Cannot decode frame');
+    err.code = 'unplayable';
+    throw err;
+  }
+  const { canvas } = best;
+  return await new Promise((resolve, reject) => {
+    canvas.toBlob(blob => blob
+      ? resolve({ blob, width: canvas.width, height: canvas.height, duration, needsConvert })
+      : reject(new Error('encode failed')), 'image/jpeg', 0.88);
+  });
+}
+
+// MKVをMP4へ変換する（再生用）。{ promise, cancel } を返し、cancel() で実行中でも打ち切れる。
+// mediabunnyのConversionは、可能ならコンテナの詰め替えだけで済ませ(remux)、コーデックが
+// 対応外の場合だけ自動で再エンコード(transcode)するため、呼び出し側は一律の処理でよい
+function convertMkvToMp4(file, { onProgress } = {}) {
+  let canceled = false;
+  let conversionRef = null;
+  const job = {
+    cancel() {
+      canceled = true;
+      if (conversionRef) { try { conversionRef.cancel(); } catch (e) {} }
+    },
+  };
+  job.promise = (async () => {
+    const { Input, Output, Conversion, ALL_FORMATS, BlobSource, Mp4OutputFormat, BufferTarget } =
+      await import('https://cdn.jsdelivr.net/npm/mediabunny@1.50.6/+esm');
+    if (canceled) throw new Error('canceled');
+    const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
+    const output = new Output({ format: new Mp4OutputFormat(), target: new BufferTarget() });
+    const conversion = await Conversion.init({ input, output });
+    conversionRef = conversion;
+    if (canceled) { conversion.cancel(); throw new Error('canceled'); }
+    if (!conversion.isValid) throw new Error('Conversion is invalid');
+    if (onProgress) conversion.onProgress = onProgress;
+    await conversion.execute();
+    if (canceled) throw new Error('canceled');
+    return new Blob([output.target.buffer], { type: output.format.mimeType });
+  })();
+  return job;
 }
 
 // 変換ダウンロード用：ギャラリーで既に生成済みのサムネイルがあればそれを再利用し、二重に動画を読み込まない
@@ -2675,10 +2804,15 @@ function clearThumbCache() {
   thumbCache.forEach(v => { try { URL.revokeObjectURL(v.url); } catch(e){} });
   thumbCache.clear();
   aspectRatioCache.clear();
-  // 変換済みWMVは実体が大きいので、キャッシュを捨てる時に一緒に解放する
+  // 変換済みWMV/MKVは実体が大きいので、キャッシュを捨てる時に一緒に解放する
   wmvBlobCache.forEach(url => { try { URL.revokeObjectURL(url); } catch(e){} });
   wmvBlobCache.clear();
   wmvDurationCache.clear();
+  mkvBlobCache.forEach(url => { try { URL.revokeObjectURL(url); } catch(e){} });
+  mkvBlobCache.clear();
+  mkvDurationCache.clear();
+  mkvConvertedEntries.clear();
+  mkvNeedsConvertEntries.clear();
 }
 
 async function makeURL(file) {
@@ -3820,7 +3954,7 @@ function computeJustifiedRows(files, containerWidth, targetHeight, gap) {
 
   for (const entry of files) {
     const ratio = aspectRatioCache.get(entry.name) ||
-      (isVideo(entry.name) ? 16 / 9 : 3 / 2);
+      ((isVideo(entry.name) || isWmv(entry.name) || isMkv(entry.name)) ? 16 / 9 : 3 / 2);
     row.push({ entry, ratio });
     rowRatioSum += ratio;
 
@@ -3877,7 +4011,7 @@ function renderTileGallery(generation) {
       loading.innerHTML = `<div class="thumb-spinner" aria-hidden="true"></div><span class="thumb-loading-text is-progress">${t('thumb.loading')}</span>`;
 
       const badge = document.createElement('div');
-      badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name)) ? ' video-badge' + (isWmv(name) ? ' needs-convert' : '') : isPdf(name) ? ' pdf-badge' : '');
+      badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name) || isMkv(name)) ? ' video-badge' + (badgeNeedsConvert(entry) ? ' needs-convert' : '') : isPdf(name) ? ' pdf-badge' : '');
       badge.textContent = extOf(name).toUpperCase();
       badge.setAttribute('aria-hidden', 'true');
       badge.dataset.badge = 'true';
@@ -3898,7 +4032,7 @@ function renderTileGallery(generation) {
       item.appendChild(infoEl);
       item.addEventListener('click', () => openLightbox(i));
       item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(i); } });
-      if (isVideo(name)) attachHoverPlay(item, entry);
+      if (isPlayableVideo(entry)) attachHoverPlay(item, entry);
       if (zipSelectMode) addZipCheckbox(item);
       rowEl.appendChild(item);
 
@@ -3944,7 +4078,7 @@ function renderGallery({ preserveScroll = false } = {}) {
     : tf('status.files', { n: raw.length });
 
   // サムネが表示される状態ならスライドショー・レイアウト切替ボタンも表示
-  const hasSsTargets = filteredFiles.some(f => isImage(f.name) || isVideo(f.name));
+  const hasSsTargets = filteredFiles.some(f => isImage(f.name) || isPlayableVideo(f));
   document.getElementById('btnSlideshow').style.display = (rootNode && hasSsTargets) ? '' : 'none';
   document.getElementById('btnLayoutToggle').style.display = rootNode ? '' : 'none';
 
@@ -3995,7 +4129,7 @@ function renderGallery({ preserveScroll = false } = {}) {
     loading.innerHTML = `<div class="thumb-spinner" aria-hidden="true"></div><span class="thumb-loading-text is-progress">${t('thumb.loading')}</span>`;
 
     const badge = document.createElement('div');
-    badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name)) ? ' video-badge' + (isWmv(name) ? ' needs-convert' : '') : isPdf(name) ? ' pdf-badge' : '');
+    badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name) || isMkv(name)) ? ' video-badge' + (badgeNeedsConvert(entry) ? ' needs-convert' : '') : isPdf(name) ? ' pdf-badge' : '');
     badge.textContent = extOf(name).toUpperCase();
     badge.setAttribute('aria-hidden', 'true');
     badge.dataset.badge = 'true';
@@ -4016,7 +4150,7 @@ function renderGallery({ preserveScroll = false } = {}) {
     item.appendChild(infoEl);
     item.addEventListener('click', () => openLightbox(i));
     item.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){e.preventDefault();openLightbox(i);} });
-    if (isVideo(name)) attachHoverPlay(item, entry);
+    if (isPlayableVideo(entry)) attachHoverPlay(item, entry);
     if (zipSelectMode) addZipCheckbox(item);
     gallery.appendChild(item);
 
@@ -4043,6 +4177,10 @@ async function loadThumb(entry, item, loading, generation) {
     }
     if (isWmv(file.name)) {
       await loadWmvThumb(file, item, loading, key, generation);
+      return;
+    }
+    if (isMkv(file.name)) {
+      await loadMkvThumb(file, item, loading, key, generation, entry);
       return;
     }
 
@@ -4276,6 +4414,51 @@ async function loadWmvThumb(file, item, loading, key, generation) {
   }
 }
 
+// MKVのサムネイル。mediabunnyで直接1フレームだけデコードする（WMVと違い先頭切り出し不要）
+async function loadMkvThumb(file, item, loading, key, generation, entry) {
+  const addPlayIcon = () => {
+    const play = document.createElement('div');
+    play.className = 'thumb-play';
+    play.innerHTML = '<div class="thumb-play-icon" aria-hidden="true">▶</div>';
+    item.appendChild(play);
+  };
+
+  if (key && thumbCache.has(key)) {
+    const cached = thumbCache.get(key);
+    applyThumbImage(item, loading, cached.url, cached.dim, null, file.name);
+    addPlayIcon();
+    return;
+  }
+  try {
+    const { blob, width, height, duration, needsConvert } = await captureMkvFrame(file);
+    if (generation !== galleryGeneration) return;
+    if (key && duration) mkvDurationCache.set(key, duration); // ライトボックスで所要時間を示すのに使う
+    if (needsConvert) {
+      mkvNeedsConvertEntries.add(entry);
+      const badge = item.querySelector('[data-badge]');
+      if (badge) badge.classList.add('needs-convert');
+    }
+    const url = URL.createObjectURL(blob);
+    objectURLs.push(url);
+    const dim = `${width} × ${height}`;
+    applyThumbImage(item, loading, url, dim, null, file.name);
+    addPlayIcon();
+    // blobも保持しておき、変換保存の「Thumbnail」で再デコードせず使い回す
+    if (key) thumbCache.set(key, { url, dim, blob });
+    if (width && height) {
+      const ratio = width / height;
+      if (aspectRatioCache.get(file.name) !== ratio) { aspectRatioCache.set(file.name, ratio); scheduleRelayout(); }
+    }
+  } catch (e) {
+    if (generation !== galleryGeneration) return;
+    // サムネイルが作れなくてもライトボックスからは変換して見られるので、
+    // 「壊れたファイル」に見えないよう、動画であることを示す表示に留める
+    if (loading.parentNode === item) loading.remove();
+    addPlayIcon();
+    console.warn('mkv thumb failed:', file.name, e);
+  }
+}
+
 async function loadVideoThumb(file, item, loading, key, generation) {
   // キャッシュヒット
   if (key && thumbCache.has(key)) {
@@ -4347,13 +4530,18 @@ async function openLightbox(idx) {
   await updateLightbox();
   lightbox.classList.add('open');
   setBackgroundInert(true);
-  // 動画はvideo要素に、WMVは変換ボタンに、それ以外はlightbox本体にフォーカス
+  // 動画はvideo要素に、WMVは変換ボタンに、MKVは進捗表示中なら中止ボタンに、
+  // それ以外はlightbox本体にフォーカス
   const videoWrap = document.getElementById('lbVideoWrap');
   const wmvWrap = document.getElementById('lbWmvWrap');
+  const mkvWrap = document.getElementById('lbMkvWrap');
+  const mkvProgressBox = document.getElementById('lbMkvProgressBox');
   if (videoWrap.style.display !== 'none') {
     document.getElementById('lbVideo').focus();
   } else if (wmvWrap.style.display !== 'none') {
     document.getElementById('lbWmvConvert').focus();
+  } else if (mkvWrap.style.display !== 'none' && !mkvProgressBox.hidden) {
+    document.getElementById('lbMkvCancel').focus();
   } else {
     lightbox.focus();
   }
@@ -4371,11 +4559,11 @@ function updateLbKeyHint() {
   const sc = lbShortcutsEnabled;
   if (ssActive) {
     segs.push(`Esc: ${t('hint.stopSs')}`);
-  } else if (isVideo(name)) {
+  } else if (entry && isPlayableVideo(entry)) {
     if (sc) segs.push(`Z: ${t('hint.zoom')}`, `R: ${t('hint.rotate')}`, `C: ${t('hint.checker')}`, `1: ${t('hint.actual')}`, `L: ${t('hint.loop')}`);
     segs.push(escCloseZoom);
-  } else if (isPdf(name) || isWmv(name)) {
-    segs.push(`Esc: ${t('hint.close')}`); // PDF・WMVはズーム・市松切替とも不可
+  } else if (isPdf(name) || isWmv(name) || isMkv(name)) {
+    segs.push(`Esc: ${t('hint.close')}`); // PDF・WMV・未変換MKVはズーム・市松切替とも不可
   } else {
     const diffInfo = getDiffPartner(entry);
     const isDiff = diffInfo && isImage(diffInfo.partner.name || '');
@@ -4396,6 +4584,7 @@ function updateLbKeyHint() {
 
 async function updateLightbox() {
   cancelWmvJob(); // 別のファイルへ移ったら、進行中の変換は打ち切る
+  cancelMkvJob();
   const entry = filteredFiles[currentIdx];
   const name = entry.name||'';
   lbFilename.textContent = name;
@@ -4410,8 +4599,9 @@ async function updateLightbox() {
   const lbDimEl = document.getElementById('lbDim'); if(lbDimEl) lbDimEl.textContent = '';
   document.getElementById('lbConvertError').textContent = '';
 
-  // 表示中のファイル種別（画像/動画/PDF）に合わせて「Convert to...」の中身を自動で切り替える
-  const lbNewSubject = isVideo(name) ? 'video' : isPdf(name) ? 'pdf' : 'image';
+  // 表示中のファイル種別（画像/動画/PDF）に合わせて「Convert to...」の中身を自動で切り替える。
+  // 変換済みのMKVは普通の動画として扱う（未変換の間はConvert to...自体を隠すので'image'のままでよい）
+  const lbNewSubject = isPlayableVideo(entry) ? 'video' : isPdf(name) ? 'pdf' : 'image';
   if (lbCurrentSubject !== lbNewSubject) {
     lbCurrentSubject = lbNewSubject;
     rebuildLbFmtMenu();
@@ -4442,11 +4632,13 @@ async function updateLightbox() {
     const pdfWrap   = document.getElementById('lbPdfWrap');
     const pdfFrame  = document.getElementById('lbPdfFrame');
     const wmvWrap   = document.getElementById('lbWmvWrap');
+    const mkvWrap   = document.getElementById('lbMkvWrap');
     pdfFrame.src = '';
     imgWrap.style.display   = 'none';
     videoWrap.style.display = 'none';
     pdfWrap.style.display   = 'none';
     wmvWrap.style.display   = 'none';
+    mkvWrap.style.display   = 'none';
     diffWrap.style.display  = 'none';
     // Diffモードでは、2つのファイルのどちらを変換するのか予想がつかないため変換UIごと隠す
     document.querySelector('.lb-info .convert-group').style.display = '';
@@ -4456,9 +4648,11 @@ async function updateLightbox() {
     const rotateBtn = document.getElementById('lbRotate');
     const actualBtn = document.getElementById('lbActualBtn');
     updateLbKeyHint();
-    // 変換済みのWMVは通常の動画と同じ経路で再生する（ズーム等の操作は対象外のまま隠す）
+    // 変換済みのWMV/MKVは通常の動画と同じ経路で再生する。WMVはズーム等の操作を対象外のまま隠すが、
+    // MKVは変換後は完全に普通の動画として扱う（wmvModeでのみ隠す）
     const wmvUrl = isWmv(file.name) ? wmvBlobCache.get(cacheKey(file)) : null;
-    if (isVideo(file.name) || wmvUrl) {
+    const mkvUrl = isMkv(file.name) ? mkvBlobCache.get(cacheKey(file)) : null;
+    if (isVideo(file.name) || wmvUrl || mkvUrl) {
       const wmvMode = !!wmvUrl;
       zoomBtn.style.display = (ssActive || wmvMode) ? 'none' : '';
       loopBtn.style.display = (ssActive || wmvMode) ? 'none' : '';
@@ -4470,8 +4664,8 @@ async function updateLightbox() {
       rotateBtn.style.display = (ssActive || zoomMode || wmvMode) ? 'none' : '';
       if (wmvMode) document.querySelector('.lb-info .convert-group').style.display = 'none';
       lbVideo.loop = ssActive ? false : videoLoop;
-      const url = wmvUrl || URL.createObjectURL(file);
-      if (!wmvUrl) objectURLs.push(url); // 変換結果のURLはキャッシュ側で管理する
+      const url = wmvUrl || mkvUrl || URL.createObjectURL(file);
+      if (!wmvUrl && !mkvUrl) objectURLs.push(url); // 変換結果のURLはキャッシュ側で管理する
       videoWrap.style.display = 'flex';
       lbVideo.src = url;
       lbVideo.load();
@@ -4508,6 +4702,17 @@ async function updateLightbox() {
       exitZoomMode();
       wmvWrap.style.display = 'flex';
       setupWmvPanel(file, cacheKey(file));
+    } else if (isMkv(file.name)) {
+      // 未変換のMKV: パネルを出すと同時にバックグラウンドで自動変換を始める
+      zoomBtn.style.display = 'none';
+      loopBtn.style.display = 'none';
+      checkerBtn.style.display = 'none';
+      actualBtn.style.display = 'none';
+      rotateBtn.style.display = 'none';
+      document.querySelector('.lb-info .convert-group').style.display = 'none';
+      exitZoomMode();
+      mkvWrap.style.display = 'flex';
+      setupMkvPanel(file, entry, cacheKey(file));
     } else {
       const diffInfo = getDiffPartner(entry);
       const isDiff = diffInfo && isImage(diffInfo.partner.name || '');
@@ -4634,8 +4839,105 @@ function setupWmvPanel(file, key) {
   };
 }
 
+// ── MKVの変換パネル ───────────────────────────────────────────────
+// MKVはWMVと違い、パネルを出すと同時にバックグラウンドで変換を始める（ボタン押下を待たない）。
+// mediabunnyのremuxで済むファイルはほぼ一瞬で終わるため、進捗バー・中止ボタンは
+// 一定時間経っても終わらない場合だけ表示し、速いファイルではチラつかせない
+const mkvBlobCache = new Map(); // cacheKey → 変換済みMP4のURL（同じセッション中は再変換しない）
+let mkvJob = null;
+
+function cancelMkvJob() {
+  if (!mkvJob) return;
+  mkvJob.cancel();
+  mkvJob = null;
+}
+
+// 変換完了直後、現在のギャラリー表示に対象の項目があれば、再描画を待たずにその場で
+// 通常動画と同じ見た目（要変換バッジの解除・ホバー再生）に更新する
+function patchGalleryItemAfterMkvConvert(entry) {
+  const item = gallery.querySelector(`.thumb-item[data-name="${CSS.escape(entry.name)}"]`);
+  if (!item) return;
+  const badge = item.querySelector('[data-badge]');
+  if (badge) badge.classList.remove('needs-convert');
+  attachHoverPlay(item, entry);
+}
+
+const MKV_PROGRESS_REVEAL_MS = 300; // 速いremuxではこの時間内に終わり、進捗UIは一度も出ない
+
+function setupMkvPanel(file, entry, key) {
+  const cancelBtn = document.getElementById('lbMkvCancel');
+  const retryBtn  = document.getElementById('lbMkvRetry');
+  const statusEl  = document.getElementById('lbMkvStatus');
+  const box       = document.getElementById('lbMkvProgressBox');
+  const label     = document.getElementById('lbMkvProgressLabel');
+  const bar       = document.getElementById('lbMkvProgress');
+  const setProgress = (text, pct) => {
+    label.textContent = text;
+    bar.value = pct;
+    bar.textContent = `${Math.round(pct)}%`;
+  };
+  const showProgress = on => {
+    box.hidden = !on;
+    box.setAttribute('aria-busy', on ? 'true' : 'false');
+  };
+
+  const run = async () => {
+    if (mkvJob) return; // 多重起動の抑止
+    showProgress(false);
+    setProgress('', 0);
+    statusEl.textContent = '';
+    retryBtn.hidden = true;
+    const revealTimer = setTimeout(() => showProgress(true), MKV_PROGRESS_REVEAL_MS);
+    setProgress(t('mkv.starting'), 0);
+    const startedAt = performance.now();
+    const job = convertMkvToMp4(file, {
+      onProgress: p => {
+        const pct = Math.round(p * 100);
+        const elapsed = (performance.now() - startedAt) / 1000;
+        const remain = (p > 0.03 && elapsed > 3) ? elapsed * (1 - p) / p : 0;
+        setProgress(remain
+          ? tf('mkv.convertingEta', { p: pct, r: fmtWmvDuration(remain) })
+          : tf('mkv.converting', { p: pct }), pct);
+      },
+    });
+    mkvJob = job;
+    try {
+      const blob = await job.promise;
+      clearTimeout(revealTimer);
+      if (mkvJob !== job) return; // 中止後・別ファイルへ移った後に届いた結果は捨てる
+      mkvJob = null;
+      mkvBlobCache.set(key, URL.createObjectURL(blob));
+      mkvConvertedEntries.add(entry);
+      patchGalleryItemAfterMkvConvert(entry);
+      await updateLightbox(); // 変換済みとして描き直され、そのまま再生される
+      if (document.getElementById('lbVideoWrap').style.display !== 'none') {
+        document.getElementById('lbVideo').focus();
+      }
+    } catch (e) {
+      clearTimeout(revealTimer);
+      const canceled = mkvJob !== job || String(e && e.message) === 'canceled';
+      if (mkvJob === job) mkvJob = null;
+      showProgress(false);
+      statusEl.textContent = t(canceled ? 'mkv.canceled' : 'mkv.failed');
+      retryBtn.hidden = false;
+      retryBtn.focus();
+    }
+  };
+  cancelBtn.onclick = () => {
+    if (!mkvJob) return;
+    cancelMkvJob();
+    showProgress(false);
+    statusEl.textContent = t('mkv.canceled');
+    retryBtn.hidden = false;
+    retryBtn.focus();
+  };
+  retryBtn.onclick = () => run();
+  run();
+}
+
 function closeLightbox() {
   cancelWmvJob();
+  cancelMkvJob();
   if (ssActive) stopSlideshow();
   exitZoomMode();
   resetDiffMode();
@@ -5383,7 +5685,7 @@ let ssTimer    = null;
 
 // 画像・動画のみ対象のインデックスリストを取得
 function getSsFiles() {
-  return filteredFiles.filter(f => isImage(f.name) || isVideo(f.name));
+  return filteredFiles.filter(f => isImage(f.name) || isPlayableVideo(f));
 }
 
 // スライドショーボタンの title / aria-label を状態と言語に合わせて更新する
@@ -5429,7 +5731,7 @@ function stopSlideshow() {
   // ループボタンは現在のファイルが動画の時のみ、市松ボタンはPDF以外の時のみ、
   // 回転ボタンは静止画・動画（Diff除く）の時のみ、原寸ボタンは静止画・動画（Diff除く）の時のみ再表示
   const _curEntry = filteredFiles[currentIdx];
-  const _curIsVideo = _curEntry && isVideo(_curEntry.name);
+  const _curIsVideo = _curEntry && isPlayableVideo(_curEntry);
   const _curIsPdf = _curEntry && isPdf(_curEntry.name);
   const _diffInfo = _curEntry ? getDiffPartner(_curEntry) : null;
   const _curIsDiff = !!(_diffInfo && isImage(_diffInfo.partner.name || ''));
@@ -5446,7 +5748,7 @@ function scheduleNext() {
   clearTimeout(ssTimer);
   if (!ssActive) return;
   const entry = filteredFiles[currentIdx];
-  const isVid = entry && isVideo(entry.name);
+  const isVid = entry && isPlayableVideo(entry);
 
   if (isVid && lbSsFullVideo.checked) {
     // 動画は再生終了で次へ（lbVideo.endedイベントで処理）
@@ -5470,7 +5772,7 @@ async function advanceSlideshowTo(dir) {
       : (nextIdx - 1 + filteredFiles.length) % filteredFiles.length;
     tries++;
     if (tries > filteredFiles.length) break;
-  } while (!isImage(filteredFiles[nextIdx].name) && !isVideo(filteredFiles[nextIdx].name));
+  } while (!isImage(filteredFiles[nextIdx].name) && !isPlayableVideo(filteredFiles[nextIdx]));
   currentIdx = nextIdx;
   await updateLightbox();
   scheduleNext();
@@ -6094,7 +6396,7 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
   }
 
   if (fmt === 'sound') {
-    if (!entry || !isVideo(entry.name)) {
+    if (!entry || !isPlayableVideo(entry)) {
       errEl.textContent = t('err.cannotConvert');
       return;
     }
@@ -6110,7 +6412,7 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
   }
 
   if (fmt === 'thumbnail') {
-    if (!entry || !isVideo(entry.name)) {
+    if (!entry || !isPlayableVideo(entry)) {
       errEl.textContent = t('err.cannotConvert');
       return;
     }
@@ -6128,7 +6430,7 @@ document.getElementById('lbConvertDownload').addEventListener('click', async () 
   }
 
   if (fmt === 'rotate-90' || fmt === 'rotate-180' || fmt === 'rotate-270') {
-    if (!entry || !isVideo(entry.name)) {
+    if (!entry || !isPlayableVideo(entry)) {
       errEl.textContent = t('err.cannotConvert');
       return;
     }
@@ -6320,7 +6622,7 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
 
   // 「Sound」: 動画から音声トラックだけを取り出す（音声トラックが無いものは無視してスキップ）
   if (fmt === 'sound') {
-    const videoEntries = filteredFiles.filter(f => isVideo(f.name));
+    const videoEntries = filteredFiles.filter(f => isPlayableVideo(f));
     if (!videoEntries.length) {
       errEl.textContent = t('err.noVideo');
       return;
@@ -6350,7 +6652,7 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
 
   // 「Thumbnails」: 動画ごとに代表フレームを切り出して画像化する
   if (fmt === 'thumbnail') {
-    const videoEntries = filteredFiles.filter(f => isVideo(f.name));
+    const videoEntries = filteredFiles.filter(f => isPlayableVideo(f));
     if (!videoEntries.length) {
       errEl.textContent = t('err.noVideo');
       return;
