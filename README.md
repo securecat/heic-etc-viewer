@@ -83,19 +83,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.25.0] - 2026-08-22
-
-#### Added
-
-- MKV video support: opening one in the lightbox converts it to MP4 automatically in the background — a fast container remux when the codec is natively supported, falling back to full re-encoding otherwise, with a progress bar and cancel button shown only if it takes a moment. Gallery thumbnails are extracted directly from the source file, without a full conversion. A file needing the slower re-encoding is marked with a badge; once converted, an MKV is shown as "MKV(MP4)" in its badge and behaves exactly like a native video file for the rest of the session — slideshow, hover playback, and the Sound/Thumbnail/Rotate conversion menu all included
-
-#### Changed
-
-- The lightbox's rotate button (`R`) now rotates 90° clockwise instead of counter-clockwise
+### [3.25.1] - 2026-08-23
 
 #### Fixed
 
-- "Export as zip" (convert subject "All") now uses the real format's extension for a file whose actual content differs from its name — a HEIC that's actually JPEG/PNG/GIF, or an MKV already converted to MP4 this session — instead of keeping the original extension
+- Opening a folder that takes a while to scan (Open Folder, drag-and-drop, or a bookmark) no longer leaves a stale lightbox open. Previously, since loading doesn't block interaction with the currently-shown folder, you could open the lightbox on one of its files while the new folder was still loading; once loading finished, the gallery underneath switched to the new folder but the lightbox kept showing the old file, out of sync with what was actually loaded. The lightbox now closes automatically the moment a new folder finishes loading
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -186,19 +178,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.25.0] - 2026-08-22
-
-#### 追加
-
-- MKV動画に対応。ライトボックスで開くとバックグラウンドで自動的にMP4へ変換する。対応コーデックならコンテナの詰め替えだけで済みほぼ一瞬で終わり、非対応の場合は再エンコードにフォールバックして、時間がかかる時だけ進捗バーと中止ボタンを表示する。ギャラリーのサムネイルは元ファイルから、変換を経ずに直接生成する。再エンコードが必要と判明したファイルはバッジで示され、変換済みのMKVはバッジに「MKV(MP4)」と表示され、そのセッション中はスライドショー・ホバー再生・Sound/Thumbnail/Rotate変換メニューも含め、普通の動画ファイルと全く同じように扱われる
-
-#### 変更
-
-- ライトボックスの回転ボタン(`R`)が、反時計回りではなく時計回りに90度回転するようになった
+### [3.25.1] - 2026-08-23
 
 #### 修正
 
-- 「ZIPでエクスポート」(変換対象「すべて」)で、実体が名前と食い違うファイル(実体がJPEG/PNG/GIFだったHEIC、このセッション中にMP4へ変換済みのMKV)が、元の拡張子のままではなく実体に合わせた拡張子で入るようになった
+- 読み込みに時間がかかるフォルダ(フォルダを開く・ドラッグ＆ドロップ・ブックマーク)を開いている間、それまで見ていたフォルダの操作(ライトボックスを開く等)がブロックされない作りだったため、読み込み完了後もライトボックスが古いフォルダのファイルを表示したまま残ってしまい、背後のギャラリーだけ新フォルダの内容に差し替わってしまう問題を修正。新フォルダの読み込みが完了した時点で、開いていればライトボックスを自動的に閉じるようにした
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

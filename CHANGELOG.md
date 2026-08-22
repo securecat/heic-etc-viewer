@@ -2,11 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.25.1] - 2026-08-23
+
+### Fixed
+
+- Opening a folder that takes a while to scan (Open Folder, drag-and-drop, or a bookmark) no longer leaves a stale lightbox open. Previously, since loading doesn't block interaction with the currently-shown folder, you could open the lightbox on one of its files while the new folder was still loading; once loading finished, the gallery underneath switched to the new folder but the lightbox kept showing the old file, out of sync with what was actually loaded. The lightbox now closes automatically the moment a new folder finishes loading
+
 ## [3.25.0] - 2026-08-22
 
 ### Added
 
-- MKV video support: opening one in the lightbox converts it to MP4 automatically in the background — a fast container remux when the codec is natively supported, falling back to full re-encoding otherwise, with a progress bar and cancel button shown only if it takes a moment. Gallery thumbnails are extracted directly from the source file, without a full conversion. A file needing the slower re-encoding is marked with a badge; once converted, an MKV is shown as "MKV(MP4)" in its badge and behaves exactly like a native video file for the rest of the session — slideshow, hover playback, and the Sound/Thumbnail/Rotate conversion menu all included
+- MKV video support: opening one in the lightbox converts it to MP4 automatically in the background — a fast container remux when the codec is natively supported, falling back to full re-encoding otherwise, with a progress bar and cancel button shown only if it takes a moment. Gallery thumbnails are extracted directly from the source file, without a full conversion. A file needing the slower re-encoding, or whose codec the browser can't decode at all (e.g. the old MPEG-4 Part 2 "mp4v"), is marked with a badge — the latter showing the same "can't play this in this browser" badge used for other unplayable video formats, and skipping straight to that message in the lightbox instead of attempting a conversion known to fail. Once converted, an MKV is shown as "MKV(MP4)" in its badge and behaves exactly like a native video file for the rest of the session — slideshow, hover playback, and the Sound/Thumbnail/Rotate conversion menu all included
 
 ### Changed
 
@@ -702,11 +708,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 # 更新履歴
 
+## [3.25.1] - 2026-08-23
+
+### 修正
+
+- 読み込みに時間がかかるフォルダ(フォルダを開く・ドラッグ＆ドロップ・ブックマーク)を開いている間、それまで見ていたフォルダの操作(ライトボックスを開く等)がブロックされない作りだったため、読み込み完了後もライトボックスが古いフォルダのファイルを表示したまま残ってしまい、背後のギャラリーだけ新フォルダの内容に差し替わってしまう問題を修正。新フォルダの読み込みが完了した時点で、開いていればライトボックスを自動的に閉じるようにした
+
 ## [3.25.0] - 2026-08-22
 
 ### 追加
 
-- MKV動画に対応。ライトボックスで開くとバックグラウンドで自動的にMP4へ変換する。対応コーデックならコンテナの詰め替えだけで済みほぼ一瞬で終わり、非対応の場合は再エンコードにフォールバックして、時間がかかる時だけ進捗バーと中止ボタンを表示する。ギャラリーのサムネイルは元ファイルから、変換を経ずに直接生成する。再エンコードが必要と判明したファイルはバッジで示され、変換済みのMKVはバッジに「MKV(MP4)」と表示され、そのセッション中はスライドショー・ホバー再生・Sound/Thumbnail/Rotate変換メニューも含め、普通の動画ファイルと全く同じように扱われる
+- MKV動画に対応。ライトボックスで開くとバックグラウンドで自動的にMP4へ変換する。対応コーデックならコンテナの詰め替えだけで済みほぼ一瞬で終わり、非対応の場合は再エンコードにフォールバックして、時間がかかる時だけ進捗バーと中止ボタンを表示する。ギャラリーのサムネイルは元ファイルから、変換を経ずに直接生成する。再エンコードが必要と判明したファイル、またはブラウザが全くデコードできないコーデック(例: 古いMPEG-4 Part 2の「mp4v」)のファイルはバッジで示され、後者は他の動画形式と同じ「このブラウザで再生不可」バッジになり、ライトボックスでも失敗すると分かっている変換は試みず同じメッセージを表示する。変換済みのMKVはバッジに「MKV(MP4)」と表示され、そのセッション中はスライドショー・ホバー再生・音声/サムネイル/回転の変換メニューも含め、普通の動画ファイルと全く同じように扱われる
 
 ### 変更
 
