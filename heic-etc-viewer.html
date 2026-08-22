@@ -3876,6 +3876,11 @@ function setActiveRow(node) {
 
 // ── ノード選択 → ギャラリー表示 ──────────────────────────────────
 async function selectNode(node, { focus = false } = {}) {
+  // ライトボックス表示中はツリー・ツールバーがinertで操作できないため、ここに来るのは
+  // 「新しいフォルダの読み込みが、開く前から進行中だった」ケースのみ。背後のギャラリーは
+  // これから新フォルダの内容に差し替わるので、古いフォルダのファイルを表示したままの
+  // ライトボックスを残さないよう強制的に閉じる
+  if (lightbox.classList.contains('open')) closeLightbox();
   if (currentNode && currentNode.el) currentNode.el.setAttribute('aria-selected', 'false');
   currentNode = node;
   if (node.el) node.el.setAttribute('aria-selected', 'true');
