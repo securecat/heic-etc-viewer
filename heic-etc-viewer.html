@@ -1460,7 +1460,7 @@ const I18N = {
     'g.convert.pdfH': 'PDF',
     'g.convert.pdfP': 'A PDF opened in the lightbox can be split into one PDF per page ("PDF (individual pages)"), downloaded as a zip (or as a single file for one-page PDFs). Pages are extracted as-is, without re-rendering.',
     'g.zip.h': 'Export as a Zip',
-    'g.zip.p': 'Doesn\'t convert anything — bundles the files currently shown in the gallery (after any filter) into a single zip, unchanged. While this format is selected, a checkbox appears in the top-left corner of every thumbnail (all checked by default); untick the files you don\'t need before downloading. The "Select all" / "Clear all" buttons next to the Download button switch every shown file at once. Available by selecting "All" as the convert subject.',
+    'g.zip.p': 'Doesn\'t convert anything — bundles the files currently shown in the gallery (after any filter) into a single zip, unchanged. The exception is a file whose gallery badge shows its real format in parentheses (a HEIC that\'s actually JPEG/PNG/GIF, or an MKV already converted to MP4 this session): it\'s included with the matching extension instead of its original one. While this format is selected, a checkbox appears in the top-left corner of every thumbnail (all checked by default); untick the files you don\'t need before downloading. The "Select all" / "Clear all" buttons next to the Download button switch every shown file at once. Available by selecting "All" as the convert subject.',
     'g.diff.h': 'Image diff mode',
     'g.diff.p': 'Open a parent folder containing exactly two subfolders whose image files share the same filename (ignoring extension) to compare them. Opening a matched file in the lightbox shows both versions overlaid with a divider that follows your mouse — the alphabetically-first subfolder is on the left. Files without a match in the other subfolder, or matched pairs that aren\'t both images, display normally.',
     'g.kbd.h': 'Keyboard operation',
@@ -1687,7 +1687,7 @@ const I18N = {
     'g.convert.pdfH': 'PDF',
     'g.convert.pdfP': 'ライトボックスで表示中のPDFは「PDF(ページごとに)」で1ページずつのPDFに分割し、zipでダウンロードできます(1ページのPDFはそのまま1ファイルで保存)。ページは再レンダリングせず、そのまま取り出します。',
     'g.zip.h': 'ZIPでエクスポート',
-    'g.zip.p': '変換は行いません。ギャラリーに表示中のファイル(絞り込み後)を、変換せずそのまま1つのZIPにまとめます。この形式を選んでいる間は各サムネの左上にチェックボックスが表示される(デフォルトは全部ON)ので、不要なファイルはチェックを外してからダウンロードしてください。ダウンロードボタンの右の「全選択」「全解除」で、表示中のファイルをまとめて切り替えられます。変換対象で「すべて」を選ぶと使用できます。',
+    'g.zip.p': '変換は行いません。ギャラリーに表示中のファイル(絞り込み後)を、変換せずそのまま1つのZIPにまとめます。例外として、サムネのバッジに実際の形式が括弧書きで出ているファイル(実体がJPEG/PNG/GIFだったHEIC、このセッション中にMP4へ変換済みのMKV)は、元の拡張子ではなく実体に合わせた拡張子で入れます。この形式を選んでいる間は各サムネの左上にチェックボックスが表示される(デフォルトは全部ON)ので、不要なファイルはチェックを外してからダウンロードしてください。ダウンロードボタンの右の「全選択」「全解除」で、表示中のファイルをまとめて切り替えられます。変換対象で「すべて」を選ぶと使用できます。',
     'g.diff.h': '画像Diffモード',
     'g.diff.p': '拡張子を除いたファイル名が一致する画像ファイルを持つ、ちょうど2つのサブフォルダを含む親フォルダを開くと比較できます。一致したファイルをライトボックスで開くと、マウスに追従する境界線で2つのバージョンが重ねて表示されます(アルファベット順で先のサブフォルダが左側)。もう一方のサブフォルダに一致がないファイルや、両方が画像ではないペアは、通常どおり表示されます。',
     'g.kbd.h': 'キーボード操作',
@@ -1886,6 +1886,8 @@ async function detectRealType(file) {
   if (h[0]===0x47 && h[1]===0x49 && h[2]===0x46) return 'gif';
   return 'heic';
 }
+// detectRealType()の戻り値をファイル拡張子に変換する（jpegのみ慣例的にjpgへ）
+const REAL_TYPE_EXT = { jpeg: 'jpg' };
 
 // ── サムネイル高速化：バイナリヘッダーだけを読んで実寸を取得する ──────
 // （フルデコードせずに済む形式のみ対応。対応外はnullを返し、呼び出し側は
@@ -2813,7 +2815,7 @@ function clearThumbCache() {
   wmvBlobCache.forEach(url => { try { URL.revokeObjectURL(url); } catch(e){} });
   wmvBlobCache.clear();
   wmvDurationCache.clear();
-  mkvBlobCache.forEach(url => { try { URL.revokeObjectURL(url); } catch(e){} });
+  mkvBlobCache.forEach(v => { try { URL.revokeObjectURL(v.url); } catch(e){} });
   mkvBlobCache.clear();
   mkvDurationCache.clear();
   mkvConvertedEntries.clear();
@@ -4655,7 +4657,8 @@ async function updateLightbox() {
     // 変換済みのWMV/MKVは通常の動画と同じ経路で再生する。WMVはズーム等の操作を対象外のまま隠すが、
     // MKVは変換後は完全に普通の動画として扱う（wmvModeでのみ隠す）
     const wmvUrl = isWmv(file.name) ? wmvBlobCache.get(cacheKey(file)) : null;
-    const mkvUrl = isMkv(file.name) ? mkvBlobCache.get(cacheKey(file)) : null;
+    const mkvCached = isMkv(file.name) ? mkvBlobCache.get(cacheKey(file)) : null;
+    const mkvUrl = mkvCached ? mkvCached.url : null;
     if (isVideo(file.name) || wmvUrl || mkvUrl) {
       const wmvMode = !!wmvUrl;
       zoomBtn.style.display = (ssActive || wmvMode) ? 'none' : '';
@@ -4847,7 +4850,8 @@ function setupWmvPanel(file, key) {
 // MKVはWMVと違い、パネルを出すと同時にバックグラウンドで変換を始める（ボタン押下を待たない）。
 // mediabunnyのremuxで済むファイルはほぼ一瞬で終わるため、進捗バー・中止ボタンは
 // 一定時間経っても終わらない場合だけ表示し、速いファイルではチラつかせない
-const mkvBlobCache = new Map(); // cacheKey → 変換済みMP4のURL（同じセッション中は再変換しない）
+const mkvBlobCache = new Map(); // cacheKey → { url, blob }（変換済みMP4。同じセッション中は再変換しない。
+                                 // blobはZIP一括エクスポート等で実体をそのまま使い回すために保持する）
 let mkvJob = null;
 
 function cancelMkvJob() {
@@ -4915,7 +4919,7 @@ function setupMkvPanel(file, entry, key) {
       clearTimeout(revealTimer);
       if (mkvJob !== job) return; // 中止後・別ファイルへ移った後に届いた結果は捨てる
       mkvJob = null;
-      mkvBlobCache.set(key, URL.createObjectURL(blob));
+      mkvBlobCache.set(key, { url: URL.createObjectURL(blob), blob });
       mkvConvertedEntries.add(entry);
       patchGalleryItemAfterMkvConvert(entry);
       await updateLightbox(); // 変換済みとして描き直され、そのまま再生される
@@ -6557,7 +6561,8 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
     return;
   }
 
-  // 「All」: 変換せず、今表示中のファイル（フィルタ適用後）のうちチェックされたものをzipにまとめる
+  // 「All」: 変換せず、今表示中のファイル（フィルタ適用後）のうちチェックされたものをzipにまとめる。
+  // ただし拡張子と実体が食い違うもの（HEIC(JPEG)等、変換済みMKV(MP4)）は、実体の拡張子で入れる
   if (fmt === 'zip') {
     if (!filteredFiles.length) {
       errEl.textContent = t('err.noExport');
@@ -6573,7 +6578,16 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
     for (const entry of targets) {
       try {
         const file = await resolveFile(entry);
-        entries.push({ name: entry.name, blob: file });
+        let name = entry.name;
+        let blob = file;
+        if (isMkv(entry.name) && mkvConvertedEntries.has(entry)) {
+          const cached = mkvBlobCache.get(cacheKey(file));
+          if (cached) { name = `${baseName(entry.name)}.mp4`; blob = cached.blob; }
+        } else if (isHeic(entry.name)) {
+          const realType = await detectRealType(file);
+          if (realType !== 'heic') name = `${baseName(entry.name)}.${REAL_TYPE_EXT[realType] || realType}`;
+        }
+        entries.push({ name, blob });
       } catch (e) { /* 個別の失敗はスキップして続行 */ }
       await new Promise(r => setTimeout(r, 30)); // UIをブロックしないよう小休止
     }
