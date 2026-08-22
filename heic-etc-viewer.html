@@ -1438,6 +1438,7 @@ const I18N = {
     'mkv.convertingEta': 'Converting… {p}% (about {r} left)',
     'mkv.canceled': 'Canceled.',
     'mkv.failed': 'Conversion failed. This file may use a variant that cannot be decoded.',
+    'mkv.unplayable': 'This MKV cannot be played.',
     'hp.legend': 'Video thumbnail hover playback',
     'hp.desc': 'Plays a video muted, at its thumbnail size, while the mouse pointer or keyboard focus stays on that thumbnail. It stops as soon as you move away.',
     'hp.on': 'Enabled',
@@ -1665,6 +1666,7 @@ const I18N = {
     'mkv.convertingEta': '変換中… {p}%（残り約{r}）',
     'mkv.canceled': '中止しました。',
     'mkv.failed': '変換に失敗しました。デコードできない種類のファイルかもしれません。',
+    'mkv.unplayable': 'このMKVは再生できません。',
     'hp.legend': '動画サムネのホバー再生',
     'hp.desc': 'サムネイルにマウスカーソルまたはキーボードフォーカスがある間、そのサムネイルのサイズのまま動画を無音で再生します。離れるとすぐに停止します。',
     'hp.on': '有効',
@@ -4892,7 +4894,7 @@ function showMkvUnplayable() {
   document.getElementById('lbMkvLead').hidden = true;
   document.getElementById('lbMkvProgressBox').hidden = true;
   document.getElementById('lbMkvRetry').hidden = true;
-  document.getElementById('lbMkvStatus').textContent = t('thumb.unplayableTitle');
+  document.getElementById('lbMkvStatus').textContent = t('mkv.unplayable');
 }
 
 // 変換完了直後、現在のギャラリー表示に対象の項目があれば、再描画を待たずにその場で
