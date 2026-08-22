@@ -1451,7 +1451,7 @@ const I18N = {
     'g.wmv.h': 'About WMV',
     'g.wmv.p': 'No browser can decode WMV, so ffmpeg.wasm is loaded from a CDN and does the decoding — entirely inside your browser, with nothing uploaded. Gallery thumbnails are made by extracting a single frame, and opening one in the lightbox shows how long the video is plus a "Convert and play" button: pressing it converts the whole video to MP4 and plays the result. The converter is about 31MB and is fetched the first time a WMV needs it; converting takes roughly as long as the video itself, with a progress bar, an estimate of the time left, and a cancel button. Converted videos are kept for the rest of the session, so reopening one plays it right away. Slideshow, hover playback, and the conversion features do not cover WMV.',
     'g.mkv.h': 'About MKV',
-    'g.mkv.p': 'No browser can decode MKV, so it\'s converted to MP4 in the browser using the mediabunny library — nothing is uploaded. Opening one in the lightbox starts the conversion automatically; if the video\'s codec is natively supported, this is just a fast container repackaging and finishes almost instantly, while an unsupported codec falls back to full re-encoding, with a progress bar and a cancel button shown once it takes a moment. Files needing that slower re-encoding are marked with a badge in the gallery. Once converted, an MKV behaves exactly like a native video file — including slideshow, hover playback, and the Sound/Thumbnail/Rotate conversion options — for the rest of the session.',
+    'g.mkv.p': 'No browser can decode MKV, so it\'s converted to MP4 in the browser using the mediabunny library — nothing is uploaded. Opening one in the lightbox starts the conversion automatically; if the video\'s codec is natively supported, this is just a fast container repackaging and finishes almost instantly, while an unsupported codec falls back to full re-encoding, with a progress bar and a cancel button shown once it takes a moment. Files needing that slower re-encoding are marked with a badge in the gallery. A codec the browser cannot decode at all (e.g. the old MPEG-4 Part 2 "mp4v") can\'t be thumbnailed or converted either, and gets the same "can\'t play this in this browser" badge used for other video formats. Once converted, an MKV behaves exactly like a native video file — including slideshow, hover playback, and the Sound/Thumbnail/Rotate conversion options — for the rest of the session.',
     'g.convert.h': 'Convertible file formats',
     'g.convert.imgH': 'Images',
     'g.convert.imgP': 'HEIC/HEIF, JPEG, PNG, WebP, BMP, TIFF, AVIF → WebP, PNG, JPEG, or PDF (one file at a time, or in bulk). "High compression" WebP/JPEG use a much lower quality setting for a substantially smaller file size. Lossy formats (WebP/JPEG) are marked with ▸ in the lightbox format menu: choose "Preview" from the submenu to overlay the original and the converted result with a divider, showing both file sizes, before you download.',
@@ -1678,7 +1678,7 @@ const I18N = {
     'g.wmv.h': 'WMVについて',
     'g.wmv.p': 'WMVはどのブラウザもデコードできないため、CDNから ffmpeg.wasm を読み込んでデコードします。処理はすべてブラウザ内で完結し、どこにもアップロードされません。ギャラリーのサムネイルは1フレームを取り出して生成し、ライトボックスで開くと動画の長さと「変換して再生する」ボタンが表示されます。押すと動画全体をMP4に変換して再生します。変換エンジンは約31MBあり、最初にWMVを扱うときに読み込みます。変換には動画の長さと同程度の時間がかかり、進捗バー・残り時間の目安・中止ボタンが表示されます。変換した動画はそのセッション中は保持されるので、開き直せばすぐ再生できます。スライドショー・ホバー再生・変換保存の対象外です。',
     'g.mkv.h': 'MKVについて',
-    'g.mkv.p': 'MKVもどのブラウザもデコードできないため、mediabunnyというライブラリでブラウザ内でMP4に変換します。どこにもアップロードされません。ライトボックスで開くと自動的に変換が始まり、対応コーデックならコンテナの詰め替えだけで済むためほぼ一瞬で終わります。対応外のコーデックの場合は再エンコードにフォールバックし、時間がかかる場合だけ進捗バーと中止ボタンが表示されます。再エンコードが必要と判明したファイルはギャラリーでバッジ表示されます。変換が終わったMKVは、そのセッション中はスライドショー・ホバー再生・Sound/Thumbnail/Rotateの変換保存も含め、普通の動画ファイルと全く同じように扱われます。',
+    'g.mkv.p': 'MKVもどのブラウザもデコードできないため、mediabunnyというライブラリでブラウザ内でMP4に変換します。どこにもアップロードされません。ライトボックスで開くと自動的に変換が始まり、対応コーデックならコンテナの詰め替えだけで済むためほぼ一瞬で終わります。対応外のコーデックの場合は再エンコードにフォールバックし、時間がかかる場合だけ進捗バーと中止ボタンが表示されます。再エンコードが必要と判明したファイルはギャラリーでバッジ表示されます。ブラウザが全くデコードできないコーデック(例: 古いMPEG-4 Part 2の「mp4v」)の場合はサムネイル生成も変換もできず、他の動画形式と同じ「このブラウザで再生不可」バッジが表示されます。変換が終わったMKVは、そのセッション中はスライドショー・ホバー再生・Sound/Thumbnail/Rotateの変換保存も含め、普通の動画ファイルと全く同じように扱われます。',
     'g.convert.h': '変換可能なファイル形式',
     'g.convert.imgH': '画像',
     'g.convert.imgP': 'HEIC/HEIF、JPEG、PNG、WebP、BMP、TIFF、AVIF → WebP・PNG・JPEG・PDF(1ファイルずつでも、一括でも可)。「高圧縮」のWebP/JPEGは、品質設定を大きく下げることでファイルサイズを大幅に小さくします。非可逆形式(WebP/JPEG)にはライトボックスの形式メニューで「▸」が付いていて、サブメニューの「プレビュー」を選ぶと、ダウンロード前に元画像と変換後を境界線付きで重ねて比較できます(それぞれのファイルサイズも表示)。',
@@ -4457,7 +4457,19 @@ async function loadMkvThumb(file, item, loading, key, generation, entry) {
     }
   } catch (e) {
     if (generation !== galleryGeneration) return;
-    // サムネイルが作れなくてもライトボックスからは変換して見られるので、
+    // 映像トラックが無い、またはブラウザがコーデックをデコードできない(例: 古いMPEG-4 Part 2/mp4v)場合。
+    // この場合はconvertMkvToMp4()も同じ理由で失敗するため、通常動画の「再生不可」バッジと同じ扱いにする
+    if (e && e.code === 'unplayable') {
+      if (loading.parentNode === item) {
+        loading.innerHTML = `<span class="thumb-loading-text">${t('thumb.unplayable')}</span>`;
+        loading.style.color = '#f87';
+        loading.style.fontSize = '11px';
+      }
+      const badge = item.querySelector('[data-badge]');
+      if (badge) { badge.textContent = extOf(file.name).toUpperCase(); badge.className = 'ext-badge unplayable-badge'; badge.title = t('thumb.unplayableTitle'); }
+      return;
+    }
+    // それ以外の失敗（一時的なエラー等）は、ライトボックスからなら変換して見られるかもしれないので、
     // 「壊れたファイル」に見えないよう、動画であることを示す表示に留める
     if (loading.parentNode === item) loading.remove();
     addPlayIcon();
