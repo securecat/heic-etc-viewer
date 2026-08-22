@@ -2674,7 +2674,10 @@ async function captureMkvFrame(file) {
     err.code = 'unplayable';
     throw err;
   }
-  const needsConvert = !(await videoTrack.canDecode());
+  // canDecode()自体、コーデックによっては例外を投げることがある（未対応と分かっているだけなら
+  // falseを返すはずだが、念のため例外＝デコード不可として扱う）
+  let needsConvert = true;
+  try { needsConvert = !(await videoTrack.canDecode()); } catch (e) { needsConvert = true; }
   const duration = (await input.getDurationFromMetadata()) ?? (await input.computeDuration()) ?? 0;
   const sink = new CanvasSink(videoTrack);
   const probe = document.createElement('canvas');
@@ -2682,7 +2685,10 @@ async function captureMkvFrame(file) {
   const probeCtx = probe.getContext('2d', { willReadFrequently: true });
   let best = null, bestScore = -1;
   for (const t of frameCandidateTimes(duration)) {
-    const result = await sink.getCanvas(t);
+    // ブラウザが全くデコードできないコーデックの場合、getCanvas()はnullではなく例外を投げてくる。
+    // 1箇所が失敗しただけで諦めず、全候補を試してから最終的にunplayable判定する
+    let result;
+    try { result = await sink.getCanvas(t); } catch (e) { continue; }
     if (!result) continue;
     const { score, passed } = scoreFrameSource(result.canvas, probeCtx);
     if (score > bestScore) { bestScore = score; best = result; }
