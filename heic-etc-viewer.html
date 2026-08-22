@@ -2663,48 +2663,48 @@ function captureVideoFrameBlob(file) {
 // 動画のどの時刻でもそのままデコードできる。
 // canDecode()の結果は、後で再生用に変換する際に速い詰め替え(remux)で済むか、遅い
 // 再エンコード(transcode)が要るかの目安として返す（実際の判定はmediabunny側が変換時に行う）。
-// 映像トラックが無い/デコードできない場合は err.code = 'unplayable' を投げる
+// 映像トラックが無い/デコードできない場合は err.code = 'unplayable' を投げる。
+// mediabunny/WebCodecs側がどの段階で例外を投げてくるか（デコーダの構成時か、実際のデコード時か等）
+// コーデックによって一定しないため、関数全体を包んでどこで失敗しても一律unplayable扱いにする
 async function captureMkvFrame(file) {
-  const { Input, ALL_FORMATS, BlobSource, CanvasSink } =
-    await import('https://cdn.jsdelivr.net/npm/mediabunny@1.50.6/+esm');
-  const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
-  const videoTrack = await input.getPrimaryVideoTrack();
-  if (!videoTrack) {
-    const err = new Error('No video track');
+  try {
+    const { Input, ALL_FORMATS, BlobSource, CanvasSink } =
+      await import('https://cdn.jsdelivr.net/npm/mediabunny@1.50.6/+esm');
+    const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
+    const videoTrack = await input.getPrimaryVideoTrack();
+    if (!videoTrack) throw new Error('No video track');
+    // canDecode()の結果はremux/transcodeどちらになりそうかの目安に使うだけなので、
+    // 例外が出ても「要再エンコード」寄りに倒して処理は続行する
+    let needsConvert = true;
+    try { needsConvert = !(await videoTrack.canDecode()); } catch (e) { /* keep needsConvert=true */ }
+    let duration = 0;
+    try { duration = (await input.getDurationFromMetadata()) ?? (await input.computeDuration()) ?? 0; } catch (e) { /* keep 0 */ }
+    const sink = new CanvasSink(videoTrack);
+    const probe = document.createElement('canvas');
+    probe.width = 16; probe.height = 16;
+    const probeCtx = probe.getContext('2d', { willReadFrequently: true });
+    let best = null, bestScore = -1;
+    for (const t of frameCandidateTimes(duration)) {
+      // 1箇所が失敗しただけで諦めず、全候補を試してから最終的にunplayable判定する
+      let result;
+      try { result = await sink.getCanvas(t); } catch (e) { continue; }
+      if (!result) continue;
+      const { score, passed } = scoreFrameSource(result.canvas, probeCtx);
+      if (score > bestScore) { bestScore = score; best = result; }
+      if (passed) break;
+    }
+    if (!best) throw new Error('Cannot decode frame');
+    const { canvas } = best;
+    return await new Promise((resolve, reject) => {
+      canvas.toBlob(blob => blob
+        ? resolve({ blob, width: canvas.width, height: canvas.height, duration, needsConvert })
+        : reject(new Error('encode failed')), 'image/jpeg', 0.88);
+    });
+  } catch (e) {
+    const err = new Error((e && e.message) || 'Cannot decode MKV');
     err.code = 'unplayable';
     throw err;
   }
-  // canDecode()自体、コーデックによっては例外を投げることがある（未対応と分かっているだけなら
-  // falseを返すはずだが、念のため例外＝デコード不可として扱う）
-  let needsConvert = true;
-  try { needsConvert = !(await videoTrack.canDecode()); } catch (e) { needsConvert = true; }
-  const duration = (await input.getDurationFromMetadata()) ?? (await input.computeDuration()) ?? 0;
-  const sink = new CanvasSink(videoTrack);
-  const probe = document.createElement('canvas');
-  probe.width = 16; probe.height = 16;
-  const probeCtx = probe.getContext('2d', { willReadFrequently: true });
-  let best = null, bestScore = -1;
-  for (const t of frameCandidateTimes(duration)) {
-    // ブラウザが全くデコードできないコーデックの場合、getCanvas()はnullではなく例外を投げてくる。
-    // 1箇所が失敗しただけで諦めず、全候補を試してから最終的にunplayable判定する
-    let result;
-    try { result = await sink.getCanvas(t); } catch (e) { continue; }
-    if (!result) continue;
-    const { score, passed } = scoreFrameSource(result.canvas, probeCtx);
-    if (score > bestScore) { bestScore = score; best = result; }
-    if (passed) break;
-  }
-  if (!best) {
-    const err = new Error('Cannot decode frame');
-    err.code = 'unplayable';
-    throw err;
-  }
-  const { canvas } = best;
-  return await new Promise((resolve, reject) => {
-    canvas.toBlob(blob => blob
-      ? resolve({ blob, width: canvas.width, height: canvas.height, duration, needsConvert })
-      : reject(new Error('encode failed')), 'image/jpeg', 0.88);
-  });
 }
 
 // MKVをMP4へ変換する（再生用）。{ promise, cancel } を返し、cancel() で実行中でも打ち切れる。
