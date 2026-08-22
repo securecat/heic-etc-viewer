@@ -2364,6 +2364,11 @@ function isPlayableVideo(entry) {
 function badgeNeedsConvert(entry) {
   return isWmv(entry.name) || (isMkv(entry.name) && !mkvConvertedEntries.has(entry) && mkvNeedsConvertEntries.has(entry));
 }
+// 拡張子バッジの表示文字列。変換済みMKVは実際の再生形式が分かるよう「MKV(MP4)」と表示する
+// （HEICの実体がJPEG等だった場合に「HEIC(JPEG)」と出す既存の表記に合わせた）
+function badgeText(entry) {
+  return (isMkv(entry.name) && mkvConvertedEntries.has(entry)) ? 'MKV(MP4)' : extOf(entry.name).toUpperCase();
+}
 function escHtml(s)    { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ── 変換保存（静的ラスター画像 → WebP/PNG/JPEG/PDF） ──────────────────
@@ -4012,7 +4017,7 @@ function renderTileGallery(generation) {
 
       const badge = document.createElement('div');
       badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name) || isMkv(name)) ? ' video-badge' + (badgeNeedsConvert(entry) ? ' needs-convert' : '') : isPdf(name) ? ' pdf-badge' : '');
-      badge.textContent = extOf(name).toUpperCase();
+      badge.textContent = badgeText(entry);
       badge.setAttribute('aria-hidden', 'true');
       badge.dataset.badge = 'true';
 
@@ -4130,7 +4135,7 @@ function renderGallery({ preserveScroll = false } = {}) {
 
     const badge = document.createElement('div');
     badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name) || isMkv(name)) ? ' video-badge' + (badgeNeedsConvert(entry) ? ' needs-convert' : '') : isPdf(name) ? ' pdf-badge' : '');
-    badge.textContent = extOf(name).toUpperCase();
+    badge.textContent = badgeText(entry);
     badge.setAttribute('aria-hidden', 'true');
     badge.dataset.badge = 'true';
 
@@ -4853,12 +4858,15 @@ function cancelMkvJob() {
 }
 
 // 変換完了直後、現在のギャラリー表示に対象の項目があれば、再描画を待たずにその場で
-// 通常動画と同じ見た目（要変換バッジの解除・ホバー再生）に更新する
+// 通常動画と同じ見た目（要変換バッジの解除・「MKV(MP4)」表記・ホバー再生）に更新する
 function patchGalleryItemAfterMkvConvert(entry) {
   const item = gallery.querySelector(`.thumb-item[data-name="${CSS.escape(entry.name)}"]`);
   if (!item) return;
   const badge = item.querySelector('[data-badge]');
-  if (badge) badge.classList.remove('needs-convert');
+  if (badge) {
+    badge.classList.remove('needs-convert');
+    badge.textContent = badgeText(entry);
+  }
   attachHoverPlay(item, entry);
 }
 
