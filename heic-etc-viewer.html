@@ -4083,8 +4083,7 @@ function renderGallery({ preserveScroll = false } = {}) {
     : tf('status.files', { n: raw.length });
 
   // サムネが表示される状態ならスライドショー・レイアウト切替ボタンも表示
-  const hasSsTargets = filteredFiles.some(f => isImage(f.name) || isPlayableVideo(f));
-  document.getElementById('btnSlideshow').style.display = (rootNode && hasSsTargets) ? '' : 'none';
+  updateSlideshowButtonVisibility();
   document.getElementById('btnLayoutToggle').style.display = rootNode ? '' : 'none';
 
   if (!rootNode) {
@@ -4858,8 +4857,10 @@ function cancelMkvJob() {
 }
 
 // 変換完了直後、現在のギャラリー表示に対象の項目があれば、再描画を待たずにその場で
-// 通常動画と同じ見た目（要変換バッジの解除・「MKV(MP4)」表記・ホバー再生）に更新する
+// 通常動画と同じ見た目（要変換バッジの解除・「MKV(MP4)」表記・ホバー再生）に更新する。
+// スライドショーボタンも、この変換で対象が0件から1件以上に変わったフォルダで即座に現れるようにする
 function patchGalleryItemAfterMkvConvert(entry) {
+  updateSlideshowButtonVisibility();
   const item = gallery.querySelector(`.thumb-item[data-name="${CSS.escape(entry.name)}"]`);
   if (!item) return;
   const badge = item.querySelector('[data-badge]');
@@ -5694,6 +5695,13 @@ let ssTimer    = null;
 // 画像・動画のみ対象のインデックスリストを取得
 function getSsFiles() {
   return filteredFiles.filter(f => isImage(f.name) || isPlayableVideo(f));
+}
+
+// スライドショーボタンの表示/非表示。renderGallery()での初期判定に加え、MKVの変換完了時にも
+// 呼び直すことで、変換前は対象0件だったフォルダでもボタンがその場で現れるようにする
+function updateSlideshowButtonVisibility() {
+  const hasSsTargets = filteredFiles.some(f => isImage(f.name) || isPlayableVideo(f));
+  document.getElementById('btnSlideshow').style.display = (rootNode && hasSsTargets) ? '' : 'none';
 }
 
 // スライドショーボタンの title / aria-label を状態と言語に合わせて更新する
