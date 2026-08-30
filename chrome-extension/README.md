@@ -27,7 +27,7 @@ The manual-download panel is injected into the original page only when you press
 
 ### Chrome Web Store
 
-As the limit for published Chrome extensions has been reached, I have unlisted this from the store due to its low number of users.
+As the limit for published Chrome extensions has been reached, I have unlisted this from the store due to its low number of users. (2026-08-30)
 
 ### Developer Mode (Manual Install)
 
@@ -79,7 +79,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full history.
 
 ### Chrome ウェブストア
 
-公開可能なChrome拡張機能数の上限に達したため、ユーザー数が少ない本拡張機能をストアから非公開にしました。
+公開可能なChrome拡張機能数の上限に達したため、ユーザー数が少ない本拡張機能をストアから非公開にしました。 (2026-08-30)
 
 ### デベロッパーモード（手動インストール）
 
