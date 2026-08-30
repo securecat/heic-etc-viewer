@@ -57,7 +57,7 @@ Built as a single HTML file with no build tools or package dependencies.
 
 ## HeV Sender (companion Chrome extension)
 
-**[HeV Sender](https://chromewebstore.google.com/detail/hev-sender/palmekgdpbibhjeoflhnocfnhieenebn)** is a Chrome extension that collects images, videos, and PDFs from the page you are viewing and sends them to HEIC etc Viewer. See [its own README](chrome-extension/README.md) for details.
+**HeV Sender** is a Chrome extension that collects images, videos, and PDFs from the page you are viewing and sends them to HEIC etc Viewer. See [its own README](chrome-extension/README.md) for details.
 
 ## Installation
 
@@ -152,7 +152,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 
 ## HeV Sender（連携Chrome拡張）
 
-**[HeV Sender](https://chromewebstore.google.com/detail/hev-sender/palmekgdpbibhjeoflhnocfnhieenebn)** は、表示中のページの画像・動画・PDFを収集して HEIC etc Viewer へ送出するChrome拡張です。詳細は[拡張側のREADME](chrome-extension/README.md)を参照してください。
+**HeV Sender** は、表示中のページの画像・動画・PDFを収集して HEIC etc Viewer へ送出するChrome拡張です。詳細は[拡張側のREADME](chrome-extension/README.md)を参照してください。
 
 ## インストール
 
