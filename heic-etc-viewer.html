@@ -377,7 +377,7 @@ input[type="range"]::-webkit-slider-thumb {
 .heic-badge      { background: #4D5FCC; }
 .pdf-badge       { background: #B84040; }
 .video-badge     { background: #2C864A; }
-/* 変換が必要な動画（WMV・MKVの低速パス）は文字色を黒にして通常動画と区別する */
+/* 変換が必要な動画（WMV・AVI・MKVの低速パス）は文字色を黒にして通常動画と区別する */
 .video-badge.needs-convert { color: #000; }
 .unplayable-badge{ background: #A86810; }
 /* ZIPエクスポートの選択チェックボックス（サムネ左上）。
@@ -436,9 +436,9 @@ input[type="range"]::-webkit-slider-thumb {
    videoはpointer-events:noneなので、その下にある帯がカーソルを受け取れる */
 .thumb-item.is-hover-playing .thumb-info { pointer-events: auto; }
 .thumb-item.is-hover-playing .thumb-info:hover { z-index: 1; }
-/* WMV・MKVはブラウザが再生できないため、変換を促す（またはMKVは自動変換中の）パネルを
-   ライトボックス中央に出す。見た目はほぼ共通のため、セレクタごと2形式で共有する */
-.lb-wmv-panel, .lb-mkv-panel {
+/* WMV・AVI・MKVはブラウザが再生できないため、変換を促す（またはMKVは自動変換中の）パネルを
+   ライトボックス中央に出す。見た目はほぼ共通のため、セレクタごと3形式で共有する */
+.lb-wmv-panel, .lb-avi-panel, .lb-mkv-panel {
   margin: auto;
   width: 620px;
   max-width: 100%; /* 幅は固定。画面がこれより狭いときだけ縮める */
@@ -452,20 +452,20 @@ input[type="range"]::-webkit-slider-thumb {
   gap: 14px;
   text-align: center;
 }
-.lb-wmv-lead, .lb-mkv-lead { margin: 0; font-size: 16px; color: var(--text); }
-.lb-wmv-note { margin: 0; font-size: 16px; color: var(--text-muted); } /* 対 --bg-card 約5.2:1 */
-.lb-wmv-duration { margin: 0; font-size: 16px; color: var(--text); }
-.lb-wmv-status, .lb-mkv-status { margin: 0; font-size: 16px; color: var(--text); }
-.lb-wmv-status:empty, .lb-mkv-status:empty { display: none; } /* 空のときに余白だけ空かないように */
-.lb-wmv-panel .btn, .lb-mkv-panel .btn {
+.lb-wmv-lead, .lb-avi-lead, .lb-mkv-lead { margin: 0; font-size: 16px; color: var(--text); }
+.lb-wmv-note, .lb-avi-note { margin: 0; font-size: 16px; color: var(--text-muted); } /* 対 --bg-card 約5.2:1 */
+.lb-wmv-duration, .lb-avi-duration { margin: 0; font-size: 16px; color: var(--text); }
+.lb-wmv-status, .lb-avi-status, .lb-mkv-status { margin: 0; font-size: 16px; color: var(--text); }
+.lb-wmv-status:empty, .lb-avi-status:empty, .lb-mkv-status:empty { display: none; } /* 空のときに余白だけ空かないように */
+.lb-wmv-panel .btn, .lb-avi-panel .btn, .lb-mkv-panel .btn {
   background: #001C43;      /* 対 #DDDDDD 約11.7:1 */
   border-color: #4D6EE1;    /* 対 --bg-card 約3.8:1 */
   color: #DDDDDD;
   font-size: 16px;
   padding: 8px 18px;
 }
-.lb-wmv-panel .btn:hover, .lb-mkv-panel .btn:hover { background: #0A2E63; } /* 対 #DDDDDD 約9.5:1 */
-.lb-wmv-progress-box, .lb-mkv-progress-box {
+.lb-wmv-panel .btn:hover, .lb-avi-panel .btn:hover, .lb-mkv-panel .btn:hover { background: #0A2E63; } /* 対 #DDDDDD 約9.5:1 */
+.lb-wmv-progress-box, .lb-avi-progress-box, .lb-mkv-progress-box {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -473,12 +473,12 @@ input[type="range"]::-webkit-slider-thumb {
   gap: 10px;
 }
 /* display指定はhidden属性のUAスタイルより優先されるため、明示的に消す */
-.lb-wmv-progress-box[hidden], .lb-mkv-progress-box[hidden],
-.lb-wmv-panel .btn[hidden], .lb-mkv-panel .btn[hidden] { display: none; }
-.lb-wmv-progress-label, .lb-mkv-progress-label { font-size: 16px; color: var(--text); }
-.lb-wmv-progress, .lb-mkv-progress { width: 100%; height: 14px; }
-.lb-wmv-progress::-webkit-progress-bar, .lb-mkv-progress::-webkit-progress-bar { background: #6e6e6e; border-radius: 4px; } /* 対 --bg-card 約3.1:1 */
-.lb-wmv-progress::-webkit-progress-value, .lb-mkv-progress::-webkit-progress-value { background: var(--accent); border-radius: 4px; }
+.lb-wmv-progress-box[hidden], .lb-avi-progress-box[hidden], .lb-mkv-progress-box[hidden],
+.lb-wmv-panel .btn[hidden], .lb-avi-panel .btn[hidden], .lb-mkv-panel .btn[hidden] { display: none; }
+.lb-wmv-progress-label, .lb-avi-progress-label, .lb-mkv-progress-label { font-size: 16px; color: var(--text); }
+.lb-wmv-progress, .lb-avi-progress, .lb-mkv-progress { width: 100%; height: 14px; }
+.lb-wmv-progress::-webkit-progress-bar, .lb-avi-progress::-webkit-progress-bar, .lb-mkv-progress::-webkit-progress-bar { background: #6e6e6e; border-radius: 4px; } /* 対 --bg-card 約3.1:1 */
+.lb-wmv-progress::-webkit-progress-value, .lb-avi-progress::-webkit-progress-value, .lb-mkv-progress::-webkit-progress-value { background: var(--accent); border-radius: 4px; }
 /* 中央寄せは .lb-img-wrap と同じ auto マージン方式（原寸表示のスクロール対応のため）。
    PDFラッパーもこのクラスを共有するが、iframe が 100%×100% で埋めるため影響しない */
 .lb-video-wrap {
@@ -1147,9 +1147,11 @@ input[type="range"]::-webkit-slider-thumb {
   </div>
   <div class="info-panel" id="panelGuide" role="tabpanel" aria-labelledby="tabGuide" tabindex="0" hidden>
     <h3 data-i18n="g.formats.h">Supported file formats (view)</h3>
-    <p data-i18n="g.formats.p">HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, WMV, MKV, PDF, and ICO</p>
+    <p data-i18n="g.formats.p">HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, WMV, AVI, MKV, PDF, and ICO</p>
     <h4 data-i18n="g.wmv.h">About WMV</h4>
     <p data-i18n="g.wmv.p">No browser can decode WMV, so ffmpeg.wasm is loaded from a CDN and does the decoding — entirely inside your browser, with nothing uploaded. Gallery thumbnails are made by extracting a single frame, and opening one in the lightbox shows a "Convert and play" button: pressing it converts the whole video to MP4 and plays the result. The converter is about 31MB and is fetched the first time a WMV needs it; converting a whole video takes roughly as long as the video itself, with a progress bar and a cancel button. Converted videos are kept for the rest of the session, so reopening one plays it right away. Slideshow, hover playback, and the conversion features do not cover WMV.</p>
+    <h4 data-i18n="g.avi.h">About AVI</h4>
+    <p data-i18n="g.avi.p">No browser can decode AVI either, regardless of the codec inside it, so the same ffmpeg.wasm converter used for WMV handles it too — entirely inside your browser, with nothing uploaded. It shares the WMV workflow exactly: gallery thumbnails are made by extracting a single frame, opening one in the lightbox shows a "Convert and play" button, and converting a whole video takes roughly as long as the video itself. Slideshow, hover playback, and the conversion features do not cover AVI.</p>
     <h4 data-i18n="g.mkv.h">About MKV</h4>
     <p data-i18n="g.mkv.p">No browser can decode MKV either, so it's converted to MP4 in the browser using the mediabunny library — nothing is uploaded. Opening one in the lightbox starts the conversion automatically; if the video's codec is natively supported, this is just a fast container repackaging and finishes almost instantly, while an unsupported codec falls back to full re-encoding, with a progress bar and a cancel button shown once it takes a moment. Files needing that slower re-encoding are marked with a badge in the gallery. Once converted, an MKV behaves exactly like a native video file — including slideshow, hover playback, and the Sound/Thumbnail/Rotate conversion options — for the rest of the session.</p>
     <h3 data-i18n="g.convert.h">Convertible file formats</h3>
@@ -1267,6 +1269,20 @@ input[type="range"]::-webkit-slider-thumb {
         <button class="btn" type="button" id="lbWmvCancel" data-i18n="wmv.cancel" aria-describedby="lbWmvProgressLabel lbWmvProgress">Cancel conversion</button>
       </div>
       <p class="lb-wmv-status" id="lbWmvStatus" role="status"></p>
+    </div>
+  </div>
+  <div class="lb-video-wrap" id="lbAviWrap" style="display:none">
+    <div class="lb-avi-panel">
+      <p class="lb-avi-lead" data-i18n-html="avi.lead">Browsers cannot play AVI directly.<br>Converting it to MP4 here makes it playable.</p>
+      <button class="btn" type="button" id="lbAviConvert" data-i18n="avi.convert">Convert and play</button>
+      <p class="lb-avi-duration" id="lbAviDuration"></p>
+      <p class="lb-avi-note" data-i18n-html="avi.note">Everything runs in your browser — nothing is uploaded.<br>The first run also downloads about 31MB of converter.</p>
+      <div class="lb-avi-progress-box" id="lbAviProgressBox" hidden>
+        <label class="lb-avi-progress-label" id="lbAviProgressLabel" for="lbAviProgress"></label>
+        <progress class="lb-avi-progress" id="lbAviProgress" value="0" max="100" aria-describedby="lbAviProgressLabel">0%</progress>
+        <button class="btn" type="button" id="lbAviCancel" data-i18n="avi.cancel" aria-describedby="lbAviProgressLabel lbAviProgress">Cancel conversion</button>
+      </div>
+      <p class="lb-avi-status" id="lbAviStatus" role="status"></p>
     </div>
   </div>
   <div class="lb-video-wrap" id="lbMkvWrap" style="display:none">
@@ -1430,6 +1446,21 @@ const I18N = {
     'wmv.s': '{s} sec',
     'wmv.canceled': 'Canceled. The converter has to be downloaded again for the next try.',
     'wmv.failed': 'Conversion failed. This file may use a variant that cannot be decoded.',
+    'avi.lead': 'Browsers cannot play AVI directly.<br>Converting it to MP4 here makes it playable.',
+    'avi.convert': 'Convert and play',
+    'avi.note': 'Everything runs in your browser — nothing is uploaded.<br>The first run also downloads about 31MB of converter.',
+    'avi.cancel': 'Cancel conversion',
+    'avi.thumbPrep': 'Loading converter…',
+    'avi.thumbPrepPct': 'Loading converter… {p}%',
+    'avi.thumbPreparing': 'Starting converter…',
+    'avi.downloading': 'Downloading the converter… {p}%',
+    'avi.starting': 'Starting the converter…',
+    'avi.converting': 'Converting… {p}%',
+    'avi.convertingEta': 'Converting… {p}% (about {r} left)',
+    'avi.duration': 'This video is {d} long,<br>and converting takes about the same amount of time.',
+    'avi.durationUnknown': 'Converting takes about as long as the video itself.',
+    'avi.canceled': 'Canceled. The converter has to be downloaded again for the next try.',
+    'avi.failed': 'Conversion failed. This file may use a variant that cannot be decoded.',
     'mkv.lead': 'Browsers cannot play MKV files directly, <br>so they are automatically converted when opened. <br>This process usually completes quickly.',
     'mkv.cancel': 'Cancel conversion',
     'mkv.retry': 'Try again',
@@ -1448,9 +1479,11 @@ const I18N = {
     'sc.on': 'Enabled',
     'sc.off': 'Disabled',
     'g.formats.h': 'Supported file formats (view)',
-    'g.formats.p': 'HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, M4V, WMV, MKV, PDF, and ICO',
+    'g.formats.p': 'HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, M4V, WMV, AVI, MKV, PDF, and ICO',
     'g.wmv.h': 'About WMV',
     'g.wmv.p': 'No browser can decode WMV, so ffmpeg.wasm is loaded from a CDN and does the decoding — entirely inside your browser, with nothing uploaded. Gallery thumbnails are made by extracting a single frame, and opening one in the lightbox shows how long the video is plus a "Convert and play" button: pressing it converts the whole video to MP4 and plays the result. The converter is about 31MB and is fetched the first time a WMV needs it; converting takes roughly as long as the video itself, with a progress bar, an estimate of the time left, and a cancel button. Converted videos are kept for the rest of the session, so reopening one plays it right away. Slideshow, hover playback, and the conversion features do not cover WMV.',
+    'g.avi.h': 'About AVI',
+    'g.avi.p': 'No browser can decode AVI either, regardless of the codec inside it, so it shares WMV\'s converter and workflow exactly: the same ffmpeg.wasm engine (not downloaded twice — the first WMV or AVI encountered fetches it, and both formats reuse it after that), a gallery thumbnail made by extracting a single frame, a "Convert and play" button in the lightbox showing how long the video is, and a conversion time roughly equal to the video\'s own length, with a progress bar, an estimate of the time left, and a cancel button. Converted videos are kept for the rest of the session. Slideshow, hover playback, and the conversion features do not cover AVI.',
     'g.mkv.h': 'About MKV',
     'g.mkv.p': 'No browser can decode MKV, so it\'s converted to MP4 in the browser using the mediabunny library — nothing is uploaded. Opening one in the lightbox starts the conversion automatically; if the video\'s codec is natively supported, this is just a fast container repackaging and finishes almost instantly, while an unsupported codec falls back to full re-encoding, with a progress bar and a cancel button shown once it takes a moment. Files needing that slower re-encoding are marked with a badge in the gallery. A codec the browser cannot decode at all (e.g. the old MPEG-4 Part 2 "mp4v") can\'t be thumbnailed or converted either, and gets the same "can\'t play this in this browser" badge used for other video formats; opening it in the lightbox shows that same message instead of attempting a conversion that\'s known to fail. Once converted, an MKV behaves exactly like a native video file — including slideshow, hover playback, and the Sound/Thumbnail/Rotate conversion options — for the rest of the session.',
     'g.convert.h': 'Convertible file formats',
@@ -1658,6 +1691,21 @@ const I18N = {
     'wmv.s': '{s}秒',
     'wmv.canceled': '中止しました。次に試すときは変換エンジンのダウンロードからやり直しになります。',
     'wmv.failed': '変換に失敗しました。デコードできない種類のファイルかもしれません。',
+    'avi.lead': 'AVIはブラウザで直接再生できません。<br>MP4に変換すると再生できます。',
+    'avi.convert': '変換して再生する',
+    'avi.note': '処理はすべてブラウザ内で行われ、どこにもアップロードされません。<br>初回は変換エンジン(約31MB)のダウンロードも発生します。',
+    'avi.cancel': '変換中止',
+    'avi.thumbPrep': '変換エンジン読込中…',
+    'avi.thumbPrepPct': '変換エンジン読込中… {p}%',
+    'avi.thumbPreparing': '変換エンジン起動中…',
+    'avi.downloading': '変換エンジンをダウンロード中… {p}%',
+    'avi.starting': '変換エンジンを起動中…',
+    'avi.converting': '変換中… {p}%',
+    'avi.convertingEta': '変換中… {p}%（残り約{r}）',
+    'avi.duration': 'この動画の長さは {d} で、<br>変換にはおおよそ同じくらいの時間がかかります。',
+    'avi.durationUnknown': '変換には動画の長さと同程度の時間がかかります。',
+    'avi.canceled': '中止しました。次に試すときは変換エンジンのダウンロードからやり直しになります。',
+    'avi.failed': '変換に失敗しました。デコードできない種類のファイルかもしれません。',
     'mkv.lead': 'MKVはブラウザで直接再生できないため、開くと自動的に変換します。<br>多くの場合、すぐに終わります。',
     'mkv.cancel': '変換中止',
     'mkv.retry': 'もう一度試す',
@@ -1676,9 +1724,11 @@ const I18N = {
     'sc.on': '有効',
     'sc.off': '無効',
     'g.formats.h': '対応ファイル形式(表示)',
-    'g.formats.p': 'HEIC/HEIF、JPEG、JFIF、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、M4V、WMV、MKV、PDF、ICO',
+    'g.formats.p': 'HEIC/HEIF、JPEG、JFIF、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、M4V、WMV、AVI、MKV、PDF、ICO',
     'g.wmv.h': 'WMVについて',
     'g.wmv.p': 'WMVはどのブラウザもデコードできないため、CDNから ffmpeg.wasm を読み込んでデコードします。処理はすべてブラウザ内で完結し、どこにもアップロードされません。ギャラリーのサムネイルは1フレームを取り出して生成し、ライトボックスで開くと動画の長さと「変換して再生する」ボタンが表示されます。押すと動画全体をMP4に変換して再生します。変換エンジンは約31MBあり、最初にWMVを扱うときに読み込みます。変換には動画の長さと同程度の時間がかかり、進捗バー・残り時間の目安・中止ボタンが表示されます。変換した動画はそのセッション中は保持されるので、開き直せばすぐ再生できます。スライドショー・ホバー再生・変換保存の対象外です。',
+    'g.avi.h': 'AVIについて',
+    'g.avi.p': 'AVIも中身のコーデックによらずどのブラウザもデコードできないため、WMVと全く同じ変換エンジン(ffmpeg.wasm。二重にダウンロードされることはなく、WMV・AVIのどちらかを最初に扱った時点で読み込まれ、以降は共有されます)・同じ流れで対応します。ギャラリーのサムネイルは1フレームを取り出して生成し、ライトボックスで開くと動画の長さと「変換して再生する」ボタンが表示され、変換には動画の長さと同程度の時間がかかり、進捗バー・残り時間の目安・中止ボタンが表示されます。変換した動画はそのセッション中は保持されます。スライドショー・ホバー再生・変換保存の対象外です。',
     'g.mkv.h': 'MKVについて',
     'g.mkv.p': 'MKVもどのブラウザもデコードできないため、mediabunnyというライブラリでブラウザ内でMP4に変換します。どこにもアップロードされません。ライトボックスで開くと自動的に変換が始まり、対応コーデックならコンテナの詰め替えだけで済むためほぼ一瞬で終わります。対応外のコーデックの場合は再エンコードにフォールバックし、時間がかかる場合だけ進捗バーと中止ボタンが表示されます。再エンコードが必要と判明したファイルはギャラリーでバッジ表示されます。ブラウザが全くデコードできないコーデック(例: 古いMPEG-4 Part 2の「mp4v」)の場合はサムネイル生成も変換もできず、他の動画形式と同じ「このブラウザで再生不可」バッジが表示されます。この場合、ライトボックスで開いても失敗すると分かっている変換は試みず、同じメッセージを表示するだけになります。変換が終わったMKVは、そのセッション中はスライドショー・ホバー再生・音声/サムネイル/回転の変換保存も含め、普通の動画ファイルと全く同じように扱われます。',
     'g.convert.h': '変換可能なファイル形式',
@@ -2146,6 +2196,7 @@ let ffmpegAssetsPromise = null; // FFmpegクラス・worker・wasm（重いの�
 let ffmpegProgressCb = null;    // 進捗・ログの通知先。実行中のタスクが差し替える
 let ffmpegLogCb = null;
 const wmvDurationCache = new Map(); // cacheKey → 動画の長さ（秒）。サムネイル生成時に判明する
+const aviDurationCache = new Map(); // cacheKey → 動画の長さ（秒）。サムネイル生成時に判明する
 const mkvDurationCache = new Map(); // cacheKey → 動画の長さ（秒）。サムネイル生成時に判明する
 // entry参照をそのままキーにする（FileSystemFileEntryはFileと違いsizeを同期取得できず
 // cacheKeyが作れないため、バッジ・ホバー再生等の同期判定にはentry自体の同一性を使う）
@@ -2333,6 +2384,114 @@ function convertWmvToMp4(file, { onDownload, onProgress } = {}) {
   return job;
 }
 
+// ── AVI（RIFF + 各種コーデック）: WMVと同じくffmpeg.wasmでMP4へ変換してから再生する ──
+// AVIコンテナ自体はどのブラウザもデモルチプレクスできないため、中身のコーデックが
+// 何であってもWMVと同じ「ffmpegで丸ごと変換」方式で対応する
+
+// RIFF/AVIヘッダーの 'avih' チャンク（AVI Main Header）から再生時間（秒）を読む。
+// サムネイル用には先頭だけを切り出してffmpegへ渡すため、ffmpegが報告する長さは
+// 「切り出した分の長さ」になってしまう。本当の長さはヘッダーに書かれているので自前で読む
+async function readAviDuration(file) {
+  try {
+    const head = new Uint8Array(await file.slice(0, 65536).arrayBuffer());
+    if (head.length < 12) return 0;
+    const dv = new DataView(head.buffer, head.byteOffset, head.byteLength);
+    const ascii = (off, len) => String.fromCharCode.apply(null, head.subarray(off, off + len));
+    if (ascii(0, 4) !== 'RIFF' || ascii(8, 4) !== 'AVI ') return 0;
+    // トップレベルのチャンクを順に辿り、'hdrl'リスト（形式ヘッダー群）を探す
+    let off = 12;
+    while (off + 8 <= head.length) {
+      const fourCC = ascii(off, 4);
+      const size = dv.getUint32(off + 4, true);
+      if (!Number.isFinite(size)) break;
+      if (fourCC === 'LIST' && ascii(off + 8, 4) === 'hdrl') {
+        // hdrlリストの中身をさらに辿り、'avih'チャンク（AVI Main Header）を探す
+        let inner = off + 12;
+        const listEnd = Math.min(head.length, off + 8 + size);
+        while (inner + 8 <= listEnd) {
+          const innerFourCC = ascii(inner, 4);
+          const innerSize = dv.getUint32(inner + 4, true);
+          if (innerFourCC === 'avih' && inner + 8 + 20 <= head.length) {
+            const microSecPerFrame = dv.getUint32(inner + 8, true);      // データ先頭(offset 0)
+            const totalFrames      = dv.getUint32(inner + 8 + 16, true); // offset 16
+            const sec = (totalFrames * microSecPerFrame) / 1e6;
+            return sec > 0 ? sec : 0;
+          }
+          if (!Number.isFinite(innerSize) || innerSize < 0) break;
+          inner += 8 + innerSize + (innerSize % 2); // チャンクは偶数バイトにパディングされる
+        }
+        return 0;
+      }
+      off += 8 + size + (size % 2);
+    }
+    return 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
+// AVIの先頭数秒だけをMP4に変換する（サムネイル用）。extractWmvHead と同じ考え方
+function extractAviHead(file, { onDownload, onReady } = {}) {
+  return withFFmpeg(async ff => {
+    if (onReady) onReady(); // ここまで来ればエンジンの用意は済んでいる
+    let duration = 0;
+    ffmpegLogCb = msg => {
+      const m = /Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/.exec(msg);
+      if (m) duration = (+m[1]) * 3600 + (+m[2]) * 60 + parseFloat(m[3]);
+    };
+    // AVIはヘッダー(hdrl)が先頭にあるので、切り出しても動画の長さは読み取れる
+    const HEAD_BYTES = 32 * 1024 * 1024;
+    const src = file.size > HEAD_BYTES ? file.slice(0, HEAD_BYTES) : file;
+    await ff.writeFile('thumb-in.avi', new Uint8Array(await src.arrayBuffer()));
+    const code = await execWithGuard(ff, ['-hide_banner', '-y', '-i', 'thumb-in.avi', '-t', '3',
+      '-an', '-c:v', 'libx264', '-preset', 'ultrafast', '-pix_fmt', 'yuv420p',
+      '-movflags', 'faststart', 'thumb-out.mp4'], 30000);
+    if (code !== 0) throw new Error(`ffmpeg exited with ${code}`);
+    const data = await ff.readFile('thumb-out.mp4');
+    // 切り出して渡した場合、ffmpegの言う長さは切り出した分でしかない。ヘッダーの値を優先する
+    const headerSec = await readAviDuration(file);
+    return { blob: new Blob([data.buffer], { type: 'video/mp4' }), duration: headerSec || duration };
+  }, onDownload);
+}
+
+// AVIをMP4へ変換する。{ promise, cancel } を返し、cancel() で実行中でも打ち切れる
+function convertAviToMp4(file, { onDownload, onProgress } = {}) {
+  let canceled = false;
+  let current = null; // 実行中のインスタンス（中止時に止める相手）
+  const job = {
+    cancel() {
+      canceled = true;
+      ffmpegProgressCb = null;
+      // 実行中のffmpegは terminate でしか止められない
+      if (current) { try { current.terminate(); } catch (e) {} }
+    },
+  };
+  // withAudio=false は、音声側だけが原因で失敗した時のやり直し用。
+  // 1回 exec するとランタイムが終わるため、やり直しは新しいインスタンスで行う
+  const run = withAudio => withFFmpeg(async ff => {
+    current = ff;
+    if (canceled) throw new Error('canceled');
+    ffmpegProgressCb = onProgress || null;
+    await ff.writeFile('in.avi', new Uint8Array(await file.arrayBuffer()));
+    if (canceled) throw new Error('canceled');
+    const code = await ff.exec(['-hide_banner', '-y', '-i', 'in.avi', '-c:v', 'libx264', '-preset', 'ultrafast',
+      '-pix_fmt', 'yuv420p', ...(withAudio ? ['-c:a', 'aac'] : ['-an']), '-movflags', 'faststart', 'out.mp4']);
+    if (canceled) throw new Error('canceled');
+    if (code !== 0) throw new Error(`ffmpeg exited with ${code}`);
+    const data = await ff.readFile('out.mp4');
+    return new Blob([data.buffer], { type: 'video/mp4' });
+  }, onDownload);
+  job.promise = (async () => {
+    try {
+      return await run(true);
+    } catch (e) {
+      if (canceled || String(e && e.message) === 'canceled') throw e;
+      return await run(false);
+    }
+  })();
+  return job;
+}
+
 async function tiffToURL(file) {
   const buffer = await file.arrayBuffer();
   const blob = await decodeTiffInWorker(buffer);
@@ -2345,15 +2504,16 @@ const HEIC_EXTS  = ['heic','heif'];
 // M4Vは実体がほぼMP4のコンテナのため変換不要で、そのまま動画として扱う（DRM保護されている場合は
 // 他の再生不可な動画と同様に「再生不可」バッジになる）。拡張子バッジだけ badgeText() で「M4V(MP4)」と表示する
 const VIDEO_EXTS = ['mp4','webm','mov','m4v'];
-// WMVはどのブラウザもデコードできないため、動画（VIDEO_EXTS）とは別扱いにして
+// WMV・AVIはどのブラウザもデコードできないため、動画（VIDEO_EXTS）とは別扱いにして
 // 「変換して再生」の経路だけを用意する。スライドショー・ホバー再生・変換保存の対象外
 const WMV_EXTS   = ['wmv'];
-// MKVもブラウザがネイティブ再生できないため変換が要るが、WMVと違い変換後は
+const AVI_EXTS   = ['avi'];
+// MKVもブラウザがネイティブ再生できないため変換が要るが、WMV・AVIと違い変換後は
 // 普通の動画（isVideo）と同じ扱いにする（isPlayableVideo参照）
 const MKV_EXTS   = ['mkv'];
 const ICO_EXTS   = ['ico'];
 const PDF_EXTS   = ['pdf'];
-const ALL_EXTS   = [...IMG_EXTS, ...HEIC_EXTS, ...VIDEO_EXTS, ...WMV_EXTS, ...MKV_EXTS, ...ICO_EXTS, ...PDF_EXTS];
+const ALL_EXTS   = [...IMG_EXTS, ...HEIC_EXTS, ...VIDEO_EXTS, ...WMV_EXTS, ...AVI_EXTS, ...MKV_EXTS, ...ICO_EXTS, ...PDF_EXTS];
 
 function extOf(name)  { return (name||'').split('.').pop().toLowerCase(); }
 function isImage(name){ return [...IMG_EXTS,...HEIC_EXTS,...ICO_EXTS].includes(extOf(name)); }
@@ -2362,15 +2522,16 @@ function isHeic(name) { return HEIC_EXTS.includes(extOf(name)); }
 function isIco(name)  { return ICO_EXTS.includes(extOf(name)); }
 function isTiff(name) { return extOf(name) === 'tiff' || extOf(name) === 'tif'; }
 function isWmv(name)  { return WMV_EXTS.includes(extOf(name)); }
+function isAvi(name)  { return AVI_EXTS.includes(extOf(name)); }
 function isMkv(name)  { return MKV_EXTS.includes(extOf(name)); }
 function isPdf(name)  { return PDF_EXTS.includes(extOf(name)); }
 // 変換済みのMKVを含め、「ライトボックスで普通の動画として再生できる」かどうか
 function isPlayableVideo(entry) {
   return isVideo(entry.name) || (isMkv(entry.name) && mkvConvertedEntries.has(entry));
 }
-// 拡張子バッジに「要変換」を出すかどうか。WMVは常に対象、MKVは未変換かつ低速パス確定分のみ
+// 拡張子バッジに「要変換」を出すかどうか。WMV・AVIは常に対象、MKVは未変換かつ低速パス確定分のみ
 function badgeNeedsConvert(entry) {
-  return isWmv(entry.name) || (isMkv(entry.name) && !mkvConvertedEntries.has(entry) && mkvNeedsConvertEntries.has(entry));
+  return isWmv(entry.name) || isAvi(entry.name) || (isMkv(entry.name) && !mkvConvertedEntries.has(entry) && mkvNeedsConvertEntries.has(entry));
 }
 // 拡張子バッジの表示文字列。変換済みMKVやM4Vは実際の再生形式が分かるよう「MKV(MP4)」「M4V(MP4)」と表示する
 // （HEICの実体がJPEG等だった場合に「HEIC(JPEG)」と出す既存の表記に合わせた）
@@ -2826,15 +2987,19 @@ function clearThumbCache() {
   thumbCache.forEach(v => { try { URL.revokeObjectURL(v.url); } catch(e){} });
   thumbCache.clear();
   aspectRatioCache.clear();
-  // 変換済みWMV/MKVは実体が大きいので、キャッシュを捨てる時に一緒に解放する
+  // 変換済みWMV/AVI/MKVは実体が大きいので、キャッシュを捨てる時に一緒に解放する
   wmvBlobCache.forEach(url => { try { URL.revokeObjectURL(url); } catch(e){} });
   wmvBlobCache.clear();
   wmvDurationCache.clear();
+  aviBlobCache.forEach(url => { try { URL.revokeObjectURL(url); } catch(e){} });
+  aviBlobCache.clear();
+  aviDurationCache.clear();
   mkvBlobCache.forEach(v => { try { URL.revokeObjectURL(v.url); } catch(e){} });
   mkvBlobCache.clear();
   mkvDurationCache.clear();
   mkvConvertedEntries.clear();
   mkvNeedsConvertEntries.clear();
+  unplayableEntries.clear();
 }
 
 async function makeURL(file) {
@@ -3981,7 +4146,7 @@ function computeJustifiedRows(files, containerWidth, targetHeight, gap) {
 
   for (const entry of files) {
     const ratio = aspectRatioCache.get(entry.name) ||
-      ((isVideo(entry.name) || isWmv(entry.name) || isMkv(entry.name)) ? 16 / 9 : 3 / 2);
+      ((isVideo(entry.name) || isWmv(entry.name) || isAvi(entry.name) || isMkv(entry.name)) ? 16 / 9 : 3 / 2);
     row.push({ entry, ratio });
     rowRatioSum += ratio;
 
@@ -4038,7 +4203,7 @@ function renderTileGallery(generation) {
       loading.innerHTML = `<div class="thumb-spinner" aria-hidden="true"></div><span class="thumb-loading-text is-progress">${t('thumb.loading')}</span>`;
 
       const badge = document.createElement('div');
-      badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name) || isMkv(name)) ? ' video-badge' + (badgeNeedsConvert(entry) ? ' needs-convert' : '') : isPdf(name) ? ' pdf-badge' : '');
+      badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name) || isAvi(name) || isMkv(name)) ? ' video-badge' + (badgeNeedsConvert(entry) ? ' needs-convert' : '') : isPdf(name) ? ' pdf-badge' : '');
       badge.textContent = badgeText(entry);
       badge.setAttribute('aria-hidden', 'true');
       badge.dataset.badge = 'true';
@@ -4155,7 +4320,7 @@ function renderGallery({ preserveScroll = false } = {}) {
     loading.innerHTML = `<div class="thumb-spinner" aria-hidden="true"></div><span class="thumb-loading-text is-progress">${t('thumb.loading')}</span>`;
 
     const badge = document.createElement('div');
-    badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name) || isMkv(name)) ? ' video-badge' + (badgeNeedsConvert(entry) ? ' needs-convert' : '') : isPdf(name) ? ' pdf-badge' : '');
+    badge.className = 'ext-badge' + (isHeic(name) ? ' heic-badge' : (isVideo(name) || isWmv(name) || isAvi(name) || isMkv(name)) ? ' video-badge' + (badgeNeedsConvert(entry) ? ' needs-convert' : '') : isPdf(name) ? ' pdf-badge' : '');
     badge.textContent = badgeText(entry);
     badge.setAttribute('aria-hidden', 'true');
     badge.dataset.badge = 'true';
@@ -4203,6 +4368,10 @@ async function loadThumb(entry, item, loading, generation) {
     }
     if (isWmv(file.name)) {
       await loadWmvThumb(file, item, loading, key, generation);
+      return;
+    }
+    if (isAvi(file.name)) {
+      await loadAviThumb(file, item, loading, key, generation);
       return;
     }
     if (isMkv(file.name)) {
@@ -4440,6 +4609,68 @@ async function loadWmvThumb(file, item, loading, key, generation) {
   }
 }
 
+// AVIのサムネイル。loadWmvThumbと全く同じ考え方（ffmpegで先頭だけMP4化してから1フレーム取り出す）
+async function loadAviThumb(file, item, loading, key, generation) {
+  const addPlayIcon = () => {
+    const play = document.createElement('div');
+    play.className = 'thumb-play';
+    play.innerHTML = '<div class="thumb-play-icon" aria-hidden="true">▶</div>';
+    item.appendChild(play);
+  };
+
+  if (key && thumbCache.has(key)) {
+    const cached = thumbCache.get(key);
+    applyThumbImage(item, loading, cached.url, cached.dim, null, file.name);
+    addPlayIcon();
+    return;
+  }
+  // 初回はコア（約31MB）の読み込みで待たされるため、何をどこまで待っているのかを表示しておく
+  const showPrep = text => {
+    if (loading.parentNode !== item) return;
+    const el = loading.querySelector('.thumb-loading-text');
+    if (el) el.textContent = text;
+  };
+  if (!ffmpegAssetsPromise) showPrep(t('avi.thumbPrep'));
+  // 進捗はチャンクごとに来るので、表示の更新は1%刻みに間引く（DOM更新でメインスレッドを詰まらせない）
+  let lastPct = -1;
+  const onDownload = p => {
+    const pct = Math.round(p * 100);
+    if (pct === lastPct) return;
+    lastPct = pct;
+    // 100%の後もWASMの初期化が続くため、「読込中100%」のまま止まって見えないようにする
+    showPrep(pct >= 100 ? t('avi.thumbPreparing') : tf('avi.thumbPrepPct', { p: pct }));
+  };
+  try {
+    const { blob, duration } = await extractAviHead(file, {
+      onDownload,
+      onReady: () => showPrep(t('thumb.loading')), // ここから先は他の形式と同じ「読込中」
+    });
+    if (generation !== galleryGeneration) return;
+    if (key && duration) aviDurationCache.set(key, duration); // ライトボックスで所要時間を示すのに使う
+    // MP4になった先頭部分から、他の動画と同じやり方で代表フレームを取る
+    const head = new File([blob], 'avi-head.mp4', { type: 'video/mp4' });
+    const { blob: frameBlob, width, height } = await captureVideoFrameBlob(head);
+    if (generation !== galleryGeneration) return;
+    const url = URL.createObjectURL(frameBlob);
+    objectURLs.push(url);
+    const dim = `${width} × ${height}`;
+    applyThumbImage(item, loading, url, dim, null, file.name);
+    addPlayIcon();
+    if (key) thumbCache.set(key, { url, dim });
+    if (width && height) {
+      const ratio = width / height;
+      if (aspectRatioCache.get(file.name) !== ratio) { aspectRatioCache.set(file.name, ratio); scheduleRelayout(); }
+    }
+  } catch (e) {
+    if (generation !== galleryGeneration) return;
+    // サムネイルが作れなくてもライトボックスからは変換して見られるので、
+    // 「壊れたファイル」に見えないよう、動画であることを示す表示に留める
+    if (loading.parentNode === item) loading.remove();
+    addPlayIcon();
+    console.warn('avi thumb failed:', file.name, e);
+  }
+}
+
 // MKVのサムネイル。mediabunnyで直接1フレームだけデコードする（WMVと違い先頭切り出し不要）
 async function loadMkvThumb(file, item, loading, key, generation, entry) {
   const addPlayIcon = () => {
@@ -4572,16 +4803,19 @@ async function openLightbox(idx) {
   await updateLightbox();
   lightbox.classList.add('open');
   setBackgroundInert(true);
-  // 動画はvideo要素に、WMVは変換ボタンに、MKVは進捗表示中なら中止ボタンに、
+  // 動画はvideo要素に、WMV・AVIは変換ボタンに、MKVは進捗表示中なら中止ボタンに、
   // それ以外はlightbox本体にフォーカス
   const videoWrap = document.getElementById('lbVideoWrap');
   const wmvWrap = document.getElementById('lbWmvWrap');
+  const aviWrap = document.getElementById('lbAviWrap');
   const mkvWrap = document.getElementById('lbMkvWrap');
   const mkvProgressBox = document.getElementById('lbMkvProgressBox');
   if (videoWrap.style.display !== 'none') {
     document.getElementById('lbVideo').focus();
   } else if (wmvWrap.style.display !== 'none') {
     document.getElementById('lbWmvConvert').focus();
+  } else if (aviWrap.style.display !== 'none') {
+    document.getElementById('lbAviConvert').focus();
   } else if (mkvWrap.style.display !== 'none' && !mkvProgressBox.hidden) {
     document.getElementById('lbMkvCancel').focus();
   } else {
@@ -4604,8 +4838,8 @@ function updateLbKeyHint() {
   } else if (entry && isPlayableVideo(entry)) {
     if (sc) segs.push(`Z: ${t('hint.zoom')}`, `R: ${t('hint.rotate')}`, `C: ${t('hint.checker')}`, `1: ${t('hint.actual')}`, `L: ${t('hint.loop')}`);
     segs.push(escCloseZoom);
-  } else if (isPdf(name) || isWmv(name) || isMkv(name)) {
-    segs.push(`Esc: ${t('hint.close')}`); // PDF・WMV・未変換MKVはズーム・市松切替とも不可
+  } else if (isPdf(name) || isWmv(name) || isAvi(name) || isMkv(name)) {
+    segs.push(`Esc: ${t('hint.close')}`); // PDF・WMV・AVI・未変換MKVはズーム・市松切替とも不可
   } else {
     const diffInfo = getDiffPartner(entry);
     const isDiff = diffInfo && isImage(diffInfo.partner.name || '');
@@ -4626,6 +4860,7 @@ function updateLbKeyHint() {
 
 async function updateLightbox() {
   cancelWmvJob(); // 別のファイルへ移ったら、進行中の変換は打ち切る
+  cancelAviJob();
   cancelMkvJob();
   const entry = filteredFiles[currentIdx];
   const name = entry.name||'';
@@ -4674,12 +4909,14 @@ async function updateLightbox() {
     const pdfWrap   = document.getElementById('lbPdfWrap');
     const pdfFrame  = document.getElementById('lbPdfFrame');
     const wmvWrap   = document.getElementById('lbWmvWrap');
+    const aviWrap   = document.getElementById('lbAviWrap');
     const mkvWrap   = document.getElementById('lbMkvWrap');
     pdfFrame.src = '';
     imgWrap.style.display   = 'none';
     videoWrap.style.display = 'none';
     pdfWrap.style.display   = 'none';
     wmvWrap.style.display   = 'none';
+    aviWrap.style.display   = 'none';
     mkvWrap.style.display   = 'none';
     diffWrap.style.display  = 'none';
     // Diffモードでは、2つのファイルのどちらを変換するのか予想がつかないため変換UIごと隠す
@@ -4690,25 +4927,26 @@ async function updateLightbox() {
     const rotateBtn = document.getElementById('lbRotate');
     const actualBtn = document.getElementById('lbActualBtn');
     updateLbKeyHint();
-    // 変換済みのWMV/MKVは通常の動画と同じ経路で再生する。WMVはズーム等の操作を対象外のまま隠すが、
-    // MKVは変換後は完全に普通の動画として扱う（wmvModeでのみ隠す）
+    // 変換済みのWMV/AVI/MKVは通常の動画と同じ経路で再生する。WMV・AVIはズーム等の操作を
+    // 対象外のまま隠すが、MKVは変換後は完全に普通の動画として扱う（restrictedModeでのみ隠す）
     const wmvUrl = isWmv(file.name) ? wmvBlobCache.get(cacheKey(file)) : null;
+    const aviUrl = isAvi(file.name) ? aviBlobCache.get(cacheKey(file)) : null;
     const mkvCached = isMkv(file.name) ? mkvBlobCache.get(cacheKey(file)) : null;
     const mkvUrl = mkvCached ? mkvCached.url : null;
-    if (isVideo(file.name) || wmvUrl || mkvUrl) {
-      const wmvMode = !!wmvUrl;
-      zoomBtn.style.display = (ssActive || wmvMode) ? 'none' : '';
-      loopBtn.style.display = (ssActive || wmvMode) ? 'none' : '';
+    if (isVideo(file.name) || wmvUrl || aviUrl || mkvUrl) {
+      const restrictedMode = !!(wmvUrl || aviUrl);
+      zoomBtn.style.display = (ssActive || restrictedMode) ? 'none' : '';
+      loopBtn.style.display = (ssActive || restrictedMode) ? 'none' : '';
       loopBtn.classList.toggle('is-active', videoLoop);
       loopBtn.title = t(videoLoop ? 'lb.loopOn' : 'lb.loopOff');
       // 市松模様は動画でも有効: 暗い演出などで画角の範囲が分かりにくい動画のチェックに役立つ
-      checkerBtn.style.display = (ssActive || wmvMode) ? 'none' : '';
-      actualBtn.style.display = (ssActive || zoomMode || wmvMode) ? 'none' : '';
-      rotateBtn.style.display = (ssActive || zoomMode || wmvMode) ? 'none' : '';
-      if (wmvMode) document.querySelector('.lb-info .convert-group').style.display = 'none';
+      checkerBtn.style.display = (ssActive || restrictedMode) ? 'none' : '';
+      actualBtn.style.display = (ssActive || zoomMode || restrictedMode) ? 'none' : '';
+      rotateBtn.style.display = (ssActive || zoomMode || restrictedMode) ? 'none' : '';
+      if (restrictedMode) document.querySelector('.lb-info .convert-group').style.display = 'none';
       lbVideo.loop = ssActive ? false : videoLoop;
-      const url = wmvUrl || mkvUrl || URL.createObjectURL(file);
-      if (!wmvUrl && !mkvUrl) objectURLs.push(url); // 変換結果のURLはキャッシュ側で管理する
+      const url = wmvUrl || aviUrl || mkvUrl || URL.createObjectURL(file);
+      if (!wmvUrl && !aviUrl && !mkvUrl) objectURLs.push(url); // 変換結果のURLはキャッシュ側で管理する
       videoWrap.style.display = 'flex';
       lbVideo.src = url;
       lbVideo.load();
@@ -4745,6 +4983,17 @@ async function updateLightbox() {
       exitZoomMode();
       wmvWrap.style.display = 'flex';
       setupWmvPanel(file, cacheKey(file));
+    } else if (isAvi(file.name)) {
+      // 未変換のAVI: 中央のパネルから変換を始めてもらう（ここでは何も読み込まない）
+      zoomBtn.style.display = 'none';
+      loopBtn.style.display = 'none';
+      checkerBtn.style.display = 'none';
+      actualBtn.style.display = 'none';
+      rotateBtn.style.display = 'none';
+      document.querySelector('.lb-info .convert-group').style.display = 'none';
+      exitZoomMode();
+      aviWrap.style.display = 'flex';
+      setupAviPanel(file, cacheKey(file));
     } else if (isMkv(file.name)) {
       // 未変換のMKV: サムネ生成時点でこのブラウザでは再生不可と判明していれば、
       // 変換を試みず単一のエラー表示に留める。それ以外はパネルを出すと同時に自動変換を始める
@@ -4799,7 +5048,8 @@ function cancelWmvJob() {
   wmvJob = null;
 }
 
-// 秒数を「1時間13秒」「3分3秒」のように表示する（0になる単位は書かない）
+// 秒数を「1時間13秒」「3分3秒」のように表示する（0になる単位は書かない）。
+// AVI・MKVの変換パネルからも(wmv.h/m/sの単位表記を流用して)呼ばれる汎用の整形関数
 function fmtWmvDuration(sec) {
   const s = Math.max(0, Math.round(sec));
   const h = Math.floor(s / 3600);
@@ -4883,6 +5133,92 @@ function setupWmvPanel(file, key) {
     cancelWmvJob();
     showProgress(false);
     statusEl.textContent = t('wmv.canceled');
+    convertBtn.focus(); // 中止ボタンは消えるので、フォーカスを変換ボタンへ戻す
+  };
+}
+
+// ── AVIの変換パネル ───────────────────────────────────────────────
+// WMVと全く同じ仕組み（ボタンを押すまで変換しない・進捗バー・中止ボタン）を流用する
+const aviBlobCache = new Map(); // cacheKey → 変換済みMP4のURL（同じセッション中は再変換しない）
+let aviJob = null;
+
+function cancelAviJob() {
+  if (!aviJob) return;
+  aviJob.cancel();
+  aviJob = null;
+}
+
+function setupAviPanel(file, key) {
+  const convertBtn = document.getElementById('lbAviConvert');
+  const cancelBtn  = document.getElementById('lbAviCancel');
+  const statusEl   = document.getElementById('lbAviStatus');
+  const box        = document.getElementById('lbAviProgressBox');
+  const label      = document.getElementById('lbAviProgressLabel');
+  const bar        = document.getElementById('lbAviProgress');
+  const durEl      = document.getElementById('lbAviDuration');
+  const setProgress = (text, pct) => {
+    label.textContent = text;
+    bar.value = pct;
+    bar.textContent = `${Math.round(pct)}%`;
+  };
+  // 進捗バーと中止ボタンは変換中だけ出す（何を中止するのかが分かる状態でのみ見せる）
+  const showProgress = on => {
+    box.hidden = !on;
+    box.setAttribute('aria-busy', on ? 'true' : 'false');
+    convertBtn.hidden = on;
+  };
+  // 動画の長さはサムネイル生成の時点で分かっている。取れていない場合だけ一般的な説明にする
+  const duration = aviDurationCache.get(key) || 0;
+  // 中央揃えの文章なので、句点の位置で改行させる（辞書側に <br> を持たせている）
+  durEl.innerHTML = duration
+    ? tf('avi.duration', { d: fmtWmvDuration(duration) })
+    : t('avi.durationUnknown');
+  // 前のファイルの状態を持ち越さない
+  showProgress(false);
+  setProgress('', 0);
+  statusEl.textContent = '';
+  convertBtn.onclick = async () => {
+    if (aviJob) return; // 多重起動の抑止（disabled属性は使わない）
+    statusEl.textContent = '';
+    showProgress(true);
+    setProgress(t('avi.starting'), 0);
+    const startedAt = performance.now();
+    const job = convertAviToMp4(file, {
+      onDownload: p => setProgress(tf('avi.downloading', { p: Math.round(p * 100) }), p * 100),
+      onProgress: p => {
+        const pct = Math.round(p * 100);
+        // 経過時間と進捗から残りを見積もる（序盤は当てにならないので少し進んでから出す）
+        const elapsed = (performance.now() - startedAt) / 1000;
+        const remain = (p > 0.03 && elapsed > 3) ? elapsed * (1 - p) / p : 0;
+        setProgress(remain
+          ? tf('avi.convertingEta', { p: pct, r: fmtWmvDuration(remain) })
+          : tf('avi.converting', { p: pct }), pct);
+      },
+    });
+    aviJob = job;
+    try {
+      const blob = await job.promise;
+      if (aviJob !== job) return; // 中止後・別ファイルへ移った後に届いた結果は捨てる
+      aviJob = null;
+      aviBlobCache.set(key, URL.createObjectURL(blob));
+      await updateLightbox(); // 変換済みとして描き直され、そのまま再生される
+      // 押していたボタンは消えるため、フォーカスを再生中のプレーヤーへ引き継ぐ
+      if (document.getElementById('lbVideoWrap').style.display !== 'none') {
+        document.getElementById('lbVideo').focus();
+      }
+    } catch (e) {
+      const canceled = aviJob !== job || String(e && e.message) === 'canceled';
+      if (aviJob === job) aviJob = null;
+      showProgress(false);
+      statusEl.textContent = t(canceled ? 'avi.canceled' : 'avi.failed');
+      convertBtn.focus();
+    }
+  };
+  cancelBtn.onclick = () => {
+    if (!aviJob) return;
+    cancelAviJob();
+    showProgress(false);
+    statusEl.textContent = t('avi.canceled');
     convertBtn.focus(); // 中止ボタンは消えるので、フォーカスを変換ボタンへ戻す
   };
 }
@@ -5003,6 +5339,7 @@ function setupMkvPanel(file, entry, key) {
 
 function closeLightbox() {
   cancelWmvJob();
+  cancelAviJob();
   cancelMkvJob();
   if (ssActive) stopSlideshow();
   exitZoomMode();

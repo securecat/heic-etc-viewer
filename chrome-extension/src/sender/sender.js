@@ -2,7 +2,7 @@
 // HEIC etc Viewer を window.open で開いて postMessage で受け渡す
 
 // viewer側の対応拡張子（heic-etc-viewer.html の ALL_EXTS と揃えること）
-const KNOWN_EXTS = ['jpg','jpeg','jfif','png','gif','webp','avif','svg','bmp','tiff','tif','heic','heif','mp4','webm','mov','m4v','wmv','mkv','ico','pdf'];
+const KNOWN_EXTS = ['jpg','jpeg','jfif','png','gif','webp','avif','svg','bmp','tiff','tif','heic','heif','mp4','webm','mov','m4v','wmv','avi','mkv','ico','pdf'];
 const MIME_EXT = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
@@ -22,6 +22,8 @@ const MIME_EXT = {
   'video/x-m4v': 'm4v',
   'video/x-ms-wmv': 'wmv',
   'video/x-ms-asf': 'wmv',
+  'video/x-msvideo': 'avi',
+  'video/avi': 'avi',
   'video/x-matroska': 'mkv',
   'application/pdf': 'pdf',
 };
@@ -121,6 +123,7 @@ function sniffExt(b) {
   const head6 = ascii(0, 6);
   if (head6 === 'GIF87a' || head6 === 'GIF89a') return 'gif';
   if (ascii(0, 4) === 'RIFF' && ascii(8, 4) === 'WEBP') return 'webp';
+  if (ascii(0, 4) === 'RIFF' && ascii(8, 4) === 'AVI ') return 'avi';
   if (b[0] === 0x42 && b[1] === 0x4D) return 'bmp';
   if ((b[0] === 0x49 && b[1] === 0x49 && b[2] === 0x2A && b[3] === 0x00) ||
       (b[0] === 0x4D && b[1] === 0x4D && b[2] === 0x00 && b[3] === 0x2A)) return 'tiff';
