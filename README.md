@@ -83,11 +83,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.25.1] - 2026-08-23
+### [3.26.0] - 2026-09-03
 
-#### Fixed
+#### Added
 
-- Opening a folder that takes a while to scan (Open Folder, drag-and-drop, or a bookmark) no longer leaves a stale lightbox open. Previously, since loading doesn't block interaction with the currently-shown folder, you could open the lightbox on one of its files while the new folder was still loading; once loading finished, the gallery underneath switched to the new folder but the lightbox kept showing the old file, out of sync with what was actually loaded. The lightbox now closes automatically the moment a new folder finishes loading
+- M4V video support. Since an M4V file is essentially an MP4 container, it's treated as a native video file with no conversion step — thumbnail generation, hover playback, slideshow, and the Sound/Thumbnail/Rotate conversion menu all apply. Its gallery badge always reads "M4V(MP4)" to show how it's being treated; a DRM-protected file that can't actually be decoded falls back to the same "can't play this in this browser" badge used for other unplayable video formats, and keeps its original extension (rather than "M4V(MP4)") both in the badge and when included in a zip export
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -178,11 +178,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.25.1] - 2026-08-23
+### [3.26.0] - 2026-09-03
 
-#### 修正
+#### 追加
 
-- 読み込みに時間がかかるフォルダ(フォルダを開く・ドラッグ＆ドロップ・ブックマーク)を開いている間、それまで見ていたフォルダの操作(ライトボックスを開く等)がブロックされない作りだったため、読み込み完了後もライトボックスが古いフォルダのファイルを表示したまま残ってしまい、背後のギャラリーだけ新フォルダの内容に差し替わってしまう問題を修正。新フォルダの読み込みが完了した時点で、開いていればライトボックスを自動的に閉じるようにした
+- M4V動画に対応。M4Vは実体がほぼMP4のコンテナのため、変換処理なしで普通の動画として扱う(サムネイル生成・ホバー再生・スライドショー・Sound/Thumbnail/Rotate変換メニューがすべて有効)。ギャラリーバッジは常に「M4V(MP4)」と表示してどう扱われているかを示す。DRM保護等で実際にはデコードできないファイルは、他の再生不可な動画形式と同じ「このブラウザで再生不可」バッジにフォールバックし、バッジ・ZIPエクスポートともに「M4V(MP4)」ではなく元の拡張子のままにする
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
