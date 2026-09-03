@@ -1448,7 +1448,7 @@ const I18N = {
     'sc.on': 'Enabled',
     'sc.off': 'Disabled',
     'g.formats.h': 'Supported file formats (view)',
-    'g.formats.p': 'HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, WMV, MKV, PDF, and ICO',
+    'g.formats.p': 'HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, M4V, WMV, MKV, PDF, and ICO',
     'g.wmv.h': 'About WMV',
     'g.wmv.p': 'No browser can decode WMV, so ffmpeg.wasm is loaded from a CDN and does the decoding — entirely inside your browser, with nothing uploaded. Gallery thumbnails are made by extracting a single frame, and opening one in the lightbox shows how long the video is plus a "Convert and play" button: pressing it converts the whole video to MP4 and plays the result. The converter is about 31MB and is fetched the first time a WMV needs it; converting takes roughly as long as the video itself, with a progress bar, an estimate of the time left, and a cancel button. Converted videos are kept for the rest of the session, so reopening one plays it right away. Slideshow, hover playback, and the conversion features do not cover WMV.',
     'g.mkv.h': 'About MKV',
@@ -1461,7 +1461,7 @@ const I18N = {
     'g.convert.pdfH': 'PDF',
     'g.convert.pdfP': 'A PDF opened in the lightbox can be split into one PDF per page ("PDF (individual pages)"), downloaded as a zip (or as a single file for one-page PDFs). Pages are extracted as-is, without re-rendering.',
     'g.zip.h': 'Export as a Zip',
-    'g.zip.p': 'Doesn\'t convert anything — bundles the files currently shown in the gallery (after any filter) into a single zip, unchanged. The exception is a file whose gallery badge shows its real format in parentheses (a HEIC that\'s actually JPEG/PNG/GIF, or an MKV already converted to MP4 this session): it\'s included with the matching extension instead of its original one. While this format is selected, a checkbox appears in the top-left corner of every thumbnail (all checked by default); untick the files you don\'t need before downloading. The "Select all" / "Clear all" buttons next to the Download button switch every shown file at once. Available by selecting "All" as the convert subject.',
+    'g.zip.p': 'Doesn\'t convert anything — bundles the files currently shown in the gallery (after any filter) into a single zip, unchanged. The exception is a file whose gallery badge shows its real format in parentheses (a HEIC that\'s actually JPEG/PNG/GIF, an M4V, or an MKV already converted to MP4 this session): it\'s included with the matching extension instead of its original one. While this format is selected, a checkbox appears in the top-left corner of every thumbnail (all checked by default); untick the files you don\'t need before downloading. The "Select all" / "Clear all" buttons next to the Download button switch every shown file at once. Available by selecting "All" as the convert subject.',
     'g.diff.h': 'Image diff mode',
     'g.diff.p': 'Open a parent folder containing exactly two subfolders whose image files share the same filename (ignoring extension) to compare them. Opening a matched file in the lightbox shows both versions overlaid with a divider that follows your mouse — the alphabetically-first subfolder is on the left. Files without a match in the other subfolder, or matched pairs that aren\'t both images, display normally.',
     'g.kbd.h': 'Keyboard operation',
@@ -1676,7 +1676,7 @@ const I18N = {
     'sc.on': '有効',
     'sc.off': '無効',
     'g.formats.h': '対応ファイル形式(表示)',
-    'g.formats.p': 'HEIC/HEIF、JPEG、JFIF、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、WMV、MKV、PDF、ICO',
+    'g.formats.p': 'HEIC/HEIF、JPEG、JFIF、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、M4V、WMV、MKV、PDF、ICO',
     'g.wmv.h': 'WMVについて',
     'g.wmv.p': 'WMVはどのブラウザもデコードできないため、CDNから ffmpeg.wasm を読み込んでデコードします。処理はすべてブラウザ内で完結し、どこにもアップロードされません。ギャラリーのサムネイルは1フレームを取り出して生成し、ライトボックスで開くと動画の長さと「変換して再生する」ボタンが表示されます。押すと動画全体をMP4に変換して再生します。変換エンジンは約31MBあり、最初にWMVを扱うときに読み込みます。変換には動画の長さと同程度の時間がかかり、進捗バー・残り時間の目安・中止ボタンが表示されます。変換した動画はそのセッション中は保持されるので、開き直せばすぐ再生できます。スライドショー・ホバー再生・変換保存の対象外です。',
     'g.mkv.h': 'MKVについて',
@@ -1689,7 +1689,7 @@ const I18N = {
     'g.convert.pdfH': 'PDF',
     'g.convert.pdfP': 'ライトボックスで表示中のPDFは「PDF(ページごとに)」で1ページずつのPDFに分割し、zipでダウンロードできます(1ページのPDFはそのまま1ファイルで保存)。ページは再レンダリングせず、そのまま取り出します。',
     'g.zip.h': 'ZIPでエクスポート',
-    'g.zip.p': '変換は行いません。ギャラリーに表示中のファイル(絞り込み後)を、変換せずそのまま1つのZIPにまとめます。例外として、サムネのバッジに実際の形式が括弧書きで出ているファイル(実体がJPEG/PNG/GIFだったHEIC、このセッション中にMP4へ変換済みのMKV)は、元の拡張子ではなく実体に合わせた拡張子で入れます。この形式を選んでいる間は各サムネの左上にチェックボックスが表示される(デフォルトは全部ON)ので、不要なファイルはチェックを外してからダウンロードしてください。ダウンロードボタンの右の「全選択」「全解除」で、表示中のファイルをまとめて切り替えられます。変換対象で「すべて」を選ぶと使用できます。',
+    'g.zip.p': '変換は行いません。ギャラリーに表示中のファイル(絞り込み後)を、変換せずそのまま1つのZIPにまとめます。例外として、サムネのバッジに実際の形式が括弧書きで出ているファイル(実体がJPEG/PNG/GIFだったHEIC、M4V、このセッション中にMP4へ変換済みのMKV)は、元の拡張子ではなく実体に合わせた拡張子で入れます。この形式を選んでいる間は各サムネの左上にチェックボックスが表示される(デフォルトは全部ON)ので、不要なファイルはチェックを外してからダウンロードしてください。ダウンロードボタンの右の「全選択」「全解除」で、表示中のファイルをまとめて切り替えられます。変換対象で「すべて」を選ぶと使用できます。',
     'g.diff.h': '画像Diffモード',
     'g.diff.p': '拡張子を除いたファイル名が一致する画像ファイルを持つ、ちょうど2つのサブフォルダを含む親フォルダを開くと比較できます。一致したファイルをライトボックスで開くと、マウスに追従する境界線で2つのバージョンが重ねて表示されます(アルファベット順で先のサブフォルダが左側)。もう一方のサブフォルダに一致がないファイルや、両方が画像ではないペアは、通常どおり表示されます。',
     'g.kbd.h': 'キーボード操作',
@@ -2341,7 +2341,9 @@ async function tiffToURL(file) {
 // ── 定数 ──────────────────────────────────────────────────────────
 const IMG_EXTS   = ['jpg','jpeg','jfif','png','gif','webp','avif','svg','bmp','tiff','tif'];
 const HEIC_EXTS  = ['heic','heif'];
-const VIDEO_EXTS = ['mp4','webm','mov'];
+// M4Vは実体がほぼMP4のコンテナのため変換不要で、そのまま動画として扱う（DRM保護されている場合は
+// 他の再生不可な動画と同様に「再生不可」バッジになる）。拡張子バッジだけ badgeText() で「M4V(MP4)」と表示する
+const VIDEO_EXTS = ['mp4','webm','mov','m4v'];
 // WMVはどのブラウザもデコードできないため、動画（VIDEO_EXTS）とは別扱いにして
 // 「変換して再生」の経路だけを用意する。スライドショー・ホバー再生・変換保存の対象外
 const WMV_EXTS   = ['wmv'];
@@ -2369,10 +2371,13 @@ function isPlayableVideo(entry) {
 function badgeNeedsConvert(entry) {
   return isWmv(entry.name) || (isMkv(entry.name) && !mkvConvertedEntries.has(entry) && mkvNeedsConvertEntries.has(entry));
 }
-// 拡張子バッジの表示文字列。変換済みMKVは実際の再生形式が分かるよう「MKV(MP4)」と表示する
+// 拡張子バッジの表示文字列。変換済みMKVやM4Vは実際の再生形式が分かるよう「MKV(MP4)」「M4V(MP4)」と表示する
 // （HEICの実体がJPEG等だった場合に「HEIC(JPEG)」と出す既存の表記に合わせた）
 function badgeText(entry) {
-  return (isMkv(entry.name) && mkvConvertedEntries.has(entry)) ? 'MKV(MP4)' : extOf(entry.name).toUpperCase();
+  const ext = extOf(entry.name);
+  if (isMkv(entry.name) && mkvConvertedEntries.has(entry)) return 'MKV(MP4)';
+  if (ext === 'm4v') return 'M4V(MP4)';
+  return ext.toUpperCase();
 }
 function escHtml(s)    { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -6627,6 +6632,8 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
         if (isMkv(entry.name) && mkvConvertedEntries.has(entry)) {
           const cached = mkvBlobCache.get(cacheKey(file));
           if (cached) { name = `${baseName(entry.name)}.mp4`; blob = cached.blob; }
+        } else if (extOf(entry.name) === 'm4v') {
+          name = `${baseName(entry.name)}.mp4`; // 中身は既にMP4互換のため、blobはそのまま
         } else if (isHeic(entry.name)) {
           const realType = await detectRealType(file);
           if (realType !== 'heic') name = `${baseName(entry.name)}.${REAL_TYPE_EXT[realType] || realType}`;

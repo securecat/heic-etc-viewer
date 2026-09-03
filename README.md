@@ -9,7 +9,7 @@ A single-file local image/video viewer and converter with HEIC, PDF, and ICO sup
 ### Supported formats
 
 - Images: HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, ICO
-- Videos: MP4, WebM, MOV, WMV, MKV
+- Videos: MP4, WebM, MOV, M4V, WMV, MKV
 - Documents: PDF
 
 ### Folders & gallery
@@ -104,7 +104,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 ### 対応形式
 
 - 画像：HEIC/HEIF、JPEG、JFIF、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、ICO
-- 動画：MP4、WebM、MOV、WMV、MKV
+- 動画：MP4、WebM、MOV、M4V、WMV、MKV
 - ドキュメント：PDF
 
 ### フォルダとギャラリー

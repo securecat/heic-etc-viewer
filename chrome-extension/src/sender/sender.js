@@ -2,7 +2,7 @@
 // HEIC etc Viewer を window.open で開いて postMessage で受け渡す
 
 // viewer側の対応拡張子（heic-etc-viewer.html の ALL_EXTS と揃えること）
-const KNOWN_EXTS = ['jpg','jpeg','jfif','png','gif','webp','avif','svg','bmp','tiff','tif','heic','heif','mp4','webm','mov','wmv','mkv','ico','pdf'];
+const KNOWN_EXTS = ['jpg','jpeg','jfif','png','gif','webp','avif','svg','bmp','tiff','tif','heic','heif','mp4','webm','mov','m4v','wmv','mkv','ico','pdf'];
 const MIME_EXT = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
@@ -19,6 +19,7 @@ const MIME_EXT = {
   'video/mp4': 'mp4',
   'video/webm': 'webm',
   'video/quicktime': 'mov',
+  'video/x-m4v': 'm4v',
   'video/x-ms-wmv': 'wmv',
   'video/x-ms-asf': 'wmv',
   'video/x-matroska': 'mkv',
@@ -154,7 +155,7 @@ function fileNameFor(url, blob, kind, index, usedNames, sniffedExt) {
   // 実バイトから形式が判定できた場合はそれを最優先する（URL拡張子と中身の食い違い対策）。
   // ただし同一形式の表記ゆれ（jpg/jpeg/jfif・tif/tiff・heic/heif・mp4/mov系コンテナ）は元の表記を尊重する
   if (sniffedExt) {
-    const canon = e => ({ jpeg: 'jpg', jfif: 'jpg', tif: 'tiff', heif: 'heic', mov: 'mp4' }[e] || e);
+    const canon = e => ({ jpeg: 'jpg', jfif: 'jpg', tif: 'tiff', heif: 'heic', mov: 'mp4', m4v: 'mp4' }[e] || e);
     if (!ext || canon(ext) !== canon(sniffedExt)) ext = sniffedExt;
   }
   // 拡張子もMIMEも実形式も不明な場合は種別からの推定に頼る（viewer側に実形式の検出があるため許容）
