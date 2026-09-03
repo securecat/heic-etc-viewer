@@ -9,7 +9,7 @@ A single-file local image/video viewer and converter with HEIC, PDF, and ICO sup
 ### Supported formats
 
 - Images: HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, ICO
-- Videos: MP4, WebM, MOV, M4V, WMV, MKV
+- Videos: MP4, WebM, MOV, M4V, WMV, AVI, MKV
 - Documents: PDF
 
 ### Folders & gallery
@@ -25,7 +25,7 @@ A single-file local image/video viewer and converter with HEIC, PDF, and ICO sup
 - Images and videos open "as large as possible" by default, with an actual-size (1:1) toggle and scrolling for media that doesn't fit
 - Drag-to-select zoom, 90° rotation, checker background (for checking transparency and frame boundaries), video loop, and slideshow mode
 - Image diff: open a parent folder containing two subfolders with matching filenames to compare both versions with a mouse-driven divider
-- WMV and MKV are converted to MP4 in your browser and then played — WMV on a button press, MKV automatically in the background when opened
+- WMV, AVI, and MKV are converted to MP4 in your browser and then played — WMV and AVI on a button press, MKV automatically in the background when opened
 - Keyboard shortcuts for all major operations
 
 ### Conversion
@@ -45,7 +45,7 @@ Built as a single HTML file with no build tools or package dependencies.
 - **Vanilla HTML** / **CSS** / **JavaScript** — no frameworks
 - **[libheif.js](https://github.com/strukturag/libheif)** — HEIC/HEIF decoding via WebAssembly, run in a Web Worker (loaded from CDN)
 - **[UTIF.js](https://github.com/photopea/UTIF.js)** — TIFF decoding, run in a Web Worker (loaded from CDN)
-- **[ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm)** — MP4 conversion for WMV playback, and WMV thumbnails (loaded from CDN)
+- **[ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm)** — MP4 conversion for WMV/AVI playback, and their thumbnails (loaded from CDN)
 - **[PDF.js](https://github.com/mozilla/pdf.js)** — PDF thumbnail rendering (loaded from CDN)
 - **[jsPDF](https://github.com/parallax/jsPDF)** — PDF generation for the convert-to-PDF feature (loaded from CDN)
 - **[pdf-lib](https://github.com/Hopding/pdf-lib)** — per-page PDF splitting (loaded from CDN)
@@ -83,11 +83,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.26.0] - 2026-09-03
+### [3.27.0] - 2026-09-03
 
 #### Added
 
-- M4V video support. Since an M4V file is essentially an MP4 container, it's treated as a native video file with no conversion step — thumbnail generation, hover playback, slideshow, and the Sound/Thumbnail/Rotate conversion menu all apply. Its gallery badge always reads "M4V(MP4)" to show how it's being treated; a DRM-protected file that can't actually be decoded falls back to the same "can't play this in this browser" badge used for other unplayable video formats, and keeps its original extension (rather than "M4V(MP4)") both in the badge and when included in a zip export
+- AVI video support, handled exactly like WMV: no browser can demux the RIFF/AVI container regardless of the codec inside it, so it's converted to MP4 via the same shared ffmpeg.wasm engine, only when "Convert and play" is pressed in the lightbox. Gallery thumbnails are made the same way (extracting a single frame from a head-truncated conversion), and AVI is excluded from slideshow, hover playback, and the conversion menu even after converting, just like WMV
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -104,7 +104,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 ### 対応形式
 
 - 画像：HEIC/HEIF、JPEG、JFIF、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、ICO
-- 動画：MP4、WebM、MOV、M4V、WMV、MKV
+- 動画：MP4、WebM、MOV、M4V、WMV、AVI、MKV
 - ドキュメント：PDF
 
 ### フォルダとギャラリー
@@ -120,7 +120,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 - 静止画・動画とも「できるだけ大きく」表示がデフォルト。原寸表示（1:1）への切り替えと、収まらない場合のスクロールに対応
 - ドラッグで範囲選択するズーム、90度回転、市松模様背景（透過や画角の確認に）、動画のループ再生、スライドショーモード
 - 画像Diff：同名ファイルを持つ2つのサブフォルダの親フォルダを開くと、マウス追従の境界線で両バージョンを重ねて比較できる
-- WMV・MKVはブラウザ内でMP4に変換して再生（WMVはボタン操作で、MKVは開くと自動でバックグラウンド変換）
+- WMV・AVI・MKVはブラウザ内でMP4に変換して再生（WMV・AVIはボタン操作で、MKVは開くと自動でバックグラウンド変換）
 - 主要な操作はキーボードショートカットに対応
 
 ### 変換
@@ -140,7 +140,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 - **Vanilla HTML** / **CSS** / **JavaScript** — フレームワーク不使用
 - **[libheif.js](https://github.com/strukturag/libheif)** — WebAssemblyによるHEIC/HEIFデコード。Web Worker上で実行（CDNから読み込み）
 - **[UTIF.js](https://github.com/photopea/UTIF.js)** — TIFFデコード。Web Worker上で実行（CDNから読み込み）
-- **[ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm)** — WMV再生のためのMP4変換とサムネ表示（CDNから読み込み）
+- **[ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm)** — WMV/AVI再生のためのMP4変換とサムネ表示（CDNから読み込み）
 - **[PDF.js](https://github.com/mozilla/pdf.js)** — PDFサムネイルのレンダリング（CDNから読み込み）
 - **[jsPDF](https://github.com/parallax/jsPDF)** — PDF変換保存機能のPDF生成（CDNから読み込み）
 - **[pdf-lib](https://github.com/Hopding/pdf-lib)** — PDFのページごと分割（CDNから読み込み）
@@ -178,11 +178,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.26.0] - 2026-09-03
+### [3.27.0] - 2026-09-03
 
 #### 追加
 
-- M4V動画に対応。M4Vは実体がほぼMP4のコンテナのため、変換処理なしで普通の動画として扱う(サムネイル生成・ホバー再生・スライドショー・Sound/Thumbnail/Rotate変換メニューがすべて有効)。ギャラリーバッジは常に「M4V(MP4)」と表示してどう扱われているかを示す。DRM保護等で実際にはデコードできないファイルは、他の再生不可な動画形式と同じ「このブラウザで再生不可」バッジにフォールバックし、バッジ・ZIPエクスポートともに「M4V(MP4)」ではなく元の拡張子のままにする
+- AVI動画に対応。WMVと全く同じ扱い：AVI(RIFF)コンテナは中身のコーデックによらずどのブラウザもデモルチプレクスできないため、ライトボックスで「変換して再生する」を押した時だけ、共有のffmpeg.wasmエンジンでMP4に変換する。ギャラリーのサムネイルも同じ方式(先頭部分だけをMP4化してフレーム抽出)。WMVと同様、変換後もスライドショー・ホバー再生・変換メニューの対象外
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

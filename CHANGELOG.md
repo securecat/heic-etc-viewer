@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.27.0] - 2026-09-03
+
+### Added
+
+- AVI video support, handled exactly like WMV: no browser can demux the RIFF/AVI container regardless of the codec inside it, so it's converted to MP4 via the same shared ffmpeg.wasm engine, only when "Convert and play" is pressed in the lightbox. Gallery thumbnails are made the same way (extracting a single frame from a head-truncated conversion), and AVI is excluded from slideshow, hover playback, and the conversion menu even after converting, just like WMV
+
 ## [3.26.0] - 2026-09-03
 
 ### Added
@@ -713,6 +719,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.27.0] - 2026-09-03
+
+### 追加
+
+- AVI動画に対応。WMVと全く同じ扱い：AVI(RIFF)コンテナは中身のコーデックによらずどのブラウザもデモルチプレクスできないため、ライトボックスで「変換して再生する」を押した時だけ、共有のffmpeg.wasmエンジンでMP4に変換する。ギャラリーのサムネイルも同じ方式(先頭部分だけをMP4化してフレーム抽出)。WMVと同様、変換後もスライドショー・ホバー再生・変換メニューの対象外
 
 ## [3.26.0] - 2026-09-03
 

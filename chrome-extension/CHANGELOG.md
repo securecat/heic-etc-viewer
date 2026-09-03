@@ -3,6 +3,12 @@
 All notable changes to HeV Sender will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.8.0] - 2026-09-03
+
+### Added
+
+- AVI is now sent as well, matching HEIC etc Viewer v3.27.0, which can play AVI. Since no browser can play AVI inline, it is usually placed as a plain link rather than a `<video>` element, so links ending in `.avi` are collected too (as videos). AVI files are recognised by their RIFF magic bytes, distinguished from WebP (which shares the same RIFF header) by the form type that follows it
+
 ## [1.7.0] - 2026-08-22
 
 ### Added
@@ -84,6 +90,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [1.8.0] - 2026-09-03
+
+### 追加
+
+- AVIも送出するように（AVIを再生できる HEIC etc Viewer v3.27.0 に合わせた対応）。AVIはどのブラウザもインライン再生できない都合上、`<video>` 要素ではなく単なるリンクとして置かれていることが多いため、`.avi` で終わるリンクも（動画として）収集する。AVIファイルは先頭のRIFFマジックバイトで認識し、同じRIFFヘッダーを持つWebPとはその直後のフォームタイプで判別する
 
 ## [1.7.0] - 2026-08-22
 
