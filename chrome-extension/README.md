@@ -27,9 +27,7 @@ The manual-download panel is injected into the original page only when you press
 
 ### Chrome Web Store
 
-https://chromewebstore.google.com/detail/hev-sender/palmekgdpbibhjeoflhnocfnhieenebn
-
-> The Chrome Web Store version may lag behind the repository during the review process.
+As the limit for published Chrome extensions has been reached, I have unlisted this from the store due to its low number of users. (2026-08-30)
 
 ### Developer Mode (Manual Install)
 
@@ -81,9 +79,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full history.
 
 ### Chrome ウェブストア
 
-https://chromewebstore.google.com/detail/hev-sender/palmekgdpbibhjeoflhnocfnhieenebn
-
-> Chrome ウェブストア版は、審査中のため最新リリースより古い場合があります。
+公開可能なChrome拡張機能数の上限に達したため、ユーザー数が少ない本拡張機能をストアから非公開にしました。 (2026-08-30)
 
 ### デベロッパーモード（手動インストール）
 
