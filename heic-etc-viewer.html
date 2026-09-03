@@ -2151,7 +2151,8 @@ const mkvDurationCache = new Map(); // cacheKey → 動画の長さ（秒）。�
 // cacheKeyが作れないため、バッジ・ホバー再生等の同期判定にはentry自体の同一性を使う）
 const mkvConvertedEntries = new Set();     // 変換済み（再生可能）と分かったentry
 const mkvNeedsConvertEntries = new Set();  // サムネ生成時に低速な再エンコードが必要と判明したentry
-const mkvUnplayableEntries = new Set();    // サムネ生成時にこのブラウザでは再生不可と判明したentry
+// MKV以外の動画（DRM保護されたM4V等）も含め、サムネ生成時にこのブラウザでは再生不可と判明したentry
+const unplayableEntries = new Set();
 
 // 読み込みに時間のかかる部品（FFmpegクラス・worker・31MBのwasm）だけを使い回す。
 // インスタンス自体は毎回作り直すので、ここではURLとクラスの用意だけを行う
@@ -4193,7 +4194,7 @@ async function loadThumb(entry, item, loading, generation) {
     const key = cacheKey(file);
 
     if (isVideo(file.name)) {
-      await loadVideoThumb(file, item, loading, key, generation);
+      await loadVideoThumb(file, item, loading, key, generation, entry);
       return;
     }
     if (isPdf(file.name)) {
@@ -4479,7 +4480,7 @@ async function loadMkvThumb(file, item, loading, key, generation, entry) {
     // 映像トラックが無い、またはブラウザがコーデックをデコードできない(例: 古いMPEG-4 Part 2/mp4v)場合。
     // この場合はconvertMkvToMp4()も同じ理由で失敗するため、通常動画の「再生不可」バッジと同じ扱いにする
     if (e && e.code === 'unplayable') {
-      mkvUnplayableEntries.add(entry); // ライトボックス側で変換を試みず、単一のエラー表示に留めるために使う
+      unplayableEntries.add(entry); // ライトボックス側で変換を試みず、単一のエラー表示に留めるために使う
       if (loading.parentNode === item) {
         loading.innerHTML = `<span class="thumb-loading-text">${t('thumb.unplayable')}</span>`;
         loading.style.color = '#f87';
@@ -4497,7 +4498,7 @@ async function loadMkvThumb(file, item, loading, key, generation, entry) {
   }
 }
 
-async function loadVideoThumb(file, item, loading, key, generation) {
+async function loadVideoThumb(file, item, loading, key, generation, entry) {
   // キャッシュヒット
   if (key && thumbCache.has(key)) {
     const cached = thumbCache.get(key);
@@ -4546,6 +4547,9 @@ async function loadVideoThumb(file, item, loading, key, generation) {
     }
   } catch (e) {
     if (generation !== galleryGeneration) return;
+    // ZIPエクスポート時、M4V→MP4のような「実体に合わせた拡張子への変更」を見送るために記録しておく
+    // （再生できないファイルをMP4と偽って渡すのは不親切なため）
+    unplayableEntries.add(entry);
     if (loading.parentNode === item) {
       loading.innerHTML = `<span class="thumb-loading-text">${t('thumb.unplayable')}</span>`;
       loading.style.color = '#f87';
@@ -4752,7 +4756,7 @@ async function updateLightbox() {
       document.querySelector('.lb-info .convert-group').style.display = 'none';
       exitZoomMode();
       mkvWrap.style.display = 'flex';
-      if (mkvUnplayableEntries.has(entry)) {
+      if (unplayableEntries.has(entry)) {
         showMkvUnplayable();
       } else {
         setupMkvPanel(file, entry, cacheKey(file));
@@ -6632,7 +6636,8 @@ document.getElementById('bulkConvertDownload').addEventListener('click', async (
         if (isMkv(entry.name) && mkvConvertedEntries.has(entry)) {
           const cached = mkvBlobCache.get(cacheKey(file));
           if (cached) { name = `${baseName(entry.name)}.mp4`; blob = cached.blob; }
-        } else if (extOf(entry.name) === 'm4v') {
+        } else if (extOf(entry.name) === 'm4v' && !unplayableEntries.has(entry)) {
+          // 再生できないと判明したM4V(DRM保護等)は、MP4を騙るとかえって紛らわしいため元の拡張子のままにする
           name = `${baseName(entry.name)}.mp4`; // 中身は既にMP4互換のため、blobはそのまま
         } else if (isHeic(entry.name)) {
           const realType = await detectRealType(file);
