@@ -40,11 +40,11 @@ HeV Sender is part of the [heic-etc-viewer repository](https://github.com/secure
 
 ## Changelog
 
-### [1.8.0] - 2026-09-03
+### [1.8.1] - 2026-10-05
 
-#### Added
+#### Changed
 
-- AVI is now sent as well, matching HEIC etc Viewer v3.27.0, which can play AVI. Since no browser can play AVI inline, it is usually placed as a plain link rather than a `<video>` element, so links ending in `.avi` are collected too (as videos). AVI files are recognised by their RIFF magic bytes, distinguished from WebP (which shares the same RIFF header) by the form type that follows it
+- Changed the character encoding declaration in the popup, options, and sender pages from `<meta charset="UTF-8">` to the lowercase `<meta charset="utf-8">`, following the example in the HTML Standard (§4.2.5 The meta element). No change in behavior
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -92,10 +92,10 @@ HeV Sender は [heic-etc-viewer リポジトリ](https://github.com/securecat/he
 
 ## 更新履歴
 
-### [1.8.0] - 2026-09-03
+### [1.8.1] - 2026-10-05
 
-#### 追加
+#### 変更
 
-- AVIも送出するように（AVIを再生できる HEIC etc Viewer v3.27.0 に合わせた対応）。AVIはどのブラウザもインライン再生できない都合上、`<video>` 要素ではなく単なるリンクとして置かれていることが多いため、`.avi` で終わるリンクも（動画として）収集する。AVIファイルは先頭のRIFFマジックバイトで認識し、同じRIFFヘッダーを持つWebPとはその直後のフォームタイプで判別する
+- ポップアップ・オプション・送出タブの各ページの文字コード宣言を `<meta charset="UTF-8">` から、HTML Standard（§4.2.5 The meta element）の例にならった小文字の `<meta charset="utf-8">` に変更（動作に変化はなし）
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。

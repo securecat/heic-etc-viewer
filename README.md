@@ -83,11 +83,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.27.0] - 2026-09-03
+### [3.27.1] - 2026-10-05
 
-#### Added
+#### Changed
 
-- AVI video support, handled exactly like WMV: no browser can demux the RIFF/AVI container regardless of the codec inside it, so it's converted to MP4 via the same shared ffmpeg.wasm engine, only when "Convert and play" is pressed in the lightbox. Gallery thumbnails are made the same way (extracting a single frame from a head-truncated conversion), and AVI is excluded from slideshow, hover playback, and the conversion menu even after converting, just like WMV
+- Changed the character encoding declaration from `<meta charset="UTF-8">` to the lowercase `<meta charset="utf-8">`, following the example in the HTML Standard (§4.2.5 The meta element). No change in behavior
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -178,11 +178,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.27.0] - 2026-09-03
+### [3.27.1] - 2026-10-05
 
-#### 追加
+#### 変更
 
-- AVI動画に対応。WMVと全く同じ扱い：AVI(RIFF)コンテナは中身のコーデックによらずどのブラウザもデモルチプレクスできないため、ライトボックスで「変換して再生する」を押した時だけ、共有のffmpeg.wasmエンジンでMP4に変換する。ギャラリーのサムネイルも同じ方式(先頭部分だけをMP4化してフレーム抽出)。WMVと同様、変換後もスライドショー・ホバー再生・変換メニューの対象外
+- 文字コード宣言を `<meta charset="UTF-8">` から、HTML Standard（§4.2.5 The meta element）の例にならった小文字の `<meta charset="utf-8">` に変更（動作に変化はなし）
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

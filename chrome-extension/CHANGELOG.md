@@ -3,6 +3,12 @@
 All notable changes to HeV Sender will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.8.1] - 2026-10-05
+
+### Changed
+
+- Changed the character encoding declaration in the popup, options, and sender pages from `<meta charset="UTF-8">` to the lowercase `<meta charset="utf-8">`, following the example in the HTML Standard (§4.2.5 The meta element). No change in behavior
+
 ## [1.8.0] - 2026-09-03
 
 ### Added
@@ -90,6 +96,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [1.8.1] - 2026-10-05
+
+### 変更
+
+- ポップアップ・オプション・送出タブの各ページの文字コード宣言を `<meta charset="UTF-8">` から、HTML Standard（§4.2.5 The meta element）の例にならった小文字の `<meta charset="utf-8">` に変更（動作に変化はなし）
 
 ## [1.8.0] - 2026-09-03
 
