@@ -3,6 +3,12 @@
 All notable changes to HeV Sender will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.8.2] - 2026-10-08
+
+### Changed
+
+- Links in the manual-download panel on the original page now turn red (`#ff0000`) while being clicked, in both light and dark themes
+
 ## [1.8.1] - 2026-10-05
 
 ### Changed
@@ -96,6 +102,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [1.8.2] - 2026-10-08
+
+### 変更
+
+- 元ページの手動ダウンロードパネルのリンクを、クリック中は赤（`#ff0000`）で表示するように（ライト・ダーク両テーマ共通）
 
 ## [1.8.1] - 2026-10-05
 

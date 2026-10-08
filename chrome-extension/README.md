@@ -40,11 +40,11 @@ HeV Sender is part of the [heic-etc-viewer repository](https://github.com/secure
 
 ## Changelog
 
-### [1.8.1] - 2026-10-05
+### [1.8.2] - 2026-10-08
 
 #### Changed
 
-- Changed the character encoding declaration in the popup, options, and sender pages from `<meta charset="UTF-8">` to the lowercase `<meta charset="utf-8">`, following the example in the HTML Standard (§4.2.5 The meta element). No change in behavior
+- Links in the manual-download panel on the original page now turn red (`#ff0000`) while being clicked, in both light and dark themes
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -92,10 +92,10 @@ HeV Sender は [heic-etc-viewer リポジトリ](https://github.com/securecat/he
 
 ## 更新履歴
 
-### [1.8.1] - 2026-10-05
+### [1.8.2] - 2026-10-08
 
 #### 変更
 
-- ポップアップ・オプション・送出タブの各ページの文字コード宣言を `<meta charset="UTF-8">` から、HTML Standard（§4.2.5 The meta element）の例にならった小文字の `<meta charset="utf-8">` に変更（動作に変化はなし）
+- 元ページの手動ダウンロードパネルのリンクを、クリック中は赤（`#ff0000`）で表示するように（ライト・ダーク両テーマ共通）
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
