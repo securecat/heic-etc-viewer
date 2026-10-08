@@ -23,6 +23,8 @@ h1 {
   word-break: break-all;
 }
 
+#failList a:active { color: #ff0000; }
+
 .fail-actions { margin-top: 12px; }
 
 /* パネル表示の結果。ボタン操作への応答なので自動では消さない */
