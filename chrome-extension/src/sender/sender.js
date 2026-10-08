@@ -222,6 +222,7 @@ function showDownloadPanel(opts) {
     '.panel li { margin: 0 0 8px; word-break: break-all; }',
     '.panel a { color: #1446a0; text-decoration: underline; }',
     '.panel a:hover { text-decoration-thickness: 2px; }',
+    '.panel a:active { color: #ff0000; }',
     '.panel button { font: inherit; border: 1px solid #595959; border-radius: 6px;',
     '  background: #ffffff; color: #1f1f1f; padding: 6px 14px; cursor: pointer; }',
     '.panel button:hover { background: #e8e8e8; }',
