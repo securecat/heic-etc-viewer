@@ -593,11 +593,31 @@ input[type="range"]::-webkit-slider-thumb {
   font-size: 14px; color: #949494; text-align: right;
   z-index: 2; /* 確定ズームの表示コンテナ(#lbZoomContainer, z-index:1)より前面。上へ開くコンバートメニューが覆われないように */
 }
-#lbKeyHint {
-  display: inline-flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 4px 18px;
+/* 動画の確定ズーム中の再生操作バー。.convert-group と同じく絶対配置にして、
+   表示・非表示で情報バーの高さ（＝ズーム表示の領域計算）が変わらないようにする。
+   ウィンドウが狭い時は左端の変換UIに重なってよい（ズーム中の主操作を優先する） */
+.lb-zoom-player {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  z-index: 1;
+  display: flex; align-items: center; gap: 10px;
+  width: min(560px, calc(100vw - 28px));
+  padding: 2px 10px 2px 2px;
+  background: var(--bg-card); /* 操作UIなので不透過（情報バーの半透明背景に頼らない） */
+  border-radius: 6px;
+}
+.lb-zoom-player[hidden] { display: none; }
+.lb-zoom-player .lb-close { flex-shrink: 0; font-size: 14px; }
+.lb-zoom-seek {
+  flex: 1; min-width: 0;
+  accent-color: var(--accent); /* 対 --bg-card 約6.0:1 */
+  cursor: pointer;
+}
+.lb-zoom-seek:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.lb-zoom-time {
+  flex-shrink: 0;
+  font-size: 14px; color: var(--text); /* 対 --bg-card 約12.5:1 */
+  font-variant-numeric: tabular-nums; /* 再生中に数字の幅で表示が揺れないように */
+  white-space: nowrap;
 }
 /* 生成結果はバーの上に浮かせて絶対配置する。.lb-info 内に置くと高さが変わり、
    top:50% 配置の .convert-group が持ち上がって重なってしまうため。
@@ -639,7 +659,7 @@ input[type="range"]::-webkit-slider-thumb {
 .convert-group {
   display: flex; align-items: center; gap: 6px; flex-shrink: 0;
 }
-/* ライトボックス下マージンでは左端に固定配置。幅が狭い時は中央のヒントテキストに重なってよい */
+/* ライトボックス下マージンでは左端に固定配置 */
 .lb-info .convert-group {
   position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
 }
@@ -1318,7 +1338,12 @@ input[type="range"]::-webkit-slider-thumb {
       <button class="btn" id="lbConvertDownload" data-i18n="convert.downloadTextLb" data-i18n-attr="aria-label:convert.download" aria-label="Download">📄Download</button>
       <span class="convert-error" id="lbConvertError" aria-live="polite"></span>
     </div>
-    <span id="lbKeyHint" aria-hidden="true"></span>
+    <!-- 動画の確定ズーム中だけ表示する再生操作（ネイティブのコントロールが隠れるため） -->
+    <div class="lb-zoom-player" id="lbZoomPlayer" role="group" data-i18n-attr="aria-label:lb.zoomPlayer" aria-label="Playback controls" hidden>
+      <button type="button" class="lb-close" id="lbZoomPlay" aria-label="Pause" title="Pause"><span id="lbZoomPlayIcon" aria-hidden="true">⏸</span></button>
+      <input type="range" class="lb-zoom-seek" id="lbZoomSeek" min="0" max="0" step="any" value="0" data-i18n-attr="aria-label:lb.seek" aria-label="Playback position">
+      <span class="lb-zoom-time" id="lbZoomTime">0:00 / 0:00</span>
+    </div>
   </div>
 </div>
 
@@ -1527,15 +1552,10 @@ const I18N = {
     'lb.next': 'Next',
     'lb.pdfTitle': 'PDF viewer',
     'lb.failed': 'Failed to display',
-    'hint.navigate': 'Navigate',
-    'hint.zoom': 'Zoom',
-    'hint.rotate': 'Rotate',
-    'hint.loop': 'Loop',
-    'hint.checker': 'Checker bg',
-    'hint.actual': 'Actual size',
-    'hint.close': 'Close',
-    'hint.stopSs': 'Stop slideshow',
-    'hint.releaseZoom': 'Release&Exit zoom',
+    'lb.zoomPlayer': 'Playback controls',
+    'lb.play': 'Play',
+    'lb.pause': 'Pause',
+    'lb.seek': 'Playback position',
     'err.selectFormat': 'Please select a file format',
     'err.cannotConvert': 'This file cannot be converted',
     'err.convFailed': 'Conversion failed',
@@ -1772,15 +1792,10 @@ const I18N = {
     'lb.next': '次へ',
     'lb.pdfTitle': 'PDFビューアー',
     'lb.failed': '表示失敗',
-    'hint.navigate': '前後移動',
-    'hint.zoom': 'ズーム',
-    'hint.rotate': '回転',
-    'hint.loop': 'ループ再生',
-    'hint.checker': '市松模様背景',
-    'hint.actual': '原寸表示',
-    'hint.close': '閉じる',
-    'hint.stopSs': 'スライドショー終了',
-    'hint.releaseZoom': 'ズーム解除・終了',
+    'lb.zoomPlayer': '再生操作',
+    'lb.play': '再生',
+    'lb.pause': '一時停止',
+    'lb.seek': '再生位置',
     'err.selectFormat': 'ファイル形式を選択してください',
     'err.cannotConvert': 'このファイルは変換できません',
     'err.convFailed': '変換に失敗しました',
@@ -1912,6 +1927,7 @@ function applyI18n() {
   updateSlideshowButtonLabels();
   updateLayoutToggleLabels();
   updateLbConvertButton();
+  updateZoomPlayer();
   // ギャラリー・ステータス表示を現在の言語で再描画
   if (rootNode) renderGallery({ preserveScroll: true });
 }
@@ -3207,8 +3223,6 @@ document.querySelectorAll('input[name="lbShortcuts"]').forEach(radio => {
     if (!radio.checked) return;
     lbShortcutsEnabled = radio.value !== 'off';
     localStorage.setItem(SHORTCUT_STORAGE_KEY, lbShortcutsEnabled ? 'on' : 'off');
-    // ライトボックス表示中に切り替えられた場合に備え、下端のキーヒントを追従させる
-    if (lightbox.classList.contains('open')) updateLbKeyHint();
   });
 });
 
@@ -4822,41 +4836,6 @@ async function openLightbox(idx) {
     lightbox.focus();
   }
 }
-// 下端の操作ヒントを、表示中のファイル種別とスライドショー状態に合わせて更新する
-// （ズームモードや回転中などの一時状態までは追従しない。無効キーは押しても反応しないだけ）
-// セグメントごとに span で分け、間隔は CSS の gap で取る（全角空白はフォント依存のため不使用）
-function updateLbKeyHint() {
-  const hint = document.getElementById('lbKeyHint');
-  const entry = filteredFiles[currentIdx];
-  const name = entry ? (entry.name || '') : '';
-  const escCloseZoom = `Esc: ${t('hint.close')} / ${t('hint.releaseZoom')}`;
-  const segs = [`← → ${t('hint.navigate')}`];
-  // 1文字キーのショートカットが設定で無効の間は、そのヒントも表示しない（矢印・Escは常に有効）
-  const sc = lbShortcutsEnabled;
-  if (ssActive) {
-    segs.push(`Esc: ${t('hint.stopSs')}`);
-  } else if (entry && isPlayableVideo(entry)) {
-    if (sc) segs.push(`Z: ${t('hint.zoom')}`, `R: ${t('hint.rotate')}`, `C: ${t('hint.checker')}`, `1: ${t('hint.actual')}`, `L: ${t('hint.loop')}`);
-    segs.push(escCloseZoom);
-  } else if (isPdf(name) || isWmv(name) || isAvi(name) || isMkv(name)) {
-    segs.push(`Esc: ${t('hint.close')}`); // PDF・WMV・AVI・未変換MKVはズーム・市松切替とも不可
-  } else {
-    const diffInfo = getDiffPartner(entry);
-    const isDiff = diffInfo && isImage(diffInfo.partner.name || '');
-    if (isDiff) {
-      if (sc) segs.push(`C: ${t('hint.checker')}`); // Diff表示はズーム・回転とも不可
-      segs.push(`Esc: ${t('hint.close')}`);
-    } else {
-      if (sc) segs.push(`Z: ${t('hint.zoom')}`, `R: ${t('hint.rotate')}`, `C: ${t('hint.checker')}`, `1: ${t('hint.actual')}`);
-      segs.push(escCloseZoom);
-    }
-  }
-  hint.replaceChildren(...segs.map(s => {
-    const span = document.createElement('span');
-    span.textContent = s;
-    return span;
-  }));
-}
 
 async function updateLightbox() {
   cancelWmvJob(); // 別のファイルへ移ったら、進行中の変換は打ち切る
@@ -4926,7 +4905,6 @@ async function updateLightbox() {
     const checkerBtn= document.getElementById('lbChecker');
     const rotateBtn = document.getElementById('lbRotate');
     const actualBtn = document.getElementById('lbActualBtn');
-    updateLbKeyHint();
     // 変換済みのWMV/AVI/MKVは通常の動画と同じ経路で再生する。WMV・AVIはズーム等の操作を
     // 対象外のまま隠すが、MKVは変換後は完全に普通の動画として扱う（restrictedModeでのみ隠す）
     const wmvUrl = isWmv(file.name) ? wmvBlobCache.get(cacheKey(file)) : null;
@@ -5401,8 +5379,10 @@ document.getElementById('lbNext').addEventListener('click', () => stepLightbox(1
 lightbox.addEventListener('click', e => { if(e.target===lightbox) closeLightbox(); });
 document.addEventListener('keydown', async e => {
   if (!lightbox.classList.contains('open')) return;
-  // テキスト入力中は無視
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  // テキスト入力中は無視。ただしズーム中のシークバーでは、矢印キーはシークバー自身に任せつつ、
+  // Escだけはズーム解除として通す（バーはズーム中しか出ないため、Escが効かないと抜け出せない）
+  if ((e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') &&
+      !(e.target.id === 'lbZoomSeek' && e.key === 'Escape')) return;
 
   if (e.key === 'Escape') {
     if (document.fullscreenElement) {
@@ -5666,6 +5646,7 @@ function startZoomRender(srcVideo, dispCanvas, sx, sy, sw, sh) {
   function render() {
     if (!zoomed) return;
     ctx.drawImage(srcVideo, sx, sy, sw, sh, 0, 0, dispCanvas.width, dispCanvas.height);
+    updateZoomPlayer(); // timeupdate（約4回/秒）より滑らかに追従させるため、描画と同じ周期で更新する
     zoomRafId = requestAnimationFrame(render);
   }
   zoomRafId = requestAnimationFrame(render);
@@ -5673,6 +5654,77 @@ function startZoomRender(srcVideo, dispCanvas, sx, sy, sw, sh) {
 function stopZoomRender() {
   if (zoomRafId) { cancelAnimationFrame(zoomRafId); zoomRafId = null; }
 }
+
+// ── 確定ズーム中の再生操作バー（動画専用）──
+// ズーム中は元の<video>を visibility:hidden にしてcanvasへ描くため、ネイティブのコントロールが見えない。
+// 隠れた<video>自体は再生を続けているので、それを直接操作する代替のバーを情報バーに出す
+const ZOOM_SEEK_STEP_SEC = 5; // シークバーの←→で動かす秒数
+
+function fmtMediaTime(sec) {
+  const s = Math.max(0, Math.floor(Number.isFinite(sec) ? sec : 0));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor(s / 60) % 60;
+  const r = String(s % 60).padStart(2, '0');
+  return h ? `${h}:${String(m).padStart(2, '0')}:${r}` : `${m}:${r}`;
+}
+
+// 言語切り替え（applyI18n）からも呼ぶため、要素は定数に持たず都度取得する
+function updateZoomPlayer() {
+  const player = document.getElementById('lbZoomPlayer');
+  if (!player || player.hidden) return;
+  const video = document.getElementById('lbVideo');
+  const seek  = document.getElementById('lbZoomSeek');
+  const dur   = Number.isFinite(video.duration) ? video.duration : 0;
+  const cur   = video.currentTime;
+  if (Number(seek.max) !== dur) seek.max = String(dur);
+  if (Number(seek.value) !== cur) seek.value = String(cur);
+  const timeText = `${fmtMediaTime(cur)} / ${fmtMediaTime(dur)}`;
+  const timeEl = document.getElementById('lbZoomTime');
+  if (timeEl.textContent !== timeText) timeEl.textContent = timeText;
+  // 読み上げは秒単位で十分なので、値が変わった時だけ更新する（毎フレーム属性を書き換えない）
+  const valueText = `${fmtWmvDuration(Math.floor(cur))} / ${fmtWmvDuration(Math.floor(dur))}`;
+  if (seek.getAttribute('aria-valuetext') !== valueText) seek.setAttribute('aria-valuetext', valueText);
+  const playing = !video.paused && !video.ended;
+  const label = t(playing ? 'lb.pause' : 'lb.play');
+  const btn = document.getElementById('lbZoomPlay');
+  if (btn.getAttribute('aria-label') !== label) {
+    btn.setAttribute('aria-label', label);
+    btn.title = label;
+    document.getElementById('lbZoomPlayIcon').textContent = playing ? '⏸' : '▶';
+  }
+}
+
+function showZoomPlayer() {
+  document.getElementById('lbZoomPlayer').hidden = false;
+  updateZoomPlayer();
+}
+
+function hideZoomPlayer() {
+  const player = document.getElementById('lbZoomPlayer');
+  // フォーカスごと消えてしまわないよう、バー内にあればズームボタンへ移す
+  if (player.contains(document.activeElement)) lbZoomBtn.focus();
+  player.hidden = true;
+}
+
+document.getElementById('lbZoomPlay').addEventListener('click', () => {
+  const video = document.getElementById('lbVideo');
+  if (video.paused || video.ended) video.play().catch(() => {});
+  else video.pause();
+});
+document.getElementById('lbZoomSeek').addEventListener('input', e => {
+  document.getElementById('lbVideo').currentTime = Number(e.target.value);
+  updateZoomPlayer();
+});
+// step="any" の矢印キーの移動量はブラウザ任せで動画の長さによってまちまちになるため、秒数で固定する
+document.getElementById('lbZoomSeek').addEventListener('keydown', e => {
+  const dir = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1 }[e.key];
+  if (!dir) return;
+  e.preventDefault();
+  const video = document.getElementById('lbVideo');
+  const dur = Number.isFinite(video.duration) ? video.duration : 0;
+  video.currentTime = Math.min(Math.max(video.currentTime + dir * ZOOM_SEEK_STEP_SEC, 0), dur);
+  updateZoomPlayer();
+});
 
 // ズームを実際に適用する関数（resize時も呼ぶ）
 function applyZoom(media, originX, originY, clipW, clipH, headerH) {
@@ -5727,6 +5779,7 @@ function applyZoom(media, originX, originY, clipW, clipH, headerH) {
     const sh = clipH   * scaleNH;
 
     startZoomRender(media, dispCanvas, sx, sy, sw, sh);
+    showZoomPlayer();
   } else {
     // 画像: imgをoverflow:hiddenコンテナ内にoffset配置
     const mRect  = media.getBoundingClientRect();
@@ -5773,6 +5826,7 @@ function resetZoom() {
   zoomed = false;
   zoomDragging = false;
   stopZoomRender();
+  hideZoomPlayer();
   if (zoomCanvas) zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
   const container = document.getElementById('lbZoomContainer');
   if (container) container.remove();
@@ -6126,7 +6180,6 @@ function startSlideshow() {
   if (!lightbox.classList.contains('open')) {
     openLightbox(currentIdx);
   }
-  updateLbKeyHint();
   scheduleNext();
 }
 
@@ -6151,7 +6204,6 @@ function stopSlideshow() {
   document.getElementById('lbRotate').style.display = (!_curIsDiff && !zoomMode) ? '' : 'none';
   document.getElementById('lbLoopBtn').style.display = _curIsVideo ? '' : 'none';
   document.getElementById('lbVideo').loop = videoLoop;
-  updateLbKeyHint();
 }
 
 function scheduleNext() {
