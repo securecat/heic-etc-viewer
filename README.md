@@ -83,11 +83,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.29.0] - 2026-10-10
+### [3.30.0] - 2026-10-10
 
 #### Added
 
-- While zoomed in, the zoomed area can now be moved without changing the zoom level: drag it (the cursor shows a grab hand), click a point to bring it to the center, or press Tab to focus the zoomed view and use the arrow keys. It stops at the edges of the image or video, and works for both images and videos, playing or paused. Converting while zoomed uses the area after moving, and any alt text already shown is cleared when the area moves, since it describes the previous area
+- The zoom area can now be selected with the keyboard as well as by dragging. Entering zoom mode moves focus to the selection area; press Enter to start with the middle 50% of the image or video selected, then use the arrow keys to move it and Shift+arrow keys to resize it around its center (Right/Up to enlarge, Left/Down to shrink), both in steps of 5%. When the selection reaches an edge of the image or video, it keeps its size and its center shifts instead. Press Enter to zoom in, after which the arrow keys move the zoomed area, or Esc to cancel the selection and stay in zoom mode. Mouse selection is ignored during a keyboard selection, and screen readers announce the selection's position and size
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -178,11 +178,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.29.0] - 2026-10-10
+### [3.30.0] - 2026-10-10
 
 #### 追加
 
-- ズーム中に、拡大率はそのままでズーム箇所を移動できるように。ドラッグ（カーソルは掴む形の手になる）、クリック（その点が中心に来る）、またはTabキーでズーム表示にフォーカスしての矢印キーで操作できる。画像・動画の端より外には動かず、画像・動画（再生中・一時停止中とも）のどちらでも使える。ズーム中の変換は移動後の範囲が対象になり、表示中の代替テキストは移動前の範囲の説明になるため、移動すると消える
+- ズーム範囲を、ドラッグだけでなくキーボードでも選択できるように。ズームモードに入ると範囲選択のエリアにフォーカスが移り、Enterで画像・動画の中央の縦横50%を選んだ状態から始まる。矢印キーで範囲を移動、Shift+矢印キーで中心を固定したまま大きさを変更でき（→↑で拡大、←↓で縮小）、どちらも5%刻み。範囲が画像・動画の端に当たった時は、大きさを保ったまま中心の方がずれる。Enterでズームし、その後は矢印キーでズーム箇所を移動できる。Escでは範囲の選択だけをやめてズームモードに残る。キーボードで選択している間はマウスでの範囲選択を受け付けず、スクリーンリーダーには範囲の位置と大きさが読み上げられる
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
