@@ -559,17 +559,17 @@ input[type="range"]::-webkit-slider-thumb {
 #lbVideo:fullscreen { width: 100vw !important; height: 100vh !important; max-width: none !important; max-height: none !important; margin: 0 !important; }
 
 /* ── zoom ── */
+/* ライトボックスの子として置き、確定ズームの表示と同じく z-index:1 で、メディアより前面・
+   ヘッダー/情報バー(z-index:2)より背面にする。上へ開くコンバートメニューにも覆いかぶさらない */
 #lbZoomCanvas {
   position: fixed;
   cursor: crosshair;
-  z-index: 1010;
+  z-index: 1;
   display: none;
 }
 #lbZoomCanvas.active { display: block; }
-/* コンバートメニューを開いている間だけ、キャンバスをライトボックス(z-index:1000)の背面へ落とす。
-   キャンバスはライトボックスの兄弟なので、上に乗ったままだと上方向に開くメニューを覆ってしまう。
-   メニュー操作中は十字選択をしないため、一時的な背面化で支障はない */
-#lbZoomCanvas.behind-menu { z-index: 999; }
+/* 中身は任意の画像・映像なので、白と黒の二重線にしてどんな色の上でも見えるようにする */
+#lbZoomCanvas:focus-visible { outline: 2px solid #fff; outline-offset: -2px; box-shadow: inset 0 0 0 4px #000; }
 /* 確定ズームの表示。ドラッグ・クリック・矢印キーでズーム箇所を移動できる（配置・サイズはJSがinlineで指定） */
 #lbZoomContainer {
   cursor: grab;
@@ -1248,9 +1248,6 @@ input[type="range"]::-webkit-slider-thumb {
   </div>
 </dialog>
 
-<!-- ズームキャンバス（lightbox上に固定） -->
-<canvas id="lbZoomCanvas" aria-hidden="true"></canvas>
-
 <!-- ドロップオーバーレイ -->
 <div class="drop-overlay" id="dropOverlay" aria-hidden="true">
   <div class="drop-icon" aria-hidden="true">📂</div>
@@ -1334,6 +1331,10 @@ input[type="range"]::-webkit-slider-thumb {
       <p class="lb-mkv-status" id="lbMkvStatus" role="status"></p>
     </div>
   </div>
+  <!-- ズームモード中の範囲選択キャンバス。メディアの直後に置き、Tab順でヘッダーの次に来るようにする。
+       マウスはドラッグ、キーボードはフォーカスしてEnterで選択を始める（矢印キーを自前で扱うためapplication） -->
+  <canvas id="lbZoomCanvas" tabindex="0" role="application" data-i18n-attr="aria-label:lb.zoomSelArea" aria-label="Zoom selection area"></canvas>
+  <p class="sr-only" id="lbZoomSelStatus" aria-live="polite"></p>
   <button class="lb-nav prev" id="lbPrev" data-i18n-attr="aria-label:lb.prev" aria-label="Previous">‹</button>
   <button class="lb-nav next" id="lbNext" data-i18n-attr="aria-label:lb.next" aria-label="Next">›</button>
   <div class="lb-info">
@@ -1570,6 +1571,8 @@ const I18N = {
     'lb.pdfTitle': 'PDF viewer',
     'lb.failed': 'Failed to display',
     'lb.zoomRegion': 'Zoomed view (move with drag, click, or arrow keys)',
+    'lb.zoomSelArea': 'Zoom selection area. Drag to select, or press Enter to select with the keyboard: arrow keys move, Shift+arrow keys resize (Right/Up to enlarge, Left/Down to shrink), Enter to zoom, Esc to cancel',
+    'lb.zoomSelPos': 'Left {left}%, top {top}%, width {width}%, height {height}%',
     'lb.zoomPlayer': 'Playback controls',
     'lb.play': 'Play',
     'lb.pause': 'Pause',
@@ -1811,6 +1814,8 @@ const I18N = {
     'lb.pdfTitle': 'PDFビューアー',
     'lb.failed': '表示失敗',
     'lb.zoomRegion': 'ズーム表示(ドラッグ・クリック・矢印キーで移動可能)',
+    'lb.zoomSelArea': 'ズーム範囲の選択エリア。ドラッグで選択するか、Enterでキーボードでの選択を開始：矢印キーで移動、Shift+矢印キーで大きさを変更(→↑で拡大、←↓で縮小)、Enterでズーム、Escで中止',
+    'lb.zoomSelPos': '左から{left}%、上から{top}%、幅{width}%、高さ{height}%',
     'lb.zoomPlayer': '再生操作',
     'lb.play': '再生',
     'lb.pause': '一時停止',
@@ -5508,6 +5513,9 @@ function enterZoomMode() {
   setZoomBtnLabel('lb.zoomExit');
   syncZoomCanvas();
   zoomCanvas.classList.add('active');
+  // キーボードでもすぐ範囲選択（Enterで開始）に入れるよう、選択キャンバスへフォーカスを移す。
+  // マウスで押した場合は focus-visible にならないので、枠線は出ない
+  zoomCanvas.focus();
   // ズームと回転・原寸表示は併用しないため、モード中は両ボタンを隠す
   document.getElementById('lbRotate').style.display = 'none';
   document.getElementById('lbActualBtn').style.display = 'none';
@@ -5518,6 +5526,8 @@ function exitZoomMode() {
   lbZoomBtn.classList.remove('is-active');
   setZoomBtnLabel('lb.zoom');
   resetZoom();
+  // フォーカスごと消えてしまわないよう、選択キャンバスにあればズームボタンへ移す
+  if (document.activeElement === zoomCanvas) lbZoomBtn.focus();
   zoomCanvas.classList.remove('active');
   // 静止画・動画の表示中なら回転ボタンを戻す（PDF・Diff表示時は getCurrentMediaEl が null）
   const media = getCurrentMediaEl();
@@ -5562,6 +5572,7 @@ function syncZoomCanvas() {
 
 zoomCanvas.addEventListener('mousedown', (e) => {
   if (!zoomMode || zoomed) return;
+  if (zoomKbSel) { e.preventDefault(); return; } // キーボードで選択中はマウスでの選択を受け付けない
   e.preventDefault();
   syncZoomCanvas();
 
@@ -5591,15 +5602,7 @@ document.addEventListener('mousemove', (e) => {
   const { x: cx, y: cy } = zoomPointFromEvent(e);
   const sx = zoomStart.x, sy = zoomStart.y;
 
-  zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
-  zoomCtx.fillStyle = 'rgba(0,0,0,0.4)';
-  zoomCtx.fillRect(0, 0, zoomCanvas.width, zoomCanvas.height);
-  const rx = Math.min(sx, cx), ry = Math.min(sy, cy);
-  const rw = Math.abs(cx - sx),  rh = Math.abs(cy - sy);
-  zoomCtx.clearRect(rx, ry, rw, rh);
-  zoomCtx.strokeStyle = 'rgba(255,255,255,0.9)';
-  zoomCtx.lineWidth = 1.5;
-  zoomCtx.strokeRect(rx + 0.5, ry + 0.5, rw - 1, rh - 1);
+  drawZoomSelection(Math.min(sx, cx), Math.min(sy, cy), Math.abs(cx - sx), Math.abs(cy - sy));
 });
 
 document.addEventListener('mouseup', (e) => {
@@ -5622,13 +5625,17 @@ document.addEventListener('mouseup', (e) => {
   const rx = Math.min(sx, ex), ry = Math.min(sy, ey);
 
   // canvas座標（headerH下が原点）→ viewport座標
+  commitZoomRect(rx + rect.left, ry + rect.top, rw, rh);
+});
+
+// viewport座標の矩形でズームを確定する（マウスのドラッグ選択・キーボード選択の共通処理）
+// byKeyboard: キーボードで確定した時は、続けて矢印キーでズーム箇所を移動できるようズーム表示へフォーカスを移す
+function commitZoomRect(vx, vy, rw, rh, byKeyboard = false) {
   const headerH = document.querySelector('.lb-header').getBoundingClientRect().height;
-  const vx = rx + rect.left;
-  const vy = ry + rect.top;
 
   // メディアの現在の画面位置
   const media = getCurrentMediaEl();
-  if (!media) return;
+  if (!media) return false;
   const mRect = media.getBoundingClientRect();
 
   // 選択範囲をメディア座標にクランプ
@@ -5638,7 +5645,7 @@ document.addEventListener('mouseup', (e) => {
   const clipBottom = Math.min(vy + rh, mRect.bottom);
   const clipW = clipRight - clipLeft;
   const clipH = clipBottom - clipTop;
-  if (clipW < 4 || clipH < 4) return;
+  if (clipW < 4 || clipH < 4) return false;
 
   // メディア左上からの相対座標（transform-originに使う）
   const originX = clipLeft - mRect.left;
@@ -5657,9 +5664,121 @@ document.addEventListener('mouseup', (e) => {
   media.style.visibility = 'hidden';
 
   zoomed = true;
+  const canvasFocused = document.activeElement === zoomCanvas;
   zoomCanvas.classList.remove('active');
   setZoomBtnLabel('lb.zoomRelease');
+  // 消えるキャンバスにフォーカスがあったなら移し先を決める。マウスで確定した時はズームボタンへ移し、
+  // 矢印キーは従来どおり前後のファイル移動に使えるようにする
+  if (canvasFocused) {
+    if (byKeyboard) document.getElementById('lbZoomContainer')?.focus();
+    else lbZoomBtn.focus();
+  }
+  return true;
+}
+
+// ── キーボードでのズーム範囲選択 ──
+// ズームモード中の選択キャンバスにフォーカスしてEnterで開始する。範囲はメディアに対する比率で持ち、
+// 矢印で中心を移動、Shift+矢印で中心を固定したまま幅・高さを変える（→↑で拡大、←↓で縮小）。
+// Enterで確定、Escで選択をやめる（ズームモードは維持）。選択中はマウスでの選択を受け付けない
+const ZOOM_KB_STEP = 0.05;    // 1回のキーで動かす量（メディア全体の幅・高さに対する割合）
+const ZOOM_KB_INIT = 0.5;     // 開始時の範囲（中央の縦横50%）
+const ZOOM_KB_MIN_PX = 8;     // これより小さくしない（マウス選択の最小サイズと同じ）
+let zoomKbSel = null;         // 選択中の範囲 { cx, cy, w, h }（中心と幅・高さ、すべて比率）
+
+// 範囲を中心±幅/2でメディア内に収める。端に当たった時は、幅・高さを保つために中心の方をずらす
+function clampZoomKbSel(sel) {
+  sel.cx = Math.min(Math.max(sel.cx, sel.w / 2), 1 - sel.w / 2);
+  sel.cy = Math.min(Math.max(sel.cy, sel.h / 2), 1 - sel.h / 2);
+}
+
+// 選択範囲の描画（マウスのドラッグ選択と同じ見た目。座標はキャンバス上のpx）
+function drawZoomSelection(rx, ry, rw, rh) {
+  zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
+  zoomCtx.fillStyle = 'rgba(0,0,0,0.4)';
+  zoomCtx.fillRect(0, 0, zoomCanvas.width, zoomCanvas.height);
+  zoomCtx.clearRect(rx, ry, rw, rh);
+  zoomCtx.strokeStyle = 'rgba(255,255,255,0.9)';
+  zoomCtx.lineWidth = 1.5;
+  zoomCtx.strokeRect(rx + 0.5, ry + 0.5, rw - 1, rh - 1);
+}
+
+// キーボード選択の範囲を、viewport座標の矩形にする
+function zoomKbSelRect() {
+  const media = getCurrentMediaEl();
+  if (!media || !zoomKbSel) return null;
+  const m = media.getBoundingClientRect();
+  return {
+    x: m.left + (zoomKbSel.cx - zoomKbSel.w / 2) * m.width,
+    y: m.top  + (zoomKbSel.cy - zoomKbSel.h / 2) * m.height,
+    w: zoomKbSel.w * m.width,
+    h: zoomKbSel.h * m.height,
+  };
+}
+
+function renderZoomKbSel() {
+  const r = zoomKbSelRect();
+  if (!r) return;
+  const c = zoomCanvas.getBoundingClientRect();
+  drawZoomSelection(r.x - c.left, r.y - c.top, r.w, r.h);
+  // 位置と大きさを読み上げる（見えている人には枠が見えているので、文字では出さない）
+  const pct = v => Math.round(v * 100);
+  document.getElementById('lbZoomSelStatus').textContent = tf('lb.zoomSelPos', {
+    left: pct(zoomKbSel.cx - zoomKbSel.w / 2), top: pct(zoomKbSel.cy - zoomKbSel.h / 2),
+    width: pct(zoomKbSel.w), height: pct(zoomKbSel.h),
+  });
+}
+
+function endZoomKbSel() {
+  if (!zoomKbSel) return;
+  zoomKbSel = null;
+  zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
+  document.getElementById('lbZoomSelStatus').textContent = '';
+}
+
+zoomCanvas.addEventListener('keydown', e => {
+  if (!zoomMode || zoomed) return;
+  if (!zoomKbSel) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    syncZoomCanvas();
+    zoomKbSel = { cx: 0.5, cy: 0.5, w: ZOOM_KB_INIT, h: ZOOM_KB_INIT };
+    renderZoomKbSel();
+    return;
+  }
+  const dir = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+  if (dir) {
+    if (e.ctrlKey || e.altKey || e.metaKey) return; // 割り当てのない組み合わせはブラウザ・OSに任せる
+    if (e.shiftKey) {
+      // 中心固定で幅・高さを変える。→↑ が拡大、←↓ が縮小（両辺がそろって動くため向きではなく大小で割り当てる）
+      const media = getCurrentMediaEl();
+      if (!media) return;
+      const m = media.getBoundingClientRect();
+      const grow = (e.key === 'ArrowRight' || e.key === 'ArrowUp') ? 1 : -1;
+      if (dir[0]) zoomKbSel.w = Math.min(Math.max(zoomKbSel.w + grow * ZOOM_KB_STEP, ZOOM_KB_MIN_PX / m.width), 1);
+      else        zoomKbSel.h = Math.min(Math.max(zoomKbSel.h + grow * ZOOM_KB_STEP, ZOOM_KB_MIN_PX / m.height), 1);
+    } else {
+      zoomKbSel.cx += dir[0] * ZOOM_KB_STEP;
+      zoomKbSel.cy += dir[1] * ZOOM_KB_STEP;
+    }
+    clampZoomKbSel(zoomKbSel);
+  } else if (e.key === 'Enter') {
+    const r = zoomKbSelRect();
+    endZoomKbSel();
+    if (r) commitZoomRect(r.x, r.y, r.w, r.h, true);
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  } else if (e.key === 'Escape') {
+    endZoomKbSel(); // キーボード選択だけをやめる。ズームモードの終了はもう一度Escで
+  } else {
+    return;
+  }
+  e.preventDefault();
+  e.stopPropagation(); // ライトボックス全体のキー操作（矢印でのファイル移動・Escでのモード終了）に渡さない
+  if (zoomKbSel) renderZoomKbSel();
 });
+// 選択中にフォーカスが離れたら、選択は取りやめる（見えない所で選択状態だけが残らないように）
+zoomCanvas.addEventListener('blur', endZoomKbSel);
 
 // ズームcanvas描画ループ（動画専用）
 let zoomRafId = null;
@@ -5952,13 +6071,17 @@ window.addEventListener('resize', () => {
     const headerH = document.querySelector('.lb-header').getBoundingClientRect().height;
     applyZoom(media, originX, originY, clipW, clipH, headerH);
   });
-  if (zoomMode) syncZoomCanvas();
+  if (zoomMode) {
+    syncZoomCanvas(); // キャンバスの寸法を変えると描画が消えるので、キーボード選択中なら描き直す
+    if (zoomKbSel) renderZoomKbSel();
+  }
 });
 
 function resetZoom() {
   zoomed = false;
   zoomDragging = false;
   zoomPan = null;
+  endZoomKbSel();
   stopZoomRender();
   hideZoomPlayer();
   if (zoomCanvas) zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
@@ -6810,18 +6933,9 @@ function openLbFmtSub(item, focusFirst) {
 
 // focusItems=false はポインタ起動用: フォーカスをボタンに留めることで、直前の
 // キーボード操作で残った focus-visible 状態が項目に引き継がれてハイライトされるのを防ぐ
-// コンバートメニューを開いている間、選択モードの十字キャンバス(#lbZoomCanvas)を
-// ライトボックス(z-index:1000)より背面へ回す。キャンバスはライトボックスの兄弟で上に乗るため、
-// 上方向に開くメニューを覆ってしまう。メニュー操作中は選択しないので一時的な背面化で支障はない。
-// （確定ズームの表示コンテナ #lbZoomContainer はライトボックスの子で z-index により解決済みのため、ここでは触らない）
-function setZoomOverlaysBehindMenu(behind) {
-  zoomCanvas.classList.toggle('behind-menu', behind);
-}
-
 function openLbFmtMenu(focusLast = false, focusItems = true) {
   lbFmtList.hidden = false;
   lbFmtBtn.setAttribute('aria-expanded', 'true');
-  setZoomOverlaysBehindMenu(true);
   if (!focusItems) return;
   const items = lbFmtTopItems();
   const target = focusLast ? items[items.length - 1] : items[0];
@@ -6829,7 +6943,6 @@ function openLbFmtMenu(focusLast = false, focusItems = true) {
 }
 
 function closeLbFmtMenu(refocus = true) {
-  setZoomOverlaysBehindMenu(false); // 背面化を解除（ズーム中ならズーム表示を前面へ戻す）
   if (lbFmtList.hidden) return;
   closeLbFmtSub();
   lbFmtList.hidden = true;
