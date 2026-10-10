@@ -83,11 +83,15 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.27.1] - 2026-10-05
+### [3.28.0] - 2026-10-10
 
-#### Changed
+#### Added
 
-- Changed the character encoding declaration from `<meta charset="UTF-8">` to the lowercase `<meta charset="utf-8">`, following the example in the HTML Standard (§4.2.5 The meta element). No change in behavior
+- While a video is zoomed, a playback control bar (play/pause, seek bar, and current time / duration) now appears in the center of the bar at the bottom of the lightbox, since the video's own controls are hidden during zoom. The arrow keys on the seek bar move 5 seconds at a time, and Esc still releases the zoom
+
+#### Removed
+
+- The keyboard shortcut hint at the bottom of the lightbox (the shortcuts themselves are unchanged and are described in the guide)
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -178,11 +182,15 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.27.1] - 2026-10-05
+### [3.28.0] - 2026-10-10
 
-#### 変更
+#### 追加
 
-- 文字コード宣言を `<meta charset="UTF-8">` から、HTML Standard（§4.2.5 The meta element）の例にならった小文字の `<meta charset="utf-8">` に変更（動作に変化はなし）
+- 動画のズーム中に、ライトボックス下端のバーの中央に再生操作バー（再生／一時停止・シークバー・再生時間／全体の長さ）を表示するように。ズーム中は動画そのもののコントロールが隠れるため。シークバーでは←→キーで5秒ずつ移動でき、Escキーでのズーム解除もそのまま使える
+
+#### 削除
+
+- ライトボックス下端のキーボードショートカットのヒント表示（ショートカット自体は変わらず、ガイドに記載）
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
