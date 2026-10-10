@@ -570,6 +570,14 @@ input[type="range"]::-webkit-slider-thumb {
    キャンバスはライトボックスの兄弟なので、上に乗ったままだと上方向に開くメニューを覆ってしまう。
    メニュー操作中は十字選択をしないため、一時的な背面化で支障はない */
 #lbZoomCanvas.behind-menu { z-index: 999; }
+/* 確定ズームの表示。ドラッグ・クリック・矢印キーでズーム箇所を移動できる（配置・サイズはJSがinlineで指定） */
+#lbZoomContainer {
+  cursor: grab;
+  touch-action: none; /* タッチでのドラッグをスクロール等に取られないように */
+  user-select: none;
+}
+#lbZoomContainer.is-panning { cursor: grabbing; }
+#lbZoomContainer:focus-visible { outline: 2px solid #fff; outline-offset: -2px; } /* overflow:hidden で外側の輪郭は切れるため内側に描く */
 /* ズームモード中はメディアのクリックを通す */
 .lb-zoomed-media {
   cursor: zoom-out;
@@ -1552,6 +1560,7 @@ const I18N = {
     'lb.next': 'Next',
     'lb.pdfTitle': 'PDF viewer',
     'lb.failed': 'Failed to display',
+    'lb.zoomRegion': 'Zoomed view (move with drag, click, or arrow keys)',
     'lb.zoomPlayer': 'Playback controls',
     'lb.play': 'Play',
     'lb.pause': 'Pause',
@@ -1792,6 +1801,7 @@ const I18N = {
     'lb.next': '次へ',
     'lb.pdfTitle': 'PDFビューアー',
     'lb.failed': '表示失敗',
+    'lb.zoomRegion': 'ズーム表示(ドラッグ・クリック・矢印キーで移動可能)',
     'lb.zoomPlayer': '再生操作',
     'lb.play': '再生',
     'lb.pause': '一時停止',
@@ -1928,6 +1938,8 @@ function applyI18n() {
   updateLayoutToggleLabels();
   updateLbConvertButton();
   updateZoomPlayer();
+  const zoomContainer = document.getElementById('lbZoomContainer');
+  if (zoomContainer) zoomContainer.setAttribute('aria-label', t('lb.zoomRegion'));
   // ギャラリー・ステータス表示を現在の言語で再描画
   if (rootNode) renderGallery({ preserveScroll: true });
 }
@@ -5405,8 +5417,9 @@ document.addEventListener('keydown', async e => {
     }
     return;
   }
-  // 原寸表示のスクロール領域にフォーカスがある間、矢印キーはファイル移動ではなくスクロールに使う
-  if ((e.target.id === 'lbImgWrap' || e.target.id === 'lbVideoWrap') && e.key.startsWith('Arrow')) return;
+  // 原寸表示のスクロール領域・ズーム表示にフォーカスがある間、矢印キーはファイル移動ではなく
+  // スクロール・ズーム箇所の移動に使う
+  if (['lbImgWrap', 'lbVideoWrap', 'lbZoomContainer'].includes(e.target.id) && e.key.startsWith('Arrow')) return;
   // ズーム選択モード中でも左右移動は可能。移動先は必ずズーム完全解除の状態で開く
   if (e.key === 'ArrowLeft')  { e.preventDefault(); await stepLightbox(-1); }
   if (e.key === 'ArrowRight') { e.preventDefault(); await stepLightbox(1); }
@@ -5641,11 +5654,12 @@ document.addEventListener('mouseup', (e) => {
 
 // ズームcanvas描画ループ（動画専用）
 let zoomRafId = null;
-function startZoomRender(srcVideo, dispCanvas, sx, sy, sw, sh) {
+// src は { sx, sy, sw, sh }（元動画上の切り出し矩形）。ズーム箇所の移動で書き換えられるため毎フレーム読み直す
+function startZoomRender(srcVideo, dispCanvas, src) {
   const ctx = dispCanvas.getContext('2d');
   function render() {
     if (!zoomed) return;
-    ctx.drawImage(srcVideo, sx, sy, sw, sh, 0, 0, dispCanvas.width, dispCanvas.height);
+    ctx.drawImage(srcVideo, src.sx, src.sy, src.sw, src.sh, 0, 0, dispCanvas.width, dispCanvas.height);
     updateZoomPlayer(); // timeupdate（約4回/秒）より滑らかに追従させるため、描画と同じ周期で更新する
     zoomRafId = requestAnimationFrame(render);
   }
@@ -5734,6 +5748,8 @@ function applyZoom(media, originX, originY, clipW, clipH, headerH) {
 
   stopZoomRender();
   const existing = document.getElementById('lbZoomContainer');
+  // リサイズで作り直す時に、フォーカスしていたならそれを引き継ぐ
+  const hadFocus = !!existing && existing.contains(document.activeElement);
   if (existing) existing.remove();
 
   const lbRect = lightbox.getBoundingClientRect();
@@ -5759,6 +5775,16 @@ function applyZoom(media, originX, originY, clipW, clipH, headerH) {
     border-radius: 4px;
     box-shadow: 0 0 0 2px rgba(255,255,255,0.15), 0 8px 40px rgba(0,0,0,0.7);
   `;
+  // ズーム箇所はドラッグ・クリック・矢印キーで移動できる。原寸表示のスクロール領域と同じく
+  // フォーカス可能な region にして、矢印キーをファイル移動ではなくこちらに使う
+  container.tabIndex = 0;
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', t('lb.zoomRegion'));
+  container.addEventListener('pointerdown', onZoomPanStart);
+  container.addEventListener('pointermove', onZoomPanMove);
+  container.addEventListener('pointerup', onZoomPanEnd);
+  container.addEventListener('pointercancel', onZoomPanEnd);
+  container.addEventListener('keydown', onZoomPanKey);
 
   if (media.tagName === 'VIDEO') {
     // 動画: canvasに毎フレーム元動画から切り出し描画（遅延ゼロ）
@@ -5773,12 +5799,15 @@ function applyZoom(media, originX, originY, clipW, clipH, headerH) {
     const mRect   = media.getBoundingClientRect();
     const scaleNW = media.videoWidth  / mRect.width;
     const scaleNH = media.videoHeight / mRect.height;
-    const sx = originX * scaleNW;
-    const sy = originY * scaleNH;
-    const sw = clipW   * scaleNW;
-    const sh = clipH   * scaleNH;
+    const src = {
+      sx: originX * scaleNW,
+      sy: originY * scaleNH,
+      sw: clipW   * scaleNW,
+      sh: clipH   * scaleNH,
+    };
 
-    startZoomRender(media, dispCanvas, sx, sy, sw, sh);
+    startZoomRender(media, dispCanvas, src);
+    currentZoom._src = src;
     showZoomPlayer();
   } else {
     // 画像: imgをoverflow:hiddenコンテナ内にoffset配置
@@ -5788,6 +5817,7 @@ function applyZoom(media, originX, originY, clipW, clipH, headerH) {
     const innerEl = document.createElement('img');
     innerEl.src = media.src;
     innerEl.alt = media.alt || '';
+    innerEl.draggable = false; // 画像のネイティブなドラッグ＆ドロップがズーム箇所の移動を横取りしないように
     innerEl.style.cssText = `
       position: absolute;
       width: ${mDispW}px; height: ${mDispH}px;
@@ -5796,10 +5826,97 @@ function applyZoom(media, originX, originY, clipW, clipH, headerH) {
     `;
     container.appendChild(innerEl);
     lightbox.appendChild(container);
+    currentZoom._img = innerEl;
   }
 
   currentZoom._container = container;
   currentZoom._scale = scale;
+  if (hadFocus) container.focus();
+}
+
+// ── ズーム箇所の移動（ドラッグ・クリック・矢印キー）──
+// 拡大率と表示サイズはそのままで、範囲の左上（ratioX/ratioY）だけを動かす
+const ZOOM_CLICK_SLOP = 4;    // これ未満の移動で離したらドラッグではなくクリック（その点を中心へ）として扱う(px)
+const ZOOM_KEY_STEP   = 0.1;  // 矢印キー1回の移動量（表示中の範囲の幅・高さに対する割合）
+let zoomPan = null;           // ドラッグ中の状態
+
+// ズーム範囲を比率で指定した位置へ移す。表示を作り直さず、切り出し位置だけを更新する
+function moveZoomTo(ratioX, ratioY) {
+  if (!zoomed || !currentZoom) return;
+  const z = currentZoom;
+  const nx = Math.min(Math.max(ratioX, 0), 1 - z.ratioW);
+  const ny = Math.min(Math.max(ratioY, 0), 1 - z.ratioH);
+  if (nx === z.ratioX && ny === z.ratioY) return;
+  const media = getCurrentMediaEl();
+  if (!media) return;
+  z.ratioX = nx;
+  z.ratioY = ny;
+  if (z._src) {
+    // 動画: 描画ループが毎フレーム読む切り出し矩形を書き換える
+    z._src.sx = nx * media.videoWidth;
+    z._src.sy = ny * media.videoHeight;
+  } else if (z._img) {
+    const mRect = media.getBoundingClientRect();
+    z._img.style.left = `${-nx * mRect.width  * z._scale}px`;
+    z._img.style.top  = `${-ny * mRect.height * z._scale}px`;
+  }
+  hideLbAltResult(); // 表示中の代替テキストは移動前の範囲の説明になってしまうため消す
+}
+
+// 表示上の1pxが、メディア全体に対する比率でいくつに当たるか
+function zoomPxToRatio() {
+  const media = getCurrentMediaEl();
+  if (!media || !currentZoom) return null;
+  const mRect = media.getBoundingClientRect();
+  return { x: 1 / (mRect.width * currentZoom._scale), y: 1 / (mRect.height * currentZoom._scale) };
+}
+
+function onZoomPanStart(e) {
+  if (e.button !== 0 || !currentZoom) return;
+  const k = zoomPxToRatio();
+  if (!k) return;
+  zoomPan = {
+    id: e.pointerId, x: e.clientX, y: e.clientY,
+    ratioX: currentZoom.ratioX, ratioY: currentZoom.ratioY, k, moved: false,
+  };
+  e.currentTarget.setPointerCapture(e.pointerId); // コンテナ外へ出ても追従させる
+}
+
+function onZoomPanMove(e) {
+  if (!zoomPan || e.pointerId !== zoomPan.id) return;
+  const dx = e.clientX - zoomPan.x;
+  const dy = e.clientY - zoomPan.y;
+  if (!zoomPan.moved) {
+    if (Math.hypot(dx, dy) < ZOOM_CLICK_SLOP) return;
+    zoomPan.moved = true;
+    e.currentTarget.classList.add('is-panning');
+  }
+  // 掴んだ点がカーソルについてくるよう、ドラッグと逆向きに範囲を動かす
+  moveZoomTo(zoomPan.ratioX - dx * zoomPan.k.x, zoomPan.ratioY - dy * zoomPan.k.y);
+}
+
+function onZoomPanEnd(e) {
+  if (!zoomPan || e.pointerId !== zoomPan.id) return;
+  const pan = zoomPan;
+  zoomPan = null;
+  e.currentTarget.classList.remove('is-panning');
+  // ドラッグせずに離した＝クリック。ドラッグできない人向けの代替として、その点を中心へ移す
+  if (!pan.moved && e.type === 'pointerup' && currentZoom) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const px = currentZoom.ratioX + (e.clientX - rect.left) * pan.k.x;
+    const py = currentZoom.ratioY + (e.clientY - rect.top)  * pan.k.y;
+    moveZoomTo(px - currentZoom.ratioW / 2, py - currentZoom.ratioH / 2);
+  }
+}
+
+function onZoomPanKey(e) {
+  const dir = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+  if (!dir || !currentZoom) return;
+  e.preventDefault();
+  moveZoomTo(
+    currentZoom.ratioX + dir[0] * currentZoom.ratioW * ZOOM_KEY_STEP,
+    currentZoom.ratioY + dir[1] * currentZoom.ratioH * ZOOM_KEY_STEP,
+  );
 }
 
 // リサイズ時にズームを再適用
@@ -5825,11 +5942,16 @@ window.addEventListener('resize', () => {
 function resetZoom() {
   zoomed = false;
   zoomDragging = false;
+  zoomPan = null;
   stopZoomRender();
   hideZoomPlayer();
   if (zoomCanvas) zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
   const container = document.getElementById('lbZoomContainer');
-  if (container) container.remove();
+  if (container) {
+    // フォーカスごと消えてしまわないよう、ズーム表示にあればズームボタンへ移す
+    if (container.contains(document.activeElement)) lbZoomBtn.focus();
+    container.remove();
+  }
   const media = getCurrentMediaEl();
   if (media) {
     media.style.visibility = '';
