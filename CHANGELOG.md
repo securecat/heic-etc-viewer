@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.29.0] - 2026-10-10
+
+### Added
+
+- While zoomed in, the zoomed area can now be moved without changing the zoom level: drag it (the cursor shows a grab hand), click a point to bring it to the center, or press Tab to focus the zoomed view and use the arrow keys. It stops at the edges of the image or video, and works for both images and videos, playing or paused. Converting while zoomed uses the area after moving, and any alt text already shown is cleared when the area moves, since it describes the previous area
+
 ## [3.28.0] - 2026-10-10
 
 ### Added
@@ -735,6 +741,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.29.0] - 2026-10-10
+
+### 追加
+
+- ズーム中に、拡大率はそのままでズーム箇所を移動できるように。ドラッグ（カーソルは掴む形の手になる）、クリック（その点が中心に来る）、またはTabキーでズーム表示にフォーカスしての矢印キーで操作できる。画像・動画の端より外には動かず、画像・動画（再生中・一時停止中とも）のどちらでも使える。ズーム中の変換は移動後の範囲が対象になり、表示中の代替テキストは移動前の範囲の説明になるため、移動すると消える
 
 ## [3.28.0] - 2026-10-10
 
