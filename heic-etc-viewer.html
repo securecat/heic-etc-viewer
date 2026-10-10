@@ -597,7 +597,7 @@ input[type="range"]::-webkit-slider-thumb {
    表示・非表示で情報バーの高さ（＝ズーム表示の領域計算）が変わらないようにする。
    ウィンドウが狭い時は左端の変換UIに重なってよい（ズーム中の主操作を優先する） */
 .lb-zoom-player {
-  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   z-index: 1;
   display: flex; align-items: center; gap: 10px;
   width: min(560px, calc(100vw - 28px));
