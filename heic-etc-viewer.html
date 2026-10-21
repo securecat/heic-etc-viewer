@@ -5402,7 +5402,12 @@ async function stepLightbox(dir) {
 }
 document.getElementById('lbPrev').addEventListener('click', () => stepLightbox(-1));
 document.getElementById('lbNext').addEventListener('click', () => stepLightbox(1));
-lightbox.addEventListener('click', e => { if(e.target===lightbox) closeLightbox(); });
+// 背景クリックで閉じるのは、押した場所も背景だった時だけにする。ズームの範囲選択などで、ライトボックス内の
+// 要素から押し始めて背景で離すと、両者の共通の親であるライトボックス自身に click が届いてしまうため
+let lbPressedOnBackdrop = false;
+// （子要素が伝播を止めても記録が古いまま残らないよう、キャプチャ段階で受け取る）
+lightbox.addEventListener('mousedown', e => { lbPressedOnBackdrop = e.target === lightbox; }, true);
+lightbox.addEventListener('click', e => { if (e.target === lightbox && lbPressedOnBackdrop) closeLightbox(); });
 document.addEventListener('keydown', async e => {
   if (!lightbox.classList.contains('open')) return;
   // テキスト入力中は無視。ただしズーム中のシークバーでは、矢印キーはシークバー自身に任せつつ、
