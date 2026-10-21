@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.30.2] - 2026-10-21
+
+### Removed
+
+- Leftover code that closed the lightbox when its background was clicked (light dismiss). The lightbox is not meant to close that way, and a normal click on the background never triggered it, so there is no change in everyday behavior
+
 ## [3.30.1] - 2026-10-21
 
 ### Fixed
@@ -753,6 +759,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.30.2] - 2026-10-21
+
+### 削除
+
+- ライトボックスの背景クリックで閉じる処理（ライトディスミス）のコードが残っていたため削除。ライトボックスはこの方法では閉じない仕様で、背景を普通にクリックしてもこの処理は動いていなかったため、普段の動作に変化はなし
 
 ## [3.30.1] - 2026-10-21
 
