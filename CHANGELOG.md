@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.30.1] - 2026-10-21
+
+### Fixed
+
+- Releasing the mouse outside the image or video while dragging to select a zoom area no longer closes the lightbox. The selection is applied as if the edge had been pointed at, as intended. The same applies to any drag that starts inside the lightbox and ends over the background, such as moving the zoomed area; clicking the background itself still closes the lightbox
+
 ## [3.30.0] - 2026-10-10
 
 ### Added
@@ -747,6 +753,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.30.1] - 2026-10-21
+
+### 修正
+
+- ズーム範囲をドラッグで選択する時、画像・動画の外でマウスを離すとライトボックスが閉じてしまう問題を修正。本来どおり、端をポイントしたものとして範囲が確定する。ズーム箇所の移動など、ライトボックス内から始めて背景の上で終えたドラッグも同様に閉じない。背景そのものをクリックした時は従来どおり閉じる
 
 ## [3.30.0] - 2026-10-10
 
