@@ -87,7 +87,7 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 #### Fixed
 
-- Releasing the mouse outside the image or video while dragging to select a zoom area no longer closes the lightbox. The selection is applied as if the edge had been pointed at, as intended. The same applies to any drag that starts inside the lightbox and ends over the background, such as moving the zoomed area; clicking the background itself still closes the lightbox
+- Releasing the mouse outside the image or video while dragging to select a zoom area no longer closes the lightbox. The selection is applied as if the edge had been pointed at, as intended. The same applies to any drag that starts inside the lightbox and ends over the background, such as moving the zoomed area
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -182,7 +182,7 @@ python -m http.server 8080
 
 #### 修正
 
-- ズーム範囲をドラッグで選択する時、画像・動画の外でマウスを離すとライトボックスが閉じてしまう問題を修正。本来どおり、端をポイントしたものとして範囲が確定する。ズーム箇所の移動など、ライトボックス内から始めて背景の上で終えたドラッグも同様に閉じない。背景そのものをクリックした時は従来どおり閉じる
+- ズーム範囲をドラッグで選択する時、画像・動画の外でマウスを離すとライトボックスが閉じてしまう問題を修正。本来どおり、端をポイントしたものとして範囲が確定する。ズーム箇所の移動など、ライトボックス内から始めて背景の上で終えたドラッグも同様に閉じない
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
