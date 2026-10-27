@@ -2742,13 +2742,21 @@ async function rotateVideoBlob(file, degreesClockwise) {
   return new Blob([output.target.buffer], { type: output.format.mimeType });
 }
 
-// 候補フレームの時刻リスト（先頭付近を最優先し、暗転・フェードインなら奥の割合位置へフォールバック）。
-// video要素(captureVideoFrameBlob)・mediabunnyのCanvasSink(captureMkvFrame)の両方で共有する
+// 候補フレームの時刻リスト（前の方を優先し、暗転・フェードインなら奥の割合位置へフォールバック）。
+// video要素(captureVideoFrameBlob)・mediabunnyのCanvasSink(captureMkvFrame)の両方で共有する。
+// ある程度の長さがある動画は、冒頭のタイトル絵・クレジットを避けるため最初の数秒を候補にしない。
+// シリーズ物で同じオープニングのサムネイルがフォルダいっぱいに並ばないようにするため（タイトル絵自体が
+// 動いていることもあるので、動きでは判定できない）。短い動画は飛ばすと中身が残らないので先頭付近から選ぶ
+const INTRO_SKIP_SEC = 10;          // 候補にしない冒頭の秒数
+const INTRO_SKIP_MIN_DURATION = 20; // 冒頭を飛ばすのは、この秒数以上の動画だけ
 function frameCandidateTimes(duration) {
+  if (!duration) return [0];
   const clamp = t => Math.min(Math.max(t, 0), Math.max(duration - 0.05, 0));
-  return duration
-    ? [...new Set([0.1, Math.min(duration * 0.1, 1.0), duration * 0.25, duration * 0.4, duration * 0.55, duration * 0.7].map(clamp))]
-    : [0];
+  const ratios = [duration * 0.25, duration * 0.4, duration * 0.55, duration * 0.7];
+  const times = duration >= INTRO_SKIP_MIN_DURATION
+    ? [INTRO_SKIP_SEC, ...ratios.filter(t => t > INTRO_SKIP_SEC)]
+    : [0.1, Math.min(duration * 0.1, 1.0), ...ratios];
+  return [...new Set(times.map(clamp))];
 }
 
 // 候補フレームの「単色っぽさ・極端な明暗・のっぺり感」を16x16の縮小描画から安価に判定する。
@@ -2788,47 +2796,30 @@ function scoreFrameSource(source, probeCtx) {
   const brightnessFactor = Math.min(1, Math.min(mean, 255 - mean) / 64);
   const flatnessFactor = Math.min(1, localContrast / LOCAL_CONTRAST_MIN);
   const passed = variance >= BLANK_VARIANCE_THRESHOLD && mean >= MEAN_MIN && mean <= MEAN_MAX && localContrast >= LOCAL_CONTRAST_MIN;
-  return { score: variance * brightnessFactor * flatnessFactor, passed, lums };
+  return { score: variance * brightnessFactor * flatnessFactor, passed };
 }
 
 // 代表フレームの選び方（通常動画・MKVで共有）。getFrame(t) は { source, ... } か null を返す非同期関数で、
 // source は判定用に縮小描画できるもの（video要素・canvas）。戻り値は採用した getFrame の結果。
-// 単色・暗すぎ・のっぺりでない（scoreFrameSource に合格した）フレームでも、少し先のフレームとほぼ同じなら
-// 「動いていない」として飛ばす。シリーズ物の冒頭のタイトル絵・クレジットのような静止画面が続く動画で、
-// 同じサムネイルがフォルダいっぱいに並ばないようにするため
-const MOTION_PROBE_SEC = 0.5; // 動きを見るために比べる、少し先のフレームまでの秒数
-const MOTION_MIN = 2.5;       // 16x16の輝度差の平均がこれ未満なら動いていないとみなす（0〜255）
+// 候補を前から順に判定し、最初に合格したものを採用する。全部不合格なら、スコアが一番高いもの
 async function pickRepresentativeFrame(duration, getFrame) {
   const probe = document.createElement('canvas');
   probe.width = 16; probe.height = 16;
   const probeCtx = probe.getContext('2d', { willReadFrequently: true });
-  const lastTime = Math.max(duration - 0.05, 0);
   let best = null, bestScore = -1;
-  let stillFallback = null; // 合格したが動いていなかった最初のフレーム
   for (const t of frameCandidateTimes(duration)) {
     const frame = await getFrame(t);
     if (!frame) continue;
-    const { score, passed, lums } = scoreFrameSource(frame.source, probeCtx);
+    const { score, passed } = scoreFrameSource(frame.source, probeCtx);
+    if (passed) return frame;
     if (score > bestScore) { bestScore = score; best = frame; }
-    if (!passed) continue;
-    // 動画が短すぎて比べる先がない・読めない場合は、動きの判定をせずに合格とする
-    const t2 = Math.min(t + MOTION_PROBE_SEC, lastTime);
-    if (t2 <= t) return frame;
-    const next = await getFrame(t2);
-    if (!next) return frame;
-    const nextLums = scoreFrameSource(next.source, probeCtx).lums;
-    let diff = 0;
-    for (let i = 0; i < 256; i++) diff += Math.abs(lums[i] - nextLums[i]);
-    if (diff / 256 >= MOTION_MIN) return frame;
-    if (!stillFallback) stillFallback = frame;
   }
-  // 全編が静止画のような動画もあるため、動きのある合格フレームが無ければ、静止していても合格したものを優先する
-  return stillFallback || best;
+  return best;
 }
 
 // 動画から代表フレームを切り出す（ギャラリー表示・変換ダウンロードの両方から使う共通処理）。
-// 冒頭は暗転・フェードイン・静止したタイトルなことが多いため、動画内の複数地点を候補にして
-// 「ほぼ単色でなく、動いている」フレームが見つかるまで安価な縮小キャンバスで判定してから、
+// 冒頭は暗転・フェードイン・タイトルなことが多いため、動画内の複数地点を候補にして
+// 「ほぼ単色でない」フレームが見つかるまで安価な縮小キャンバスで判定してから、
 // 最終的に採用した地点だけをネイティブ解像度で書き出す。
 // 再生できない動画は err.code = 'unplayable' を投げる
 function captureVideoFrameBlob(file) {
