@@ -2797,7 +2797,7 @@ function scoreFrameSource(source, probeCtx) {
 // 「動いていない」として飛ばす。シリーズ物の冒頭のタイトル絵・クレジットのような静止画面が続く動画で、
 // 同じサムネイルがフォルダいっぱいに並ばないようにするため
 const MOTION_PROBE_SEC = 0.5; // 動きを見るために比べる、少し先のフレームまでの秒数
-const MOTION_MIN = 1.5;       // 16x16の輝度差の平均がこれ未満なら動いていないとみなす（0〜255）
+const MOTION_MIN = 2.5;       // 16x16の輝度差の平均がこれ未満なら動いていないとみなす（0〜255）
 async function pickRepresentativeFrame(duration, getFrame) {
   const probe = document.createElement('canvas');
   probe.width = 16; probe.height = 16;
