@@ -27,7 +27,7 @@
   "optVidSize": { "message": "容量 (KB)" },
   "optSave": { "message": "保存" },
   "optSaved": { "message": "保存しました。" },
-  "optBug": { "message": "バグを見つけたら、<a href=\"https://github.com/securecat/heic-etc-viewer/issues\" target=\"_blank\" rel=\"noopener\">GitHub Issues</a> へ報告してください。" },
+  "optBug": { "message": "バグを見つけたら、<a href=\"https://github.com/securecat/heic-etc-viewer/issues\" target=\"_blank\">GitHub Issues</a> へ報告してください。" },
 
   "sndPreparing": { "message": "準備中…" },
   "sndFetching": { "message": "ファイルを取得中… ($1/$2)" },

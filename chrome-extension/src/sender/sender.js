@@ -251,7 +251,6 @@ function showDownloadPanel(opts) {
     const a = document.createElement('a');
     a.href = u;
     a.target = '_blank';
-    a.rel = 'noopener';
     a.textContent = u;
     li.appendChild(a);
     list.appendChild(li);

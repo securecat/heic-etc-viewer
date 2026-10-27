@@ -27,7 +27,7 @@
   "optVidSize": { "message": "Size (KB)" },
   "optSave": { "message": "Save" },
   "optSaved": { "message": "Saved." },
-  "optBug": { "message": "Found a bug? Report it on <a href=\"https://github.com/securecat/heic-etc-viewer/issues\" target=\"_blank\" rel=\"noopener\">GitHub Issues</a>." },
+  "optBug": { "message": "Found a bug? Report it on <a href=\"https://github.com/securecat/heic-etc-viewer/issues\" target=\"_blank\">GitHub Issues</a>." },
 
   "sndPreparing": { "message": "Preparing…" },
   "sndFetching": { "message": "Fetching files… ($1/$2)" },
