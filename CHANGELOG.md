@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.30.3] - 2026-10-27
+
+### Changed
+
+- Video thumbnails no longer use frames from the beginning of the video. The first 30% of the video (up to one minute) is skipped, and the thumbnail is taken from that point onward (trying the 40%, 55%, and 70% points next if the frame is blank, too dark or bright, or flat). This avoids opening title cards, credits, and ads, so a folder of videos from the same series no longer fills up with identical thumbnails. WMV and AVI thumbnails are still taken from the first 3 seconds. The same frame is used by the "Thumbnail" option in the video conversion menu
+- Removed the redundant `rel="noopener"` from the GitHub Issues link (links opened with `target="_blank"` already behave this way in current browsers). No change in behavior
+
 ## [3.30.2] - 2026-10-21
 
 ### Removed
@@ -759,6 +766,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.30.3] - 2026-10-27
+
+### 変更
+
+- 動画のサムネイルに、冒頭付近のフレームを使わないように。動画の長さの30%（最大1分）を飛ばし、その地点以降から取る（単色・暗すぎ／明るすぎ・のっぺりしたフレームなら、続けて40%・55%・70%の地点を試す）。冒頭のタイトル絵・クレジット・広告を避けられるため、シリーズ物の動画のフォルダが同じサムネイルで埋まらなくなる。WMV・AVIのサムネイルは従来どおり先頭3秒の中から取る。動画の変換メニューの「サムネイル」でも同じフレームを使う
+- GitHub Issues へのリンクから、不要な `rel="noopener"` を削除（`target="_blank"` で開くリンクは、現在のブラウザでは既にそのように動作する）。動作に変化はなし
 
 ## [3.30.2] - 2026-10-21
 

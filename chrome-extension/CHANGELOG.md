@@ -3,6 +3,12 @@
 All notable changes to HeV Sender will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.8.3] - 2026-10-27
+
+### Changed
+
+- Removed the redundant `rel="noopener"` from links that open in a new tab: the popup's Options link, the GitHub Issues link on the options page, and the links in the manual-download panel (links opened with `target="_blank"` already behave this way in current browsers). No change in behavior
+
 ## [1.8.2] - 2026-10-08
 
 ### Changed
@@ -102,6 +108,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [1.8.3] - 2026-10-27
+
+### 変更
+
+- 新しいタブで開くリンクから、不要な `rel="noopener"` を削除（ポップアップの「オプション」リンク、オプションページの GitHub Issues へのリンク、手動ダウンロードパネルのリンク）。`target="_blank"` で開くリンクは、現在のブラウザでは既にそのように動作する。動作に変化はなし
 
 ## [1.8.2] - 2026-10-08
 

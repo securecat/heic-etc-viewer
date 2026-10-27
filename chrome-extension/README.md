@@ -40,11 +40,11 @@ HeV Sender is part of the [heic-etc-viewer repository](https://github.com/secure
 
 ## Changelog
 
-### [1.8.2] - 2026-10-08
+### [1.8.3] - 2026-10-27
 
 #### Changed
 
-- Links in the manual-download panel on the original page now turn red (`#ff0000`) while being clicked, in both light and dark themes
+- Removed the redundant `rel="noopener"` from links that open in a new tab: the popup's Options link, the GitHub Issues link on the options page, and the links in the manual-download panel (links opened with `target="_blank"` already behave this way in current browsers). No change in behavior
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -92,10 +92,10 @@ HeV Sender は [heic-etc-viewer リポジトリ](https://github.com/securecat/he
 
 ## 更新履歴
 
-### [1.8.2] - 2026-10-08
+### [1.8.3] - 2026-10-27
 
 #### 変更
 
-- 元ページの手動ダウンロードパネルのリンクを、クリック中は赤（`#ff0000`）で表示するように（ライト・ダーク両テーマ共通）
+- 新しいタブで開くリンクから、不要な `rel="noopener"` を削除（ポップアップの「オプション」リンク、オプションページの GitHub Issues へのリンク、手動ダウンロードパネルのリンク）。`target="_blank"` で開くリンクは、現在のブラウザでは既にそのように動作する。動作に変化はなし
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
