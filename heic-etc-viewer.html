@@ -2744,19 +2744,17 @@ async function rotateVideoBlob(file, degreesClockwise) {
 
 // 候補フレームの時刻リスト（前の方を優先し、暗転・フェードインなら奥の割合位置へフォールバック）。
 // video要素(captureVideoFrameBlob)・mediabunnyのCanvasSink(captureMkvFrame)の両方で共有する。
-// ある程度の長さがある動画は、冒頭のタイトル絵・クレジットを避けるため最初の数秒を候補にしない。
-// シリーズ物で同じオープニングのサムネイルがフォルダいっぱいに並ばないようにするため（タイトル絵自体が
-// 動いていることもあるので、動きでは判定できない）。短い動画は飛ばすと中身が残らないので先頭付近から選ぶ
-const INTRO_SKIP_SEC = 10;          // 候補にしない冒頭の秒数
-const INTRO_SKIP_MIN_DURATION = 20; // 冒頭を飛ばすのは、この秒数以上の動画だけ
+// 冒頭のタイトル絵・クレジット・広告を避けるため、最初の一定時間は候補にしない。シリーズ物で同じ
+// オープニングのサムネイルがフォルダいっぱいに並ばないようにするため（タイトル絵自体が動いていることも
+// あるので、動きでは判定できない）。飛ばす量は長さに比例させ、短い動画でも中身が残るようにする
+const INTRO_SKIP_RATIO = 0.3;   // 候補にしない冒頭の割合（動画の長さに対して）
+const INTRO_SKIP_MAX_SEC = 60;  // ただし飛ばすのは最大でこの秒数まで（長い動画は一律1分）
 function frameCandidateTimes(duration) {
   if (!duration) return [0];
   const clamp = t => Math.min(Math.max(t, 0), Math.max(duration - 0.05, 0));
-  const ratios = [duration * 0.25, duration * 0.4, duration * 0.55, duration * 0.7];
-  const times = duration >= INTRO_SKIP_MIN_DURATION
-    ? [INTRO_SKIP_SEC, ...ratios.filter(t => t > INTRO_SKIP_SEC)]
-    : [0.1, Math.min(duration * 0.1, 1.0), ...ratios];
-  return [...new Set(times.map(clamp))];
+  const start = Math.min(duration * INTRO_SKIP_RATIO, INTRO_SKIP_MAX_SEC);
+  const ratios = [duration * 0.4, duration * 0.55, duration * 0.7];
+  return [...new Set([start, ...ratios.filter(t => t > start)].map(clamp))];
 }
 
 // 候補フレームの「単色っぽさ・極端な明暗・のっぺり感」を16x16の縮小描画から安価に判定する。
