@@ -111,6 +111,43 @@ body {
 }
 .filter-input::placeholder { color: #949494; }
 .filter-input:focus { border-color: var(--accent); }
+/* 絞り込みのコンボボックス（ファイル名の入力＋「スター付き」の選択肢）。APG Combobox パターン */
+.filter-combo { position: relative; display: flex; align-items: center; gap: 4px; min-width: 0; }
+/* 「スター付き」で絞り込み中のチップ。入力欄の前に付き、✕で解除できる */
+.filter-chip {
+  display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+  background: var(--bg-card);
+  border: 1px solid #fff;
+  border-radius: var(--radius);
+  padding: 2px 2px 2px 8px;
+  font-size: 14px; color: var(--text); white-space: nowrap;
+}
+.filter-chip[hidden] { display: none; }
+.filter-chip-remove {
+  background: var(--bg-card); border: none; border-radius: 4px;
+  color: var(--text); font-size: 14px; line-height: 1.4;
+  padding: 0 5px; cursor: pointer;
+}
+.filter-chip-remove:hover { background: #3a3a3a; }
+.filter-chip-remove:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+.filter-list {
+  position: absolute; top: calc(100% + 2px); left: 0; z-index: 200;
+  min-width: 100%; width: max-content;
+  margin: 0; padding: 4px; list-style: none;
+  background: var(--bg-card);
+  border: 1px solid #fff;
+  border-radius: var(--radius);
+}
+.filter-list[hidden] { display: none; }
+.filter-option {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 10px; border-radius: 4px;
+  font-size: 14px; color: var(--text); white-space: nowrap; cursor: pointer;
+}
+/* ハイライトは hover と、キーボードで選んでいる項目（aria-activedescendant）のみ */
+.filter-option:hover, .filter-option.is-active { background: var(--accent-hover); color: #fff; } /* 白 対 --accent-hover 約6.6:1 */
+.filter-option-check { margin-left: auto; padding-left: 10px; visibility: hidden; }
+.filter-option[aria-selected="true"] .filter-option-check { visibility: visible; }
 .sort-select {
   background: var(--bg-card);
   border: 1px solid #fff;
@@ -374,6 +411,21 @@ input[type="range"]::-webkit-slider-thumb {
 }
 /* サムネイルサイズが中間以上の時は、バッジの文字も少し大きくする */
 .gallery.thumb-size-large .ext-badge { font-size: 12px; }
+/* スター付きのファイルの印。サムネイルの色によらず見えるよう、白い★を黒い座布団に乗せ、
+   座布団の縁も白くして暗いサムネイルの上でも形が分かるようにする */
+.star-badge {
+  position: absolute; top: 5px; left: 5px;
+  display: flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; padding: 0 3px;
+  background: #000;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  color: #fff; font-size: 13px; line-height: 1;
+  pointer-events: none;
+}
+.gallery.thumb-size-large .star-badge { min-width: 24px; height: 24px; font-size: 16px; }
+/* ZIP選択モードのチェックボックス（左上）と重ならないよう、その右へずらす */
+.thumb-item:has(.zip-check) .star-badge { left: 40px; }
 .heic-badge      { background: #4D5FCC; }
 .pdf-badge       { background: #B84040; }
 .video-badge     { background: #2C864A; }
@@ -676,10 +728,27 @@ input[type="range"]::-webkit-slider-thumb {
 .convert-group {
   display: flex; align-items: center; gap: 6px; flex-shrink: 0;
 }
-/* ライトボックス下マージンでは左端に固定配置 */
-.lb-info .convert-group {
+/* ライトボックス下マージンの左端にまとめて固定配置する（スターボタン＋変換UI）。
+   変換UIはファイル種別によって隠れるので、スターボタンとは別要素にしてこの中に並べる */
+.lb-info-left {
   position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  display: flex; align-items: center; gap: 6px;
 }
+/* スターボタン（トグル）。☆＝スターなし、★＝スター付き。押下状態は aria-pressed で伝える */
+.lb-star-btn {
+  display: flex; align-items: center; justify-content: center;
+  min-width: 32px;
+  background: var(--bg-card);
+  border: 1px solid #fff;
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 3px 8px;
+  font-size: 16px; line-height: 1.4;
+  cursor: pointer;
+}
+.lb-star-btn[hidden] { display: none; }
+.lb-star-btn:hover { background: #3a3a3a; }
+.lb-star-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .convert-group select {
   background: var(--bg-card);
   border: 1px solid #fff;
@@ -1081,7 +1150,17 @@ input[type="range"]::-webkit-slider-thumb {
   </div>
   <div class="toolbar-sep" aria-hidden="true"></div>
   <span class="status" id="statusText" aria-live="polite"></span>
-  <input type="text" class="filter-input" id="filterInput" data-i18n-attr="placeholder:filter.ph,aria-label:filter.label" placeholder="Filter..." aria-label="Filter by filename">
+  <!-- 絞り込み: 入力すればファイル名で、選択肢の「スター付き」を選べばスターで絞り込む（両方同時も可） -->
+  <div class="filter-combo">
+    <span class="filter-chip" id="filterStarChip" hidden>
+      <span aria-hidden="true">★</span><span data-i18n="star.filterOption">Starred</span>
+      <button type="button" class="filter-chip-remove" id="filterStarChipRemove" data-i18n-attr="aria-label:star.chipRemove,title:star.chipRemove" aria-label="Remove the Starred filter" title="Remove the Starred filter"><span aria-hidden="true">✕</span></button>
+    </span>
+    <input type="text" class="filter-input" id="filterInput" role="combobox" aria-autocomplete="none" aria-expanded="false" aria-controls="filterList" data-i18n-attr="placeholder:filter.ph,aria-label:filter.label" placeholder="Filter..." aria-label="Filter by filename, or choose Starred">
+    <ul class="filter-list" id="filterList" role="listbox" data-i18n-attr="aria-label:filter.listLabel" aria-label="Filters" hidden>
+      <li class="filter-option" id="filterOptStarred" role="option" aria-selected="false"><span aria-hidden="true">★</span><span data-i18n="star.filterOption">Starred</span><span class="filter-option-check" aria-hidden="true">✓</span></li>
+    </ul>
+  </div>
   <select class="sort-select" id="sortSelect" data-i18n-attr="aria-label:sort.label" aria-label="Sort order">
     <option value="name" data-i18n="sort.nameAsc">Name ↑</option>
     <option value="name-desc" data-i18n="sort.nameDesc">Name ↓</option>
@@ -1177,7 +1256,7 @@ input[type="range"]::-webkit-slider-thumb {
     </fieldset>
     <fieldset class="settings-fieldset">
       <legend data-i18n="sc.legend">Keyboard shortcuts</legend>
-      <p class="settings-note" data-i18n="sc.desc">Single-key shortcuts in the lightbox (Z, R, C, 1, L). Disable them if they conflict with key commands of a screen reader or other assistive technology. Arrow keys and Esc always work.</p>
+      <p class="settings-note" data-i18n="sc.desc">Single-key shortcuts in the lightbox (Z, R, C, 1, L, S). Disable them if they conflict with key commands of a screen reader or other assistive technology. Arrow keys and Esc always work.</p>
       <label><input type="radio" name="lbShortcuts" value="on"> <span data-i18n="sc.on">Enabled</span></label>
       <label><input type="radio" name="lbShortcuts" value="off"> <span data-i18n="sc.off">Disabled</span></label>
     </fieldset>
@@ -1212,7 +1291,7 @@ input[type="range"]::-webkit-slider-thumb {
     <h4 data-i18n="g.kbd.galleryH">Gallery</h4>
     <p data-i18n-html="g.kbd.galleryP"><kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.</p>
     <h4 data-i18n="g.kbd.lbH">Lightbox</h4>
-    <p data-i18n-html="g.kbd.lbP"><kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images and videos). <kbd>1</kbd> toggles actual-size display (images and videos). <kbd>R</kbd> rotates 90° clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow. Single-key shortcuts can be turned off in the Settings tab.</p>
+    <p data-i18n-html="g.kbd.lbP"><kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images and videos). <kbd>1</kbd> toggles actual-size display (images and videos). <kbd>R</kbd> rotates 90° clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>S</kbd> toggles the star (files opened from a folder). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow. Single-key shortcuts can be turned off in the Settings tab.</p>
   </div>
   <div class="info-panel" id="panelAbout" role="tabpanel" aria-labelledby="tabAbout" tabindex="0" hidden>
     <p>MIT License<br>&copy; 2026 securecat</p>
@@ -1343,18 +1422,22 @@ input[type="range"]::-webkit-slider-thumb {
       <button class="btn" id="lbAltCopy" data-i18n="alt.copy" data-i18n-attr="aria-label:alt.copy" aria-label="Copy">Copy</button>
       <span class="lb-alt-copied" id="lbAltCopied"></span>
     </div>
-    <div class="convert-group">
-      <!-- 形式メニュー: プレビュー可能な形式に▶サブメニューを出すため、selectではなくAPG Menu Buttonパターンで実装 -->
-      <div class="lb-fmt-menu" id="lbFmtMenu">
-        <button type="button" class="lb-fmt-btn" id="lbFmtBtn" aria-haspopup="true" aria-expanded="false">
-          <span class="sr-only" data-i18n="convert.format">Convert to format</span>
-          <span id="lbFmtBtnLabel">Convert to...</span>
-          <span class="lb-fmt-caret" aria-hidden="true">▾</span>
-        </button>
-        <ul class="lb-fmt-list" id="lbFmtList" role="menu" aria-busy="true" hidden></ul>
+    <div class="lb-info-left">
+      <!-- スター（お気に入り）。フォルダから開いたファイルのみ対象（受信・個別ドロップのファイルでは隠す） -->
+      <button type="button" class="lb-star-btn" id="lbStarBtn" aria-pressed="false" data-i18n-attr="aria-label:star.label,title:star.label" aria-label="Star" title="Star" hidden><span id="lbStarIcon" aria-hidden="true">☆</span></button>
+      <div class="convert-group">
+        <!-- 形式メニュー: プレビュー可能な形式に▶サブメニューを出すため、selectではなくAPG Menu Buttonパターンで実装 -->
+        <div class="lb-fmt-menu" id="lbFmtMenu">
+          <button type="button" class="lb-fmt-btn" id="lbFmtBtn" aria-haspopup="true" aria-expanded="false">
+            <span class="sr-only" data-i18n="convert.format">Convert to format</span>
+            <span id="lbFmtBtnLabel">Convert to...</span>
+            <span class="lb-fmt-caret" aria-hidden="true">▾</span>
+          </button>
+          <ul class="lb-fmt-list" id="lbFmtList" role="menu" aria-busy="true" hidden></ul>
+        </div>
+        <button class="btn" id="lbConvertDownload" data-i18n="convert.downloadTextLb" data-i18n-attr="aria-label:convert.download" aria-label="Download">📄Download</button>
+        <span class="convert-error" id="lbConvertError" aria-live="polite"></span>
       </div>
-      <button class="btn" id="lbConvertDownload" data-i18n="convert.downloadTextLb" data-i18n-attr="aria-label:convert.download" aria-label="Download">📄Download</button>
-      <span class="convert-error" id="lbConvertError" aria-live="polite"></span>
     </div>
     <!-- 動画の確定ズーム中だけ表示する再生操作（ネイティブのコントロールが隠れるため） -->
     <div class="lb-zoom-player" id="lbZoomPlayer" role="group" data-i18n-attr="aria-label:lb.zoomPlayer" aria-label="Playback controls" hidden>
@@ -1400,7 +1483,11 @@ const I18N = {
     'convert.downloadTextHeader': '📁Download',
     'convert.downloadTextLb': '📄Download',
     'filter.ph': 'Filter...',
-    'filter.label': 'Filter by filename',
+    'filter.label': 'Filter by filename, or choose Starred',
+    'filter.listLabel': 'Filters',
+    'star.label': 'Star',
+    'star.filterOption': 'Starred',
+    'star.chipRemove': 'Remove the Starred filter',
     'sort.label': 'Sort order',
     'sort.nameAsc': 'Name ↑',
     'sort.nameDesc': 'Name ↓',
@@ -1435,9 +1522,11 @@ const I18N = {
     'gallery.region': 'Thumbnail gallery',
     'gallery.noFiles': 'No supported files in this folder (try a subfolder in the tree)',
     'gallery.noMatch': 'No files matching "{q}"',
+    'gallery.noStarred': 'No starred files in this folder',
     'status.files': '{n} files',
     'status.filtered': '{x} / {y} files',
     'thumb.open': '{name} - open',
+    'thumb.openStarred': '{name} (starred) - open',
     'thumb.loading': 'Loading thumbnail…',
     'thumb.failed': 'Failed to load',
     'thumb.unplayable': 'Unplayable',
@@ -1518,7 +1607,7 @@ const I18N = {
     'hp.on': 'Enabled',
     'hp.off': 'Disabled',
     'sc.legend': 'Keyboard shortcuts',
-    'sc.desc': 'Single-key shortcuts in the lightbox (Z, R, C, 1, L). Disable them if they conflict with key commands of a screen reader or other assistive technology. Arrow keys and Esc always work.',
+    'sc.desc': 'Single-key shortcuts in the lightbox (Z, R, C, 1, L, S). Disable them if they conflict with key commands of a screen reader or other assistive technology. Arrow keys and Esc always work.',
     'sc.on': 'Enabled',
     'sc.off': 'Disabled',
     'g.formats.h': 'Supported file formats (view)',
@@ -1546,7 +1635,7 @@ const I18N = {
     'g.kbd.galleryH': 'Gallery',
     'g.kbd.galleryP': '<kbd>Tab</kbd> moves between items. <kbd>Enter</kbd> / <kbd>Space</kbd> opens the item in the lightbox. <kbd>←</kbd> returns focus to the selected folder in the tree.',
     'g.kbd.lbH': 'Lightbox',
-    'g.kbd.lbP': '<kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images and videos). <kbd>1</kbd> toggles actual-size display (images and videos). <kbd>R</kbd> rotates 90° clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow. Single-key shortcuts can be turned off in the Settings tab.',
+    'g.kbd.lbP': '<kbd>←</kbd> <kbd>→</kbd> navigate between files. <kbd>Z</kbd> toggles zoom mode (images and videos). <kbd>C</kbd> toggles the checker background (images and videos). <kbd>1</kbd> toggles actual-size display (images and videos). <kbd>R</kbd> rotates 90° clockwise (images and videos). <kbd>L</kbd> toggles loop playback (videos). <kbd>S</kbd> toggles the star (files opened from a folder). <kbd>Esc</kbd> releases or exits zoom, closes the lightbox, or stops the slideshow. Single-key shortcuts can be turned off in the Settings tab.',
     'about.bug': 'Found a bug? Report it on <a href="https://github.com/securecat/heic-etc-viewer/issues" target="_blank">GitHub Issues</a>.',
     'lb.label': 'Lightbox',
     'lb.zoom': 'Zoom (drag to select)',
@@ -1643,7 +1732,11 @@ const I18N = {
     'convert.downloadTextHeader': '📁ダウンロード',
     'convert.downloadTextLb': '📄ダウンロード',
     'filter.ph': '絞り込み...',
-    'filter.label': 'ファイル名を絞り込む',
+    'filter.label': 'ファイル名で絞り込む、またはスター付きを選ぶ',
+    'filter.listLabel': '絞り込み',
+    'star.label': 'スター',
+    'star.filterOption': 'スター付き',
+    'star.chipRemove': 'スター付きの絞り込みを解除',
     'sort.label': 'ソート順',
     'sort.nameAsc': '名前昇順',
     'sort.nameDesc': '名前降順',
@@ -1678,9 +1771,11 @@ const I18N = {
     'gallery.region': 'サムネイル一覧',
     'gallery.noFiles': 'このフォルダには対応するファイルがありません(ツリー内のサブフォルダを確認してください)',
     'gallery.noMatch': '「{q}」に一致するファイルはありません',
+    'gallery.noStarred': 'このフォルダにスター付きのファイルはありません',
     'status.files': '{n} 件',
     'status.filtered': '{x} / {y} 件',
     'thumb.open': '{name} を表示',
+    'thumb.openStarred': '{name}（スター付き）を表示',
     'thumb.loading': 'サムネイル読込中…',
     'thumb.failed': '読込失敗',
     'thumb.unplayable': '再生できません',
@@ -1761,7 +1856,7 @@ const I18N = {
     'hp.on': '有効',
     'hp.off': '無効',
     'sc.legend': 'キーボードショートカット',
-    'sc.desc': 'ライトボックスの1文字キーのショートカット(Z・R・C・1・L)です。スクリーンリーダーなど支援技術のキー操作と競合する場合は無効にしてください。矢印キーとEscは常に有効です。',
+    'sc.desc': 'ライトボックスの1文字キーのショートカット(Z・R・C・1・L・S)です。スクリーンリーダーなど支援技術のキー操作と競合する場合は無効にしてください。矢印キーとEscは常に有効です。',
     'sc.on': '有効',
     'sc.off': '無効',
     'g.formats.h': '対応ファイル形式(表示)',
@@ -1789,7 +1884,7 @@ const I18N = {
     'g.kbd.galleryH': 'ギャラリー',
     'g.kbd.galleryP': '<kbd>Tab</kbd> でアイテム間を移動。<kbd>Enter</kbd> / <kbd>Space</kbd> でアイテムをライトボックスで開きます。<kbd>←</kbd> でツリーの選択中フォルダへフォーカスが戻ります。',
     'g.kbd.lbH': 'ライトボックス',
-    'g.kbd.lbP': '<kbd>←</kbd> <kbd>→</kbd> でファイル間を移動。<kbd>Z</kbd> でズームモードの切り替え(画像・動画)。<kbd>C</kbd> で市松模様背景の切り替え(画像・動画)。<kbd>1</kbd> で原寸表示の切り替え(画像・動画)。<kbd>R</kbd> で時計回りに90度回転(画像・動画)。<kbd>L</kbd> でループ再生の切り替え(動画)。<kbd>Esc</kbd> でズームの解除・終了、ライトボックスを閉じる、またはスライドショーの停止。1文字キーのショートカットは、設定タブで無効化できます。',
+    'g.kbd.lbP': '<kbd>←</kbd> <kbd>→</kbd> でファイル間を移動。<kbd>Z</kbd> でズームモードの切り替え(画像・動画)。<kbd>C</kbd> で市松模様背景の切り替え(画像・動画)。<kbd>1</kbd> で原寸表示の切り替え(画像・動画)。<kbd>R</kbd> で時計回りに90度回転(画像・動画)。<kbd>L</kbd> でループ再生の切り替え(動画)。<kbd>S</kbd> でスターの切り替え(フォルダから開いたファイル)。<kbd>Esc</kbd> でズームの解除・終了、ライトボックスを閉じる、またはスライドショーの停止。1文字キーのショートカットは、設定タブで無効化できます。',
     'about.bug': 'バグを見つけたら、<a href="https://github.com/securecat/heic-etc-viewer/issues" target="_blank">GitHub Issues</a> へ報告してください。',
     'lb.label': 'ライトボックス',
     'lb.zoom': 'ズーム(ドラッグして範囲選択)',
@@ -3604,8 +3699,11 @@ function buildTreeFromFileList(rootName, files) {
   return root;
 }
 
+// フォルダを持たないファイル（HeV Senderからの受信・複数ファイルの個別ドロップ）を並べる。
+// パスに意味がないため、スターの対象外にする
 function loadFlatFiles(files, name) {
-  rootNode = { name, entry: null, files, children: [], loaded: true, el: null, parent: null };
+  rootNode = { name, entry: null, files, children: [], loaded: true, el: null, parent: null, noStars: true };
+  if (starFilter) setStarFilter(false, false);
   renderTree();
   selectNode(rootNode);
 }
@@ -4144,6 +4242,74 @@ async function resolveFile(entry) {
   return getEntryFile(entry);
 }
 
+// ── スター（ファイル単位のお気に入り）────────────────────────────────
+// ブラウザからはファイルを一意に見分けるIDが取れないため、「ルートフォルダ名＋相対パス」をキーにする
+// （どの開き方でも同じフォルダなら同じキーになる）。名前の変更・移動で外れる、同名の別ルートでは共有される、
+// という弱点はブックマークと同じく許容する。フォルダを持たないファイル（HeV Senderからの受信・
+// 複数ファイルの個別ドロップ）はパスに意味がないため対象外（rootNode.noStars）。
+// ギャラリーの絞り込みで同期的に判定する必要があるため、localStorage に保存する
+const STAR_STORAGE_KEY = 'hev-stars';
+let starredKeys = new Set();
+try {
+  const saved = JSON.parse(localStorage.getItem(STAR_STORAGE_KEY) || '[]');
+  if (Array.isArray(saved)) starredKeys = new Set(saved);
+} catch (e) { /* 読めなければスターなしで始める */ }
+
+function saveStars() {
+  try { localStorage.setItem(STAR_STORAGE_KEY, JSON.stringify([...starredKeys])); } catch (e) { /* 保存できなくても表示中は保持する */ }
+}
+
+function starsAvailable() {
+  return !!rootNode && !rootNode.noStars;
+}
+
+// 表示中のフォルダ（ギャラリー・ライトボックスのファイルは常に currentNode の直下）のファイルのキー
+function starKey(entry) {
+  if (!entry || !currentNode || !starsAvailable()) return null;
+  const parts = [];
+  for (let n = currentNode; n; n = n.parent) parts.unshift(n.name);
+  parts.push(entry.name || '');
+  return parts.join('/');
+}
+
+function isStarred(entry) {
+  const key = starKey(entry);
+  return !!key && starredKeys.has(key);
+}
+
+let starFilter = false;      // 「スター付き」で絞り込み中か
+let starFilterDirty = false; // 絞り込み中にライトボックスでスターを変えた（閉じた時にギャラリーを絞り込み直す）
+
+function toggleStar(entry) {
+  const key = starKey(entry);
+  if (!key) return;
+  if (starredKeys.has(key)) starredKeys.delete(key);
+  else starredKeys.add(key);
+  saveStars();
+  // ライトボックスを開いたまま絞り込み直すと、表示中の並び（currentIdx）がずれるため、
+  // ギャラリーは印だけ更新し、絞り込みのやり直しは閉じた時に行う
+  const item = [...gallery.querySelectorAll('.thumb-item')].find(el => el.dataset.name === (entry.name || ''));
+  if (item) applyThumbStar(item, entry);
+  if (starFilter) starFilterDirty = true;
+}
+
+// サムネイルのスターの印と読み上げ名を、現在のスター状態に合わせる
+function applyThumbStar(item, entry) {
+  const name = entry.name || '';
+  const on = isStarred(entry);
+  let badge = item.querySelector('.star-badge');
+  if (on && !badge) {
+    badge = document.createElement('div');
+    badge.className = 'star-badge';
+    badge.textContent = '★';
+    badge.setAttribute('aria-hidden', 'true');
+    item.appendChild(badge);
+  } else if (!on && badge) {
+    badge.remove();
+  }
+  item.setAttribute('aria-label', tf(on ? 'thumb.openStarred' : 'thumb.open', { name }));
+}
+
 // ── 画像Diffモード：直下のサブフォルダがちょうど2つで、ベースネームが一致するファイルが
 // あれば、ライトボックスで左右比較表示できるようにペアを検出する ──────────────
 async function detectDiffPair(rootNode) {
@@ -4247,8 +4413,6 @@ function renderTileGallery(generation) {
       item.style.flexBasis = Math.round(rowHeight * ratio) + 'px';
       item.setAttribute('role', 'button');
       item.setAttribute('tabindex', '0');
-      item.setAttribute('aria-label', tf('thumb.open', { name }));
-
       const loading = document.createElement('div');
       loading.className = 'thumb-loading';
       loading.innerHTML = `<div class="thumb-spinner" aria-hidden="true"></div><span class="thumb-loading-text is-progress">${t('thumb.loading')}</span>`;
@@ -4273,6 +4437,7 @@ function renderTileGallery(generation) {
       item.appendChild(loading);
       item.appendChild(badge);
       item.appendChild(infoEl);
+      applyThumbStar(item, entry); // スターの印と、読み上げ名（スター付きかどうかを含む）
       item.addEventListener('click', () => openLightbox(i));
       item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(i); } });
       if (isPlayableVideo(entry)) attachHoverPlay(item, entry);
@@ -4302,7 +4467,11 @@ function renderGallery({ preserveScroll = false } = {}) {
   const q = filterInput.value.trim().toLowerCase();
   const raw = getCurrentFiles();
   const sorted = getSorted(raw);
-  filteredFiles = q ? sorted.filter(f => (f.name||'').toLowerCase().includes(q)) : sorted;
+  // ファイル名とスターの絞り込みは同時に効く（スター付きの中から、さらに名前で絞り込める）
+  const starOnly = starFilter && starsAvailable();
+  filteredFiles = sorted.filter(f =>
+    (!q || (f.name||'').toLowerCase().includes(q)) && (!starOnly || isStarred(f)));
+  const filtering = !!q || starOnly;
 
   // 再描画のたびに世代を進める。前の世代のサムネイル読み込みタスクは
   // 開始前に打ち切られるので、フォルダ切り替え連打で積み重ならない
@@ -4316,7 +4485,7 @@ function renderGallery({ preserveScroll = false } = {}) {
   galleryWrap.style.flexDirection = 'column';
   gallery.innerHTML = '';
 
-  statusText.textContent = q
+  statusText.textContent = filtering
     ? tf('status.filtered', { x: filteredFiles.length, y: raw.length })
     : tf('status.files', { n: raw.length });
 
@@ -4336,7 +4505,7 @@ function renderGallery({ preserveScroll = false } = {}) {
     div.className = 'no-images';
     div.textContent = raw.length === 0
       ? t('gallery.noFiles')
-      : tf('gallery.noMatch', { q });
+      : q ? tf('gallery.noMatch', { q }) : t('gallery.noStarred');
     gallery.appendChild(div);
     return;
   }
@@ -4364,7 +4533,6 @@ function renderGallery({ preserveScroll = false } = {}) {
     item.dataset.name = name;
     item.setAttribute('role', 'button');
     item.setAttribute('tabindex', '0');
-    item.setAttribute('aria-label', name + ' - open');
 
     const loading = document.createElement('div');
     loading.className = 'thumb-loading';
@@ -4390,6 +4558,7 @@ function renderGallery({ preserveScroll = false } = {}) {
     item.appendChild(loading);
     item.appendChild(badge);
     item.appendChild(infoEl);
+    applyThumbStar(item, entry); // スターの印と、読み上げ名（スター付きかどうかを含む）
     item.addEventListener('click', () => openLightbox(i));
     item.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){e.preventDefault();openLightbox(i);} });
     if (isPlayableVideo(entry)) attachHoverPlay(item, entry);
@@ -4905,6 +5074,7 @@ async function updateLightbox() {
     updateLbFmtButtonLabel();
   }
   updateLbConvertButton();
+  updateLbStarButton();
   hideLbAltResult(); // 前のファイルの生成結果を持ち越さない
 
   const imgWrap   = document.getElementById('lbImgWrap');
@@ -5036,6 +5206,7 @@ async function updateLightbox() {
       rotateBtn.style.display = (ssActive || zoomMode || isDiff) ? 'none' : '';
       if (isDiff) {
         document.querySelector('.lb-info .convert-group').style.display = 'none';
+        lbStarBtn.hidden = true; // 変換UIと同じく、2つのファイルのどちらに付けるのか分からないため隠す
         await renderDiffMode(file, diffInfo);
       } else {
         const { url } = await makeURL(file);
@@ -5382,6 +5553,15 @@ function closeLightbox() {
   btn.title = t('lb.checkerOn');
   btn.setAttribute('aria-label', t('lb.checkerOn'));
   setBackgroundInert(false);
+  // 「スター付き」で絞り込み中にスターを変えていたら、ここで絞り込み直す。見ていたファイルが
+  // 一覧から外れた場合は、同じ位置（末尾を越えたら最後）のファイルへフォーカスを戻す
+  if (starFilterDirty) {
+    starFilterDirty = false;
+    const viewed = filteredFiles[currentIdx];
+    renderGallery({ preserveScroll: true });
+    const idx = filteredFiles.indexOf(viewed);
+    currentIdx = idx >= 0 ? idx : Math.min(currentIdx, filteredFiles.length - 1);
+  }
   // 見ていたアイテムにキーボードフォーカスを戻す
   const items = document.querySelectorAll('#gallery .thumb-item');
   if (items[currentIdx]) items[currentIdx].focus();
@@ -5452,6 +5632,10 @@ document.addEventListener('keydown', async e => {
   // L/C/R は対応するボタンが表示されている（＝そのファイル種別で意味がある）時のみ動作
   if (e.key === 'l' || e.key === 'L') {
     if (lbLoopBtn.style.display !== 'none') lbLoopBtn.click();
+    return;
+  }
+  if ((e.key === 's' || e.key === 'S') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    if (!lbStarBtn.hidden) lbStarBtn.click();
     return;
   }
   if (e.key === 'r' || e.key === 'R') {
@@ -6278,6 +6462,26 @@ lbLoopBtn.addEventListener('click', () => {
 // Lキーでもループトグル
 // (keydownハンドラ内に追加済み)
 
+// ── スターボタン（Sキーでも切り替え）──────────────────────────────
+const lbStarBtn = document.getElementById('lbStarBtn');
+
+// 表示中のファイルに合わせて、スターボタンの表示と押下状態を更新する
+// （読み上げ名は「スター」で固定し、付いているかどうかは aria-pressed で伝える）
+function updateLbStarButton() {
+  const entry = filteredFiles[currentIdx];
+  const key = starKey(entry);
+  lbStarBtn.hidden = !key;
+  if (!key) return;
+  const on = starredKeys.has(key);
+  lbStarBtn.setAttribute('aria-pressed', String(on));
+  document.getElementById('lbStarIcon').textContent = on ? '★' : '☆';
+}
+
+lbStarBtn.addEventListener('click', () => {
+  toggleStar(filteredFiles[currentIdx]);
+  updateLbStarButton();
+});
+
 // ── メディア回転ボタン（静止画・動画共通）────────────────────────
 const lbRotateBtn = document.getElementById('lbRotate');
 let mediaRotation = 0; // 0/90/180/270、右回りに加算
@@ -6545,6 +6749,79 @@ sizeSlider.addEventListener('input', () => {
 });
 filterInput.addEventListener('input', renderGallery);
 sortSelect.addEventListener('change', renderGallery);
+
+// ── 絞り込みのコンボボックス（APG Combobox パターン、選択肢のリストは自動補完なし）──
+// 入力欄にフォーカスすると選択肢（今は「スター付き」のみ）を出す。文字を入力すればファイル名の絞り込み、
+// 選択肢を選べばスターの絞り込みで、両方同時に効く。スター絞り込み中は入力欄の前にチップを出す
+const filterList = document.getElementById('filterList');
+const filterOptStarred = document.getElementById('filterOptStarred');
+const filterStarChip = document.getElementById('filterStarChip');
+
+function openFilterList() {
+  if (!starsAvailable()) return; // スターの対象外（受信・個別ドロップ）では選択肢が無いので出さない
+  filterList.hidden = false;
+  filterInput.setAttribute('aria-expanded', 'true');
+}
+
+function closeFilterList() {
+  filterList.hidden = true;
+  filterInput.setAttribute('aria-expanded', 'false');
+  setFilterOptionActive(false);
+}
+
+// キーボードで選んでいる選択肢（フォーカスは入力欄に置いたまま aria-activedescendant で示す）
+function setFilterOptionActive(on) {
+  filterOptStarred.classList.toggle('is-active', on);
+  if (on) filterInput.setAttribute('aria-activedescendant', filterOptStarred.id);
+  else filterInput.removeAttribute('aria-activedescendant');
+}
+
+function setStarFilter(on, render = true) {
+  starFilter = on;
+  starFilterDirty = false;
+  filterStarChip.hidden = !on;
+  filterOptStarred.setAttribute('aria-selected', String(on));
+  if (render) renderGallery();
+}
+
+filterInput.addEventListener('focus', openFilterList);
+filterInput.addEventListener('click', openFilterList);
+filterInput.addEventListener('blur', closeFilterList);
+// 文字を入力し始めたら、ファイル名で絞り込むつもりなので選択肢は閉じる（↓キーで再び開ける）
+filterInput.addEventListener('input', closeFilterList);
+filterInput.addEventListener('keydown', e => {
+  const open = !filterList.hidden;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (!open) openFilterList();
+    else setFilterOptionActive(true);
+  } else if (e.key === 'ArrowUp' && open) {
+    e.preventDefault();
+    setFilterOptionActive(false);
+  } else if (e.key === 'Enter' && open && filterOptStarred.classList.contains('is-active')) {
+    e.preventDefault();
+    setStarFilter(!starFilter);
+    closeFilterList();
+  } else if (e.key === 'Escape' && open) {
+    e.preventDefault();
+    closeFilterList();
+  } else if (e.key === 'Backspace' && starFilter &&
+             filterInput.selectionStart === 0 && filterInput.selectionEnd === 0) {
+    // 先頭でのBackspaceは、入力欄の前にあるチップ（スター絞り込み）を消す
+    e.preventDefault();
+    setStarFilter(false);
+  }
+});
+// 選択肢を押してもフォーカスが入力欄から外れない（blurで閉じない）ようにする
+filterOptStarred.addEventListener('mousedown', e => e.preventDefault());
+filterOptStarred.addEventListener('click', () => {
+  setStarFilter(!starFilter);
+  closeFilterList();
+});
+document.getElementById('filterStarChipRemove').addEventListener('click', () => {
+  setStarFilter(false);
+  filterInput.focus();
+});
 
 // レイアウト切替ボタンの title / aria-label を状態と言語に合わせて更新する
 function updateLayoutToggleLabels() {
