@@ -19,6 +19,7 @@ A single-file local image/video viewer and converter with HEIC, PDF, and ICO sup
 - Thumbnail caching; video thumbnails automatically pick a representative frame, skipping dark or fade-in openings
 - Video thumbnails play muted, at thumbnail size, while the pointer or keyboard focus rests on them — switchable in Settings, and off by default when the system asks for reduced motion
 - Files whose extension doesn't match their content (e.g. a `.heic` file that is really a JPEG) are detected and handled by their real format
+- Star files from the lightbox, and filter the gallery to starred files and/or by filename
 
 ### Lightbox
 
@@ -83,12 +84,16 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.30.3] - 2026-10-27
+### [3.31.0] - 2026-11-03
 
-#### Changed
+#### Added
 
-- Video thumbnails no longer use frames from the beginning of the video. The first 30% of the video (up to one minute) is skipped, and the thumbnail is taken from that point onward (trying the 40%, 55%, and 70% points next if the frame is blank, too dark or bright, or flat). This avoids opening title cards, credits, and ads, so a folder of videos from the same series no longer fills up with identical thumbnails. WMV and AVI thumbnails are still taken from the first 3 seconds. The same frame is used by the "Thumbnail" option in the video conversion menu
-- Removed the redundant `rel="noopener"` from the GitHub Issues link (links opened with `target="_blank"` already behave this way in current browsers). No change in behavior
+- Files can now be starred. In the lightbox, the star button at the far left of the bottom bar (or the S key) toggles the star on the current file, and starred files show a ★ in the top-left corner of their gallery thumbnail. Stars are saved in the browser by the opened folder's name and the file's path within it, so renaming or moving a file or folder removes its star. Files received from HeV Sender, and multiple files dropped without a folder, cannot be starred
+- The filter box in the gallery header now shows a "Starred" option when focused. Choose it to show only starred files, and choose it again to turn it off. It works together with filtering by filename, and the file count shows how many files match. When no file in the folder is starred, a message says so
+
+#### Fixed
+
+- Screen readers now read the gallery's grid thumbnails in the UI language. Previously they were always read in English
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -115,6 +120,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 - サムネイルのキャッシュ。動画のサムネイルは冒頭の暗転やフェードインを避けて代表フレームを自動選択
 - 動画のサムネイルは、マウスカーソルまたはキーボードフォーカスがある間、サムネイルのサイズのまま無音で再生。設定で切り替え可能（OSのモーション低減設定が有効な場合は初期値OFF）
 - 拡張子と中身が食い違うファイル（例：中身がJPEGの `.heic`）は、実際の形式を検出して扱う
+- ライトボックスでファイルにスターを付け、ギャラリーをスター付きのファイルやファイル名で絞り込める
 
 ### ライトボックス
 
@@ -179,12 +185,16 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.30.3] - 2026-10-27
+### [3.31.0] - 2026-11-03
 
-#### 変更
+#### 追加
 
-- 動画のサムネイルに、冒頭付近のフレームを使わないように。動画の長さの30%（最大1分）を飛ばし、その地点以降から取る（単色・暗すぎ／明るすぎ・のっぺりしたフレームなら、続けて40%・55%・70%の地点を試す）。冒頭のタイトル絵・クレジット・広告を避けられるため、シリーズ物の動画のフォルダが同じサムネイルで埋まらなくなる。WMV・AVIのサムネイルは従来どおり先頭3秒の中から取る。動画の変換メニューの「サムネイル」でも同じフレームを使う
-- GitHub Issues へのリンクから、不要な `rel="noopener"` を削除（`target="_blank"` で開くリンクは、現在のブラウザでは既にそのように動作する）。動作に変化はなし
+- ファイルにスターを付けられるように。ライトボックス下端の左端にあるスターボタン（または S キー）で、表示中のファイルのスターを切り替える。スター付きのファイルは、ギャラリーのサムネイルの左上に★を表示する。スターは、開いたフォルダの名前とその中でのファイルのパスをもとにブラウザに保存するため、ファイルやフォルダの名前を変えたり移動したりするとスターは外れる。HeV Sender から受け取ったファイルと、フォルダなしで複数ドロップしたファイルにはスターを付けられない
+- ギャラリーのヘッダーの絞り込み欄にフォーカスすると、「スター付き」の選択肢を表示するように。選ぶとスター付きのファイルだけを表示し、もう一度選ぶと解除する。ファイル名での絞り込みと同時に使え、件数表示には該当するファイル数を表示する。フォルダにスター付きのファイルが1つもない場合は、その旨を表示する
+
+#### 修正
+
+- ギャラリーのグリッド表示のサムネイルを、スクリーンリーダーが UI の言語で読み上げるように。これまでは常に英語で読み上げていた
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
