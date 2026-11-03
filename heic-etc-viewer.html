@@ -112,24 +112,7 @@ body {
 .filter-input::placeholder { color: #949494; }
 .filter-input:focus { border-color: var(--accent); }
 /* 絞り込みのコンボボックス（ファイル名の入力＋「スター付き」の選択肢）。APG Combobox パターン */
-.filter-combo { position: relative; display: flex; align-items: center; gap: 4px; min-width: 0; }
-/* 「スター付き」で絞り込み中のチップ。入力欄の前に付き、✕で解除できる */
-.filter-chip {
-  display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
-  background: var(--bg-card);
-  border: 1px solid #fff;
-  border-radius: var(--radius);
-  padding: 2px 2px 2px 8px;
-  font-size: 14px; color: var(--text); white-space: nowrap;
-}
-.filter-chip[hidden] { display: none; }
-.filter-chip-remove {
-  background: var(--bg-card); border: none; border-radius: 4px;
-  color: var(--text); font-size: 14px; line-height: 1.4;
-  padding: 0 5px; cursor: pointer;
-}
-.filter-chip-remove:hover { background: #3a3a3a; }
-.filter-chip-remove:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+.filter-combo { position: relative; display: flex; align-items: center; min-width: 0; }
 .filter-list {
   position: absolute; top: calc(100% + 2px); left: 0; z-index: 200;
   min-width: 100%; width: max-content;
@@ -1152,10 +1135,6 @@ input[type="range"]::-webkit-slider-thumb {
   <span class="status" id="statusText" aria-live="polite"></span>
   <!-- 絞り込み: 入力すればファイル名で、選択肢の「スター付き」を選べばスターで絞り込む（両方同時も可） -->
   <div class="filter-combo">
-    <span class="filter-chip" id="filterStarChip" hidden>
-      <span aria-hidden="true">★</span><span data-i18n="star.filterOption">Starred</span>
-      <button type="button" class="filter-chip-remove" id="filterStarChipRemove" data-i18n-attr="aria-label:star.chipRemove,title:star.chipRemove" aria-label="Remove the Starred filter" title="Remove the Starred filter"><span aria-hidden="true">✕</span></button>
-    </span>
     <input type="text" class="filter-input" id="filterInput" role="combobox" aria-autocomplete="none" aria-expanded="false" aria-controls="filterList" data-i18n-attr="placeholder:filter.ph,aria-label:filter.label" placeholder="Filter..." aria-label="Filter by filename, or choose Starred">
     <ul class="filter-list" id="filterList" role="listbox" data-i18n-attr="aria-label:filter.listLabel" aria-label="Filters" hidden>
       <li class="filter-option" id="filterOptStarred" role="option" aria-selected="false"><span aria-hidden="true">★</span><span data-i18n="star.filterOption">Starred</span><span class="filter-option-check" aria-hidden="true">✓</span></li>
@@ -1487,7 +1466,6 @@ const I18N = {
     'filter.listLabel': 'Filters',
     'star.label': 'Star',
     'star.filterOption': 'Starred',
-    'star.chipRemove': 'Remove the Starred filter',
     'sort.label': 'Sort order',
     'sort.nameAsc': 'Name ↑',
     'sort.nameDesc': 'Name ↓',
@@ -1736,7 +1714,6 @@ const I18N = {
     'filter.listLabel': '絞り込み',
     'star.label': 'スター',
     'star.filterOption': 'スター付き',
-    'star.chipRemove': 'スター付きの絞り込みを解除',
     'sort.label': 'ソート順',
     'sort.nameAsc': '名前昇順',
     'sort.nameDesc': '名前降順',
@@ -6752,10 +6729,9 @@ sortSelect.addEventListener('change', renderGallery);
 
 // ── 絞り込みのコンボボックス（APG Combobox パターン、選択肢のリストは自動補完なし）──
 // 入力欄にフォーカスすると選択肢（今は「スター付き」のみ）を出す。文字を入力すればファイル名の絞り込み、
-// 選択肢を選べばスターの絞り込みで、両方同時に効く。スター絞り込み中は入力欄の前にチップを出す
+// 選択肢を選べばスターの絞り込みで、両方同時に効く。スター絞り込みの解除も選択肢をもう一度選んで行う
 const filterList = document.getElementById('filterList');
 const filterOptStarred = document.getElementById('filterOptStarred');
-const filterStarChip = document.getElementById('filterStarChip');
 
 function openFilterList() {
   if (!starsAvailable()) return; // スターの対象外（受信・個別ドロップ）では選択肢が無いので出さない
@@ -6779,7 +6755,6 @@ function setFilterOptionActive(on) {
 function setStarFilter(on, render = true) {
   starFilter = on;
   starFilterDirty = false;
-  filterStarChip.hidden = !on;
   filterOptStarred.setAttribute('aria-selected', String(on));
   if (render) renderGallery();
 }
@@ -6805,11 +6780,6 @@ filterInput.addEventListener('keydown', e => {
   } else if (e.key === 'Escape' && open) {
     e.preventDefault();
     closeFilterList();
-  } else if (e.key === 'Backspace' && starFilter &&
-             filterInput.selectionStart === 0 && filterInput.selectionEnd === 0) {
-    // 先頭でのBackspaceは、入力欄の前にあるチップ（スター絞り込み）を消す
-    e.preventDefault();
-    setStarFilter(false);
   }
 });
 // 選択肢を押してもフォーカスが入力欄から外れない（blurで閉じない）ようにする
@@ -6817,10 +6787,6 @@ filterOptStarred.addEventListener('mousedown', e => e.preventDefault());
 filterOptStarred.addEventListener('click', () => {
   setStarFilter(!starFilter);
   closeFilterList();
-});
-document.getElementById('filterStarChipRemove').addEventListener('click', () => {
-  setStarFilter(false);
-  filterInput.focus();
 });
 
 // レイアウト切替ボタンの title / aria-label を状態と言語に合わせて更新する
