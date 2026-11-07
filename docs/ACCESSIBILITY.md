@@ -69,7 +69,7 @@ When you change the UI:
 - Keep text contrast at 7:1 or higher for body text and 4.5:1 or higher for secondary text, in both light and dark themes
 - Keep non-text elements, such as borders and icons, at 3:1 or higher against adjacent colors
 - Don't apply `opacity` to elements that need contrast
-- Use a minimum font size of 16px for Japanese and 14px for English
+- Make sure no information or functionality is lost when text is displayed at 16px or larger in Japanese and 14px or larger in English
 - Use `font-family: sans-serif` (don't use `system-ui`)
 - Don't dismiss status messages automatically
 - Don't add anything that moves on its own, such as auto-scrolling
@@ -164,7 +164,7 @@ UIを変更するときは、次を守ってください。
 - テキストのコントラスト比は、本文で 7:1 以上、補足的なテキストで 4.5:1 以上にする。ライトテーマとダークテーマのそれぞれで満たす
 - 境界線やアイコンなど、テキスト以外の要素も、隣り合う色に対して 3:1 以上にする
 - コントラストが必要な要素に `opacity` を使わない
-- 文字サイズは、日本語で 16px 以上、英語で 14px 以上にする
+- 文字サイズは、日本語で 16px 以上、英語で 14px 以上で表示した場合に情報や機能に欠損がないように心がける
 - `font-family` は `sans-serif` にする（`system-ui` は使わない）
 - ステータスメッセージを自動で消さない
 - 自動スクロールなど、ひとりでに動くものを作らない
