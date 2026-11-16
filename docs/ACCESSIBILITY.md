@@ -4,12 +4,6 @@ Last updated: 2026-11-07
 
 ## Priorities and Goals
 
-HEIC etc Viewer lets you browse, compare, and convert images and videos folder by folder, including HEIC, WMV, and other formats that browsers and operating systems often can't open on their own. Being able to look at your own photos and videos shouldn't depend on how you see or how you operate a computer. We care in particular about the following:
-
-- People with low vision can enlarge thumbnails, view images and videos as large as the screen allows, and zoom in on any part of them
-- People who use only a keyboard, or have difficulty with fine mouse movements, can reach every folder, file, and lightbox feature without a mouse
-- People who use a screen reader can find out which file they are on and what each control does, and can generate alt text for images
-
 This statement covers:
 
 - The HEIC etc Viewer UI (`heic-etc-viewer.html`)
@@ -98,12 +92,6 @@ Suggestions about this statement or our approach to accessibility are also welco
 最終更新：2026-11-07
 
 ## 優先事項と目標
-
-HEIC etc Viewer は、HEIC や WMV など、ブラウザやOSの標準機能では開けないことが多い画像・動画を含めて、フォルダ単位で閲覧・比較・変換するためのアプリです。自分の写真や動画を見られるかどうかが、見え方やパソコンの操作方法によって左右されるべきではありません。特に、次のことを大事にしています。
-
-- 弱視の人が、サムネイルを大きくしたり、画像や動画を画面いっぱいに表示したり、一部を拡大したりして見られること
-- キーボードだけで操作する人や、マウスの細かい操作が難しい人が、マウスを使わずに、すべてのフォルダ・ファイル・ライトボックスの機能にたどり着けること
-- スクリーンリーダーを使う人が、いまどのファイルにいるか、各ボタンが何をするかを知ることができ、画像の代替テキストを生成できること
 
 この文書が対象とするのは、次のとおりです。
 
