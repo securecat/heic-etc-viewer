@@ -9,7 +9,7 @@ This statement covers:
 - The HEIC etc Viewer UI (`heic-etc-viewer.html`)
 - The UI of the companion Chrome extension HeV Sender (the popup, the options page, the sending screen, and the manual-download panel shown on the original page)
 
-For the UI, we target WCAG 2.2 Level AA, and we treat it as a minimum, not a ceiling. Some of our own rules are stricter than AA (see [Contributor Expectations](#contributor-expectations)). We have not had a third-party evaluation, so this is a target, not a claim of conformance.
+For the UI, we target WCAG 2.2 Level AA, and we treat it as a minimum, not a ceiling. Some of our own rules are stricter than AA (see [Contributor Expectations](#contributor-expectations)).
 
 ## Supported Environments
 
@@ -98,7 +98,7 @@ Suggestions about this statement or our approach to accessibility are also welco
 - HEIC etc Viewer のUI（`heic-etc-viewer.html`）
 - 連携Chrome拡張 HeV Sender のUI（ポップアップ、オプションページ、送出画面、元のページに表示する手動ダウンロードパネル）
 
-UIは WCAG 2.2 のレベル AA を目標とし、これを上限ではなく下限と考えています。AAより厳しい独自の基準もあります（[貢献者への期待](#貢献者への期待)を参照）。第三者による試験は受けていないため、これは目標であり、適合を表明するものではありません。
+UIは WCAG 2.2 のレベル AA を目標とし、これを上限ではなく下限と考えています。AAより厳しい独自の基準もあります（[貢献者への期待](#貢献者への期待)を参照）。
 
 ## 対応している環境
 
