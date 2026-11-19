@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.31.1] - 2026-11-19
+
+### Changed
+
+- The Download button in the gallery header is now an icon-only button with a download icon, instead of a folder icon and the text "Download". Hovering over it shows "Download" as a tooltip, and screen readers still read it as "Download"
+
 ## [3.31.0] - 2026-11-03
 
 ### Added
@@ -777,6 +783,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.31.1] - 2026-11-19
+
+### 変更
+
+- ギャラリーのヘッダーのダウンロードボタンを、フォルダのアイコンと「ダウンロード」の文字から、ダウンロードのアイコンだけのボタンに変更。マウスを重ねると「ダウンロード」のツールチップを表示し、スクリーンリーダーではこれまでどおり「ダウンロード」と読み上げる
 
 ## [3.31.0] - 2026-11-03
 

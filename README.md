@@ -84,16 +84,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.31.0] - 2026-11-03
+### [3.31.1] - 2026-11-19
 
-#### Added
+#### Changed
 
-- Files can now be starred. In the lightbox, the star button at the far left of the bottom bar (or the S key) toggles the star on the current file, and starred files show a ★ in the top-left corner of their gallery thumbnail. Stars are saved in the browser by the opened folder's name and the file's path within it, so renaming or moving a file or folder removes its star. Files received from HeV Sender, and multiple files dropped without a folder, cannot be starred
-- The filter box in the gallery header now shows a "Starred" option when focused. Choose it to show only starred files, and choose it again to turn it off. It works together with filtering by filename, and the file count shows how many files match. When no file in the folder is starred, a message says so
-
-#### Fixed
-
-- Screen readers now read the gallery's grid thumbnails in the UI language. Previously they were always read in English
+- The Download button in the gallery header is now an icon-only button with a download icon, instead of a folder icon and the text "Download". Hovering over it shows "Download" as a tooltip, and screen readers still read it as "Download"
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -185,16 +180,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.31.0] - 2026-11-03
+### [3.31.1] - 2026-11-19
 
-#### 追加
+#### 変更
 
-- ファイルにスターを付けられるように。ライトボックス下端の左端にあるスターボタン（または S キー）で、表示中のファイルのスターを切り替える。スター付きのファイルは、ギャラリーのサムネイルの左上に★を表示する。スターは、開いたフォルダの名前とその中でのファイルのパスをもとにブラウザに保存するため、ファイルやフォルダの名前を変えたり移動したりするとスターは外れる。HeV Sender から受け取ったファイルと、フォルダなしで複数ドロップしたファイルにはスターを付けられない
-- ギャラリーのヘッダーの絞り込み欄にフォーカスすると、「スター付き」の選択肢を表示するように。選ぶとスター付きのファイルだけを表示し、もう一度選ぶと解除する。ファイル名での絞り込みと同時に使え、件数表示には該当するファイル数を表示する。フォルダにスター付きのファイルが1つもない場合は、その旨を表示する
-
-#### 修正
-
-- ギャラリーのグリッド表示のサムネイルを、スクリーンリーダーが UI の言語で読み上げるように。これまでは常に英語で読み上げていた
+- ギャラリーのヘッダーのダウンロードボタンを、フォルダのアイコンと「ダウンロード」の文字から、ダウンロードのアイコンだけのボタンに変更。マウスを重ねると「ダウンロード」のツールチップを表示し、スクリーンリーダーではこれまでどおり「ダウンロード」と読み上げる
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
