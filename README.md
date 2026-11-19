@@ -84,11 +84,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.31.1] - 2026-11-19
+### [3.31.2] - 2026-11-19
 
-#### Changed
+#### Fixed
 
-- The Download button in the gallery header is now an icon-only button with a download icon, instead of a folder icon and the text "Download". Hovering over it shows "Download" as a tooltip, and screen readers still read it as "Download"
+- Screen readers now read the symbol on the lightbox's Star button (☆ or ★) and on the Play/Pause button shown while a video is zoomed (▶ or ⏸), followed by the button's name. Previously only the name was read, so a sighted person calling a button by its symbol, such as "the white star", might not be understood
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -180,11 +180,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.31.1] - 2026-11-19
+### [3.31.2] - 2026-11-19
 
-#### 変更
+#### 修正
 
-- ギャラリーのヘッダーのダウンロードボタンを、フォルダのアイコンと「ダウンロード」の文字から、ダウンロードのアイコンだけのボタンに変更。マウスを重ねると「ダウンロード」のツールチップを表示し、スクリーンリーダーではこれまでどおり「ダウンロード」と読み上げる
+- ライトボックスのスターボタン（☆ または ★）と、動画のズーム中に表示する再生／一時停止ボタン（▶ または ⏸）で、スクリーンリーダーがボタンの名前の前に記号も読み上げるように。これまでは名前だけを読み上げていたため、晴眼者が「白い星」のように記号でボタンを呼んだときに、どのボタンのことか伝わらないことがあった
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 

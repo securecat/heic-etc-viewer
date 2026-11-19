@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.31.2] - 2026-11-19
+
+### Fixed
+
+- Screen readers now read the symbol on the lightbox's Star button (☆ or ★) and on the Play/Pause button shown while a video is zoomed (▶ or ⏸), followed by the button's name. Previously only the name was read, so a sighted person calling a button by its symbol, such as "the white star", might not be understood
+
 ## [3.31.1] - 2026-11-19
 
 ### Changed
@@ -783,6 +789,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.31.2] - 2026-11-19
+
+### 修正
+
+- ライトボックスのスターボタン（☆ または ★）と、動画のズーム中に表示する再生／一時停止ボタン（▶ または ⏸）で、スクリーンリーダーがボタンの名前の前に記号も読み上げるように。これまでは名前だけを読み上げていたため、晴眼者が「白い星」のように記号でボタンを呼んだときに、どのボタンのことか伝わらないことがあった
 
 ## [3.31.1] - 2026-11-19
 
