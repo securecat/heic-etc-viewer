@@ -1,0 +1,10 @@
+{
+  "name": "heic-etc-viewer",
+  "private": true,
+  "scripts": {
+    "lint:html": "markuplint heic-etc-viewer.html \"chrome-extension/**/*.html\""
+  },
+  "devDependencies": {
+    "markuplint": "5.6.1"
+  }
+}
