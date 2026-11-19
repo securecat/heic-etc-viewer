@@ -1407,7 +1407,7 @@ input[type="range"]::-webkit-slider-thumb {
     </div>
     <div class="lb-info-left">
       <!-- スター（お気に入り）。フォルダから開いたファイルのみ対象（受信・個別ドロップのファイルでは隠す） -->
-      <button type="button" class="lb-star-btn" id="lbStarBtn" aria-pressed="false" data-i18n-attr="aria-label:star.label,title:star.label" aria-label="Star" title="Star" hidden><span id="lbStarIcon" aria-hidden="true">☆</span></button>
+      <button type="button" class="lb-star-btn" id="lbStarBtn" aria-pressed="false" data-i18n-attr="title:star.label" title="Star" hidden><span id="lbStarIcon">☆</span><span class="sr-only" data-i18n="star.label">Star</span></button>
       <div class="convert-group">
         <!-- 形式メニュー: プレビュー可能な形式に▶サブメニューを出すため、selectではなくAPG Menu Buttonパターンで実装 -->
         <div class="lb-fmt-menu" id="lbFmtMenu">
@@ -1424,7 +1424,7 @@ input[type="range"]::-webkit-slider-thumb {
     </div>
     <!-- 動画の確定ズーム中だけ表示する再生操作（ネイティブのコントロールが隠れるため） -->
     <div class="lb-zoom-player" id="lbZoomPlayer" role="group" data-i18n-attr="aria-label:lb.zoomPlayer" aria-label="Playback controls" hidden>
-      <button type="button" class="lb-close" id="lbZoomPlay" aria-label="Pause" title="Pause"><span id="lbZoomPlayIcon" aria-hidden="true">⏸</span></button>
+      <button type="button" class="lb-close" id="lbZoomPlay" title="Pause"><span id="lbZoomPlayIcon">⏸</span><span class="sr-only" id="lbZoomPlayText">Pause</span></button>
       <input type="range" class="lb-zoom-seek" id="lbZoomSeek" min="0" max="0" step="any" value="0" data-i18n-attr="aria-label:lb.seek" aria-label="Playback position">
       <span class="lb-zoom-time" id="lbZoomTime">0:00 / 0:00</span>
     </div>
@@ -6002,9 +6002,9 @@ function updateZoomPlayer() {
   const playing = !video.paused && !video.ended;
   const label = t(playing ? 'lb.pause' : 'lb.play');
   const btn = document.getElementById('lbZoomPlay');
-  if (btn.getAttribute('aria-label') !== label) {
-    btn.setAttribute('aria-label', label);
+  if (btn.title !== label) {
     btn.title = label;
+    document.getElementById('lbZoomPlayText').textContent = label;
     document.getElementById('lbZoomPlayIcon').textContent = playing ? '⏸' : '▶';
   }
 }
