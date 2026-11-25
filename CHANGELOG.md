@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.32.0] - 2026-11-26
+
+### Added
+
+- Gallery thumbnails are now saved in the browser, so a file you have seen before shows its thumbnail right away, even after opening another folder or restarting the browser. A file counts as the same when the opened folder's name, its path within that folder, its size, and its last-modified time all match. Files received from HeV Sender, and files dropped without a folder, are not saved. Up to 1 GB is saved in total; when that is exceeded, the thumbnails unused for the longest time are deleted first. "Saved thumbnails" in the Settings tab turns this on or off (on by default), shows how many thumbnails are saved and how much space they use, and has a button to delete them all
+
 ## [3.31.2] - 2026-11-19
 
 ### Fixed
@@ -789,6 +795,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.32.0] - 2026-11-26
+
+### 追加
+
+- ギャラリーのサムネイルをブラウザに保存するように。一度表示したファイルは、別のフォルダを開いた後やブラウザを開き直した後でも、すぐにサムネイルを表示する。開いたフォルダの名前、その中でのパス、ファイルサイズ、更新日時がすべて同じなら、同じファイルとみなす。HeV Sender から受け取ったファイルと、フォルダなしでドロップしたファイルは保存しない。合計1GBまで保存し、超えた場合は、長く使っていないサムネイルから削除する。設定タブの「サムネイルの保存」で、有効・無効の切り替え(初期値は有効)、現在の保存数と容量の確認、保存したサムネイルの削除ができる
 
 ## [3.31.2] - 2026-11-19
 

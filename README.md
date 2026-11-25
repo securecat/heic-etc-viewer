@@ -16,7 +16,7 @@ A single-file local image/video viewer and converter with HEIC, PDF, and ICO sup
 
 - WAI-ARIA APG-compliant folder tree (fully keyboard operable) and folder drag & drop
 - Two gallery layouts: the default grid, and a justified tile view that packs thumbnails edge-to-edge row by row while preserving their aspect ratios — thumbnail size is adjustable in both
-- Thumbnail caching; video thumbnails automatically pick a representative frame, skipping dark or fade-in openings
+- Thumbnail caching, saved in the browser so thumbnails show right away the next time (can be turned off in Settings); video thumbnails automatically pick a representative frame, skipping dark or fade-in openings
 - Video thumbnails play muted, at thumbnail size, while the pointer or keyboard focus rests on them — switchable in Settings, and off by default when the system asks for reduced motion
 - Files whose extension doesn't match their content (e.g. a `.heic` file that is really a JPEG) are detected and handled by their real format
 - Star files from the lightbox, and filter the gallery to starred files and/or by filename
@@ -84,11 +84,11 @@ Then open `http://localhost:3000/heic-etc-viewer.html` in Chrome.
 
 ## Changelog
 
-### [3.31.2] - 2026-11-19
+### [3.32.0] - 2026-11-26
 
-#### Fixed
+#### Added
 
-- Screen readers now read the symbol on the lightbox's Star button (☆ or ★) and on the Play/Pause button shown while a video is zoomed (▶ or ⏸), followed by the button's name. Previously only the name was read, so a sighted person calling a button by its symbol, such as "the white star", might not be understood
+- Gallery thumbnails are now saved in the browser, so a file you have seen before shows its thumbnail right away, even after opening another folder or restarting the browser. A file counts as the same when the opened folder's name, its path within that folder, its size, and its last-modified time all match. Files received from HeV Sender, and files dropped without a folder, are not saved. Up to 1 GB is saved in total; when that is exceeded, the thumbnails unused for the longest time are deleted first. "Saved thumbnails" in the Settings tab turns this on or off (on by default), shows how many thumbnails are saved and how much space they use, and has a button to delete them all
 
 See [CHANGELOG.md](CHANGELOG.md) for full history.
 
@@ -112,7 +112,7 @@ HEIC、PDF、ICOに対応した、単一ファイルで動作するローカル�
 
 - WAI-ARIA APG準拠のフォルダツリー（キーボード操作に完全対応）と、フォルダのドラッグ＆ドロップ
 - ギャラリーは通常のグリッド表示に加え、縦横比を保ったままサムネイルを行ごとに隙間なく敷き詰めるタイル表示に切り替え可能。サムネイルサイズはどちらの表示でも調整できる
-- サムネイルのキャッシュ。動画のサムネイルは冒頭の暗転やフェードインを避けて代表フレームを自動選択
+- サムネイルのキャッシュ。ブラウザに保存し、次に開いたときもすぐに表示する（設定で無効にできる）。動画のサムネイルは冒頭の暗転やフェードインを避けて代表フレームを自動選択
 - 動画のサムネイルは、マウスカーソルまたはキーボードフォーカスがある間、サムネイルのサイズのまま無音で再生。設定で切り替え可能（OSのモーション低減設定が有効な場合は初期値OFF）
 - 拡張子と中身が食い違うファイル（例：中身がJPEGの `.heic`）は、実際の形式を検出して扱う
 - ライトボックスでファイルにスターを付け、ギャラリーをスター付きのファイルやファイル名で絞り込める
@@ -180,11 +180,11 @@ python -m http.server 8080
 
 ## 更新履歴
 
-### [3.31.2] - 2026-11-19
+### [3.32.0] - 2026-11-26
 
-#### 修正
+#### 追加
 
-- ライトボックスのスターボタン（☆ または ★）と、動画のズーム中に表示する再生／一時停止ボタン（▶ または ⏸）で、スクリーンリーダーがボタンの名前の前に記号も読み上げるように。これまでは名前だけを読み上げていたため、晴眼者が「白い星」のように記号でボタンを呼んだときに、どのボタンのことか伝わらないことがあった
+- ギャラリーのサムネイルをブラウザに保存するように。一度表示したファイルは、別のフォルダを開いた後やブラウザを開き直した後でも、すぐにサムネイルを表示する。開いたフォルダの名前、その中でのパス、ファイルサイズ、更新日時がすべて同じなら、同じファイルとみなす。HeV Sender から受け取ったファイルと、フォルダなしでドロップしたファイルは保存しない。合計1GBまで保存し、超えた場合は、長く使っていないサムネイルから削除する。設定タブの「サムネイルの保存」で、有効・無効の切り替え(初期値は有効)、現在の保存数と容量の確認、保存したサムネイルの削除ができる
 
 全履歴は [CHANGELOG.md](CHANGELOG.md) を参照。
 
