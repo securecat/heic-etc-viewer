@@ -1,6 +1,6 @@
 # Accessibility
 
-Last updated: 2026-11-07
+Last updated: 2026-11-26
 
 ## Priorities and Goals
 
@@ -25,6 +25,7 @@ For the UI, we target WCAG 2.2 Level AA, and we treat it as a minimum, not a cei
 - **Images are announced only by their file name.** You can generate alt text with the "Generate alt text" button in the lightbox, but it requires Chrome's built-in AI (Prompt API / Gemini Nano), which is available only in Chrome on supported devices.
 - **Subtitles and captions in videos are not shown.**
 - **The UI has a dark theme only.** It does not follow your operating system's light/dark setting.
+- **Key names in the Guide are shown smaller than the body text.** In the keyboard operation section of the Guide tab, key names such as Tab and Enter have a border so that they look like keyboard keys, and are shown at 13px so that they fit within the line. They are all short names made of letters, numbers, and symbols. Zooming in with the browser enlarges them along with the rest of the text.
 - PDFs are shown with the browser's built-in PDF viewer, so their accessibility depends on the browser.
 
 ## Reporting Accessibility Barriers
@@ -89,7 +90,7 @@ Suggestions about this statement or our approach to accessibility are also welco
 
 # アクセシビリティ
 
-最終更新：2026-11-07
+最終更新：2026-11-26
 
 ## 優先事項と目標
 
@@ -114,6 +115,7 @@ UIは WCAG 2.2 のレベル AA を目標とし、これを上限ではなく下�
 - **画像は、ファイル名だけが読み上げられます。** ライトボックスの「代替テキストを生成」ボタンで代替テキストを生成できますが、Chrome 内蔵のAI（Prompt API / Gemini Nano）が必要なため、対応した端末の Chrome でしか使えません。
 - **動画の字幕は表示されません。**
 - **UIはダークテーマのみです。** OSのライト／ダークの設定には追従しません。
+- **ガイドのキー名は、本文より小さく表示されます。** ガイドタブのキーボード操作の説明では、Tab や Enter などのキー名をキーボードのキーに見えるよう枠で囲み、行の中に収まるよう 13px で表示しています。どれも英数字と記号だけの短い名前です。ブラウザで拡大すると、ほかの文字と一緒に大きくなります。
 - PDFはブラウザ内蔵のPDFビューアーで表示するため、そのアクセシビリティはブラウザに左右されます。
 
 ## アクセシビリティの問題を報告する
