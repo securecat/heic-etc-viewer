@@ -1243,6 +1243,15 @@ input[type="range"]::-webkit-slider-thumb {
       <label><input type="radio" name="lbShortcuts" value="on"> <span data-i18n="sc.on">Enabled</span></label>
       <label><input type="radio" name="lbShortcuts" value="off"> <span data-i18n="sc.off">Disabled</span></label>
     </fieldset>
+    <fieldset class="settings-fieldset">
+      <legend data-i18n="tc.legend">Saved thumbnails</legend>
+      <p class="settings-note" data-i18n="tc.desc">Saves gallery thumbnails in this browser, so a file you have seen before shows its thumbnail right away, even after opening another folder or restarting the browser. A file counts as the same when the opened folder's name, its path within that folder, its size, and its last-modified time all match. Files received from HeV Sender, or dropped without a folder, are not saved. Up to 1 GB in total; when that is exceeded, the thumbnails unused for the longest time are deleted first.</p>
+      <label><input type="radio" name="thumbPersist" value="on"> <span data-i18n="tc.on">Enabled</span></label>
+      <label><input type="radio" name="thumbPersist" value="off"> <span data-i18n="tc.off">Disabled (thumbnails already saved are kept until you delete them)</span></label>
+      <p class="settings-note thumb-store-usage" id="thumbStoreUsage"></p>
+      <button class="btn" type="button" id="thumbStoreClear" data-i18n="tc.clear">Delete saved thumbnails</button>
+      <p class="settings-note thumb-store-status" id="thumbStoreStatus" role="status"></p>
+    </fieldset>
   </div>
   <div class="info-panel" id="panelGuide" role="tabpanel" aria-labelledby="tabGuide" tabindex="0" hidden>
     <h3 data-i18n="g.formats.h">Supported file formats (view)</h3>
@@ -1591,6 +1600,16 @@ const I18N = {
     'sc.desc': 'Single-key shortcuts in the lightbox (Z, R, C, 1, L, S). Disable them if they conflict with key commands of a screen reader or other assistive technology. Arrow keys and Esc always work.',
     'sc.on': 'Enabled',
     'sc.off': 'Disabled',
+    'tc.legend': 'Saved thumbnails',
+    'tc.desc': 'Saves gallery thumbnails in this browser, so a file you have seen before shows its thumbnail right away, even after opening another folder or restarting the browser. A file counts as the same when the opened folder\'s name, its path within that folder, its size, and its last-modified time all match. Files received from HeV Sender, or dropped without a folder, are not saved. Up to 1 GB in total; when that is exceeded, the thumbnails unused for the longest time are deleted first.',
+    'tc.on': 'Enabled',
+    'tc.off': 'Disabled (thumbnails already saved are kept until you delete them)',
+    'tc.usage': 'Saved now: {n} thumbnails ({size})',
+    'tc.usageNone': 'Saved now: none',
+    'tc.unavailable': 'Thumbnails cannot be saved in this browser.',
+    'tc.clear': 'Delete saved thumbnails',
+    'tc.cleared': 'Deleted all saved thumbnails.',
+    'tc.clearFailed': 'Could not delete the saved thumbnails.',
     'g.formats.h': 'Supported file formats (view)',
     'g.formats.p': 'HEIC/HEIF, JPEG, JFIF, PNG, WebP, GIF, AVIF, SVG, BMP, TIFF, MP4, WebM, MOV, M4V, WMV, AVI, MKV, PDF, and ICO',
     'g.wmv.h': 'About WMV',
@@ -1838,6 +1857,16 @@ const I18N = {
     'sc.desc': 'ライトボックスの1文字キーのショートカット(Z・R・C・1・L・S)です。スクリーンリーダーなど支援技術のキー操作と競合する場合は無効にしてください。矢印キーとEscは常に有効です。',
     'sc.on': '有効',
     'sc.off': '無効',
+    'tc.legend': 'サムネイルの保存',
+    'tc.desc': 'ギャラリーのサムネイルをこのブラウザに保存し、一度表示したファイルは、別のフォルダを開いた後やブラウザを開き直した後でも、すぐにサムネイルを表示します。開いたフォルダの名前、その中でのパス、ファイルサイズ、更新日時がすべて同じなら、同じファイルとみなします。HeV Sender から受け取ったファイルと、フォルダなしでドロップしたファイルは保存しません。合計1GBまで保存し、超えた場合は、長く使っていないサムネイルから削除します。',
+    'tc.on': '有効',
+    'tc.off': '無効(保存済みのサムネイルは、削除するまで残ります)',
+    'tc.usage': '現在の保存数:{n}件({size})',
+    'tc.usageNone': '現在の保存数:なし',
+    'tc.unavailable': 'このブラウザではサムネイルを保存できません。',
+    'tc.clear': '保存したサムネイルを削除',
+    'tc.cleared': '保存したサムネイルをすべて削除しました。',
+    'tc.clearFailed': '保存したサムネイルを削除できませんでした。',
     'g.formats.h': '対応ファイル形式(表示)',
     'g.formats.p': 'HEIC/HEIF、JPEG、JFIF、PNG、WebP、GIF、AVIF、SVG、BMP、TIFF、MP4、WebM、MOV、M4V、WMV、AVI、MKV、PDF、ICO',
     'g.wmv.h': 'WMVについて',
@@ -3129,6 +3158,174 @@ function clearThumbCache() {
   unplayableEntries.clear();
 }
 
+// ── サムネイルの保存（IndexedDB）──────────────────────────────────
+// 上の thumbCache は開いているフォルダの分だけをメモリに持つ。こちらはブラウザに保存し、
+// 別のフォルダを開いた後やブラウザを開き直した後でも、同じファイルなら作り直さずに使う。
+// ブラウザからは物理パスが分からないため、「ルートフォルダ名＋相対パス（スターと同じ）＋サイズ＋更新日時」
+// が全部同じなら同じファイルとみなす。編集すれば更新日時が変わるので、古いサムネイルは出ない。
+// フォルダを持たないファイル（HeV Senderからの受信・個別ドロップ）は見分けられないため保存しない。
+// 容量は合計1GBまで。超えたら、長く使っていないものから消す。
+// キャッシュなので navigator.storage.persist() は使わず、ディスクが足りない時はブラウザに消させる
+const THUMB_PERSIST_STORAGE_KEY = 'hev-thumb-persist';
+const THUMB_DB_NAME = 'hev-thumbs';
+const THUMB_PERSIST_MAX_BYTES = 1024 * 1024 * 1024;
+const THUMB_PERSIST_PRUNE_TO = THUMB_PERSIST_MAX_BYTES * 0.9; // 超えたら、少し余裕ができるまで消す
+const THUMB_TOUCH_INTERVAL_MS = 24 * 60 * 60 * 1000; // 「最後に使った日時」の更新は1日1回まで
+// サムネイルの作り方（動画のフレームの選び方など）を変えたら上げる。古い作り方のものは使わず、容量の上限で消えていく
+const THUMB_PERSIST_VERSION = 1;
+
+let thumbPersistEnabled = (() => {
+  try { return localStorage.getItem(THUMB_PERSIST_STORAGE_KEY) !== 'off'; } catch (e) { return true; }
+})();
+
+let thumbDbPromise = null;
+function openThumbDb() {
+  if (!thumbDbPromise) {
+    thumbDbPromise = new Promise((resolve, reject) => {
+      const req = indexedDB.open(THUMB_DB_NAME, 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        // 画像本体と、容量の管理に使う軽い情報を分けておく（使った日時の更新や容量の集計で画像を書き直さないため）
+        db.createObjectStore('thumbs', { keyPath: 'k' });
+        const meta = db.createObjectStore('meta', { keyPath: 'k' });
+        meta.createIndex('used', 'used');
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    }).catch(e => {
+      console.warn('thumbnail store unavailable:', e);
+      return null; // 開けない環境では、保存せずに今までどおり動く
+    });
+  }
+  return thumbDbPromise;
+}
+
+function idbRequest(req) {
+  return new Promise((resolve, reject) => {
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function idbTransactionDone(tx) {
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
+  });
+}
+
+// 保存に使うキー。見分けられないファイルや、保存が無効の時は null
+function thumbPersistKey(entry, file) {
+  if (!thumbPersistEnabled) return null;
+  const path = starKey(entry);
+  if (!path) return null;
+  return `${THUMB_PERSIST_VERSION}|${path}|${file.size}|${file.lastModified}`;
+}
+
+async function thumbPersistGet(pkey) {
+  if (!pkey) return null;
+  try {
+    const db = await openThumbDb();
+    if (!db) return null;
+    const tx = db.transaction(['thumbs', 'meta'], 'readonly');
+    const [rec, meta] = await Promise.all([
+      idbRequest(tx.objectStore('thumbs').get(pkey)),
+      idbRequest(tx.objectStore('meta').get(pkey)),
+    ]);
+    if (!rec) return null;
+    if (!meta || Date.now() - meta.used > THUMB_TOUCH_INTERVAL_MS) {
+      const w = db.transaction('meta', 'readwrite');
+      w.objectStore('meta').put({ k: pkey, used: Date.now(), bytes: rec.blob ? rec.blob.size : 0 });
+    }
+    return rec;
+  } catch (e) {
+    return null;
+  }
+}
+
+let thumbPruneTimer = null;
+// data: { blob, dim, ratio, realType?, icoCount?, duration?, needsConvert? }
+async function thumbPersistPut(pkey, data) {
+  if (!pkey || !thumbPersistEnabled || !data.blob) return;
+  try {
+    const db = await openThumbDb();
+    if (!db) return;
+    const tx = db.transaction(['thumbs', 'meta'], 'readwrite');
+    tx.objectStore('thumbs').put({ k: pkey, ...data });
+    tx.objectStore('meta').put({ k: pkey, used: Date.now(), bytes: data.blob.size });
+    await idbTransactionDone(tx);
+  } catch (e) {
+    // ディスクの空きが足りない等。このサムネイルを保存しないだけで、表示には影響させない
+  }
+  // 書き込みのたびに集計すると重いので、まとめて少し後に1回だけ容量を確かめる
+  clearTimeout(thumbPruneTimer);
+  thumbPruneTimer = setTimeout(pruneThumbStore, 5000);
+}
+
+async function pruneThumbStore() {
+  try {
+    const db = await openThumbDb();
+    if (!db) return;
+    const metas = await idbRequest(db.transaction('meta', 'readonly').objectStore('meta').index('used').getAll());
+    let total = metas.reduce((sum, m) => sum + (m.bytes || 0), 0);
+    if (total <= THUMB_PERSIST_MAX_BYTES) return;
+    const tx = db.transaction(['thumbs', 'meta'], 'readwrite');
+    for (const m of metas) { // 使った日時の古い順
+      if (total <= THUMB_PERSIST_PRUNE_TO) break;
+      tx.objectStore('thumbs').delete(m.k);
+      tx.objectStore('meta').delete(m.k);
+      total -= m.bytes || 0;
+    }
+    await idbTransactionDone(tx);
+  } catch (e) { /* 次の書き込みの後にまた試す */ }
+}
+
+async function getThumbStoreUsage() {
+  const db = await openThumbDb();
+  if (!db) return null;
+  const metas = await idbRequest(db.transaction('meta', 'readonly').objectStore('meta').getAll());
+  return { count: metas.length, bytes: metas.reduce((sum, m) => sum + (m.bytes || 0), 0) };
+}
+
+async function clearThumbStore() {
+  const db = await openThumbDb();
+  if (!db) return false;
+  const tx = db.transaction(['thumbs', 'meta'], 'readwrite');
+  tx.objectStore('thumbs').clear();
+  tx.objectStore('meta').clear();
+  await idbTransactionDone(tx);
+  return true;
+}
+
+// 保存してあったサムネイルを、メモリのキャッシュ（thumbCache など）に戻す。
+// 戻した後は、各形式の読み込み処理の「キャッシュヒット」の経路でそのまま表示される
+function restorePersistedThumb(key, rec, entry, item, filename) {
+  const url = URL.createObjectURL(rec.blob);
+  objectURLs.push(url);
+  thumbCache.set(key, { url, dim: rec.dim, realType: rec.realType || null, icoCount: rec.icoCount, blob: rec.blob });
+  if (rec.duration) {
+    if (isWmv(filename)) wmvDurationCache.set(key, rec.duration);
+    else if (isAvi(filename)) aviDurationCache.set(key, rec.duration);
+    else if (isMkv(filename)) mkvDurationCache.set(key, rec.duration);
+  }
+  if (rec.needsConvert) {
+    mkvNeedsConvertEntries.add(entry);
+    const badge = item.querySelector('[data-badge]');
+    if (badge) badge.classList.add('needs-convert');
+  }
+  if (rec.ratio && aspectRatioCache.get(filename) !== rec.ratio) {
+    aspectRatioCache.set(filename, rec.ratio);
+    scheduleRelayout();
+  }
+}
+
+function formatStorageSize(bytes) {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`;
+}
+
 async function makeURL(file) {
   let url, realType;
   if (isHeic(file.name)) {
@@ -3166,6 +3363,8 @@ const dropOverlay= document.getElementById('dropOverlay');
 const infoDialog = document.getElementById('infoDialog');
 document.getElementById('btnSettingsInfo').addEventListener('click', () => {
   selectInfoTab(infoTabs[0]); // 開くたびに必ず「設定」タブから
+  thumbStoreStatus.textContent = ''; // 前回開いた時の削除結果は、開き直した時点で消す
+  updateThumbStoreUsage();
   infoDialog.showModal();
 });
 document.getElementById('infoDialogClose').addEventListener('click', () => infoDialog.close());
@@ -3198,7 +3397,12 @@ infoTabs.forEach((tab, i) => {
 
 // ── 言語設定 ─────────────────────────────────────────────────────
 document.querySelectorAll('input[name="uiLang"]').forEach(radio => {
-  radio.addEventListener('change', () => { if (radio.checked) setLanguage(radio.value); });
+  radio.addEventListener('change', () => {
+    if (!radio.checked) return;
+    setLanguage(radio.value);
+    updateThumbStoreUsage(); // 設定タブの中の、JSで書いている文言も言語に追従させる
+    thumbStoreStatus.textContent = '';
+  });
 });
 
 // ── 代替テキストの言語設定 ────────────────────────────────────────
@@ -3255,6 +3459,39 @@ document.querySelectorAll('input[name="hoverPlay"]').forEach(radio => {
     localStorage.setItem(HOVER_PLAY_STORAGE_KEY, hoverPlayEnabled ? 'on' : 'off');
     if (!hoverPlayEnabled) stopHoverPlay(); // 再生中に無効化されたら即止める
   });
+});
+
+// ── 設定：サムネイルの保存 ────────────────────────────────────────
+{
+  const initRadio = document.querySelector(`input[name="thumbPersist"][value="${thumbPersistEnabled ? 'on' : 'off'}"]`);
+  if (initRadio) initRadio.checked = true;
+}
+document.querySelectorAll('input[name="thumbPersist"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    if (!radio.checked) return;
+    thumbPersistEnabled = radio.value !== 'off';
+    try { localStorage.setItem(THUMB_PERSIST_STORAGE_KEY, thumbPersistEnabled ? 'on' : 'off'); } catch (e) { /* 表示中は保持する */ }
+    thumbStoreStatus.textContent = '';
+  });
+});
+
+const thumbStoreUsage = document.getElementById('thumbStoreUsage');
+const thumbStoreStatus = document.getElementById('thumbStoreStatus');
+
+async function updateThumbStoreUsage() {
+  let usage = null;
+  try { usage = await getThumbStoreUsage(); } catch (e) { /* 下で「保存できません」と表示する */ }
+  if (!usage) thumbStoreUsage.textContent = t('tc.unavailable');
+  else if (usage.count === 0) thumbStoreUsage.textContent = t('tc.usageNone');
+  else thumbStoreUsage.textContent = tf('tc.usage', { n: usage.count.toLocaleString(), size: formatStorageSize(usage.bytes) });
+}
+
+document.getElementById('thumbStoreClear').addEventListener('click', async () => {
+  let ok = false;
+  try { ok = await clearThumbStore(); } catch (e) { /* 下で失敗を伝える */ }
+  // 結果は、ユーザーが次の操作をするか設定を開き直すまで表示したままにする
+  thumbStoreStatus.textContent = t(ok ? 'tc.cleared' : 'tc.clearFailed');
+  updateThumbStoreUsage();
 });
 
 let hoverPlayTimer = null;
@@ -4556,25 +4793,33 @@ async function loadThumb(entry, item, loading, generation) {
     const file = await resolveFile(entry);
     if (generation !== galleryGeneration) return;
     const key = cacheKey(file);
+    const pkey = thumbPersistKey(entry, file);
+
+    // メモリになければ、ブラウザに保存してあるものを探す。見つかればメモリに戻し、以下のキャッシュヒットの経路で表示する
+    if (pkey && !thumbCache.has(key)) {
+      const rec = await thumbPersistGet(pkey);
+      if (generation !== galleryGeneration) return;
+      if (rec && rec.blob) restorePersistedThumb(key, rec, entry, item, file.name);
+    }
 
     if (isVideo(file.name)) {
-      await loadVideoThumb(file, item, loading, key, generation, entry);
+      await loadVideoThumb(file, item, loading, key, generation, entry, pkey);
       return;
     }
     if (isPdf(file.name)) {
-      await loadPdfThumb(file, item, loading, key, generation);
+      await loadPdfThumb(file, item, loading, key, generation, pkey);
       return;
     }
     if (isWmv(file.name)) {
-      await loadWmvThumb(file, item, loading, key, generation);
+      await loadWmvThumb(file, item, loading, key, generation, pkey);
       return;
     }
     if (isAvi(file.name)) {
-      await loadAviThumb(file, item, loading, key, generation);
+      await loadAviThumb(file, item, loading, key, generation, pkey);
       return;
     }
     if (isMkv(file.name)) {
-      await loadMkvThumb(file, item, loading, key, generation, entry);
+      await loadMkvThumb(file, item, loading, key, generation, entry, pkey);
       return;
     }
 
@@ -4600,6 +4845,7 @@ async function loadThumb(entry, item, loading, generation) {
         thumbCache.set(key, { url, dim, realType: null });
         const ratio = fastDims.width / fastDims.height;
         if (aspectRatioCache.get(file.name) !== ratio) { aspectRatioCache.set(file.name, ratio); scheduleRelayout(); }
+        thumbPersistPut(pkey, { blob, dim, ratio });
         return;
       } catch (e) { /* 失敗時は低速パスにフォールバック */ }
     }
@@ -4654,6 +4900,14 @@ async function loadThumb(entry, item, loading, generation) {
       if (img.naturalWidth && img.naturalHeight) {
         aspectRatioCache.set(file.name, img.naturalWidth / img.naturalHeight);
         scheduleRelayout();
+        // HEICとTIFFはデコードが重いので、縮小したものを保存しておく。
+        // それ以外（SVG・GIF等）は元のファイルをそのまま表示していて軽いため、保存しない
+        if (pkey && (isHeic(file.name) || isTiff(file.name))) {
+          const dims = { width: img.naturalWidth, height: img.naturalHeight };
+          createFastThumbBlob(img, dims)
+            .then(blob => thumbPersistPut(pkey, { blob, dim, ratio: dims.width / dims.height, realType }))
+            .catch(() => {});
+        }
       }
     };
     img.onerror = () => { loading.innerHTML='<span class="thumb-loading-text">Failed to load</span>'; loading.style.color='#f87'; };
@@ -4694,7 +4948,7 @@ function applyThumbImage(item, loading, url, dim, realType, filename, icoCount) 
   }
 }
 
-async function loadPdfThumb(file, item, loading, key, generation) {
+async function loadPdfThumb(file, item, loading, key, generation, pkey) {
   // キャッシュヒット
   if (key && thumbCache.has(key)) {
     const cached = thumbCache.get(key);
@@ -4721,13 +4975,15 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dis
     canvas.height = viewport.height;
     await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
     if (generation !== galleryGeneration) return; // 重いレンダリングが終わる頃には古くなっているかもしれない
-    const thumbUrl = await new Promise(res => canvas.toBlob(b => res(URL.createObjectURL(b)), 'image/jpeg', 0.88));
+    const thumbBlob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.88));
     if (generation !== galleryGeneration) return;
+    const thumbUrl = URL.createObjectURL(thumbBlob);
     objectURLs.push(thumbUrl);
     const dim = `${Math.round(viewport.width / 1.5)} × ${Math.round(viewport.height / 1.5)} pt`;
     if (key) thumbCache.set(key, { url: thumbUrl, dim });
     const pdfR = viewport.width / viewport.height;
     if (aspectRatioCache.get(file.name) !== pdfR) { aspectRatioCache.set(file.name, pdfR); scheduleRelayout(); }
+    thumbPersistPut(pkey, { blob: thumbBlob, dim, ratio: pdfR });
     const img = document.createElement('img');
     img.alt = file.name;
     img.onload = () => {
@@ -4747,7 +5003,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dis
 }
 
 // WMVのサムネイル。ffmpegで1フレームだけ取り出す（初回はコアの読み込みが挟まる）
-async function loadWmvThumb(file, item, loading, key, generation) {
+async function loadWmvThumb(file, item, loading, key, generation, pkey) {
   const addPlayIcon = () => {
     const play = document.createElement('div');
     play.className = 'thumb-play';
@@ -4794,10 +5050,9 @@ async function loadWmvThumb(file, item, loading, key, generation) {
     applyThumbImage(item, loading, url, dim, null, file.name);
     addPlayIcon();
     if (key) thumbCache.set(key, { url, dim });
-    if (width && height) {
-      const ratio = width / height;
-      if (aspectRatioCache.get(file.name) !== ratio) { aspectRatioCache.set(file.name, ratio); scheduleRelayout(); }
-    }
+    const ratio = width && height ? width / height : 0;
+    if (ratio && aspectRatioCache.get(file.name) !== ratio) { aspectRatioCache.set(file.name, ratio); scheduleRelayout(); }
+    thumbPersistPut(pkey, { blob: frameBlob, dim, ratio, duration });
   } catch (e) {
     if (generation !== galleryGeneration) return;
     // サムネイルが作れなくてもライトボックスからは変換して見られるので、
@@ -4809,7 +5064,7 @@ async function loadWmvThumb(file, item, loading, key, generation) {
 }
 
 // AVIのサムネイル。loadWmvThumbと全く同じ考え方（ffmpegで先頭だけMP4化してから1フレーム取り出す）
-async function loadAviThumb(file, item, loading, key, generation) {
+async function loadAviThumb(file, item, loading, key, generation, pkey) {
   const addPlayIcon = () => {
     const play = document.createElement('div');
     play.className = 'thumb-play';
@@ -4856,10 +5111,9 @@ async function loadAviThumb(file, item, loading, key, generation) {
     applyThumbImage(item, loading, url, dim, null, file.name);
     addPlayIcon();
     if (key) thumbCache.set(key, { url, dim });
-    if (width && height) {
-      const ratio = width / height;
-      if (aspectRatioCache.get(file.name) !== ratio) { aspectRatioCache.set(file.name, ratio); scheduleRelayout(); }
-    }
+    const ratio = width && height ? width / height : 0;
+    if (ratio && aspectRatioCache.get(file.name) !== ratio) { aspectRatioCache.set(file.name, ratio); scheduleRelayout(); }
+    thumbPersistPut(pkey, { blob: frameBlob, dim, ratio, duration });
   } catch (e) {
     if (generation !== galleryGeneration) return;
     // サムネイルが作れなくてもライトボックスからは変換して見られるので、
@@ -4871,7 +5125,7 @@ async function loadAviThumb(file, item, loading, key, generation) {
 }
 
 // MKVのサムネイル。mediabunnyで直接1フレームだけデコードする（WMVと違い先頭切り出し不要）
-async function loadMkvThumb(file, item, loading, key, generation, entry) {
+async function loadMkvThumb(file, item, loading, key, generation, entry, pkey) {
   const addPlayIcon = () => {
     const play = document.createElement('div');
     play.className = 'thumb-play';
@@ -4901,10 +5155,9 @@ async function loadMkvThumb(file, item, loading, key, generation, entry) {
     addPlayIcon();
     // blobも保持しておき、変換保存の「Thumbnail」で再デコードせず使い回す
     if (key) thumbCache.set(key, { url, dim, blob });
-    if (width && height) {
-      const ratio = width / height;
-      if (aspectRatioCache.get(file.name) !== ratio) { aspectRatioCache.set(file.name, ratio); scheduleRelayout(); }
-    }
+    const ratio = width && height ? width / height : 0;
+    if (ratio && aspectRatioCache.get(file.name) !== ratio) { aspectRatioCache.set(file.name, ratio); scheduleRelayout(); }
+    thumbPersistPut(pkey, { blob, dim, ratio, duration, needsConvert: !!needsConvert });
   } catch (e) {
     if (generation !== galleryGeneration) return;
     // 映像トラックが無い、またはブラウザがコーデックをデコードできない(例: 古いMPEG-4 Part 2/mp4v)場合。
@@ -4928,7 +5181,7 @@ async function loadMkvThumb(file, item, loading, key, generation, entry) {
   }
 }
 
-async function loadVideoThumb(file, item, loading, key, generation, entry) {
+async function loadVideoThumb(file, item, loading, key, generation, entry, pkey) {
   // キャッシュヒット
   if (key && thumbCache.has(key)) {
     const cached = thumbCache.get(key);
@@ -4971,10 +5224,9 @@ async function loadVideoThumb(file, item, loading, key, generation, entry) {
     if (badge) { badge.className = 'ext-badge video-badge'; }
     // キャッシュ保存（Blobも保持しておき、変換ダウンロード時に再デコードせず使い回す）
     if (key) thumbCache.set(key, { url: thumbUrl, dim, blob });
-    if (width && height) {
-      const vr = width / height;
-      if (aspectRatioCache.get(file.name) !== vr) { aspectRatioCache.set(file.name, vr); scheduleRelayout(); }
-    }
+    const vr = width && height ? width / height : 0;
+    if (vr && aspectRatioCache.get(file.name) !== vr) { aspectRatioCache.set(file.name, vr); scheduleRelayout(); }
+    thumbPersistPut(pkey, { blob, dim, ratio: vr });
   } catch (e) {
     if (generation !== galleryGeneration) return;
     // ZIPエクスポート時、M4V→MP4のような「実体に合わせた拡張子への変更」を見送るために記録しておく
