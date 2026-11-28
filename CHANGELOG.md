@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [3.32.1] - 2026-11-29
+
+### Changed
+
+- When "Saved thumbnails" is disabled in the Settings tab, thumbnails already saved are now still used until you delete them. Only saving new thumbnails stops. Previously, saved thumbnails were not used either
+
 ## [3.32.0] - 2026-11-26
 
 ### Added
@@ -795,6 +801,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 # 更新履歴
+
+## [3.32.1] - 2026-11-29
+
+### 変更
+
+- 設定タブの「サムネイルの保存」を無効にしても、保存済みのサムネイルは削除するまで引き続き使うように。止まるのは、新しいサムネイルの保存だけになった。これまでは、保存済みのサムネイルも使わなかった
 
 ## [3.32.0] - 2026-11-26
 
