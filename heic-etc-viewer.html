@@ -1247,7 +1247,7 @@ input[type="range"]::-webkit-slider-thumb {
       <legend data-i18n="tc.legend">Saved thumbnails</legend>
       <p class="settings-note" data-i18n="tc.desc">Saves gallery thumbnails in this browser, so a file you have seen before shows its thumbnail right away, even after opening another folder or restarting the browser. A file counts as the same when the opened folder's name, its path within that folder, its size, and its last-modified time all match. Files received from HeV Sender, or dropped without a folder, are not saved. Up to 1 GB in total; when that is exceeded, the thumbnails unused for the longest time are deleted first.</p>
       <label><input type="radio" name="thumbPersist" value="on"> <span data-i18n="tc.on">Enabled</span></label>
-      <label><input type="radio" name="thumbPersist" value="off"> <span data-i18n="tc.off">Disabled (thumbnails already saved are kept until you delete them)</span></label>
+      <label><input type="radio" name="thumbPersist" value="off"> <span data-i18n="tc.off">Disabled (new thumbnails are not saved; thumbnails already saved are still used until you delete them)</span></label>
       <p class="settings-note thumb-store-usage" id="thumbStoreUsage"></p>
       <button class="btn" type="button" id="thumbStoreClear" data-i18n="tc.clear">Delete saved thumbnails</button>
       <p class="settings-note thumb-store-status" id="thumbStoreStatus" role="status"></p>
@@ -1603,7 +1603,7 @@ const I18N = {
     'tc.legend': 'Saved thumbnails',
     'tc.desc': 'Saves gallery thumbnails in this browser, so a file you have seen before shows its thumbnail right away, even after opening another folder or restarting the browser. A file counts as the same when the opened folder\'s name, its path within that folder, its size, and its last-modified time all match. Files received from HeV Sender, or dropped without a folder, are not saved. Up to 1 GB in total; when that is exceeded, the thumbnails unused for the longest time are deleted first.',
     'tc.on': 'Enabled',
-    'tc.off': 'Disabled (thumbnails already saved are kept until you delete them)',
+    'tc.off': 'Disabled (new thumbnails are not saved; thumbnails already saved are still used until you delete them)',
     'tc.usage': 'Saved now: {n} thumbnails ({size})',
     'tc.usageNone': 'Saved now: none',
     'tc.unavailable': 'Thumbnails cannot be saved in this browser.',
@@ -1860,7 +1860,7 @@ const I18N = {
     'tc.legend': 'サムネイルの保存',
     'tc.desc': 'ギャラリーのサムネイルをこのブラウザに保存し、一度表示したファイルは、別のフォルダを開いた後やブラウザを開き直した後でも、すぐにサムネイルを表示します。開いたフォルダの名前、その中でのパス、ファイルサイズ、更新日時がすべて同じなら、同じファイルとみなします。HeV Sender から受け取ったファイルと、フォルダなしでドロップしたファイルは保存しません。合計1GBまで保存し、超えた場合は、長く使っていないサムネイルから削除します。',
     'tc.on': '有効',
-    'tc.off': '無効(保存済みのサムネイルは、削除するまで残ります)',
+    'tc.off': '無効(新しいサムネイルは保存しません。保存済みのサムネイルは、削除するまで引き続き使います)',
     'tc.usage': '現在の保存数:{n}件({size})',
     'tc.usageNone': '現在の保存数:なし',
     'tc.unavailable': 'このブラウザではサムネイルを保存できません。',
@@ -3215,9 +3215,9 @@ function idbTransactionDone(tx) {
   });
 }
 
-// 保存に使うキー。見分けられないファイルや、保存が無効の時は null
+// 保存に使うキー。見分けられないファイルは null。
+// 保存が無効の時もキーは作る：新しくは保存しないが、保存済みのものは削除されるまで使う（thumbPersistPut 側で止める）
 function thumbPersistKey(entry, file) {
-  if (!thumbPersistEnabled) return null;
   const path = starKey(entry);
   if (!path) return null;
   return `${THUMB_PERSIST_VERSION}|${path}|${file.size}|${file.lastModified}`;
@@ -3234,7 +3234,8 @@ async function thumbPersistGet(pkey) {
       idbRequest(tx.objectStore('meta').get(pkey)),
     ]);
     if (!rec) return null;
-    if (!meta || Date.now() - meta.used > THUMB_TOUCH_INTERVAL_MS) {
+    // 保存が無効の間は、使った日時も書き込まない（保存場所は読むだけにする）
+    if (thumbPersistEnabled && (!meta || Date.now() - meta.used > THUMB_TOUCH_INTERVAL_MS)) {
       const w = db.transaction('meta', 'readwrite');
       w.objectStore('meta').put({ k: pkey, used: Date.now(), bytes: rec.blob ? rec.blob.size : 0 });
     }
@@ -4902,7 +4903,7 @@ async function loadThumb(entry, item, loading, generation) {
         scheduleRelayout();
         // HEICとTIFFはデコードが重いので、縮小したものを保存しておく。
         // それ以外（SVG・GIF等）は元のファイルをそのまま表示していて軽いため、保存しない
-        if (pkey && (isHeic(file.name) || isTiff(file.name))) {
+        if (pkey && thumbPersistEnabled && (isHeic(file.name) || isTiff(file.name))) {
           const dims = { width: img.naturalWidth, height: img.naturalHeight };
           createFastThumbBlob(img, dims)
             .then(blob => thumbPersistPut(pkey, { blob, dim, ratio: dims.width / dims.height, realType }))
